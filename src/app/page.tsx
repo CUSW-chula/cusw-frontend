@@ -1,5 +1,5 @@
-import CounterGrid from '@/components/examples/example'
-import { Button } from '@/components/ui/button'
+import CounterGrid from '@/components/examples/example';
+import { Button } from '@/components/ui/button';
 
 export default function Home() {
   return (
@@ -9,5 +9,5 @@ export default function Home() {
       <CounterGrid />
       <CounterGrid />
     </div>
-  )
+  );
 }
