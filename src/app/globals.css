@@ -1,8 +1,87 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 @layer base {
   :root {
     --radius: 0.5rem;
+  }
+  h1 {
+    @apply font-Anuphan text-[48px] leading-[48px] font-semibold;
+  }
+
+  h2 {
+    @apply font-Anuphan text-[30px] leading-[36px] font-semibold;
+  }
+
+  h3 {
+    @apply font-Anuphan text-[24px] leading-[32px] font-semibold;
+  }
+
+  h4 {
+    @apply font-Anuphan text-[20px] leading-[28px] font-semibold;
+  }
+
+  p,
+  .lead,
+  .large,
+  .p-bold,
+  .p-ui,
+  .p-ui-bold,
+  .body,
+  .subtle,
+  .subtle-bold,
+  .small,
+  .detail,
+  .detail-bold {
+    @apply font-BaiJamjuree;
+  }
+
+  .lead {
+    @apply text-[22px] leading-[28px];
+  }
+
+  .large {
+    @apply text-[18px] leading-[28px];
+  }
+
+  p {
+    @apply text-[16px] leading-[28px];
+  }
+
+  .p-bold {
+    @apply text-[16px] leading-[28px] font-medium;
+  }
+
+  .p-ui {
+    @apply text-[16px] leading-[24px];
+  }
+
+  .p-ui-bold {
+    @apply text-[16px] leading-[24px] font-medium;
+  }
+
+  .body {
+    @apply text-[14px] leading-[24px];
+  }
+
+  .subtle {
+    @apply text-[14px] leading-[20px];
+  }
+
+  .subtle-bold {
+    @apply text-[14px] leading-[20px] font-medium;
+  }
+
+  .small {
+    @apply text-[14px] leading-[14px];
+  }
+
+  .detail {
+    @apply text-[12px] leading-[20px];
+  }
+
+  .detail-bold {
+    @apply text-[12px] leading-[20px] font-medium;
   }
 }
