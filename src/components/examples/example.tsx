@@ -15,7 +15,7 @@ const CounterGrid: React.FC = () => {
         {Array.from({ length: count }, (_, index) => (
           <div
             key={index.toString()}
-            className="bg-blue-500 text-white font-bold p-4 rounded-lg shadow-lg flex items-center justify-center">
+            className="bg-gray-300 text-black font-bold p-4 rounded-lg shadow-lg flex items-center justify-center">
             {index + 1}
           </div>
         ))}
@@ -25,14 +25,14 @@ const CounterGrid: React.FC = () => {
         <button
           type="button"
           onClick={handleDecrease}
-          className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition">
-          Decrease
+          className="bg-red text-black py-2 px-4 rounded hover:bg-orange transition">
+          <h4>Decrease</h4>
         </button>
         <button
           type="button"
           onClick={handleIncrease}
-          className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition">
-          Increase
+          className="bg-green text-black py-2 px-4 rounded hover:bg-greenLight transition">
+          <p>Increase เพิ่ม</p>
         </button>
       </div>
     </div>

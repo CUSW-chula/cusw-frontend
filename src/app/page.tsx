@@ -1,4 +1,4 @@
-import ActivityLogs from '@/components/features/activity-logs';
+import ActivityLogs from '@/components/elements/activity-logs';
 
 export default function Home() {
   return (
