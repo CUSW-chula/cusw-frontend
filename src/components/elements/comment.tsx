@@ -1,18 +1,45 @@
 'use client';
 
 import type React from 'react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { commentlist } from '@/atom';
+import { useAtom } from 'jotai';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Button } from '../ui/button';
 
 interface CommentBoxProp {
-  comment: string;
+  id: string;
+  content: string;
+  taskId: string;
+  authorId: string;
+  createdAt: Date;
 }
 
-function CommentBox({ comment }: CommentBoxProp) {
+function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp) {
+  const userId = '865';
+  const [, setCommentList] = useAtom<CommentBoxProp[]>(commentlist);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
+
+  const deleteComment = () => {
+    setCommentList((prevComments) =>
+      prevComments.filter((comment) => comment.id !== id || comment.authorId !== userId),
+    );
+  };
+
   return (
     <div className="w-[530px] h-[90px] flex-col justify-start items-start gap-[18px] inline-flex">
       <div className="self-stretch h-[244px] flex-col justify-start items-start gap-18 flex">
@@ -31,7 +58,7 @@ function CommentBox({ comment }: CommentBoxProp) {
                   Pongsakorn
                 </div>
                 <div className="text-gray-600 text-base font-normal font-['Bai Jamjuree'] leading-7">
-                  5 min ago
+                  {createdAt.toDateString()}
                 </div>
               </div>
               <div className="relative">
@@ -45,26 +72,43 @@ function CommentBox({ comment }: CommentBoxProp) {
                   <div className="absolute right-0 mt-2 w-28 bg-white rounded-md shadow-lg border z-10">
                     <ul className="py-1 text-gray-700">
                       <li>
-                        <button
-                          type="button"
-                          className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                        <Button
+                          variant="ghost"
                           onClick={() => {
                             setIsDropdownOpen(false);
-                            alert('Edit clicked');
                           }}>
                           Edit
-                        </button>
+                        </Button>
                       </li>
                       <li>
-                        <button
-                          type="button"
-                          className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                          onClick={() => {
-                            setIsDropdownOpen(false);
-                            alert('Delete clicked');
-                          }}>
-                          Delete
-                        </button>
+                        <AlertDialog>
+                          <AlertDialogTrigger>
+                            <Button variant="ghost">Delete</Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete your
+                                message from our servers.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel
+                                onClick={() => {
+                                  setIsDropdownOpen(false);
+                                }}>
+                                Cancel
+                              </AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => {
+                                  deleteComment();
+                                }}>
+                                Continue
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </li>
                     </ul>
                   </div>
@@ -72,7 +116,7 @@ function CommentBox({ comment }: CommentBoxProp) {
               </div>
             </div>
             <div className="self-stretch text-slate-900 text-base font-normal font-['Bai Jamjuree'] leading-7">
-              {comment}
+              {content}
             </div>
           </div>
         </div>
@@ -83,7 +127,7 @@ function CommentBox({ comment }: CommentBoxProp) {
 
 const Typesend: React.FC = () => {
   const [comment, setComment] = useState('');
-  const [list, setList] = useState<string[]>([]);
+  const [list, setList] = useAtom<CommentBoxProp[]>(commentlist);
 
   const handleInputChange = (e: { target: { value: React.SetStateAction<string> } }) => {
     setComment(e.target.value);
@@ -92,17 +136,26 @@ const Typesend: React.FC = () => {
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
     // Do something with the comment
-    setList([...list, comment]);
+    setList([
+      ...list,
+      { id: '1324', content: comment, authorId: '865', createdAt: new Date(), taskId: '' },
+    ]);
     setComment(''); // Clear the input field after submission
   };
 
   return (
     <div className="w-[530px] h-[362px] flex-col justify-start items-start gap-[18px] inline-flex">
-      <div className="max-h-64 overflow-y-scroll">
+      <div className="max-h-84 overflow-y-scroll">
         <ul>
           {list.map((item) => (
-            <li key={item}>
-              <CommentBox comment={item} />
+            <li key={item.createdAt.toDateString()}>
+              <CommentBox
+                id={item.id}
+                content={item.content}
+                taskId={item.taskId}
+                authorId={item.authorId}
+                createdAt={item.createdAt}
+              />
             </li>
           ))}
         </ul>
