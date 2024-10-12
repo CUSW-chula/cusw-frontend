@@ -11,9 +11,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 const Money = () => {
-  const [expectedBudget, setExpectedBudget] = useState<number>();
-  const [realBudget, setRealBudget] = useState<number>();
-  const [usedBudget, setUsedBudget] = useState<number>();
+  const [expectedBudget, setExpectedBudget] = useState<number>(0.0);
+  const [realBudget, setRealBudget] = useState<number>(0.0);
+  const [usedBudget, setUsedBudget] = useState<number>(0.0);
   const [isOpen, setIsOpen] = useState(false); // Manage dialog open state
 
   const [tempExpectedBudget, setTempExpectedBudget] = useState(expectedBudget);
@@ -42,6 +42,7 @@ const Money = () => {
     setTempUsedBudget(usedBudget);
 
     console.log({
+      taskId: 'constant taskID',
       expectedBudget: expectedBudget,
       realBudget: realBudget,
       usedBudget: usedBudget,
@@ -85,7 +86,7 @@ const Money = () => {
           <div className="self-stretch justify-start items-center gap-4 inline-flex">
             <Label
               htmlFor="name"
-              className="w-20 text-black text-sm font-normal font-['Inter'] leading-normal">
+              className="w-20 text-black text-sm font-normal font-Anuphan leading-normal">
               สำรองจ่าย:
             </Label>
             <Input
@@ -114,18 +115,18 @@ const Money = () => {
         <div className="self-stretch px-3 pt-3 border-t border-gray-300 justify-between items-start inline-flex">
           <Button
             onClick={handleClear}
-            className="h-10 bg-inherit rounded-[100px] flex-col justify-center items-center gap-2 inline-flex text-brown text-sm font-normal font-BaiJamjuree  hover:text-white">
+            className="h-10 bg-inherit rounded-[100px] flex-col justify-center items-center gap-2 inline-flex text-brown text-sm font-normal font-BaiJamjuree  hover:bg-gray-100">
             Clear
           </Button>
           <div className="grow shrink basis-0 h-10 justify-end items-start gap-2 flex">
             <Button
               onClick={handleCancel}
-              className="h-10 w-20 bg-inherit rounded-[100px] flex-col justify-center items-center gap-2 inline-flex text-brown text-sm font-normal font-BaiJamjuree  hover:text-white hover:bg-neutral-900/90">
+              className="h-10 w-20 bg-inherit rounded-[100px] flex-col justify-center items-center gap-2 inline-flex text-brown text-sm font-normal font-BaiJamjuree  hover:bg-gray-100">
               Cancel
             </Button>
             <Button
               onClick={handleSubmit}
-              className="h-10 bg-inherit rounded-[100px] flex-col justify-center items-center gap-2 inline-flex text-brown text-sm font-normal font-BaiJamjuree  hover:text-white">
+              className="h-10 bg-inherit rounded-[100px] flex-col justify-center items-center gap-2 inline-flex text-brown text-sm font-normal font-BaiJamjuree  hover:bg-gray-100">
               Ok
             </Button>
           </div>
