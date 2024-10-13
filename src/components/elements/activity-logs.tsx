@@ -1,18 +1,10 @@
-'use client';
-
 import type React from 'react';
 
 // Assuming Task, Project, and User are defined in a types file
 import type { Task, Project, User } from '../../types';
 
 // Dummy data for activity logs
-const activityLogs: Array<{
-  id: number;
-  user: string;
-  action: string;
-  detail: string;
-  createdAt: Date;
-}> = [
+const activityLogs: Array<ActivityLogItemProps> = [
   {
     id: 1,
     user: 'Banyaphon',
@@ -24,15 +16,14 @@ const activityLogs: Array<{
 ];
 
 interface ActivityLogItemProps {
+  id: number;
   user: User;
   action: string;
   detail: string;
   createdAt?: Date;
 }
 
-// Reusable component for each activity log item
-function ActivityLogItem({ user, action, detail, createdAt }: ActivityLogItemProps) {
-  function BoldAfterToFrom(sentence: string) {
+function BoldAfterToFrom(sentence: string) {
     const words = sentence.split(' ');
     const elements = [];
     let previousWord = '';
@@ -48,7 +39,7 @@ function ActivityLogItem({ user, action, detail, createdAt }: ActivityLogItemPro
 
     return elements;
   }
-
+  
   function formatDate(date?: Date): string {
     if (!date) return ''; // Return an empty string if no date is provided
     const day = String(date.getDate()).padStart(2, '0');
@@ -60,6 +51,8 @@ function ActivityLogItem({ user, action, detail, createdAt }: ActivityLogItemPro
     return `${day}/${month}/${year}, ${hours}:${minutes}`;
   }
 
+// Reusable component for each activity log item
+function ActivityLogItem({ user, action, detail, createdAt }: ActivityLogItemProps) {
   return (
     <div className="text-m text-gray-800">
       <span className="font-semibold">{user}</span> {action} <span>{BoldAfterToFrom(detail)}</span>
@@ -80,8 +73,7 @@ const ActivityLogs: React.FC = () => {
               user={item.user}
               action={item.action}
               detail={item.detail}
-              createdAt={item.createdAt}
-            />
+              createdAt={item.createdAt} id={item.id}            />
           </li>
         ))}
       </ul>
