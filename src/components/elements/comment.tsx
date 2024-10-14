@@ -1,11 +1,17 @@
 'use client';
 
 import type React from 'react';
+import { Send } from 'lucide-react';
 import { useState } from 'react';
 import { commentlist } from '@/atom';
 import { useAtom } from 'jotai';
-import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +31,17 @@ interface CommentBoxProp {
   taskId: string;
   authorId: string;
   createdAt: Date;
+}
+
+function formatDate(date?: Date): string {
+  if (!date) return ''; // Return an empty string if no date is provided
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  const year = date.getFullYear();
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+
+  return `${day}/${month}/${year}, ${hours}:${minutes}`;
 }
 
 function EditBox({
@@ -52,10 +69,6 @@ function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
   const deleteComment = () => {
     setCommentList((prevComments) =>
       prevComments.filter((comment) => comment.id !== id || comment.authorId !== userId),
@@ -77,64 +90,56 @@ function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp
   };
 
   return (
-    <div className="w-[530px] h-auto flex flex-col gap-4">
+    <div className="w-[530px] h-auto flex flex-col p-1 gap-4">
       <div className="bg-gray-50 rounded-md p-3">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center">
               <span className="text-slate-900">PP</span>
             </div>
-            <div className="font-semibold text-slate-900">Pongsakorn</div>
-            <div className="text-gray-600">{createdAt.toDateString()}</div>
+            <div className="font-semibold font-BaiJamjuree text-slate-900">Pongsakorn</div>
+            <div className="text-gray-600">{formatDate(createdAt)}</div>
           </div>
           <div className="relative">
-            <button
-              type="button"
-              className="w-6 h-6 text-gray-600 hover:text-gray-800"
-              onClick={toggleDropdown}>
-              •••
-            </button>
-            {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-28 bg-white rounded-md shadow-lg border z-10">
-                <ul className="py-1 text-gray-700">
-                  <li>
-                    <Button
-                      variant="ghost"
-                      onClick={() => {
-                        setIsEditing(true);
-                        setIsDropdownOpen(false);
-                      }}>
-                      Edit
-                    </Button>
-                  </li>
-                  <li>
-                    <AlertDialog>
-                      <AlertDialogTrigger>
-                        <Button variant="ghost">Delete</Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete your message.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel onClick={() => setIsDropdownOpen(false)}>
-                            Cancel
-                          </AlertDialogCancel>
-                          <AlertDialogAction onClick={deleteComment}>Continue</AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </li>
-                </ul>
-              </div>
-            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="hover:text-gray-800" variant="ghost">
+                  •••
+                </Button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent className="w-7">
+                <DropdownMenuItem>
+                  <Button variant="ghost" onClick={() => setIsEditing(true)}>
+                    Edit
+                  </Button>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="ghost">Delete</Button>
+                    </AlertDialogTrigger>
+
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently delete your message.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={deleteComment}>Continue</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
-
-        {/* Content Section: Handles long text gracefully */}
         {isEditing ? (
           <EditBox
             content={content}
@@ -143,7 +148,7 @@ function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp
           />
         ) : (
           <div
-            className="mt-2 text-slate-900 break-words max-h-20 overflow-hidden"
+            className="mt-2 text-slate-900 break-words font-BaiJamjuree max-h-20 overflow-hidden"
             style={{ wordBreak: 'break-word' }}>
             {content}
           </div>
@@ -188,10 +193,13 @@ const Comment: React.FC = () => {
           ))}
         </ul>
       </div>
-      <div className="flex flex-col w-[530px] border-2 rounded-lg p-[10px]">
+      <div className="text-black text-sm font-medium font-Bai Jamjuree leading-[14px]">
+        Your Comment
+      </div>
+      <div className="flex flex-col w-[530px] h-[110px] border-2 border-[#6b5c56] rounded-lg p-[10px]">
         <form onSubmit={handleSubmit}>
           <textarea
-            className="w-full h-[60px] outline-none"
+            className="w-full h-[55px] outline-none"
             placeholder="Add your comment..."
             value={comment}
             onChange={handleInputChange}
@@ -200,8 +208,8 @@ const Comment: React.FC = () => {
             <div />
             <button
               type="submit"
-              className="bg-cyan-500 text-white border-0 rounded py-[5px] px-[10px] cursor-pointer">
-              Post
+              className=" text-black border-0 rounded py-[5px] px-[10px] cursor-pointer">
+              <Send />
             </button>
           </div>
         </form>
