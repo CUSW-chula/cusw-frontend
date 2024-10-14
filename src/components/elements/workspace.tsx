@@ -1,11 +1,13 @@
-import React from 'react';
 import Uploadfile from './uploadfile';
-
+import Emoji from './emoji';
 const workspace = () => {
   return (
-    <div>
+    <div className="">
       workspace
-      <Uploadfile />
+      <div className="flex justify-between">
+        <Emoji />
+        <Uploadfile />
+      </div>
     </div>
   );
 };

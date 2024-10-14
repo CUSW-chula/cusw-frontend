@@ -1,5 +1,4 @@
 'use client';
-import type React from 'react';
 import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { UploadCloud } from 'lucide-react';
@@ -22,7 +21,7 @@ const Uploadfile = () => {
     return (
       <div className=" w-fit ">
         <Button
-          className="bg-white border-brown round-[6px] border-[2px] gap-2 text-brown"
+          className="bg-white border-brown rounded-[6px] border-[2px] gap-2 text-brown"
           variant="outline"
           onClick={handleClick}>
           <UploadCloud />

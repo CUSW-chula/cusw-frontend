@@ -1,4 +1,3 @@
-import Uploadfile from '@/components/elements/uploadfile';
 import Workspace from '@/components/elements/workspace';
 import CounterGrid from '@/components/examples/example';
 import { Button } from '@/components/ui/button';
