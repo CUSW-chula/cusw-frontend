@@ -51,9 +51,9 @@ function formatDate(date?: Date): string {
 // Reusable component for each activity log item
 function ActivityLogItem({ user, action, detail, createdAt }: ActivityLogItemProps) {
   return (
-    <div className="text-m text-gray-800">
+    <div className="text-base text-gray-800 font-BaiJamjuree">
       <span className="font-semibold">{user}</span> {action} <span>{BoldAfterToFrom(detail)}</span>
-      <span className="text-gray-500"> {formatDate(createdAt)}</span>
+      <span className="text-gray-500 pl-1 text-sm"> {formatDate(createdAt)}</span>
     </div>
   );
 }
@@ -62,7 +62,7 @@ function ActivityLogItem({ user, action, detail, createdAt }: ActivityLogItemPro
 const ActivityLogs: React.FC = () => {
   return (
     <div className="bg-white p-6 space-y-2">
-      <h3 className="text-xl font-semibold text-gray-900 mb-4">Activity</h3>
+      <h3 className="text-2xl font-semibold text-gray-900 mb-4 font-Anuphan">Activity</h3>
       <ul>
         {activityLogs.map((item) => (
           <li key={item.id}>
