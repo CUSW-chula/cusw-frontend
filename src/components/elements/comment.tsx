@@ -90,7 +90,7 @@ function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp
   };
 
   return (
-    <div className="w-[530px] h-auto flex flex-col p-1 gap-4">
+    <div className="w-[530px] h-auto flex flex-col p-1 gap-4 ">
       <div className="bg-gray-50 rounded-md p-3">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
@@ -98,7 +98,7 @@ function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp
               <span className="text-slate-900">PP</span>
             </div>
             <div className="font-semibold font-BaiJamjuree text-slate-900">Pongsakorn</div>
-            <div className="text-gray-600">{formatDate(createdAt)}</div>
+            <div className="text-[#6b5c56] text-base font-normal font-['Bai Jamjuree'] leading-7">{formatDate(createdAt)}</div>
           </div>
           <div className="relative">
             <DropdownMenu>
@@ -148,7 +148,7 @@ function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp
           />
         ) : (
           <div
-            className="mt-2 text-slate-900 break-words font-BaiJamjuree max-h-20 overflow-hidden"
+            className="text-black text-base font-normal leading-7 mt-2 break-words font-BaiJamjuree max-h-20 overflow-hidden"
             style={{ wordBreak: 'break-word' }}>
             {content}
           </div>
@@ -177,7 +177,8 @@ const Comment: React.FC = () => {
   };
 
   return (
-    <div className="w-[530px] h-[362px] flex-col justify-start items-start gap-[18px] inline-flex">
+    <div className="w-[530px] h-[362px] flex-col justify-start items-start gap-[18px] inline-flex ">
+      <div className='font-semibold font-Anuphan text-2xl'>Comment</div>
       <div className="max-h-84 overflow-y-scroll">
         <ul>
           {list.map((item) => (
@@ -196,10 +197,10 @@ const Comment: React.FC = () => {
       <div className="text-black text-sm font-medium font-Bai Jamjuree leading-[14px]">
         Your Comment
       </div>
-      <div className="flex flex-col w-[530px] h-[110px] border-2 border-[#6b5c56] rounded-lg p-[10px]">
+      <div className="flex flex-col w-[530px] h-[115px] border-2 border-[#6b5c56] rounded-lg p-[10px]">
         <form onSubmit={handleSubmit}>
           <textarea
-            className="w-full h-[55px] outline-none"
+            className="w-full h-[50px] outline-none"
             placeholder="Add your comment..."
             value={comment}
             onChange={handleInputChange}
