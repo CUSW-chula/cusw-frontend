@@ -98,7 +98,9 @@ function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp
               <span className="text-slate-900">PP</span>
             </div>
             <div className="font-semibold font-BaiJamjuree text-slate-900">Pongsakorn</div>
-            <div className="text-[#6b5c56] text-base font-normal font-['Bai Jamjuree'] leading-7">{formatDate(createdAt)}</div>
+            <div className="text-[#6b5c56] text-base font-normal font-['Bai Jamjuree'] leading-7">
+              {formatDate(createdAt)}
+            </div>
           </div>
           <div className="relative">
             <DropdownMenu>
@@ -125,13 +127,13 @@ function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp
                       <AlertDialogHeader>
                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          This action cannot be undone. This will permanently delete your message.
+                          คุณต้องการลบความเห็นของคุณใช่หรือไม่
                         </AlertDialogDescription>
                       </AlertDialogHeader>
 
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={deleteComment}>Continue</AlertDialogAction>
+                        <AlertDialogCancel className='bg-red text-white'>ไม่</AlertDialogCancel>
+                        <AlertDialogAction onClick={deleteComment}>ใช่</AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
@@ -178,7 +180,7 @@ const Comment: React.FC = () => {
 
   return (
     <div className="w-[530px] h-[362px] flex-col justify-start items-start gap-[18px] inline-flex ">
-      <div className='font-semibold font-Anuphan text-2xl'>Comment</div>
+      <div className="font-semibold font-Anuphan text-2xl">Comment</div>
       <div className="max-h-84 overflow-y-scroll">
         <ul>
           {list.map((item) => (
