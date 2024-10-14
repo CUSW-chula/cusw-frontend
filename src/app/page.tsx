@@ -1,12 +1,17 @@
-import Uploadfile from '@/components/elements/uploadfile';
+'use client';
+
+import { Money } from '@/components/elements/money';
 import Workspace from '@/components/elements/workspace';
-import CounterGrid from '@/components/examples/example';
-import { Button } from '@/components/ui/button';
+import { Send } from 'lucide-react';
 export default function Home() {
   return (
-    <div className="min-w-full min-h-full flex flex-col items-center justify-center mt-10 gap-10">
-      <div className="w-[60%] rounded-[6px] p-5 border-brown border-2">
+    <div className="min-w-full min-h-full flex flex-row items-start justify-center mt-10 gap-10">
+      <div className="w-[60%] rounded-[6px] p-5 border-brown border-[1px]">
         <Workspace />
+        <Send />
+      </div>
+      <div className="w-[25%] rounded-[6px] p-5 border-brown border-[1px]">
+        <Money />
       </div>
     </div>
   );

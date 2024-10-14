@@ -18,6 +18,10 @@ const Emoji = () => {
 
   const handleEmojiClick = (emojiData: EmojiClickData) => {
     setSelectedEmoji(emojiData.emoji);
+    console.log({
+      person: 'constant person',
+      emojiData: emojiData.emoji,
+    });
   };
 
   return (
