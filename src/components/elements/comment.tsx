@@ -132,8 +132,10 @@ function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp
                       </AlertDialogHeader>
 
                       <AlertDialogFooter>
-                        <AlertDialogCancel >ไม่</AlertDialogCancel>
-                        <AlertDialogAction className="bg-red text-white" onClick={deleteComment}>ใช่</AlertDialogAction>
+                        <AlertDialogCancel>ไม่</AlertDialogCancel>
+                        <AlertDialogAction className="bg-red text-white" onClick={deleteComment}>
+                          ใช่
+                        </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
