@@ -1,8 +1,5 @@
 import type React from 'react';
 
-// Assuming Task, Project, and User are defined in a types file
-import type { Task, Project, User } from '../../types';
-
 // Dummy data for activity logs
 const activityLogs: Array<ActivityLogItemProps> = [
   {
@@ -17,39 +14,39 @@ const activityLogs: Array<ActivityLogItemProps> = [
 
 interface ActivityLogItemProps {
   id: number;
-  user: User;
+  user: string;
   action: string;
   detail: string;
   createdAt?: Date;
 }
 
 function BoldAfterToFrom(sentence: string) {
-    const words = sentence.split(' ');
-    const elements = [];
-    let previousWord = '';
+  const words = sentence.split(' ');
+  const elements = [];
+  let previousWord = '';
 
-    for (const word of words) {
-      if (previousWord === 'to' || previousWord === 'from') {
-        elements.push(<b key={word}>{word} </b>);
-      } else {
-        elements.push(<span key={word}>{word} </span>);
-      }
-      previousWord = word;
+  for (const word of words) {
+    if (previousWord === 'to' || previousWord === 'from') {
+      elements.push(<b key={word}>{word} </b>);
+    } else {
+      elements.push(<span key={word}>{word} </span>);
     }
-
-    return elements;
+    previousWord = word;
   }
-  
-  function formatDate(date?: Date): string {
-    if (!date) return ''; // Return an empty string if no date is provided
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
 
-    return `${day}/${month}/${year}, ${hours}:${minutes}`;
-  }
+  return elements;
+}
+
+function formatDate(date?: Date): string {
+  if (!date) return ''; // Return an empty string if no date is provided
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  const year = date.getFullYear();
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+
+  return `${day}/${month}/${year}, ${hours}:${minutes}`;
+}
 
 // Reusable component for each activity log item
 function ActivityLogItem({ user, action, detail, createdAt }: ActivityLogItemProps) {
@@ -73,7 +70,9 @@ const ActivityLogs: React.FC = () => {
               user={item.user}
               action={item.action}
               detail={item.detail}
-              createdAt={item.createdAt} id={item.id}            />
+              createdAt={item.createdAt}
+              id={item.id}
+            />
           </li>
         ))}
       </ul>
