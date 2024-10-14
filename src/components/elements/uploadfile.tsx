@@ -21,10 +21,10 @@ const Uploadfile = () => {
     return (
       <div className=" w-fit ">
         <Button
-          className="bg-white border-brown rounded-[6px] border-[2px] gap-2 text-brown"
+          className="bg-white border-brown rounded-[6px] border-[2px] gap-2 "
           variant="outline"
           onClick={handleClick}>
-          <UploadCloud />
+          <UploadCloud className="text-brown" />
           <p className="text-brown">Upload</p>
         </Button>
         <input
