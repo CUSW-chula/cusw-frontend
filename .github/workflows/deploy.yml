@@ -16,7 +16,7 @@ jobs:
     - name: Setup Bun
       uses: oven-sh/setup-bun@v1
       with:
-        bun-version: 'latest'  # Specify Bun version or use 'latest'
+        bun-version: 'latest'  # Specify the version of Bun, or use 'latest'
 
     - name: Install dependencies and build with Bun
       run: |
@@ -29,7 +29,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         known_hosts: ${{ secrets.SERVER_IP }}
 
-    - name: Deploy via SSH
+    - name: Deploy files to the server
       run: |
-        scp -r ./nextjs_project_folder ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/path_to_deploy
-        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} 'cd /path_to_deploy && bun install && bun run start'
+        scp -r ./* ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/home/${{ secrets.SERVER_USER }}/cusw-frontend
+        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} 'cd /home/${{ secrets.SERVER_USER }}/cusw-frontend && bun install && bun run start'
