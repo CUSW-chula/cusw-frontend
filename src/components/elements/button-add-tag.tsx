@@ -16,20 +16,21 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Tag } from 'lucide-react';
 
-//Status data
-type Status = {
-  value: string;
-  label: string;
-  icon: LucideIcon;
+type NewType = {
+  id: string;
+  nameTag: string;
 };
+
+//Status data
+type Status = NewType;
 
 // mock data
 const statuses: Status[] = [
-  { value: 'backlog', label: 'Backlog', icon: Circle },
-  { value: 'todo', label: 'Todo', icon: Circle },
-  { value: 'in progress', label: 'In Progress', icon: Circle },
-  { value: 'done', label: 'Done', icon: Circle },
-  { value: 'canceled', label: 'Canceled', icon: Circle },
+  { id: '1', nameTag: 'Backlog' },
+  { id: '2', nameTag: 'Todo' },
+  { id: '3', nameTag: 'In Progress' },
+  { id: '4', nameTag: 'Done' },
+  { id: '5', nameTag: 'Canceled' },
 ];
 
 export function ButtonAddTags() {
@@ -38,7 +39,7 @@ export function ButtonAddTags() {
 
   // ฟังก์ชันจัดการการเลือกแท็ก
   const handleSelectTag = (value: string) => {
-    const selected = statuses.find((status) => status.value === value);
+    const selected = statuses.find((status) => status.id === value);
     if (selected && !selectedTags.includes(selected)) {
       setSelectedTags((prev) => [...prev, selected]); // เพิ่มแท็กที่เลือก
     }
@@ -67,19 +68,16 @@ export function ButtonAddTags() {
                   <CommandEmpty>No results found.</CommandEmpty>
                   <CommandGroup>
                     {statuses.map((status) => (
-                      <CommandItem
-                        key={status.value}
-                        value={status.value}
-                        onSelect={handleSelectTag}>
-                        <status.icon
+                      <CommandItem key={status.id} value={status.id} onSelect={handleSelectTag}>
+                        <Circle
                           className={cn(
                             'mr-2 h-4 w-4 fill-greenLight  text-greenLight',
-                            selectedTags.some((tag) => tag.value === status.value)
+                            selectedTags.some((tag) => tag.id === status.id)
                               ? 'opacity-100'
                               : 'opacity-40',
                           )}
                         />
-                        <span>{status.label}</span>
+                        <span>{status.nameTag}</span>
                       </CommandItem>
                     ))}
                   </CommandGroup>
@@ -93,13 +91,13 @@ export function ButtonAddTags() {
           (
             tag, //Show selected results
           ) => (
-            <Button variant="outline" key={tag.value}>
-              <tag.icon className="mr-1 h-4 w-4 fill-greenLight text-greenLight" />
-              <span>{tag.label}</span>
+            <Button variant="outline" key={tag.id}>
+              <Circle className="mr-1 h-4 w-4 fill-greenLight text-greenLight font-BaiJamjuree " />
+              <span>{tag.nameTag}</span>
               <Button
                 size={'sm'}
                 variant="ghost"
-                onClick={() => setSelectedTags((prev) => prev.filter((t) => t.value !== tag.value))}
+                onClick={() => setSelectedTags((prev) => prev.filter((t) => t.id !== tag.id))}
                 className="ml-2 text-red-500 gap-1  ">
                 <XCircle className="h-4 w-4 " />
               </Button>
