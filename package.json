@@ -11,7 +11,10 @@
     "lint": "bunx biome lint ./src",
     "lint:fix": "bunx biome lint --write ./src",
     "format": "bunx biome format ./src",
-    "format:fix": "bunx biome format --write ./src"
+    "format:fix": "bunx biome format --write ./src",
+    "deploy:local": "next build && pm2 startOrRestart ecosystem.config.js --env local",
+    "deploy:dev": "next build && pm2 startOrRestart ecosystem.config.js --env dev",
+    "deploy:prod": "next build && pm2 startOrRestart ecosystem.config.js --env prod"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.0",
