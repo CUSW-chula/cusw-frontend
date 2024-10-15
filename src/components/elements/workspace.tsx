@@ -1,15 +1,34 @@
-import Uploadfile from './uploadfile';
+import { useState } from 'react';
+import { Displayfile, Uploadfile } from './uploadfile';
 import Emoji from './emoji';
-const workspace = () => {
+
+// Ensure the Files interface matches what you're using in Uploadfile and Displayfile
+interface Files {
+  id: string;
+  name: string;
+  filePath: string;
+  fileSize: number;
+  taskId: string;
+  projectId: string;
+  uploadedBy: string;
+  uploadedAt: Date;
+  createdAt: Date;
+}
+
+const Workspace = () => {
+  // Change fileList type to Files[] instead of File[]
+  const [fileList, setFileList] = useState<Files[]>([]);
+
   return (
     <div className="">
-      workspace
+      <h2>Workspace</h2>
+      <Displayfile fileList={fileList} setFileList={setFileList} />
       <div className="flex justify-between">
         <Emoji />
-        <Uploadfile />
+        <Uploadfile setFileList={setFileList} />
       </div>
     </div>
   );
 };
 
-export default workspace;
+export default Workspace;
