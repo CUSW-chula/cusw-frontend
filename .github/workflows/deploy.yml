@@ -1,0 +1,35 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main  # Change to your deployment branch if needed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Bun
+      uses: oven-sh/setup-bun@v1
+      with:
+        bun-version: 'latest'  # Specify Bun version or use 'latest'
+
+    - name: Install dependencies and build with Bun
+      run: |
+        bun install
+        bun run build
+
+    - name: Add SSH key
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        known_hosts: ${{ secrets.SERVER_IP }}
+
+    - name: Deploy via SSH
+      run: |
+        scp -r ./nextjs_project_folder ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/path_to_deploy
+        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} 'cd /path_to_deploy && bun install && bun run start'
