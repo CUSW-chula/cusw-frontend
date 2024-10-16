@@ -41,7 +41,7 @@ export function AssignedTaskToMember() {
 
   // Handle user selection and unselection
   const handleSelectUser = (value: string) => {
-    const selected = users.find((user) => user.id === value);
+    const selected = users.find((user) => user.userName === value);
     if (selected) {
       setSelectedUser(
         (prev) =>
@@ -95,7 +95,7 @@ export function AssignedTaskToMember() {
                         <Circle
                           className={cn(
                             'mr-2 h-4 w-4 fill-greenLight text-greenLight',
-                            selectedUser.some((tag) => tag.id === user.id)
+                            selectedUser.some((u) => u.id === user.id)
                               ? 'opacity-100'
                               : 'opacity-40',
                           )}

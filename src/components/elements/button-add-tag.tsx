@@ -39,7 +39,7 @@ export function ButtonAddTags() {
 
   // ฟังก์ชันจัดการการเลือกแท็ก
   const handleSelectTag = (value: string) => {
-    const selected = statuses.find((status) => status.id === value);
+    const selected = statuses.find((status) => status.nameTag === value);
     if (selected && !selectedTags.includes(selected)) {
       setSelectedTags((prev) => [...prev, selected]); // เพิ่มแท็กที่เลือก
     }
