@@ -43,11 +43,10 @@ export function AssignedTaskToMember() {
   const handleSelectUser = (value: string) => {
     const selected = users.find((user) => user.userName === value);
     if (selected) {
-      setSelectedUser(
-        (prev) =>
-          prev.some((user) => user.id === value)
-            ? prev.filter((user) => user.id !== value) // Remove user if already selected
-            : [...prev, selected], // Add user if not already selected
+      setSelectedUser((prev) =>
+        prev.some((user) => user.id === selected.id)
+          ? prev.filter((user) => user.id !== selected.id) // Unselect user if already selected
+          : [...prev, selected], // Add user if not already selected
       );
     }
     setOpen(false);
