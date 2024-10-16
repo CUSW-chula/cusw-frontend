@@ -11,7 +11,10 @@
     "lint": "bunx biome lint ./src",
     "lint:fix": "bunx biome lint --write ./src",
     "format": "bunx biome format ./src",
-    "format:fix": "bunx biome format --write ./src"
+    "format:fix": "bunx biome format --write ./src",
+    "deploy:local": "next build && pm2 startOrRestart ecosystem.config.js --env local",
+    "deploy:dev": "next build && pm2 startOrRestart ecosystem.config.js --env dev",
+    "deploy:prod": "next build && pm2 startOrRestart ecosystem.config.js --env prod"
   },
   "dependencies": {
     "@blocknote/core": "^0.16.0",
@@ -32,12 +35,14 @@
     "@radix-ui/react-tooltip": "^1.1.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "cmdk": "1.0.0",
     "emoji-picker-react": "^4.12.0",
     "jotai": "^2.10.0",
     "lucide-react": "^0.449.0",
     "next": "14.2.14",
     "quill": "^2.0.2",
     "react": "18.0.0",
+    "react-color-palette": "^7.3.0",
     "react-dom": "18.0.0",
     "react-hook-form": "^7.53.0",
     "tailwind-merge": "^2.5.3",

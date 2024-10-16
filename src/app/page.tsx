@@ -1,5 +1,3 @@
-'use client';
-
 import ActivityLogs from '@/components/elements/activity-logs';
 import { Money } from '@/components/elements/money';
 import Comment from '@/components/elements/comment';
