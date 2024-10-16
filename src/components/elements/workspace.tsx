@@ -1,14 +1,15 @@
 'use client';
+import 'yjs';
 import { useState } from 'react';
 import { Displayfile, Uploadfile } from './uploadfile';
 import Emoji from './emoji';
 import { BlockNoteView } from '@blocknote/shadcn';
 import '@blocknote/shadcn/style.css';
-import { useCreateBlockNote } from '@blocknote/react';
 import {
   type DefaultReactSuggestionItem,
   getDefaultReactSlashMenuItems,
   SuggestionMenuController,
+  useCreateBlockNote,
 } from '@blocknote/react';
 import { type BlockNoteEditor, filterSuggestionItems } from '@blocknote/core';
 import * as Button from '@/components/ui/button';
@@ -22,6 +23,7 @@ import * as Tabs from '@/components/ui/tabs';
 import * as Toggle from '@/components/ui/toggle';
 import * as Tooltip from '@/components/ui/tooltip';
 import type { Block } from '@blocknote/core';
+
 interface Files {
   id: string;
   name: string;
@@ -36,19 +38,13 @@ interface Files {
 
 const getCustomSlashMenuItems = (editor: BlockNoteEditor): DefaultReactSuggestionItem[] => {
   const allItems = getDefaultReactSlashMenuItems(editor);
-
-  // Titles of the items to remove
-  const itemsToRemove = ['Image', 'Video', 'Audio', 'File']; // Adjust these
-
+  const itemsToRemove = ['Image', 'Video', 'Audio', 'File'];
   const filteredItems = allItems.filter((item) => !itemsToRemove.includes(item.title));
-
   return [...filteredItems];
 };
 
 const Workspace = () => {
-  // Change fileList type to Files[] instead of File[]
   const [fileList, setFileList] = useState<Files[]>([]);
-  const [blocks, setBlocks] = useState<Block[]>([]);
   const editor = useCreateBlockNote({
     initialContent: [
       {
@@ -74,6 +70,7 @@ const Workspace = () => {
       },
     ],
   });
+  const [blocks, setBlocks] = useState<Block[]>([]);
 
   return (
     <div className="">
