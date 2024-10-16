@@ -66,7 +66,6 @@ function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp
   const userId = '865';
   const [, setCommentList] = useAtom<CommentBoxProp[]>(commentlist);
   const [, setCreateAt] = useAtom<CommentBoxProp[]>(commentlist);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
   const deleteComment = () => {

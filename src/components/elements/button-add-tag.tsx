@@ -68,7 +68,10 @@ export function ButtonAddTags() {
                   <CommandEmpty>No results found.</CommandEmpty>
                   <CommandGroup>
                     {statuses.map((status) => (
-                      <CommandItem key={status.id} value={status.id} onSelect={handleSelectTag}>
+                      <CommandItem
+                        key={status.id}
+                        value={status.nameTag}
+                        onSelect={handleSelectTag}>
                         <Circle
                           className={cn(
                             'mr-2 h-4 w-4 fill-greenLight  text-greenLight',
