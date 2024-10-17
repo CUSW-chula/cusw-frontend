@@ -94,7 +94,8 @@ const Workspace = () => {
           Tabs,
           Toggle,
           Tooltip,
-        }}></BlockNoteView>
+        }}
+      />
 
       <Displayfile fileList={fileList} setFileList={setFileList} />
       <div className="flex justify-between">
