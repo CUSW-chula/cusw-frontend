@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Circle, type LucideIcon, XCircle, CircleFadingPlus } from 'lucide-react';
+import { Circle, XCircle, CircleFadingPlus } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -14,17 +14,16 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Tag } from 'lucide-react';
 
 type NewType = {
   id: string;
   nameTag: string;
 };
 
-//Status data
+// Status data
 type Status = NewType;
 
-// mock data
+// Mock data
 const statuses: Status[] = [
   { id: '1', nameTag: 'สิงหาคม' },
   { id: '2', nameTag: 'ไตรมาส 1' },
@@ -41,72 +40,59 @@ export function ButtonAddTags() {
   const handleSelectTag = (value: string) => {
     const selected = statuses.find((status) => status.nameTag === value);
     if (selected && !selectedTags.includes(selected)) {
-      setSelectedTags((prev) => [...prev, selected]); // เพิ่มแท็กที่เลือก
+      setSelectedTags((prev) => [selected, ...prev]); // เพิ่มแท็กใหม่ที่จุดเริ่มต้น
     }
     setOpen(false);
   };
 
   return (
-    //Buttom Add Tag
     <>
       <div className="flex flex-row gap-1 flex-wrap">
-        <div className="flex items-center space-x-4">
-          <div className="flex flex-basis-* gap-2">
-            <Tag />
-            <p className="detail">Tag :</p>
-          </div>
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-              <Button variant="outline">
-                <CircleFadingPlus className="mr-2 h-4 w-4" /> <p className="p-ui">Add Tag</p>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="p-0" side="right" align="start">
-              <Command>
-                <CommandInput placeholder="Add Tag ..." />
-                <CommandList>
-                  <CommandEmpty>No results found.</CommandEmpty>
-                  <CommandGroup>
-                    {statuses.map((status) => (
-                      <CommandItem
-                        key={status.id}
-                        value={status.nameTag}
-                        onSelect={handleSelectTag}>
-                        <Circle
-                          className={cn(
-                            'mr-2 h-4 w-4 fill-greenLight  text-greenLight',
-                            selectedTags.some((tag) => tag.id === status.id)
-                              ? 'opacity-100'
-                              : 'opacity-40',
-                          )}
-                        />
-                        <span>{status.nameTag}</span>
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-        </div>
+        {/* แสดงแท็กที่ถูกเลือก */}
+        {selectedTags.map((tag) => (
+          <Button variant="outline" key={tag.id}>
+            <Circle className="mr-1 h-4 w-4 fill-greenLight text-greenLight font-BaiJamjuree" />
+            <span>{tag.nameTag}</span>
+            <button
+              type="button"
+              onClick={() => setSelectedTags((prev) => prev.filter((t) => t.id !== tag.id))}
+              className="text-red-500 ml-1">
+              <XCircle className="h-4 w-4" />
+            </button>
+          </Button>
+        ))}
 
-        {selectedTags.map(
-          (
-            tag, //Show selected results
-          ) => (
-            <Button variant="outline" key={tag.id}>
-              <Circle className="mr-1 h-4 w-4 fill-greenLight text-greenLight font-BaiJamjuree " />
-              <span>{tag.nameTag}</span>
-              <Button
-                size={'sm'}
-                variant="ghost"
-                onClick={() => setSelectedTags((prev) => prev.filter((t) => t.id !== tag.id))}
-                className="ml-2 text-red-500 gap-1  ">
-                <XCircle className="h-4 w-4 " />
-              </Button>
+        {/* ปุ่ม Add Tag ที่อยู่ด้านหลังสุด */}
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="outline">
+              <CircleFadingPlus className="mr-2 h-4 w-4" /> <p className="p-ui">Add Tag</p>
             </Button>
-          ),
-        )}
+          </PopoverTrigger>
+          <PopoverContent className="p-0" side="right" align="start">
+            <Command>
+              <CommandInput placeholder="Add Tag ..." />
+              <CommandList>
+                <CommandEmpty>No results found.</CommandEmpty>
+                <CommandGroup>
+                  {statuses.map((status) => (
+                    <CommandItem key={status.id} value={status.nameTag} onSelect={handleSelectTag}>
+                      <Circle
+                        className={cn(
+                          'mr-2 h-4 w-4 fill-greenLight text-greenLight',
+                          selectedTags.some((tag) => tag.id === status.id)
+                            ? 'opacity-100'
+                            : 'opacity-40',
+                        )}
+                      />
+                      <span>{status.nameTag}</span>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
       </div>
     </>
   );
