@@ -5,13 +5,8 @@ import { Displayfile, Uploadfile } from './uploadfile';
 import Emoji from './emoji';
 import { BlockNoteView } from '@blocknote/shadcn';
 import '@blocknote/shadcn/style.css';
-import {
-  type DefaultReactSuggestionItem,
-  getDefaultReactSlashMenuItems,
-  SuggestionMenuController,
-  useCreateBlockNote,
-} from '@blocknote/react';
-import { type BlockNoteEditor, filterSuggestionItems } from '@blocknote/core';
+import { useCreateBlockNote } from '@blocknote/react';
+import { type Block, BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
 import * as Button from '@/components/ui/button';
 import * as Card from '@/components/ui/card';
 import * as DropdownMenu from '@/components/ui/dropdown-menu';
@@ -22,8 +17,6 @@ import * as Popover from '@/components/ui/popover';
 import * as Tabs from '@/components/ui/tabs';
 import * as Toggle from '@/components/ui/toggle';
 import * as Tooltip from '@/components/ui/tooltip';
-import type { Block } from '@blocknote/core';
-
 interface Files {
   id: string;
   name: string;
@@ -36,34 +29,43 @@ interface Files {
   createdAt: Date;
 }
 
-const getCustomSlashMenuItems = (editor: BlockNoteEditor): DefaultReactSuggestionItem[] => {
-  const allItems = getDefaultReactSlashMenuItems(editor);
-  const itemsToRemove = ['Image', 'Video', 'Audio', 'File'];
-  const filteredItems = allItems.filter((item) => !itemsToRemove.includes(item.title));
-  return [...filteredItems];
-};
+function TitleInput({ content }: { content: string }) {
+  const [editedContent, setEditedContent] = useState(content);
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputText = e.target.value;
+    setEditedContent(inputText);
+  };
+
+  return (
+    <input
+      className="resize-none border-none w-full outline-none pl-[54px] placeholder-gray-300 text-[30px] leading-[36px] font-semibold font-Anuphan"
+      placeholder="Task Title"
+      value={editedContent}
+      onChange={handleInputChange}
+    />
+  );
+}
 const Workspace = () => {
   const [fileList, setFileList] = useState<Files[]>([]);
+  // disable blocks you don't want
+  const { audio, image, video, file, ...allowedBlockSpecs } = defaultBlockSpecs;
+
+  const schema = BlockNoteSchema.create({
+    blockSpecs: {
+      //first pass all the blockspecs from the built in, default block schema
+      ...allowedBlockSpecs,
+    },
+  });
   const editor = useCreateBlockNote({
+    schema,
     initialContent: [
-      {
-        type: 'heading',
-        content: [
-          {
-            type: 'text',
-            text: 'Add Title',
-            styles: {},
-          },
-        ],
-        props: { level: 2 },
-      },
       {
         type: 'paragraph',
         content: [
           {
             type: 'text',
-            text: 'add description',
+            text: '',
             styles: {},
           },
         ],
@@ -71,13 +73,12 @@ const Workspace = () => {
     ],
   });
   const [blocks, setBlocks] = useState<Block[]>([]);
-
   return (
     <div className="">
+      <TitleInput content={''} />
       <BlockNoteView
         editor={editor}
         theme={'light'}
-        slashMenu={false}
         onChange={() => {
           setBlocks(editor.document);
           console.log(blocks);
@@ -93,12 +94,7 @@ const Workspace = () => {
           Tabs,
           Toggle,
           Tooltip,
-        }}>
-        <SuggestionMenuController
-          triggerCharacter={'/'}
-          getItems={async (query) => filterSuggestionItems(getCustomSlashMenuItems(editor), query)}
-        />
-      </BlockNoteView>
+        }}></BlockNoteView>
 
       <Displayfile fileList={fileList} setFileList={setFileList} />
       <div className="flex justify-between">
