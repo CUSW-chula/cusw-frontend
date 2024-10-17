@@ -50,14 +50,25 @@ function EditBox({
   onSave,
 }: { content: string; onCancel: () => void; onSave: (newContent: string) => void }) {
   const [editedContent, setEditedContent] = useState(content);
+  const charLimit = 200;
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const inputText = e.target.value;
+    if (inputText.length <= charLimit) {
+      setEditedContent(inputText);
+    }
+  };
 
   return (
     <div className="flex w-full items-end space-x-2">
       <Textarea
         className="resize-none outline-none bg-gray-50"
         value={editedContent}
-        onChange={(e) => setEditedContent(e.target.value)}
+        onChange={handleInputChange}
       />
+      <span className="text-sm text-gray-500">
+        {content.length} / {charLimit} characters
+      </span>
       <Button className="border-[#6b5c56]" variant="outline" onClick={onCancel}>
         Cancel
       </Button>
