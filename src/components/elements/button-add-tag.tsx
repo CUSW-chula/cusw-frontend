@@ -26,11 +26,11 @@ type Status = NewType;
 
 // mock data
 const statuses: Status[] = [
-  { id: '1', nameTag: 'Backlog' },
-  { id: '2', nameTag: 'Todo' },
-  { id: '3', nameTag: 'In Progress' },
-  { id: '4', nameTag: 'Done' },
-  { id: '5', nameTag: 'Canceled' },
+  { id: '1', nameTag: 'สิงหาคม' },
+  { id: '2', nameTag: 'ไตรมาส 1' },
+  { id: '3', nameTag: 'กันยายน' },
+  { id: '4', nameTag: 'ตุลาคม' },
+  { id: '5', nameTag: 'tag' },
 ];
 
 export function ButtonAddTags() {
