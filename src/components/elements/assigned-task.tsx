@@ -14,6 +14,7 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
 
 interface UsersInterfaces {
   id: string;
@@ -54,7 +55,7 @@ export function AssignedTaskToMember() {
   };
 
   return (
-    <>
+    <TooltipProvider>
       <div className="flex flex-row gap-1 flex-wrap">
         <div className="flex items-center space-x-4">
           <div className="flex flex-basis-* gap-2">
@@ -68,12 +69,20 @@ export function AssignedTaskToMember() {
                   // Display selected users as circles with initials
                   <div className="flex space-x-2">
                     {selectedUser.map((user) => (
-                      <div key={user.id} className="flex items-center space-x-2">
-                        {/* Circle with initials */}
-                        <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center">
-                          <span className="text-slate-900">{getInitials(user.userName)}</span>
-                        </div>
-                      </div>
+                      <Tooltip key={user.id}>
+                        <TooltipTrigger>
+                          <div className="flex items-center space-x-2">
+                            {/* Circle with initials */}
+                            <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center">
+                              <span className="text-slate-900">{getInitials(user.userName)}</span>
+                            </div>
+                          </div>
+                        </TooltipTrigger>
+                        {/* Tooltip content showing the full name */}
+                        <TooltipContent>
+                          <span>{user.userName}</span>
+                        </TooltipContent>
+                      </Tooltip>
                     ))}
                   </div>
                 ) : (
@@ -110,6 +119,6 @@ export function AssignedTaskToMember() {
           </Popover>
         </div>
       </div>
-    </>
+    </TooltipProvider>
   );
 }
