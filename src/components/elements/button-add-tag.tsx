@@ -41,7 +41,7 @@ export function ButtonAddTags() {
   const handleSelectTag = (value: string) => {
     const selected = statuses.find((status) => status.nameTag === value);
     if (selected && !selectedTags.includes(selected)) {
-      setSelectedTags((prev) => [...prev, selected]); // เพิ่มแท็กที่เลือก
+      setSelectedTags((prev) => [selected, ...prev]); // เพิ่มแท็กที่เลือก
     }
     setOpen(false);
   };
@@ -49,12 +49,12 @@ export function ButtonAddTags() {
   return (
     //Buttom Add Tag
     <>
-      <div className="flex flex-row gap-1 flex-wrap">
+      <div className="flex flex-row gap-1 flex-wrap ">
         <div className="flex items-center space-x-4">
-          <div className="flex flex-basis-* gap-2">
+          {/* <div className="flex flex-basis-* gap-2">
             <Tag />
             <p className="detail">Tag :</p>
-          </div>
+          </div> */}
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline">
@@ -97,13 +97,12 @@ export function ButtonAddTags() {
             <Button variant="outline" key={tag.id}>
               <Circle className="mr-1 h-4 w-4 fill-greenLight text-greenLight font-BaiJamjuree " />
               <span>{tag.nameTag}</span>
-              <Button
-                size={'sm'}
-                variant="ghost"
+              <button
+                type="button"
                 onClick={() => setSelectedTags((prev) => prev.filter((t) => t.id !== tag.id))}
-                className="ml-2 text-red-500 gap-1  ">
+                className=" text-red-500 ml-1  ">
                 <XCircle className="h-4 w-4 " />
-              </Button>
+              </button>
             </Button>
           ),
         )}
