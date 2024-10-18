@@ -53,7 +53,11 @@ function EditBox({
 
   return (
     <div className="flex w-full items-center space-x-2">
-      <Textarea value={editedContent} onChange={(e) => setEditedContent(e.target.value)} />
+      <Textarea
+        className="resize-none"
+        value={editedContent}
+        onChange={(e) => setEditedContent(e.target.value)}
+      />
       <Button variant="ghost" onClick={onCancel}>
         Cancel
       </Button>
@@ -65,8 +69,6 @@ function EditBox({
 function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp) {
   const userId = '865';
   const [, setCommentList] = useAtom<CommentBoxProp[]>(commentlist);
-  const [, setCreateAt] = useAtom<CommentBoxProp[]>(commentlist);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
   const deleteComment = () => {
@@ -78,12 +80,7 @@ function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp
   const saveEditedContent = (newContent: string) => {
     setCommentList((prevComments) =>
       prevComments.map((comment) =>
-        comment.id === id ? { ...comment, content: newContent } : comment,
-      ),
-    );
-    setCreateAt((prevCreateAt) =>
-      prevCreateAt.map((createdAt) =>
-        createdAt.id === id ? { ...createdAt, createdAt: new Date() } : createdAt,
+        comment.id === id ? { ...comment, content: newContent, createdAt: new Date() } : comment,
       ),
     );
     setIsEditing(false);
@@ -204,7 +201,7 @@ const Comment: React.FC = () => {
       <div className="flex flex-col w-[530px] h-[115px] border-2 border-[#6b5c56] rounded-lg p-[10px]">
         <form onSubmit={handleSubmit}>
           <textarea
-            className="w-full h-[50px] outline-none"
+            className="w-full h-[50px] outline-none resize-none"
             placeholder="Add your comment..."
             value={comment}
             onChange={handleInputChange}
