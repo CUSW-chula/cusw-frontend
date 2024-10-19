@@ -6,6 +6,12 @@
   :root {
     --radius: 0.5rem;
   }
+  body {
+    background-image: url("/background.png"); /* Path to your image */
+    background-size: cover; /* Ensures the image covers the whole screen */
+    background-repeat: no-repeat; /* Prevents repeating */
+    background-position: center; /* Centers the image */
+  }
   h1 {
     @apply font-Anuphan text-[48px] leading-[48px] font-semibold;
   }
