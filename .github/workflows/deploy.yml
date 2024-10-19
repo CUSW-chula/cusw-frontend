@@ -63,8 +63,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Example of a linting step (you can replace this with your actual check commands)
+      # Step 8: Install Bun
+      - name: Install Bun
+        run: |
+          curl -fsSL https://bun.sh/install | bash
+          echo 'export BUN_INSTALL="$HOME/.bun"' >> $GITHUB_ENV
+          echo 'export PATH="$BUN_INSTALL/bin:$PATH"' >> $GITHUB_ENV
+          source $GITHUB_ENV
+
+      # Step 9: Lint code using Bun
       - name: Lint code
         run: |
           echo "Running lint checks..."
-          npm run lint
+          bun run lint  # Run lint using Bun
