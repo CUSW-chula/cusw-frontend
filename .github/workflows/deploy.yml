@@ -3,10 +3,15 @@ name: Build and Push Docker Image
 on:
   push:
     branches:
-      - dev  # Run this action on push to the main branch
+      - dev  # Run this action on push to the dev branch
+      - main # Run this action on push to the main branch
+  pull_request:
+    branches:
+      - '*'  # Run checks on all branches when a pull request is created
 
 jobs:
   build-and-push:
+    if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main'  # Only run for dev and main branches
     runs-on: ubuntu-latest
 
     steps:
@@ -14,7 +19,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Log in to Docker Hub
+      # Step 2: Log in to Docker Hub (only for dev and main branches)
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
@@ -33,10 +38,33 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-bun-
 
-      # Step 5: Build the Docker image
-      - name: Build Docker image
-        run: docker build . -t bunnybunbun37204/cusw-frontend:latest
+      # Step 5: Set the Docker image tag based on the branch
+      - name: Set Docker tag
+        id: docker_tag
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            echo "TAG=latest-dev" >> $GITHUB_ENV
+          else
+            echo "TAG=latest" >> $GITHUB_ENV
+          fi
 
-      # Step 6: Push the Docker image to Docker Hub
+      # Step 6: Build the Docker image
+      - name: Build Docker image
+        run: docker build . -t bunnybunbun37204/cusw-frontend:${{ env.TAG }}
+
+      # Step 7: Push Docker image to Docker Hub
       - name: Push Docker image to Docker Hub
-        run: docker push bunnybunbun37204/cusw-frontend:latest
+        run: docker push bunnybunbun37204/cusw-frontend:${{ env.TAG }}
+
+  code-check:
+    if: github.event_name == 'pull_request' && github.ref != 'refs/heads/dev' && github.ref != 'refs/heads/main'  # Only for non-dev, non-main branches
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Example of a linting step (you can replace this with your actual check commands)
+      - name: Lint code
+        run: |
+          echo "Running lint checks..."
+          npm run lint
