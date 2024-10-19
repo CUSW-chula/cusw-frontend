@@ -69,9 +69,17 @@ jobs:
           curl -fsSL https://bun.sh/install | bash
           echo 'export BUN_INSTALL="$HOME/.bun"' >> $GITHUB_ENV
           echo 'export PATH="$BUN_INSTALL/bin:$PATH"' >> $GITHUB_ENV
-          source $GITHUB_ENV
 
-      # Step 9: Lint code using Bun
+      # Step 9: Load environment variables
+      - name: Load Bun environment
+        run: source $GITHUB_ENV  # Ensure the PATH is updated
+
+      # Step 10: Verify Bun installation
+      - name: Verify Bun installation
+        run: |
+          bun --version  # Check if Bun is installed correctly
+
+      # Step 11: Lint code using Bun
       - name: Lint code
         run: |
           echo "Running lint checks..."
