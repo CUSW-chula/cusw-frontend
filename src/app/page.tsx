@@ -9,7 +9,7 @@ export default function Home() {
     <div className="min-w-full min-h-full flex flex-col items-center justify-center mt-10 gap-10">
       <Button>Click me</Button>
       <Money />
-      <MenuBar/>
+      <MenuBar />
     </div>
   );
 }

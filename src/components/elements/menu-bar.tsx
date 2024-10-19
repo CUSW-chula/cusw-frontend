@@ -1,5 +1,5 @@
-import { Money } from "./money";
-import { CrownIcon, Users, Tag, Calendar, Trash2, DollarSign } from "lucide-react";
+import { Money } from './money';
+import { CrownIcon, Users, Tag, Calendar, Trash2, DollarSign } from 'lucide-react';
 
 const MenuBar = () => {
   return (
@@ -11,7 +11,7 @@ const MenuBar = () => {
           <div className="w-6 h-6 border-black border-2 rounded-full" />
           {/* Describtion */}
           <div className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight">
-            Status :{" "}
+            Status :{' '}
           </div>
         </div>
         {/* Content */}
@@ -24,7 +24,7 @@ const MenuBar = () => {
           <CrownIcon className="w-6 h-6 relative" />
           {/* Describtion */}
           <div className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight">
-            Owner :{" "}
+            Owner :{' '}
           </div>
         </div>
         <Money />
@@ -36,7 +36,7 @@ const MenuBar = () => {
           <Users className="w-6 h-6 relative" />
           {/* Describtion */}
           <div className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight">
-            Member :{" "}
+            Member :{' '}
           </div>
         </div>
         <Money />
@@ -48,7 +48,7 @@ const MenuBar = () => {
           <Tag className="w-6 h-6 relative" />
           {/* Describtion */}
           <div className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight">
-            Tag :{" "}
+            Tag :{' '}
           </div>
         </div>
         <Money />
@@ -60,7 +60,7 @@ const MenuBar = () => {
           <DollarSign className="w-6 h-6 relative" />
           {/* Describtion */}
           <div className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight">
-            Money :{" "}
+            Money :{' '}
           </div>
         </div>
         <Money />
@@ -72,12 +72,12 @@ const MenuBar = () => {
           <Calendar className="w-6 h-6 relative" />
           {/* Describtion */}
           <div className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight">
-            Date :{" "}
+            Date :{' '}
           </div>
         </div>
         <Money />
-      </div>    
-      <Trash2 className="h-6 w-6"/>
+      </div>
+      <Trash2 className="h-6 w-6" />
     </div>
   );
 };
