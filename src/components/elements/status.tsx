@@ -1,23 +1,20 @@
 'use client';
 
-import * as React from 'react';
-import unassigned from '../../asset/icon/unassigned.svg';
-import assigned from '../../asset/icon/assigned.svg';
-import inreview from '../../asset/icon/inreview.svg';
-import inrecheck from '../../asset/icon/inrecheck.svg';
-import done from '../../asset/icon/done.svg';
-
-import { CheckCircle2, Circle, LucideIcon } from 'lucide-react';
-
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useState } from 'react';
+
+const unassigned = '/asset/icon/unassigned.svg';
+const assigned = '/asset/icon/assigned.svg';
+const inreview = '/asset/icon/inreview.svg';
+const inrecheck = '/asset/icon/inrecheck.svg';
+const done = '/asset/icon/done.svg';
 
 interface Status {
   value: string;
   label: string;
-  icon: React.ElementType;
+  icon: string; // Icon should be a React component
 }
 
 const statuses: Status[] = [
@@ -48,20 +45,28 @@ const statuses: Status[] = [
   },
 ];
 
-export function ComboboxPopover() {
-  const [open, setOpen] = React.useState(false);
-  const [selectedStatus, setSelectedStatus] = React.useState<Status>();
+export function StatusChanging() {
+  const [open, setOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<Status>(statuses[0]);
 
   return (
     <div className="flex items-center">
-      <Circle className="text-gray-400" />
+      <img
+        src={selectedStatus?.icon}
+        className="mr-2 h-4 w-4 shrink-0"
+        alt={selectedStatus?.label}
+      />
       <p className="text-sm text-muted-foreground ml-2 mr-4">Status:</p>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="outline" size="sm" className="w-[150px] justify-start font-BaiJamjuree">
             {selectedStatus ? (
               <>
-                <selectedStatus.icon className="mr-2 h-4 w-4 shrink-0" />
+                <img
+                  src={selectedStatus.icon}
+                  className="mr-2 h-4 w-4 shrink-0"
+                  alt={selectedStatus.label}
+                />
                 {selectedStatus.label}
               </>
             ) : (
@@ -77,22 +82,12 @@ export function ComboboxPopover() {
                   <CommandItem
                     key={status.value}
                     value={status.value}
-                    onSelect={(value) => {
-                      //setSelectedStatus(
-                      //)
+                    onSelect={() => {
+                      const selected = statuses.find((s) => s.value === status.value);
+                      if (selected) setSelectedStatus(selected);
                       setOpen(false);
-                      console.log(value);
                     }}>
-                    {/* <img src={status.icon} alt="icon" /> */}
-                    {/* { <status.icon
-                                            className={cn(
-                                                "mr-2 h-4 w-4",
-                                                status.value === selectedStatus?.value
-                                                    ? "opacity-100"
-                                                    : "opacity-40"
-                                            )}
-                                        />
-                                         } */}
+                    <img src={status.icon} className="mr-2 h-4 w-4 shrink-0" alt={status.label} />
                     <span>{status.label}</span>
                   </CommandItem>
                 ))}
