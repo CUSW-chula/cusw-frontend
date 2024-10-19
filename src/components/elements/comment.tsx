@@ -1,7 +1,7 @@
 'use client';
 
 import type React from 'react';
-import { Send } from 'lucide-react';
+import { Send, Target } from 'lucide-react';
 import { useState } from 'react';
 import { commentlist } from '@/atom';
 import { useAtom } from 'jotai';
@@ -50,18 +50,33 @@ function EditBox({
   onSave,
 }: { content: string; onCancel: () => void; onSave: (newContent: string) => void }) {
   const [editedContent, setEditedContent] = useState(content);
+  const charLimit = 200;
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const inputText = e.target.value;
+    if (inputText.length <= charLimit) {
+      setEditedContent(inputText);
+    }
+  };
 
   return (
-    <div className="flex w-full items-center space-x-2">
+    <div className="flex w-full items-end space-x-2">
       <Textarea
-        className="resize-none"
+        className="resize-none outline-none bg-gray-50"
         value={editedContent}
-        onChange={(e) => setEditedContent(e.target.value)}
+        onChange={handleInputChange}
       />
-      <Button variant="ghost" onClick={onCancel}>
+      <span className="text-sm text-gray-500">
+        {content.length} / {charLimit} characters
+      </span>
+      <Button className="border-[#6b5c56]" variant="outline" onClick={onCancel}>
         Cancel
       </Button>
-      <Button onClick={() => onSave(editedContent)}>Confirm</Button>
+      <Button
+        className="bg-[#6b5c56] text-white hover:bg-[#6b5c56]"
+        onClick={() => onSave(editedContent)}>
+        Confirm
+      </Button>
     </div>
   );
 }
@@ -99,47 +114,49 @@ function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp
               {formatDate(createdAt)}
             </div>
           </div>
-          <div className="relative">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button className="hover:text-gray-800" variant="ghost">
-                  •••
-                </Button>
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent className="w-7">
-                <DropdownMenuItem>
-                  <Button variant="ghost" onClick={() => setIsEditing(true)}>
-                    Edit
+          {!isEditing && (
+            <div className="relative">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="hover:text-gray-800" variant="ghost">
+                    •••
                   </Button>
-                </DropdownMenuItem>
+                </DropdownMenuTrigger>
 
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="ghost">Delete</Button>
-                    </AlertDialogTrigger>
+                <DropdownMenuContent className="w-7">
+                  <DropdownMenuItem>
+                    <Button variant="ghost" onClick={() => setIsEditing(true)}>
+                      Edit
+                    </Button>
+                  </DropdownMenuItem>
 
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          คุณต้องการลบความเห็นของคุณใช่หรือไม่
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost">Delete</Button>
+                      </AlertDialogTrigger>
 
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>ไม่</AlertDialogCancel>
-                        <AlertDialogAction className="bg-red text-white" onClick={deleteComment}>
-                          ใช่
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Do you want to delete your comment? this progress can not be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>cannel</AlertDialogCancel>
+                          <AlertDialogAction className="bg-red text-white" onClick={deleteComment}>
+                            continue
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
         </div>
         {isEditing ? (
           <EditBox
@@ -162,13 +179,22 @@ function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp
 const Comment: React.FC = () => {
   const [comment, setComment] = useState('');
   const [list, setList] = useAtom<CommentBoxProp[]>(commentlist);
+  const charLimit = 200;
 
-  const handleInputChange = (e: { target: { value: React.SetStateAction<string> } }) => {
-    setComment(e.target.value);
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const inputText = e.target.value;
+    if (inputText.length <= charLimit) {
+      setComment(inputText);
+    }
   };
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
+
+    if (comment.trim().length === 0) {
+      alert('Comment cannot be empty!');
+      return;
+    }
     // Do something with the comment
     setList([
       ...list,
@@ -178,7 +204,7 @@ const Comment: React.FC = () => {
   };
 
   return (
-    <div className="w-[530px] h-[362px] flex-col justify-start items-start gap-[18px] inline-flex ">
+    <div className="w-[530px] h-[500px] flex-col justify-start items-start gap-[18px] inline-flex ">
       <div className="font-semibold font-Anuphan text-2xl">Comment</div>
       <div className="max-h-84 overflow-y-scroll">
         <ul>
@@ -201,12 +227,15 @@ const Comment: React.FC = () => {
       <div className="flex flex-col w-[530px] h-[115px] border-2 border-[#6b5c56] rounded-lg p-[10px]">
         <form onSubmit={handleSubmit}>
           <textarea
-            className="w-full h-[50px] outline-none resize-none"
+            className="w-full h-[50px] outline-none resize-none maxlength=150"
             placeholder="Add your comment..."
             value={comment}
             onChange={handleInputChange}
           />
           <div className="flex justify-between items-center mt-[10px]">
+            <span className="text-sm text-gray-500">
+              {comment.length} / {charLimit} characters
+            </span>
             <div />
             <button
               type="submit"
