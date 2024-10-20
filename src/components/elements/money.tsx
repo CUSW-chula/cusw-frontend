@@ -90,14 +90,18 @@ const Money = () => {
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogTrigger asChild>
           <div
-            className={`h-10 px-4 bg-white rounded-md border border-neutral-200 justify-center items-center flex min-w-32 font-BaiJamjuree ${
+            className={`h-10 px-4 bg-white rounded-md border border-neutral-200 justify-center items-center flex min-w-32 font-BaiJamjuree hover:cursor-pointer ${
               budget.type === TypeMoney.real
                 ? 'text-green'
                 : budget.type === TypeMoney.used
                   ? 'text-red'
                   : 'text-black'
             }`}>
-            {budget.type === TypeMoney.null ? 'Add Money' : budget.money.toLocaleString()}{' '}
+            {budget.type === TypeMoney.null
+              ? 'Add Money'
+              : Number.isNaN(budget.money)
+                ? 'Add Money'
+                : budget.money.toLocaleString()}
             {/* Allow up to three decimal */}
           </div>
         </DialogTrigger>
@@ -159,20 +163,12 @@ const Money = () => {
             <Input
               id="budget"
               value={Number.isNaN(budget.money) ? '' : budget.money}
-              onChange={(e) => {
-                const value = Number.parseFloat(e.target.value);
+              onChange={(e) =>
                 setBudget((prevBudget) => ({
                   ...prevBudget,
-                  money: value,
-                }));
-                if (Number.isNaN(value)) {
-                  alert('Invalid input! Please enter a valid number.');
-                  setBudget((prevBudget) => ({
-                    ...prevBudget,
-                    money: 0,
-                  }));
-                }
-              }}
+                  money: Number.parseFloat(e.target.value),
+                }))
+              }
               type="number"
               className={`h-10 w-48 px-4 bg-white rounded-md border-t border-gray-300 font-BaiJamjuree ${
                 budget.type === TypeMoney.real
@@ -201,7 +197,7 @@ const Money = () => {
               <Button
                 onClick={() => handleSubmit(budget)}
                 className="h-10 bg-inherit rounded-[100px] flex-col justify-center items-center gap-2 inline-flex text-brown text-sm font-normal font-BaiJamjuree  hover:bg-gray-100"
-                disabled={budget.type === TypeMoney.null || budget.money === 0}>
+                disabled={budget.type === TypeMoney.null || Number.isNaN(budget.money)}>
                 Ok
               </Button>
             </div>
