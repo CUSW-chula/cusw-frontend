@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -55,11 +55,26 @@ const Money = () => {
   };
 
   const sentLog = () => {
-    console.log({
-      taskId: 'constant taskID',
-      budgetType: budget.type,
-      money: budget.money,
-    });
+    budget.type === TypeMoney.exp
+      ? console.log({
+          taskId: 'constant taskID',
+          expectedBudget: budget.money,
+          realBudget: 0,
+          usedBudget: 0,
+        })
+      : budget.type === TypeMoney.real
+        ? console.log({
+            taskId: 'constant taskID',
+            expectedBudget: 0,
+            realBudget: budget.money,
+            usedBudget: 0,
+          })
+        : console.log({
+            taskId: 'constant taskID',
+            expectedBudget: 0,
+            realBudget: 0,
+            usedBudget: budget.money,
+          });
   };
 
   return (
@@ -74,18 +89,16 @@ const Money = () => {
       </div>
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogTrigger asChild>
-          <div className="h-10 px-4 bg-white rounded-md border border-neutral-200 flex-col justify-center items-start gap-2.5 inline-flex">
-            <div className="justify-start items-center gap-2 inline-flex">
-              {budget.type === '' ? (
-                <div>Select Type</div>
-              ) : budget.type === TypeMoney.exp ? (
-                <div>{budget.money}</div>
-              ) : budget.type === TypeMoney.real ? (
-                <div className="text-green">{budget.money}</div>
-              ) : (
-                <div className="text-red">{budget.money}</div>
-              )}
-            </div>
+          <div
+            className={`h-10 px-4 bg-white rounded-md border border-neutral-200 justify-center items-center flex min-w-32 font-BaiJamjuree ${
+              budget.type === TypeMoney.real
+                ? 'text-green'
+                : budget.type === TypeMoney.used
+                  ? 'text-red'
+                  : 'text-black'
+            }`}>
+            {budget.type === TypeMoney.null ? 'Add Money' : budget.money.toLocaleString()}{' '}
+            {/* Allow up to three decimal */}
           </div>
         </DialogTrigger>
         <DialogContent className="w-[360px] h-[156px] px-3 pt-1 pb-3 bg-white rounded-md border border-brown flex-col justify-start items-start gap-4 inline-flex">
@@ -94,7 +107,7 @@ const Money = () => {
           <DialogDescription className="w-full flex flex-row self-stretch h-24 px-1.5 pt-9 justify-start gap-2">
             <Popover open={openType} onOpenChange={setOpenType}>
               <PopoverTrigger className="w-32 h-10 px-3 rounded-md border border-gray-300 justify-between items-center inline-flex">
-                {budget.type === '' ? (
+                {budget.type === TypeMoney.null ? (
                   <div>Select Type</div>
                 ) : budget.type === TypeMoney.exp ? (
                   <div>งบประมาณ</div>
@@ -145,7 +158,7 @@ const Money = () => {
             </Popover>
             <Input
               id="budget"
-              value={budget.money}
+              value={Number.isNaN(budget.money) ? '' : budget.money}
               onChange={(e) => {
                 const value = Number.parseFloat(e.target.value);
                 setBudget((prevBudget) => ({
@@ -154,17 +167,19 @@ const Money = () => {
                 }));
                 if (Number.isNaN(value)) {
                   alert('Invalid input! Please enter a valid number.');
+                  setBudget((prevBudget) => ({
+                    ...prevBudget,
+                    money: 0,
+                  }));
                 }
               }}
               type="number"
-              className={`h-10 w-48 px-4 bg-white rounded-md border-t border-gray-300 ${
-                budget.type === TypeMoney.null
-                  ? 'text-black'
-                  : budget.type === TypeMoney.exp
-                    ? 'text-black'
-                    : budget.type === TypeMoney.real
-                      ? 'text-green'
-                      : 'text-red'
+              className={`h-10 w-48 px-4 bg-white rounded-md border-t border-gray-300 font-BaiJamjuree ${
+                budget.type === TypeMoney.real
+                  ? 'text-green'
+                  : budget.type === TypeMoney.used
+                    ? 'text-red'
+                    : 'text-black'
               }
               `}
               placeholder="Add Budget..."
