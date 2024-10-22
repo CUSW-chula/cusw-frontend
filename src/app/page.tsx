@@ -1,5 +1,7 @@
+import { DatePickerWithRange } from '@/components/elements/date-feature';
+
 const Home = () => {
-  return <div>Test For docker</div>;
+  return <DatePickerWithRange />;
 };
 
 export default Home;
