@@ -5,6 +5,8 @@ import Comment from '@/components/elements/comment';
 import { ButtonAddTags } from '@/components/elements/button-add-tag';
 import { AssignedTaskToMember } from '@/components/elements/assigned-task';
 import { ProjectOwner } from '@/components/elements/project-owner';
+import StatusLabel from '@/components/elements/status-label';
+import StatusButton from '@/components/elements/status-botton';
 
 export default function TasksManageMentPage() {
   const Workspace = dynamic(() => import('../../../components/elements/workspace'), { ssr: false });
