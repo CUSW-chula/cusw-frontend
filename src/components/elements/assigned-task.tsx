@@ -58,10 +58,6 @@ export function AssignedTaskToMember() {
     <TooltipProvider>
       <div className="flex flex-row gap-1 flex-wrap">
         <div className="flex items-center space-x-4">
-          <div className="flex flex-basis-* gap-2">
-            <Users />
-            <p className="detail">Member :</p>
-          </div>
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline">
