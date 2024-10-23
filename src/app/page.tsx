@@ -1,7 +1,5 @@
 const Home = () => {
-  return <div>Test For docker v2</div>;
+  return <div>Home</div>;
 };
 
 export default Home;
-
-

@@ -1,5 +1,5 @@
 'use client';
-import { useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { UploadCloud, File, Circle, Download, X } from 'lucide-react';
 import {
@@ -116,7 +116,7 @@ const Displayfile: React.FC<DisplayfileProps> = ({ fileList, setFileList }) => {
               <div className="flex gap-4 items-center">
                 <p className="flex">Uploaded by {file.uploadedBy}</p>
                 <Circle className="fill-black size-2 mx-1" />
-                <p className="flex">{file.uploadedAt.toLocaleString()}</p>
+                <p className="flex">{file.createdAt.toLocaleString()}</p>
                 <Circle className="fill-black size-2 mx-1" />
                 <p className="flex">{Math.round(file.fileSize / 1024)} KB</p>
               </div>

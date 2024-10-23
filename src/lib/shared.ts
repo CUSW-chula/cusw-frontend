@@ -5,9 +5,3 @@ export interface CommentBoxProp {
   authorId: string;
   createdAt: Date;
 }
-
-export interface Status {
-  value: string;
-  label: string;
-  icon: string;
-}
