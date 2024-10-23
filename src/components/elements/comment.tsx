@@ -1,7 +1,7 @@
 'use client';
 import type React from 'react';
-import { Send } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Send, Target } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { commentlist } from '@/atom';
 import { useAtom } from 'jotai';
 import { Textarea } from '../ui/textarea';
@@ -42,7 +42,6 @@ function formatDate(date?: Date): string {
 
   return `${day}/${month}/${year}, ${hours}:${minutes}`;
 }
-
 
 function EditBox({
   content,
@@ -137,9 +136,7 @@ function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center">
-              <span className="text-slate-900">
-                {name ? getInitials(name) : '?'}
-              </span>
+              <span className="text-slate-900">{name ? getInitials(name) : '?'}</span>
             </div>
             <div className="font-semibold font-BaiJamjuree text-slate-900">
               {name || 'Loading...'}
@@ -176,10 +173,7 @@ function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            className="bg-red text-white"
-                            onClick={deleteComment}
-                          >
+                          <AlertDialogAction className="bg-red text-white" onClick={deleteComment}>
                             Continue
                           </AlertDialogAction>
                         </AlertDialogFooter>
@@ -200,8 +194,7 @@ function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp
         ) : (
           <div
             className="text-black text-base font-normal leading-7 mt-2 break-words font-BaiJamjuree max-h-20 overflow-hidden"
-            style={{ wordBreak: 'break-word' }}
-          >
+            style={{ wordBreak: 'break-word' }}>
             {content}
           </div>
         )}
@@ -271,14 +264,12 @@ const Comment: React.FC = () => {
         if (eventName === 'comment')
           setList((prevList) => [...prevList, data]); // Functional update
         else if (eventName === 'comment-delete') {
-          setList((prevList) =>
-            prevList.filter((item) => item.id !== data.id)
-          ); // Remove deleted comment
+          setList((prevList) => prevList.filter((item) => item.id !== data.id)); // Remove deleted comment
         } else if (eventName === 'comment-edit') {
           setList((prevList) =>
             prevList.map((item) =>
-              item.id === data.id ? { ...item, content: data.content } : item
-            )
+              item.id === data.id ? { ...item, content: data.content } : item,
+            ),
           );
         }
       } catch (error) {
@@ -295,17 +286,20 @@ const Comment: React.FC = () => {
     };
   }, [setList]);
 
-  const handleInputChange = (e: { target: { value: React.SetStateAction<string> } }) => {
-    setComment(e.target.value);
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const inputText = e.target.value;
+    if (inputText.length <= charLimit) {
+      setComment(inputText);
+    }
   };
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    // // Do something with the comment
-    // setList([
-    //   ...list,
-    //   { id: '1324', content: comment, authorId: '865', createdAt: new Date(), taskId: '' },
-    // ]);
+    if (comment.trim().length === 0) {
+      alert('Comment cannot be empty!');
+      return;
+    }
+
     await fetch('http://localhost:4000/api/comments/', {
       method: 'POST',
       headers: {
@@ -317,11 +311,10 @@ const Comment: React.FC = () => {
         taskId: 'cm24lq0sx0001jkpdbc9lxu8x',
       }),
     });
-    setComment(''); // Clear the input field after submission
   };
 
   return (
-    <div className="w-[530px] h-[362px] flex-col justify-start items-start gap-[18px] inline-flex ">
+    <div className="w-[530px] h-[500px] flex-col justify-start items-start gap-[18px] inline-flex ">
       <div className="font-semibold font-Anuphan text-2xl">Comment</div>
       <div className="max-h-84 overflow-y-scroll">
         <ul>
