@@ -10,6 +10,42 @@ const activityLogs: Array<ActivityLogItemProps> = [
     detail: 'from unassigned to assigned',
     createdAt: new Date(),
   },
+  {
+    id: 1,
+    user: 'Banyaphon Kongtham',
+    action: 'changed status',
+    detail: 'from unassigned to assigned',
+    createdAt: new Date(),
+  },
+  {
+    id: 1,
+    user: 'Banyaphon Kongtham',
+    action: 'changed status',
+    detail: 'from unassigned to assigned',
+    createdAt: new Date(),
+  },
+  {
+    id: 1,
+    user: 'Banyaphon Kongtham',
+    action: 'changed status',
+    detail: 'from unassigned to assigned',
+    createdAt: new Date(),
+  },
+  {
+    id: 1,
+    user: 'Banyaphon Kongtham',
+    action: 'changed status',
+    detail: 'from unassigned to assigned',
+    createdAt: new Date(),
+  },
+  {
+    id: 1,
+    user: 'Banyaphon Kongtham',
+    action: 'changed status',
+    detail: 'from unassigned to assigned',
+    createdAt: new Date(),
+  },
+
   // Add more activity log items as needed
 ];
 
@@ -83,19 +119,21 @@ const ActivityLogs: React.FC = () => {
   return (
     <div className="bg-white space-y-2">
       <h3 className="text-2xl font-semibold text-gray-900 mb-4 font-Anuphan">Activity</h3>
-      <ul>
-        {activityLogs.map((item) => (
-          <li key={item.id}>
-            <ActivityLogItem
-              user={item.user}
-              action={item.action}
-              detail={item.detail}
-              createdAt={item.createdAt}
-              id={item.id}
-            />
-          </li>
-        ))}
-      </ul>
+      <div className="max-h-48 overflow-y-auto">
+        <ul>
+          {activityLogs.map((item) => (
+            <li key={item.id}>
+              <ActivityLogItem
+                user={item.user}
+                action={item.action}
+                detail={item.detail}
+                createdAt={item.createdAt}
+                id={item.id}
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };
