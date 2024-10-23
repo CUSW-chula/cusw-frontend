@@ -1,7 +1,7 @@
 'use client';
 import type React from 'react';
 import { Send } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { commentlist } from '@/atom';
 import { useAtom } from 'jotai';
 import { Textarea } from '../ui/textarea';
@@ -42,7 +42,6 @@ function formatDate(date?: Date): string {
 
   return `${day}/${month}/${year}, ${hours}:${minutes}`;
 }
-
 
 function EditBox({
   content,
@@ -100,7 +99,6 @@ async function getName(authorId: string) {
 }
 
 function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp) {
-  const [, setCommentList] = useAtom<CommentBoxProp[]>(commentlist);
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState<string | null>(null);
 
@@ -137,9 +135,7 @@ function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center">
-              <span className="text-slate-900">
-                {name ? getInitials(name) : '?'}
-              </span>
+              <span className="text-slate-900">{name ? getInitials(name) : '?'}</span>
             </div>
             <div className="font-semibold font-BaiJamjuree text-slate-900">
               {name || 'Loading...'}
@@ -176,10 +172,7 @@ function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            className="bg-red text-white"
-                            onClick={deleteComment}
-                          >
+                          <AlertDialogAction className="bg-red text-white" onClick={deleteComment}>
                             Continue
                           </AlertDialogAction>
                         </AlertDialogFooter>
@@ -200,8 +193,7 @@ function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp
         ) : (
           <div
             className="text-black text-base font-normal leading-7 mt-2 break-words font-BaiJamjuree max-h-20 overflow-hidden"
-            style={{ wordBreak: 'break-word' }}
-          >
+            style={{ wordBreak: 'break-word' }}>
             {content}
           </div>
         )}
@@ -216,7 +208,7 @@ const Comment: React.FC = () => {
   const charLimit = 200;
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  const pareJsonValues = (values: any[]) => {
+  const pareJsonValues = useCallback((values: any[]) => {
     const newValue: CommentBoxProp[] = [];
     console.log('VAL', values);
     for (const value of values) {
@@ -229,10 +221,10 @@ const Comment: React.FC = () => {
       });
     }
     return newValue;
-  };
+  }, []);
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  const pareJsonValue = (values: any) => {
+  const pareJsonValue = useCallback((values: any) => {
     const newValue: CommentBoxProp = {
       id: values.id,
       content: values.content,
@@ -241,7 +233,7 @@ const Comment: React.FC = () => {
       authorId: values.authorId,
     };
     return newValue;
-  };
+  }, []);
 
   useEffect(() => {
     const fetchComment = async () => {
@@ -271,14 +263,12 @@ const Comment: React.FC = () => {
         if (eventName === 'comment')
           setList((prevList) => [...prevList, data]); // Functional update
         else if (eventName === 'comment-delete') {
-          setList((prevList) =>
-            prevList.filter((item) => item.id !== data.id)
-          ); // Remove deleted comment
+          setList((prevList) => prevList.filter((item) => item.id !== data.id)); // Remove deleted comment
         } else if (eventName === 'comment-edit') {
           setList((prevList) =>
             prevList.map((item) =>
-              item.id === data.id ? { ...item, content: data.content } : item
-            )
+              item.id === data.id ? { ...item, content: data.content } : item,
+            ),
           );
         }
       } catch (error) {
@@ -293,7 +283,7 @@ const Comment: React.FC = () => {
     return () => {
       ws.close();
     };
-  }, [setList]);
+  }, [pareJsonValue, pareJsonValues, setList]); // Add pareJsonValue and pareJsonValues to the dependency array
 
   const handleInputChange = (e: { target: { value: React.SetStateAction<string> } }) => {
     setComment(e.target.value);
