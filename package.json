@@ -11,10 +11,7 @@
     "lint": "bunx biome lint ./src",
     "lint:fix": "bunx biome lint --write ./src",
     "format": "bunx biome format ./src",
-    "format:fix": "bunx biome format --write ./src",
-    "deploy:local": "next build && pm2 startOrRestart ecosystem.config.js --env local",
-    "deploy:dev": "next build && pm2 startOrRestart ecosystem.config.js --env dev",
-    "deploy:prod": "next build && pm2 startOrRestart ecosystem.config.js --env prod"
+    "format:fix": "bunx biome format --write ./src"
   },
   "dependencies": {
     "@blocknote/core": "^0.17.0",
@@ -51,6 +48,7 @@
     "react-hook-form": "^7.53.0",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
+    "ws": "^8.18.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

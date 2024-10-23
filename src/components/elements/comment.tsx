@@ -1,8 +1,7 @@
 'use client';
-
 import type React from 'react';
-import { Send, Target } from 'lucide-react';
-import { useState } from 'react';
+import { Send } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
 import { commentlist } from '@/atom';
 import { useAtom } from 'jotai';
 import { Textarea } from '../ui/textarea';
@@ -48,7 +47,11 @@ function EditBox({
   content,
   onCancel,
   onSave,
-}: { content: string; onCancel: () => void; onSave: (newContent: string) => void }) {
+}: {
+  content: string;
+  onCancel: () => void;
+  onSave: (newContent: string) => void;
+}) {
   const [editedContent, setEditedContent] = useState(content);
   const charLimit = 200;
 
@@ -59,6 +62,14 @@ function EditBox({
     }
   };
 
+  const handleSave = () => {
+    if (editedContent.trim().length === 0) {
+      alert('Comment cannot be empty!');
+      return;
+    }
+    onSave(editedContent);
+  };
+
   return (
     <div className="flex w-full items-end space-x-2">
       <Textarea
@@ -67,49 +78,77 @@ function EditBox({
         onChange={handleInputChange}
       />
       <span className="text-sm text-gray-500">
-        {content.length} / {charLimit} characters
+        {editedContent.length} / {charLimit} characters
       </span>
       <Button className="border-[#6b5c56]" variant="outline" onClick={onCancel}>
         Cancel
       </Button>
       <Button
         className="bg-[#6b5c56] text-white hover:bg-[#6b5c56]"
-        onClick={() => onSave(editedContent)}>
+        onClick={handleSave}
+        disabled={editedContent.trim().length === 0 || editedContent === content}>
         Confirm
       </Button>
     </div>
   );
 }
 
+async function getName(authorId: string) {
+  try {
+    const response = await fetch(`http://localhost:4000/api/users/${authorId}`);
+    if (!response.ok) {
+      throw new Error(`Error: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data.name; // Assuming the API response has a 'name' field
+  } catch (error) {
+    console.error('Failed to fetch user name:', error);
+    return 'Unknown'; // Handle error gracefully
+  }
+}
+
 function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp) {
-  const userId = '865';
-  const [, setCommentList] = useAtom<CommentBoxProp[]>(commentlist);
   const [isEditing, setIsEditing] = useState(false);
+  const [name, setName] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Fetch the author's name once when the component mounts
+    getName(authorId).then(setName);
+  }, [authorId]);
+
+  const getInitials = (name: string) => {
+    const nameParts = name.split(' ');
+    return nameParts.map((part) => part[0]).join('');
+  };
 
   const deleteComment = () => {
-    setCommentList((prevComments) =>
-      prevComments.filter((comment) => comment.id !== id || comment.authorId !== userId),
-    );
+    fetch('http://localhost:4000/api/comments/', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, authorId }),
+    });
   };
 
   const saveEditedContent = (newContent: string) => {
-    setCommentList((prevComments) =>
-      prevComments.map((comment) =>
-        comment.id === id ? { ...comment, content: newContent, createdAt: new Date() } : comment,
-      ),
-    );
+    fetch('http://localhost:4000/api/comments/', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, authorId, content: newContent }),
+    });
     setIsEditing(false);
   };
 
   return (
-    <div className="w-[530px] h-auto flex flex-col p-1 gap-4 ">
+    <div className="w-[530px] h-auto flex flex-col p-1 gap-4">
       <div className="bg-gray-50 rounded-md p-3">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center">
-              <span className="text-slate-900">PP</span>
+              <span className="text-slate-900">{name ? getInitials(name) : '?'}</span>
             </div>
-            <div className="font-semibold font-BaiJamjuree text-slate-900">Pongsakorn</div>
+            <div className="font-semibold font-BaiJamjuree text-slate-900">
+              {name || 'Loading...'}
+            </div>
             <div className="text-[#6b5c56] text-base font-normal font-['Bai Jamjuree'] leading-7">
               {formatDate(createdAt)}
             </div>
@@ -122,32 +161,28 @@ function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp
                     •••
                   </Button>
                 </DropdownMenuTrigger>
-
                 <DropdownMenuContent className="w-7">
                   <DropdownMenuItem>
                     <Button variant="ghost" onClick={() => setIsEditing(true)}>
                       Edit
                     </Button>
                   </DropdownMenuItem>
-
                   <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button variant="ghost">Delete</Button>
                       </AlertDialogTrigger>
-
                       <AlertDialogContent>
                         <AlertDialogHeader>
                           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Do you want to delete your comment? this progress can not be undone.
+                            Do you want to delete your comment? This progress cannot be undone.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
-
                         <AlertDialogFooter>
-                          <AlertDialogCancel>cannel</AlertDialogCancel>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
                           <AlertDialogAction className="bg-red text-white" onClick={deleteComment}>
-                            continue
+                            Continue
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
@@ -181,35 +216,114 @@ const Comment: React.FC = () => {
   const [list, setList] = useAtom<CommentBoxProp[]>(commentlist);
   const charLimit = 200;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const inputText = e.target.value;
-    if (inputText.length <= charLimit) {
-      setComment(inputText);
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  const pareJsonValues = useCallback((values: any[]) => {
+    const newValue: CommentBoxProp[] = [];
+    for (const value of values) {
+      newValue.push({
+        id: value.id,
+        content: value.content,
+        createdAt: new Date(value.createdAt),
+        taskId: value.taskId,
+        authorId: value.authorId,
+      });
     }
+    return newValue;
+  }, []);
+
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  const pareJsonValue = useCallback((values: any) => {
+    const newValue: CommentBoxProp = {
+      id: values.id,
+      content: values.content,
+      createdAt: new Date(values.createdAt),
+      taskId: values.taskId,
+      authorId: values.authorId,
+    };
+    return newValue;
+  }, []);
+
+  useEffect(() => {
+    const fetchComment = async () => {
+      const commentData = await fetch(
+        'http://localhost:4000/api/comments/cm24lq0sx0001jkpdbc9lxu8x',
+      );
+      const commentList = await commentData.json();
+      setList(pareJsonValues(commentList));
+    };
+
+    fetchComment();
+
+    const ws = new WebSocket('ws://localhost:3001');
+
+    ws.onopen = () => {
+      console.log('Connected to WebSocket');
+    };
+
+    ws.onmessage = (event) => {
+      console.log('Message received:', event.data);
+
+      try {
+        const socketEvent = JSON.parse(event.data); // Parse incoming message
+        const eventName = socketEvent.eventName;
+        const data = pareJsonValue(socketEvent.data); // Comment Data
+        if (eventName === 'comment')
+          setList((prevList) => [...prevList, data]); // Functional update
+        else if (eventName === 'comment-delete') {
+          setList((prevList) => prevList.filter((item) => item.id !== data.id)); // Remove deleted comment
+        } else if (eventName === 'comment-edit') {
+          setList((prevList) =>
+            prevList.map((item) =>
+              item.id === data.id ? { ...item, content: data.content } : item,
+            ),
+          );
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    };
+
+    ws.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [pareJsonValue, pareJsonValues, setList]); // Add pareJsonValue and pareJsonValues to the dependency array
+
+  const handleInputChange = (e: { target: { value: React.SetStateAction<string> } }) => {
+    setComment(e.target.value);
   };
 
-  const handleSubmit = (e: { preventDefault: () => void }) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-
     if (comment.trim().length === 0) {
       alert('Comment cannot be empty!');
       return;
     }
-    // Do something with the comment
-    setList([
-      ...list,
-      { id: '1324', content: comment, authorId: '865', createdAt: new Date(), taskId: '' },
-    ]);
+
+    await fetch('http://localhost:4000/api/comments/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        content: comment,
+        authorId: 'cm24ll4370008kh59coznldal',
+        taskId: 'cm24lq0sx0001jkpdbc9lxu8x',
+      }),
+    });
     setComment(''); // Clear the input field after submission
   };
 
   return (
-    <div className="w-[530px] h-[500px] flex-col justify-start items-start gap-[18px] inline-flex ">
+    <div className="w-[530px] h-[362px] flex-col justify-start items-start gap-[18px] inline-flex ">
       <div className="font-semibold font-Anuphan text-2xl">Comment</div>
       <div className="max-h-84 overflow-y-scroll">
         <ul>
           {list.map((item) => (
-            <li key={item.createdAt.toDateString()}>
+            <li key={item.id}>
               <CommentBox
                 id={item.id}
                 content={item.content}
@@ -230,6 +344,7 @@ const Comment: React.FC = () => {
             className="w-full h-[50px] outline-none resize-none maxlength=150"
             placeholder="Add your comment..."
             value={comment}
+            maxLength={200}
             onChange={handleInputChange}
           />
           <div className="flex justify-between items-center mt-[10px]">
