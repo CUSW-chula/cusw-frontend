@@ -5,7 +5,7 @@ import type React from 'react';
 const activityLogs: Array<ActivityLogItemProps> = [
   {
     id: 1,
-    user: 'Banyaphon',
+    user: 'Banyaphon Kongtham',
     action: 'changed status',
     detail: 'from unassigned to assigned',
     createdAt: new Date(),
@@ -21,7 +21,7 @@ interface ActivityLogItemProps {
   createdAt?: Date;
 }
 
-function BoldAfterToFrom(sentence: string) {
+function boldAfterToFrom(sentence: string) {
   const words = sentence.split(' ');
   const elements = [];
   let previousWord = '';
@@ -72,7 +72,7 @@ function ActivityLogItem({ user, action, detail, createdAt }: ActivityLogItemPro
         </Tooltip>
       </TooltipProvider>
       <span>{action}</span>
-      <span className="font-semibold">{BoldAfterToFrom(detail)}</span>
+      <span>{boldAfterToFrom(detail)}</span>
       <span className="text-gray-500 pl-1 text-sm">{formatDate(createdAt)}</span>
     </div>
   );
@@ -81,22 +81,22 @@ function ActivityLogItem({ user, action, detail, createdAt }: ActivityLogItemPro
 // Main ActivityLogs component
 const ActivityLogs: React.FC = () => {
   return (
-      <div className="bg-white space-y-2">
-        <h3 className="text-2xl font-semibold text-gray-900 mb-4 font-Anuphan">Activity</h3>
-        <ul>
-          {activityLogs.map((item) => (
-            <li key={item.id}>
-                <ActivityLogItem
-                  user={item.user}
-                  action={item.action}
-                  detail={item.detail}
-                  createdAt={item.createdAt}
-                  id={item.id}
-                />
-            </li>
-          ))}
-        </ul>
-      </div>
+    <div className="bg-white space-y-2">
+      <h3 className="text-2xl font-semibold text-gray-900 mb-4 font-Anuphan">Activity</h3>
+      <ul>
+        {activityLogs.map((item) => (
+          <li key={item.id}>
+            <ActivityLogItem
+              user={item.user}
+              action={item.action}
+              detail={item.detail}
+              createdAt={item.createdAt}
+              id={item.id}
+            />
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 };
 
