@@ -42,7 +42,7 @@ export function DatePickerWithRange() {
       setInputValue(
         range.to
           ? `${format(range.from, 'MM/dd/yyyy')} - ${format(range.to, 'MM/dd/yyyy')}`
-          : format(range.from, 'MM/dd/yyyy')
+          : format(range.from, 'MM/dd/yyyy'),
       );
     } else {
       setInputValue('');
