@@ -62,6 +62,14 @@ function EditBox({
     }
   };
 
+  const handleSave = () => {
+    if (editedContent.trim().length === 0) {
+      alert('Comment cannot be empty!');
+      return;
+    }
+    onSave(editedContent);
+  };
+
   return (
     <div className="flex w-full items-end space-x-2">
       <Textarea
@@ -77,7 +85,8 @@ function EditBox({
       </Button>
       <Button
         className="bg-[#6b5c56] text-white hover:bg-[#6b5c56]"
-        onClick={() => onSave(editedContent)}>
+        onClick={handleSave}
+        disabled={editedContent.trim().length === 0 || editedContent === content}>
         Confirm
       </Button>
     </div>
