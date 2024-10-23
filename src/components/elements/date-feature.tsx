@@ -12,14 +12,14 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 
 export function DatePickerWithRange({ className }: React.HTMLAttributes<HTMLDivElement>) {
   const [date, setDate] = React.useState<DateRange | undefined>({
-    from: new Date()
+    from: new Date(),
   });
 
   const handleDate = () => {
     // Process your form submission logic here
 
     console.log({
-      date
+      date,
     });
   };
 
@@ -37,10 +37,9 @@ export function DatePickerWithRange({ className }: React.HTMLAttributes<HTMLDivE
             <CalendarIcon className="mr-2 h-4 w-4" />
             {date?.from ? (
               date.to ? (
-                    <>
-                    {format(date.from, 'LLL dd, y')} - {format(date.to, 'LLL dd, y')}
-                    </>
-                
+                <>
+                  {format(date.from, 'LLL dd, y')} - {format(date.to, 'LLL dd, y')}
+                </>
               ) : (
                 format(date.from, 'LLL dd, y')
               )
