@@ -62,6 +62,14 @@ function EditBox({
     }
   };
 
+  const handleSave = () => {
+    if (editedContent.trim().length === 0) {
+      alert('Comment cannot be empty!');
+      return;
+    }
+    onSave(editedContent);
+  };
+
   return (
     <div className="flex w-full items-end space-x-2">
       <Textarea
@@ -77,7 +85,8 @@ function EditBox({
       </Button>
       <Button
         className="bg-[#6b5c56] text-white hover:bg-[#6b5c56]"
-        onClick={() => onSave(editedContent)}>
+        onClick={handleSave}
+        disabled={editedContent.trim().length === 0 || editedContent === content}>
         Confirm
       </Button>
     </div>
@@ -210,7 +219,6 @@ const Comment: React.FC = () => {
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const pareJsonValues = useCallback((values: any[]) => {
     const newValue: CommentBoxProp[] = [];
-    console.log('VAL', values);
     for (const value of values) {
       newValue.push({
         id: value.id,
@@ -257,7 +265,6 @@ const Comment: React.FC = () => {
 
       try {
         const socketEvent = JSON.parse(event.data); // Parse incoming message
-        console.log(socketEvent);
         const eventName = socketEvent.eventName;
         const data = pareJsonValue(socketEvent.data); // Comment Data
         if (eventName === 'comment')
@@ -291,11 +298,11 @@ const Comment: React.FC = () => {
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    // // Do something with the comment
-    // setList([
-    //   ...list,
-    //   { id: '1324', content: comment, authorId: '865', createdAt: new Date(), taskId: '' },
-    // ]);
+    if (comment.trim().length === 0) {
+      alert('Comment cannot be empty!');
+      return;
+    }
+
     await fetch('http://localhost:4000/api/comments/', {
       method: 'POST',
       headers: {
