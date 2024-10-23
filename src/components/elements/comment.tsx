@@ -344,6 +344,7 @@ const Comment: React.FC = () => {
             className="w-full h-[50px] outline-none resize-none maxlength=150"
             placeholder="Add your comment..."
             value={comment}
+            maxLength={200}
             onChange={handleInputChange}
           />
           <div className="flex justify-between items-center mt-[10px]">
