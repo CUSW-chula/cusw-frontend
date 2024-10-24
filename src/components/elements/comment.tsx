@@ -100,7 +100,7 @@ async function getName(authorId: string) {
       throw new Error(`Error: ${response.statusText}`);
     }
     const data = await response.json();
-    return data.name; // Assuming the API response has a 'name' field
+    return data.name.split(' ')[0]; // Assuming the API response has a 'name' field
   } catch (error) {
     console.error('Failed to fetch user name:', error);
     return 'Unknown'; // Handle error gracefully
@@ -121,16 +121,16 @@ function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp
     return nameParts.map((part) => part[0]).join('');
   };
 
-  const deleteComment = () => {
-    fetch('http://localhost:4000/api/comments/', {
+  const deleteComment = async () => {
+    await fetch('http://localhost:4000/api/comments/', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, authorId }),
     });
   };
 
-  const saveEditedContent = (newContent: string) => {
-    fetch('http://localhost:4000/api/comments/', {
+  const saveEditedContent = async (newContent: string) => {
+    await fetch('http://localhost:4000/api/comments/', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, authorId, content: newContent }),

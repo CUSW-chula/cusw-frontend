@@ -18,21 +18,14 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/comp
 
 interface UsersInterfaces {
   id: string;
-  userName: string;
+  name: string;
+  email: string;
 }
-
-// mock data
-const users: UsersInterfaces[] = [
-  { id: '1', userName: 'Bunyaphon Kongthum' },
-  { id: '2', userName: 'Pongsakorn Pimphongpaisarn' },
-  { id: '3', userName: 'Bunyawat Naunnak' },
-  { id: '4', userName: 'Siwadol Rangmart' },
-  { id: '5', userName: 'Jirayu Nampaisarn' },
-];
 
 export function AssignedTaskToMember() {
   const [open, setOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<UsersInterfaces[]>([]);
+  const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
 
   // Function to get initials from a full name
   const getInitials = (name: string) => {
@@ -40,16 +33,82 @@ export function AssignedTaskToMember() {
     return nameParts.map((part) => part[0]).join(''); // Take the first letter of each part
   };
 
-  // Handle user selection and unselection
-  const handleSelectUser = (value: string) => {
-    const selected = users.find((user) => user.userName === value);
-    if (selected) {
-      setSelectedUser(
-        (prev) =>
-          prev.some((user) => user.id === selected.id)
-            ? prev.filter((user) => user.id !== selected.id) // Unselect user if already selected
-            : [...prev, selected], // Add user if not already selected
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  const pareJsonValue = React.useCallback((values: any) => {
+    const newValue: UsersInterfaces = {
+      id: values.id,
+      email: values.email,
+      name: values.name,
+    };
+    return newValue;
+  }, []);
+
+  React.useEffect(() => {
+    const fetchAssignAndUsers = async () => {
+      const usersData = await fetch('http://localhost:4000/api/users');
+      const userList = await usersData.json();
+      setUsersList(userList);
+
+      const assignData = await fetch(
+        'http://localhost:4000/api/tasks/getassign/cm24lq0sx0001jkpdbc9lxu8x',
       );
+      const assignList = await assignData.json();
+      setSelectedUser(assignList);
+    };
+
+    fetchAssignAndUsers();
+
+    const ws = new WebSocket('ws://localhost:3001');
+
+    ws.onopen = () => {
+      console.log('Connected to WebSocket');
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const socketEvent = JSON.parse(event.data); // Parse incoming message
+        const eventName = socketEvent.eventName;
+        const data = pareJsonValue(socketEvent.data); // Comment Data
+        if (eventName === 'assigned')
+          setSelectedUser((prevList) => [...prevList, data]); // Functional update
+        else if (eventName === 'unassigned') {
+          setSelectedUser((prevList) => prevList.filter((item) => item.id !== data.id)); // Remove deleted comment
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    };
+
+    ws.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [pareJsonValue]);
+
+  // Handle user selection and unselection
+  const handleSelectUser = async (value: string) => {
+    const selected = usersList.find((user) => user.name === value);
+    if (selected) {
+      const isAlreadySelected = selectedUser.some((user) => user.id === selected.id);
+
+      const url = isAlreadySelected
+        ? 'http://localhost:4000/api/tasks/unassigned' // Unassign user
+        : 'http://localhost:4000/api/tasks/assign'; // Assign user
+
+      const options = {
+        method: isAlreadySelected ? 'DELETE' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ taskId: 'cm24lq0sx0001jkpdbc9lxu8x', userId: selected.id }),
+      };
+
+      try {
+        await fetch(url, options);
+      } catch (error) {
+        console.error(error);
+      }
     }
     setOpen(false);
   };
@@ -70,13 +129,13 @@ export function AssignedTaskToMember() {
                           <div className="flex items-center space-x-2">
                             {/* Circle with initials */}
                             <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center">
-                              <span className="text-slate-900">{getInitials(user.userName)}</span>
+                              <span className="text-slate-900">{getInitials(user.name)}</span>
                             </div>
                           </div>
                         </TooltipTrigger>
                         {/* Tooltip content showing the full name */}
                         <TooltipContent>
-                          <span>{user.userName}</span>
+                          <span>{user.name}</span>
                         </TooltipContent>
                       </Tooltip>
                     ))}
@@ -95,8 +154,8 @@ export function AssignedTaskToMember() {
                 <CommandList>
                   <CommandEmpty>No results found.</CommandEmpty>
                   <CommandGroup>
-                    {users.map((user) => (
-                      <CommandItem key={user.id} value={user.userName} onSelect={handleSelectUser}>
+                    {usersList.map((user) => (
+                      <CommandItem key={user.id} value={user.name} onSelect={handleSelectUser}>
                         <Circle
                           className={cn(
                             'mr-2 h-4 w-4 fill-greenLight text-greenLight',
@@ -105,7 +164,7 @@ export function AssignedTaskToMember() {
                               : 'opacity-40',
                           )}
                         />
-                        <span>{user.userName}</span>
+                        <span>{user.name}</span>
                       </CommandItem>
                     ))}
                   </CommandGroup>
