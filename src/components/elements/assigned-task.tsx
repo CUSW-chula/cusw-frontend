@@ -159,7 +159,7 @@ export function AssignedTaskToMember() {
                         <Circle
                           className={cn(
                             'mr-2 h-4 w-4 fill-greenLight text-greenLight',
-                            selectedUser.some((u) => u.id === user.id)
+                            selectedUser?.length > 0 && selectedUser.some((u) => u.id === user.id)
                               ? 'opacity-100'
                               : 'opacity-40',
                           )}
