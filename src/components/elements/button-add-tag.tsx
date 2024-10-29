@@ -25,8 +25,8 @@ export function ButtonAddTags() {
   const [open, setOpen] = React.useState(false);
   const [statuses, setStatuses] = React.useState<Tags[]>([]);
   const [selectedTags, setSelectedTags] = React.useState<Tags[]>([]);
-  
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const pareJsonValue = React.useCallback((values: any) => {
     const newValue: Tags = {
       id: values.id,
