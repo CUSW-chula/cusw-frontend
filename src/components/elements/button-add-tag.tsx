@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { Circle, XCircle, CircleFadingPlus } from 'lucide-react';
-
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -75,11 +74,15 @@ export function ButtonAddTags() {
       console.log('Message received:', event.data);
 
       try {
-        const socketEvent = JSON.parse(event.data); // Parse incoming message
+        const socketEvent = JSON.parse(event.data);
         const eventName = socketEvent.eventName;
         const data = pareJsonValue(socketEvent.data);
-        if (eventName === 'assigned-tags') setSelectedTags((prev) => [data, ...prev]);
-        else if (eventName === 'unassigned-tag') {
+
+        if (eventName === 'assigned-tags') {
+          // Update selected tags with new tag added
+          setSelectedTags((prev) => [...prev, data]);
+        } else if (eventName === 'unassigned-tag') {
+          // Remove tag from selected tags
           setSelectedTags((prev) => prev.filter((t) => t.id !== data.id));
         }
       } catch (error) {
@@ -96,11 +99,9 @@ export function ButtonAddTags() {
     };
   }, [pareJsonValue]);
 
-  // ฟังก์ชันจัดการการเลือกแท็ก
   const handleSelectTag = async (value: string) => {
     const selected = statuses.find((status) => status.name === value);
-    if (selected && !selectedTags.includes(selected)) {
-      //// เพิ่มแท็กใหม่ที่จุดเริ่มต้น
+    if (selected && !selectedTags.some(tag => tag.id === selected.id)) {
       const url = 'http://localhost:4000/api/tags/assign';
       const options = {
         method: 'POST',
@@ -110,6 +111,8 @@ export function ButtonAddTags() {
 
       try {
         await fetch(url, options);
+        // After adding the tag, update the local state
+        setSelectedTags((prev) => [...prev, selected]); // Immediately update state
       } catch (error) {
         console.error(error);
       }
@@ -117,7 +120,7 @@ export function ButtonAddTags() {
     setOpen(false);
   };
 
-  const handleDeleatTag = async (value: string) => {
+  const handleDeleteTag = async (value: string) => {
     const url = 'http://localhost:4000/api/tags/unassigned';
     const options = {
       method: 'DELETE',
@@ -126,9 +129,9 @@ export function ButtonAddTags() {
     };
 
     try {
-      const response = await fetch(url, options);
-      const data = await response.json();
-      console.log(data);
+      await fetch(url, options);
+      // Update local state to remove the deleted tag
+      setSelectedTags((prev) => prev.filter((tag) => tag.id !== value));
     } catch (error) {
       console.error(error);
     }
@@ -137,22 +140,19 @@ export function ButtonAddTags() {
   return (
     <>
       <div className="flex flex-row gap-1 flex-wrap">
-        {/* แสดงแท็กที่ถูกเลือก */}
         {selectedTags.map((tag) => (
           <Button variant="outline" key={tag.id}>
             <Circle className="mr-1 h-4 w-4 fill-greenLight text-greenLight font-BaiJamjuree" />
             <span>{tag.name}</span>
             <button
               type="button"
-              // onClick={() =>}
-              onClick={() => handleDeleatTag(tag.id)}
+              onClick={() => handleDeleteTag(tag.id)}
               className="text-red-500 ml-1">
               <XCircle className="h-4 w-4" />
             </button>
           </Button>
         ))}
 
-        {/* ปุ่ม Add Tag ที่อยู่ด้านหลังสุด */}
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button variant="outline">
