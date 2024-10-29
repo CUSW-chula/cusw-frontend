@@ -53,7 +53,7 @@ export function AssignedTaskToMember() {
         'http://localhost:4000/api/tasks/getassign/cm24lq0sx0001jkpdbc9lxu8x',
       );
       const assignList = await assignData.json();
-      setSelectedUser(assignList);
+      setSelectedUser(Array.isArray(assignList) ? assignList : []); // Ensure array format
     };
 
     fetchAssignAndUsers();
@@ -69,11 +69,13 @@ export function AssignedTaskToMember() {
         const socketEvent = JSON.parse(event.data); // Parse incoming message
         const eventName = socketEvent.eventName;
         const data = pareJsonValue(socketEvent.data); // Comment Data
-        if (eventName === 'assigned')
-          setSelectedUser((prevList) => [...prevList, data]); // Functional update
-        else if (eventName === 'unassigned') {
-          setSelectedUser((prevList) => prevList.filter((item) => item.id !== data.id)); // Remove deleted comment
-        }
+        setSelectedUser((prevList) =>
+          Array.isArray(prevList) // Ensure array
+            ? eventName === 'assigned'
+              ? [...prevList, data] // Functional update
+              : prevList.filter((item) => item.id !== data.id) // Remove deleted comment
+            : [],
+        );
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
       }
