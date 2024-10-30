@@ -23,6 +23,8 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '../ui/button';
+import { Profile } from './profile';
+import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
 
 interface CommentBoxProp {
   id: string;
@@ -111,7 +113,7 @@ async function getName(authorId: string) {
       throw new Error(`Error: ${response.statusText}`);
     }
     const data = await response.json();
-    return data.name.split(' ')[0]; // Assuming the API response has a 'name' field
+    return data.name;
   } catch (error) {
     console.error('Failed to fetch user name:', error);
     return 'Unknown'; // Handle error gracefully
@@ -134,10 +136,6 @@ function CommentBox({
     getName(authorId).then(setName);
   }, [authorId]);
 
-  const getInitials = (name: string) => {
-    const nameParts = name.split(' ');
-    return nameParts.map((part) => part[0]).join('');
-  };
 
   const deleteComment = async () => {
     try {
@@ -170,12 +168,9 @@ function CommentBox({
         {!isDelete && (
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center">
-                <span className="text-slate-900">{name ? getInitials(name) : '?'}</span>
-              </div>
-              <div className="font-semibold font-BaiJamjuree text-slate-900">
-                {name || 'Loading...'}
-              </div>
+              <TooltipProvider>
+                <Profile userId="test" userName={name ?? '?'} />
+              </TooltipProvider>
               <div className="text-[#6b5c56] text-base font-normal font-['Bai Jamjuree'] leading-7">
                 {editTime ? (
                   <>

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Circle, CircleFadingPlus, Users } from 'lucide-react';
+import { Circle, CircleFadingPlus } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,8 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
+import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
+import { Profile } from './profile';
 
 interface UsersInterfaces {
   id: string;
@@ -26,12 +27,6 @@ export function AssignedTaskToMember() {
   const [open, setOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<UsersInterfaces[]>([]);
   const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
-
-  // Function to get initials from a full name
-  const getInitials = (name: string) => {
-    const nameParts = name.split(' ');
-    return nameParts.map((part) => part[0]).join(''); // Take the first letter of each part
-  };
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const pareJsonValue = React.useCallback((values: any) => {
@@ -126,20 +121,7 @@ export function AssignedTaskToMember() {
                   // Display selected users as circles with initials
                   <div className="flex space-x-2">
                     {selectedUser.map((user) => (
-                      <Tooltip key={user.id}>
-                        <TooltipTrigger>
-                          <div className="flex items-center space-x-2">
-                            {/* Circle with initials */}
-                            <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center">
-                              <span className="text-slate-900">{getInitials(user.name)}</span>
-                            </div>
-                          </div>
-                        </TooltipTrigger>
-                        {/* Tooltip content showing the full name */}
-                        <TooltipContent>
-                          <span>{user.name}</span>
-                        </TooltipContent>
-                      </Tooltip>
+                      <Profile key={user.id} userId={user.id} userName={user.name} />
                     ))}
                   </div>
                 ) : (
