@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { Crown } from 'lucide-react';
 import { Button } from '../ui/button';
 
 interface UsersInterfaces {
@@ -28,10 +27,6 @@ export function ProjectOwner() {
     <>
       <div className="flex flex-row gap-1 flex-wrap">
         <div className="flex items-center space-x-4">
-          <div className="flex flex-basis-* gap-2">
-            <Crown />
-            <p className="detail">Owner :</p>
-          </div>
           <div className="flex space-x-2">
             <Button variant={'outline'} className="flex gap-2">
               {users.map((user) => (
