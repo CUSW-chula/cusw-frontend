@@ -136,7 +136,6 @@ function CommentBox({
     getName(authorId).then(setName);
   }, [authorId]);
 
-
   const deleteComment = async () => {
     try {
       await fetch('http://localhost:4000/api/comments/', {
@@ -198,13 +197,15 @@ function CommentBox({
                   <DropdownMenuItem>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="ghost">Delete</Button>
+                        <Button variant="ghost" onClick={(e) => e.stopPropagation()}>
+                          Delete
+                        </Button>
                       </AlertDialogTrigger>
-                      <AlertDialogContent>
+                      <AlertDialogContent onClick={(e) => e.stopPropagation()}>
                         <AlertDialogHeader>
                           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Do you want to delete your comment? This progress cannot be undone.
+                            Do you want to delete your comment? This action cannot be undone.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -306,9 +307,15 @@ const Comment: React.FC = () => {
           // biome-ignore lint/suspicious/noExplicitAny: <explanation>
           setList((prevList: any) => [...prevList, data]); // Functional update
         else if (eventName === 'comment-delete') {
-          // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-          setList((prevList: any[]) =>
-            prevList.filter((item: { id: string }) => item.id !== data.id),
+          setList((prevList: CommentBoxProp[]) =>
+            prevList.map((item) =>
+              item.id === data.id
+                ? {
+                    ...item,
+                    isDelete: true,
+                  }
+                : item,
+            ),
           ); // Remove deleted comment
         } else if (eventName === 'comment-edit') {
           setList((prevList: CommentBoxProp[]) =>
