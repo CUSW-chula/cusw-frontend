@@ -118,7 +118,7 @@ const Money = () => {
                 ) : budget.type === TypeMoney.real ? (
                   <div className="text-green">สำรองจ่าย</div>
                 ) : (
-                  <div className="text-red">เบิกจริง</div>
+                  <div className="text-red">ค่าใช้จ่าย</div>
                 )}
 
                 <ChevronDown className="w-4 h-4" />
@@ -156,7 +156,7 @@ const Money = () => {
                     }));
                     setOpenType(false);
                   }}>
-                  เบิกจริง
+                  ค่าใช้จ่าย
                 </Button>
               </PopoverContent>
             </Popover>
