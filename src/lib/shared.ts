@@ -4,6 +4,8 @@ export interface CommentBoxProp {
   taskId: string;
   authorId: string;
   createdAt: Date;
+  isDelete: boolean;
+  editTime: Date | null;
 }
 
 export interface Status {

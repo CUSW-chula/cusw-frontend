@@ -23,6 +23,8 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '../ui/button';
+import { Profile } from './profile';
+import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
 
 interface CommentBoxProp {
   id: string;
@@ -30,15 +32,26 @@ interface CommentBoxProp {
   taskId: string;
   authorId: string;
   createdAt: Date;
+  isDelete: boolean;
+  editTime: Date | null;
 }
 
-function formatDate(date?: Date): string {
+function formatDate(date?: Date | string): string {
   if (!date) return ''; // Return an empty string if no date is provided
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-  const year = date.getFullYear();
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
+
+  // Ensure the input is a Date object
+  const validDate = typeof date === 'string' ? new Date(date) : date;
+
+  if (Number.isNaN(validDate.getTime())) {
+    console.error('Invalid date:', date);
+    return 'Invalid date';
+  }
+
+  const day = String(validDate.getDate()).padStart(2, '0');
+  const month = String(validDate.getMonth() + 1).padStart(2, '0');
+  const year = validDate.getFullYear();
+  const hours = String(validDate.getHours()).padStart(2, '0');
+  const minutes = String(validDate.getMinutes()).padStart(2, '0');
 
   return `${day}/${month}/${year}, ${hours}:${minutes}`;
 }
@@ -100,61 +113,75 @@ async function getName(authorId: string) {
       throw new Error(`Error: ${response.statusText}`);
     }
     const data = await response.json();
-    return data.name.split(' ')[0]; // Assuming the API response has a 'name' field
+    return data.name;
   } catch (error) {
     console.error('Failed to fetch user name:', error);
     return 'Unknown'; // Handle error gracefully
   }
 }
 
-function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp) {
+function CommentBox({
+  id,
+  content,
+  taskId,
+  authorId,
+  createdAt,
+  isDelete,
+  editTime,
+}: CommentBoxProp) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch the author's name once when the component mounts
     getName(authorId).then(setName);
   }, [authorId]);
 
-  const getInitials = (name: string) => {
-    const nameParts = name.split(' ');
-    return nameParts.map((part) => part[0]).join('');
-  };
-
   const deleteComment = async () => {
-    await fetch('http://localhost:4000/api/comments/', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, authorId }),
-    });
+    try {
+      await fetch('http://localhost:4000/api/comments/', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, authorId }),
+      });
+    } catch (error) {
+      console.error('Failed to delete comment:', error);
+    }
   };
 
   const saveEditedContent = async (newContent: string) => {
-    await fetch('http://localhost:4000/api/comments/', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, authorId, content: newContent }),
-    });
-    setIsEditing(false);
+    try {
+      await fetch('http://localhost:4000/api/comments/', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, authorId, content: newContent }),
+      });
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Failed to save comment:', error);
+    }
   };
 
   return (
     <div className="w-[530px] h-auto flex flex-col p-1 gap-4">
       <div className="bg-gray-50 rounded-md p-3">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center">
-              <span className="text-slate-900">{name ? getInitials(name) : '?'}</span>
+        {!isDelete && (
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <TooltipProvider>
+                <Profile userId="test" userName={name ?? '?'} />
+              </TooltipProvider>
+              <div className="text-[#6b5c56] text-base font-normal font-['Bai Jamjuree'] leading-7">
+                {editTime ? (
+                  <>
+                    {formatDate(editTime)} <span>(Edited)</span>
+                  </>
+                ) : (
+                  formatDate(createdAt)
+                )}
+              </div>
             </div>
-            <div className="font-semibold font-BaiJamjuree text-slate-900">
-              {name || 'Loading...'}
-            </div>
-            <div className="text-[#6b5c56] text-base font-normal font-['Bai Jamjuree'] leading-7">
-              {formatDate(createdAt)}
-            </div>
-          </div>
-          {!isEditing && (
-            <div className="relative">
+
+            {!isEditing && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button className="hover:text-gray-800" variant="ghost">
@@ -167,16 +194,18 @@ function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp
                       Edit
                     </Button>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  <DropdownMenuItem>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="ghost">Delete</Button>
+                        <Button variant="ghost" onClick={(e) => e.stopPropagation()}>
+                          Delete
+                        </Button>
                       </AlertDialogTrigger>
-                      <AlertDialogContent>
+                      <AlertDialogContent onClick={(e) => e.stopPropagation()}>
                         <AlertDialogHeader>
                           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Do you want to delete your comment? This progress cannot be undone.
+                            Do you want to delete your comment? This action cannot be undone.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -190,10 +219,13 @@ function CommentBox({ id, content, taskId, authorId, createdAt }: CommentBoxProp
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </div>
-          )}
-        </div>
-        {isEditing ? (
+            )}
+          </div>
+        )}
+
+        {isDelete ? (
+          <div className="text-gray-500 italic">This comment was deleted</div>
+        ) : isEditing ? (
           <EditBox
             content={content}
             onCancel={() => setIsEditing(false)}
@@ -226,6 +258,8 @@ const Comment: React.FC = () => {
         createdAt: new Date(value.createdAt),
         taskId: value.taskId,
         authorId: value.authorId,
+        isDelete: value.isDelete,
+        editTime: value.editTime,
       });
     }
     return newValue;
@@ -239,6 +273,8 @@ const Comment: React.FC = () => {
       createdAt: new Date(values.createdAt),
       taskId: values.taskId,
       authorId: values.authorId,
+      isDelete: values.isDelete,
+      editTime: values.editTime,
     };
     return newValue;
   }, []);
@@ -268,13 +304,29 @@ const Comment: React.FC = () => {
         const eventName = socketEvent.eventName;
         const data = pareJsonValue(socketEvent.data); // Comment Data
         if (eventName === 'comment')
-          setList((prevList) => [...prevList, data]); // Functional update
+          // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+          setList((prevList: any) => [...prevList, data]); // Functional update
         else if (eventName === 'comment-delete') {
-          setList((prevList) => prevList.filter((item) => item.id !== data.id)); // Remove deleted comment
-        } else if (eventName === 'comment-edit') {
-          setList((prevList) =>
+          setList((prevList: CommentBoxProp[]) =>
             prevList.map((item) =>
-              item.id === data.id ? { ...item, content: data.content } : item,
+              item.id === data.id
+                ? {
+                    ...item,
+                    isDelete: true,
+                  }
+                : item,
+            ),
+          ); // Remove deleted comment
+        } else if (eventName === 'comment-edit') {
+          setList((prevList: CommentBoxProp[]) =>
+            prevList.map((item) =>
+              item.id === data.id
+                ? {
+                    ...item,
+                    content: data.content,
+                    editTime: new Date(),
+                  }
+                : item,
             ),
           );
         }
@@ -322,17 +374,22 @@ const Comment: React.FC = () => {
       <div className="font-semibold font-Anuphan text-2xl">Comment</div>
       <div className="max-h-84 overflow-y-scroll">
         <ul>
-          {list.map((item) => (
-            <li key={item.id}>
-              <CommentBox
-                id={item.id}
-                content={item.content}
-                taskId={item.taskId}
-                authorId={item.authorId}
-                createdAt={item.createdAt}
-              />
-            </li>
-          ))}
+          {list
+            .slice() // Create a shallow copy to avoid mutating the state
+            .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()) // Sort by createdAt in descending order
+            .map((item) => (
+              <li key={item.id}>
+                <CommentBox
+                  id={item.id}
+                  content={item.content}
+                  taskId={item.taskId}
+                  authorId={item.authorId}
+                  createdAt={item.createdAt}
+                  isDelete={item.isDelete}
+                  editTime={item.editTime}
+                />
+              </li>
+            ))}
         </ul>
       </div>
       <div className="text-black text-sm font-medium font-Bai Jamjuree leading-[14px]">

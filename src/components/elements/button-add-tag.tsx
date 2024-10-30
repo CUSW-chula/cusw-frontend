@@ -101,7 +101,7 @@ export function ButtonAddTags() {
 
   const handleSelectTag = async (value: string) => {
     const selected = statuses.find((status) => status.name === value);
-    if (selected && !selectedTags.some(tag => tag.id === selected.id)) {
+    if (selected && !selectedTags.some((tag) => tag.id === selected.id)) {
       const url = 'http://localhost:4000/api/tags/assign';
       const options = {
         method: 'POST',
