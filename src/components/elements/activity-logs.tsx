@@ -4,45 +4,11 @@ import type React from 'react';
 // Dummy data for activity logs
 const activityLogs: Array<ActivityLogItemProps> = [
   {
-    id: 1,
-    user: 'Banyaphon Kongtham',
-    action: 'changed status',
-    detail: 'from unassigned to assigned',
-    createdAt: new Date(),
-  },
-  {
-    id: 1,
-    user: 'Banyaphon Kongtham',
-    action: 'changed status',
-    detail: 'from unassigned to assigned',
-    createdAt: new Date(),
-  },
-  {
-    id: 1,
-    user: 'Banyaphon Kongtham',
-    action: 'changed status',
-    detail: 'from unassigned to assigned',
-    createdAt: new Date(),
-  },
-  {
-    id: 1,
-    user: 'Banyaphon Kongtham',
-    action: 'changed status',
-    detail: 'from unassigned to assigned',
-    createdAt: new Date(),
-  },
-  {
-    id: 1,
-    user: 'Banyaphon Kongtham',
-    action: 'changed status',
-    detail: 'from unassigned to assigned',
-    createdAt: new Date(),
-  },
-  {
-    id: 1,
-    user: 'Banyaphon Kongtham',
-    action: 'changed status',
-    detail: 'from unassigned to assigned',
+    id: 'cm2w5lj0w0001x1896b6flbdz',
+    userId: 'Banyaphon Kongtham',
+    taskId: 'cm2w5w0z90003x189bhledv9q',
+    action: 'created',
+    detail: '"Design a new logo"',
     createdAt: new Date(),
   },
 
@@ -50,8 +16,9 @@ const activityLogs: Array<ActivityLogItemProps> = [
 ];
 
 interface ActivityLogItemProps {
-  id: number;
-  user: string;
+  id: string;
+  userId: string;
+  taskId: string;
   action: string;
   detail: string;
   createdAt?: Date;
@@ -92,18 +59,18 @@ function formatDate(date?: Date): string {
 }
 
 // Reusable component for each activity log item
-function ActivityLogItem({ user, action, detail, createdAt }: ActivityLogItemProps) {
+function ActivityLogItem({ userId, action, detail, createdAt }: ActivityLogItemProps) {
   return (
     <div className="flex items-center space-x-2 text-base text-gray-800 font-BaiJamjuree">
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger>
             <div className="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center">
-              <span className="text-slate-900">{getInitials(user)}</span>
+              <span className="text-slate-900">{getInitials(userId)}</span>
             </div>
           </TooltipTrigger>
           <TooltipContent>
-            <span>{user}</span>
+            <span>{userId}</span>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -124,12 +91,13 @@ const ActivityLogs: React.FC = () => {
           {activityLogs.map((item) => (
             <li key={item.id}>
               <ActivityLogItem
-                user={item.user}
+                userId={item.userId}
                 action={item.action}
                 detail={item.detail}
                 createdAt={item.createdAt}
-                id={item.id}
-              />
+                id={item.id} 
+                taskId={item.taskId}              
+                />
             </li>
           ))}
         </ul>
