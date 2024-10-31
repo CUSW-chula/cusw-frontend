@@ -120,6 +120,11 @@ async function getName(authorId: string) {
   }
 }
 
+function formatName(name:string) {
+  const nameParts = (name ?? "").split(' ');
+  return nameParts[0];
+}
+
 function CommentBox({
   id,
   content,
@@ -170,6 +175,9 @@ function CommentBox({
               <TooltipProvider>
                 <Profile userId="test" userName={name ?? '?'} />
               </TooltipProvider>
+              <div className='text-slate-900 font-BaiJamjuree font-semibold'>
+                {formatName(name ?? '') || 'Loading...'}
+              </div>
               <div className="text-[#6b5c56] text-base font-normal font-['Bai Jamjuree'] leading-7">
                 {editTime ? (
                   <>
@@ -203,7 +211,7 @@ function CommentBox({
                       </AlertDialogTrigger>
                       <AlertDialogContent onClick={(e) => e.stopPropagation()}>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                           <AlertDialogDescription>
                             Do you want to delete your comment? This action cannot be undone.
                           </AlertDialogDescription>
