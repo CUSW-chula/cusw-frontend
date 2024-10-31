@@ -1,5 +1,5 @@
 'use client';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { UploadCloud, File, Circle, Download, X } from 'lucide-react';
 import {
@@ -16,16 +16,16 @@ import {
 
 interface Files {
   id: string;
-  name: string;
+  fileName: string;
   filePath: string;
   fileSize: number;
   taskId: string;
   projectId: string;
   uploadedBy: string;
-  uploadedAt: Date;
   createdAt: Date;
 }
 const File_list: Array<File> = [];
+
 const FileUploader = ({ handleFile }: { handleFile: (file: File) => void }) => {
   const hiddenFileInput = useRef<HTMLInputElement | null>(null);
 
@@ -38,9 +38,6 @@ const FileUploader = ({ handleFile }: { handleFile: (file: File) => void }) => {
     if (fileUploaded) {
       handleFile(fileUploaded);
       File_list.push(fileUploaded);
-      console.log(fileUploaded);
-      console.log();
-      console.log(File_list);
     }
   };
 
@@ -54,7 +51,6 @@ const FileUploader = ({ handleFile }: { handleFile: (file: File) => void }) => {
         <p className="text-brown">Upload</p>
       </Button>
       <input
-        className=""
         type="file"
         onChange={handleChange}
         ref={hiddenFileInput}
@@ -69,19 +65,25 @@ interface UploadfileProps {
 }
 
 const Uploadfile: React.FC<UploadfileProps> = ({ setFileList }) => {
-  const handleFile = (file: File) => {
-    const newFile: Files = {
-      id: `${new Date().getTime()}`, // Unique ID
-      name: file.name,
-      filePath: URL.createObjectURL(file),
-      fileSize: file.size,
-      taskId: '1234',
-      projectId: '5678',
-      uploadedBy: 'Banyaphon',
-      uploadedAt: new Date(),
-      createdAt: new Date(file.lastModified),
+  const handleFile = async (file: File) => {
+    const formData = new FormData();
+    formData.append('taskId', 'cm24lq0sx0001jkpdbc9lxu8x');
+    formData.append('projectId', 'cm24w5yu000008tlglutu5czu');
+    formData.append('file', file);
+    formData.append('authorId', 'cm0siagz300003mbv5bsz6wty');
+    const url = 'http://localhost:4000/api/file/';
+    const options = {
+      method: 'POST',
+      body: formData,
     };
-    setFileList((prevFiles) => [...prevFiles, newFile]);
+
+    try {
+      const response = await fetch(url, options);
+      const data = await response.json();
+      setFileList((prevFiles) => [...prevFiles, data]);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -96,9 +98,62 @@ interface DisplayfileProps {
   setFileList: React.Dispatch<React.SetStateAction<Files[]>>;
 }
 
+async function getName(authorId: string) {
+  try {
+    const response = await fetch(`http://localhost:4000/api/users/${authorId}`);
+    if (!response.ok) {
+      throw new Error(`Error: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data.name;
+  } catch (error) {
+    console.error('Failed to fetch user name:', error);
+    return 'Unknown';
+  }
+}
+
 const Displayfile: React.FC<DisplayfileProps> = ({ fileList, setFileList }) => {
-  const handleDelete = (id: string) => {
-    setFileList((prevFiles) => prevFiles.filter((file) => file.id !== id));
+  const [userNames, setUserNames] = useState<Record<string, string>>({});
+
+  // useEffect(() => {
+  //   const fetchNames = async () => {
+  //     const namesArray = await Promise.all(
+  //       fileList.map(async (file) => {
+  //         if (!userNames[file.uploadedBy]) {
+  //           const name = await getName(file.uploadedBy);
+  //           return { [file.uploadedBy]: name };
+  //         }
+  //         return {}; // Return an empty object instead of null if name is already fetched
+  //       }),
+  //     );
+
+  //     setUserNames((prevNames) =>
+  //       namesArray.reduce(
+  //         // biome-ignore lint/performance/noAccumulatingSpread: <explanation>
+  //         (acc, nameObj) => ({ ...acc, ...nameObj }),
+  //         { ...prevNames }, // Use the existing state as the initial accumulator value
+  //       ),
+  //     );
+  //   };
+
+  //   fetchNames();
+  // }, [fileList, userNames]);
+
+  const handleDelete = async (id: string) => {
+    const url = 'http://localhost:4000/api/file/';
+    const options = {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fileId: id }),
+    };
+
+    try {
+      const response = await fetch(url, options);
+      await response.json();
+      setFileList((prevFiles) => prevFiles.filter((file) => file.id !== id));
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -111,12 +166,12 @@ const Displayfile: React.FC<DisplayfileProps> = ({ fileList, setFileList }) => {
             <File />
             <div className="flex flex-col w-full justify-between ml-2">
               <div>
-                <p>{file.name}</p>
+                <p>{file.fileName}</p>
               </div>
               <div className="flex gap-4 items-center">
-                <p className="flex">Uploaded by {file.uploadedBy}</p>
+                <p className="flex">Uploaded by {userNames[file.uploadedBy] || 'Loading...'}</p>
                 <Circle className="fill-black size-2 mx-1" />
-                <p className="flex">{file.uploadedAt.toLocaleString()}</p>
+                <p className="flex">{file.createdAt.toLocaleString()}</p>
                 <Circle className="fill-black size-2 mx-1" />
                 <p className="flex">{Math.round(file.fileSize / 1024)} KB</p>
               </div>
@@ -141,7 +196,9 @@ const Displayfile: React.FC<DisplayfileProps> = ({ fileList, setFileList }) => {
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-              <Download className="m-auto mt-[4px] cursor-pointer" />
+              <a href={file.filePath}>
+                <Download className="m-auto mt-[4px] cursor-pointer" />
+              </a>
             </div>
           </div>
         ))}

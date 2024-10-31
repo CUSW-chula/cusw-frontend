@@ -24,7 +24,7 @@ const Emoji = () => {
   const [isEmojiAdded, setIsEmojiAdded] = useState<boolean>(false); // State to track if emoji has been added
   const [emojis, setEmojis] = React.useState<EmojiTaskUser[]>([]);
 
-  const pareJsonValue = React.useCallback((values: any) => {
+  const pareJsonValue = React.useCallback((values: EmojiTaskUser) => {
     const newValue: EmojiTaskUser = {
       id: values.id,
       emoji: values.emoji,
@@ -100,6 +100,7 @@ const Emoji = () => {
             taskId: 'cm24lq0sx0001jkpdbc9lxu8x',
             userId: 'cm24ll4370008kh59coznldal',
             emoji: emoji,
+            //Id: "",
           })
         : JSON.stringify({
             taskId: 'cm24lq0sx0001jkpdbc9lxu8x',
@@ -143,7 +144,9 @@ const Emoji = () => {
               className="rounded-full min-w-[20px] w-fit h-[32px] border-brown border-none">
               <ul>
                 {sortedEmojis.slice(0, 8).map((emojiData) => (
-                  <span className="text-[16px]">{emojiData.emoji}</span>
+                  <span key={emojiData.id} className="text-[16px]">
+                    {emojiData.emoji}
+                  </span>
                 ))}
               </ul>
             </Button>
@@ -151,7 +154,7 @@ const Emoji = () => {
           <PopoverContent className="min-w-[240px] w-fit max-h-80 overflow-y-scroll">
             <ul>
               {emojis.map((emojiData) => (
-                <div className="flex py-1 justify-between">
+                <div key={emojiData.id} className="flex py-1 justify-between">
                   <p className="body self-center">Banyaphon Kongtham</p>
                   <p className="text-[24px]">{emojiData.emoji}</p>
                 </div>

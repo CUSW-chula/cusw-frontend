@@ -1,6 +1,6 @@
 'use client';
 import 'yjs';
-import { useState } from 'react';
+import { cache, useEffect, useState } from 'react';
 import { Displayfile, Uploadfile } from './uploadfile';
 import Emoji from './emoji';
 import { BlockNoteView } from '@blocknote/shadcn';
@@ -19,13 +19,12 @@ import * as Toggle from '@/components/ui/toggle';
 import * as Tooltip from '@/components/ui/tooltip';
 interface Files {
   id: string;
-  name: string;
+  fileName: string;
   filePath: string;
   fileSize: number;
   taskId: string;
   projectId: string;
   uploadedBy: string;
-  uploadedAt: Date;
   createdAt: Date;
 }
 
@@ -48,6 +47,23 @@ function TitleInput({ content }: { content: string }) {
 }
 const Workspace = () => {
   const [fileList, setFileList] = useState<Files[]>([]);
+
+  useEffect(() => {
+    const fetchFile = async () => {
+      const url = 'http://localhost:4000/api/file/cm24lq0sx0001jkpdbc9lxu8x';
+      const options = { method: 'GET', caches: 'no-store' };
+
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        setFileList(data);
+        console.log(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchFile();
+  }, []);
   // disable blocks you don't want
   const { audio, image, video, file, ...allowedBlockSpecs } = defaultBlockSpecs;
 
