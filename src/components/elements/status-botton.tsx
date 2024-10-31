@@ -79,7 +79,7 @@ export function StatusButton() {
                 <CommandItem
                   key={status.value}
                   value={status.value}
-                  className="pl-[32px] border-b-2 font-BaiJamjuree text-base"
+                  className="pl-[32px] font-BaiJamjuree text-base"
                   onSelect={() => {
                     const selected = statuses.find((s) => s.value === status.value);
                     if (selected) setSelectedStatus(selected);
