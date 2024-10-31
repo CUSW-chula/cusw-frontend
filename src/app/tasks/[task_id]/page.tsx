@@ -1,3 +1,5 @@
+'use client';
+
 import dynamic from 'next/dynamic';
 import ActivityLogs from '@/components/elements/activity-logs';
 import Comment from '@/components/elements/comment';
