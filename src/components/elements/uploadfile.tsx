@@ -115,29 +115,29 @@ async function getName(authorId: string) {
 const Displayfile: React.FC<DisplayfileProps> = ({ fileList, setFileList }) => {
   const [userNames, setUserNames] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    const fetchNames = async () => {
-      const namesArray = await Promise.all(
-        fileList.map(async (file) => {
-          if (!userNames[file.uploadedBy]) {
-            const name = await getName(file.uploadedBy);
-            return { [file.uploadedBy]: name };
-          }
-          return {}; // Return an empty object instead of null if name is already fetched
-        }),
-      );
+  // useEffect(() => {
+  //   const fetchNames = async () => {
+  //     const namesArray = await Promise.all(
+  //       fileList.map(async (file) => {
+  //         if (!userNames[file.uploadedBy]) {
+  //           const name = await getName(file.uploadedBy);
+  //           return { [file.uploadedBy]: name };
+  //         }
+  //         return {}; // Return an empty object instead of null if name is already fetched
+  //       }),
+  //     );
 
-      setUserNames((prevNames) =>
-        namesArray.reduce(
-          // biome-ignore lint/performance/noAccumulatingSpread: <explanation>
-          (acc, nameObj) => ({ ...acc, ...nameObj }),
-          { ...prevNames }, // Use the existing state as the initial accumulator value
-        ),
-      );
-    };
+  //     setUserNames((prevNames) =>
+  //       namesArray.reduce(
+  //         // biome-ignore lint/performance/noAccumulatingSpread: <explanation>
+  //         (acc, nameObj) => ({ ...acc, ...nameObj }),
+  //         { ...prevNames }, // Use the existing state as the initial accumulator value
+  //       ),
+  //     );
+  //   };
 
-    fetchNames();
-  }, [fileList, userNames]);
+  //   fetchNames();
+  // }, [fileList, userNames]);
 
   const handleDelete = async (id: string) => {
     const url = 'http://localhost:4000/api/file/';
