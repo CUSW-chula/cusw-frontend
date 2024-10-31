@@ -51,7 +51,7 @@ const Workspace = () => {
   useEffect(() => {
     const fetchFile = async () => {
       const url = 'http://localhost:4000/api/file/cm24lq0sx0001jkpdbc9lxu8x';
-      const options = { method: 'GET', caches:"no-store"};
+      const options = { method: 'GET', caches: 'no-store' };
 
       try {
         const response = await fetch(url, options);
