@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import dynamic from 'next/dynamic';
 import { SmilePlus } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { EmojiClickData } from 'emoji-picker-react';
 
 const Picker = dynamic(
@@ -12,26 +12,48 @@ const Picker = dynamic(
   },
   { ssr: false },
 );
+
 interface EmojiTaskUser {
   id: string;
   emoji: string;
   userId: string;
   taskId: string;
 }
-
+async function getName(authorId: string) {
+  try {
+    const response = await fetch(`http://localhost:4000/api/users/${authorId}`);
+    if (!response.ok) {
+      throw new Error(`Error: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data.name;
+  } catch (error) {
+    console.error('Failed to fetch user name:', error);
+    return 'Unknown'; // Handle error gracefully
+  }
+}
+function EmojiUser({ emoji, id, userId }: EmojiTaskUser) {
+  const [name, setName] = useState('');
+  useEffect(() => {
+    getName(userId).then(setName);
+  }, [userId]);
+  return (
+    <div key={id} className="flex py-1 justify-between">
+      <p className="body self-center">{name}</p>
+      <p className="text-[24px]">{emoji}</p>
+    </div>
+  );
+}
 const Emoji = () => {
-  const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
-  const [isEmojiAdded, setIsEmojiAdded] = useState<boolean>(false); // State to track if emoji has been added
   const [emojis, setEmojis] = React.useState<EmojiTaskUser[]>([]);
 
   const pareJsonValue = React.useCallback((values: EmojiTaskUser) => {
-    const newValue: EmojiTaskUser = {
+    return {
       id: values.id,
       emoji: values.emoji,
       userId: values.userId,
       taskId: values.taskId,
     };
-    return newValue;
   }, []);
 
   React.useEffect(() => {
@@ -41,14 +63,7 @@ const Emoji = () => {
       try {
         const response = await fetch(url, options);
         const data = await response.json();
-        setEmojis(data);
-        console.log(data);
-        if (Array.isArray(data)) {
-          setEmojis(data);
-        } else {
-          console.error('Expected an array from the API:', data);
-          setEmojis([]); // Reset to an empty array if the response is not as expected
-        }
+        setEmojis(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error(error);
         setEmojis([]); // Ensure emojis is empty on error
@@ -69,11 +84,16 @@ const Emoji = () => {
       try {
         const socketEvent = JSON.parse(event.data);
         const eventName = socketEvent.eventName;
-        const data = pareJsonValue(socketEvent.data);
-        if (eventName === 'addEmoji') {
-          const newEmoji = pareJsonValue(socketEvent.data);
-          setEmojis((prevEmojis) => [newEmoji, ...prevEmojis]);
-        }
+        const newEmoji = pareJsonValue(socketEvent.data);
+
+        setEmojis((prevEmojis) => {
+          if (eventName === 'addEmoji') {
+            return [newEmoji, ...prevEmojis];
+          }
+          return prevEmojis.map((prevEmoji) =>
+            prevEmoji.id === newEmoji.id ? newEmoji : prevEmoji,
+          );
+        });
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
       }
@@ -90,40 +110,35 @@ const Emoji = () => {
 
   const handleEmojiActions = async (emojiData: EmojiClickData) => {
     const emoji = emojiData.emoji;
-    setSelectedEmoji(emoji);
-    const url = 'http://localhost:4000/api/tasks/emoji/';
+    const taskId = 'cm24lq0sx0001jkpdbc9lxu8x';
+    const userId = 'cm24ll4370008kh59coznldal';
+    const url = 'http://localhost:4000/api/tasks/emoji';
+    const checkResponse = await fetch(`${url}/${taskId}/${userId}`);
+    const isEmojiAssigned = await checkResponse.json();
     const options = {
-      method: isEmojiAdded ? 'POST' : 'POST', // Use PATCH if emoji is already added
+      method: isEmojiAssigned ? 'PATCH' : 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: isEmojiAdded
-        ? JSON.stringify({
-            taskId: 'cm24lq0sx0001jkpdbc9lxu8x',
-            userId: 'cm24ll4370008kh59coznldal',
-            emoji: emoji,
-            //Id: "",
-          })
-        : JSON.stringify({
-            taskId: 'cm24lq0sx0001jkpdbc9lxu8x',
-            userId: 'cm24ll4370008kh59coznldal',
-            emoji: emoji,
-          }),
+      body: JSON.stringify({
+        taskId: taskId,
+        userId: userId,
+        emoji: emoji,
+      }),
     };
 
     try {
       const response = await fetch(url, options);
       const data = await response.json();
-
-      if (!isEmojiAdded) {
-        setIsEmojiAdded(true);
-        console.log('Emoji assigned successfully:', emoji);
-      } else {
-        console.log('Emoji updated successfully:', data);
-      }
+      console.log(
+        isEmojiAssigned ? 'Emoji updated successfully:' : 'Emoji assigned successfully:',
+        data,
+      );
     } catch (error) {
-      console.error(isEmojiAdded ? 'Error updating emoji:' : 'Error assigning emoji:', error);
+      console.error(isEmojiAssigned ? 'Error updating emoji:' : 'Error assigning emoji:', error);
     }
   };
+
   const sortedEmojis = [...emojis].sort((a, b) => b.id.localeCompare(a.id));
+
   return (
     <div className="flex texts-center justify-center">
       <Popover>
@@ -153,11 +168,14 @@ const Emoji = () => {
           </PopoverTrigger>
           <PopoverContent className="min-w-[240px] w-fit max-h-80 overflow-y-scroll">
             <ul>
-              {emojis.map((emojiData) => (
-                <div key={emojiData.id} className="flex py-1 justify-between">
-                  <p className="body self-center">Banyaphon Kongtham</p>
-                  <p className="text-[24px]">{emojiData.emoji}</p>
-                </div>
+              {sortedEmojis.map((emojiData) => (
+                <EmojiUser
+                  emoji={emojiData.emoji}
+                  id={emojiData.id}
+                  userId={emojiData.userId}
+                  taskId={emojiData.taskId}
+                  key={emojiData.id}
+                />
               ))}
             </ul>
           </PopoverContent>
@@ -166,5 +184,4 @@ const Emoji = () => {
     </div>
   );
 };
-
 export default Emoji;
