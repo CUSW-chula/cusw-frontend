@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "prepare": "husky",
@@ -14,11 +14,11 @@
     "format:fix": "bunx biome format --write ./src"
   },
   "dependencies": {
-    "@blocknote/core": "^0.17.0",
-    "@blocknote/mantine": "^0.17.0",
-    "@blocknote/react": "^0.17.0",
-    "@blocknote/shadcn": "^0.17.0",
-    "@hookform/resolvers": "^3.9.0",
+    "@blocknote/core": "^0.18.0",
+    "@blocknote/mantine": "^0.18.1",
+    "@blocknote/react": "^0.18.0",
+    "@blocknote/shadcn": "^0.18.0",
+    "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-alert-dialog": "^1.1.2",
     "@radix-ui/react-context-menu": "^2.2.2",
     "@radix-ui/react-dialog": "^1.1.2",
@@ -36,12 +36,12 @@
     "emoji-picker-react": "^4.12.0",
     "jotai": "^2.10.1",
     "lucide-react": "^0.453.0",
-    "next": "14.2.15",
+    "next": "15.0.2",
     "quill": "^2.0.2",
-    "react": "18.3.1",
+    "react": "19.0.0-rc-02c0e824-20241028",
     "react-color-palette": "^7.3.0",
-    "react-dom": "18.3.1",
-    "react-hook-form": "^7.53.0",
+    "react-dom": "19.0.0-rc-02c0e824-20241028",
+    "react-hook-form": "^7.53.1",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "ws": "^8.18.0",
@@ -51,9 +51,9 @@
     "@biomejs/biome": "1.9.4",
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",
-    "@types/node": "^22.7.6",
-    "@types/react": "^18.3.11",
-    "@types/react-dom": "^18.3.1",
+    "@types/node": "^22.8.5",
+    "@types/react": "npm:types-react@19.0.0-rc.1",
+    "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
     "cz-conventional-changelog": "^3.3.0",
     "cz-git": "^1.10.1",
     "globals": "^15.11.0",
@@ -67,5 +67,9 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "overrides": {
+    "@types/react": "npm:types-react@19.0.0-rc.1",
+    "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1"
   }
 }

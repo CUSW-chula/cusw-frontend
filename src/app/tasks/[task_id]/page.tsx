@@ -1,10 +1,8 @@
+'use client';
+
 import dynamic from 'next/dynamic';
 import ActivityLogs from '@/components/elements/activity-logs';
-import { Money } from '@/components/elements/money';
 import Comment from '@/components/elements/comment';
-import { ButtonAddTags } from '@/components/elements/button-add-tag';
-import { AssignedTaskToMember } from '@/components/elements/assigned-task';
-import { ProjectOwner } from '@/components/elements/project-owner';
 import { MenuBar } from '@/components/elements/menu-bar';
 
 export default function TasksManageMentPage() {
