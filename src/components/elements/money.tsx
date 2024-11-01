@@ -21,30 +21,30 @@ interface Budget {
 const Money = () => {
   enum TypeMoney {
     null = '',
-    exp = 'expect',
-    real = 'real',
-    used = 'used',
+    budget = 'budget',
+    ad = 'advance',
+    exp = 'expense',
   }
   const [openDialog, setOpenDialog] = useState(false); // Manage dialog open state
   const [openType, setOpenType] = useState(false); //Manage Popover state Money type
-  const [budget, setBudget] = useState<Budget>({
+  const [budgetList, setBudgetList] = useState<Budget>({
     type: TypeMoney.null,
     money: 0,
   });
   const [tempBudget, setTempBudget] = useState<Budget>({
     type: TypeMoney.null,
-    money: budget.money,
+    money: budgetList.money,
   });
 
   const handleClear = () => {
-    budget.type = TypeMoney.null;
-    budget.money = 0;
+    budgetList.type = TypeMoney.null;
+    budgetList.money = 0;
     setOpenDialog(false);
     sentLog();
   };
 
   const handleCancel = () => {
-    setBudget(tempBudget);
+    setBudgetList(tempBudget);
     setOpenDialog(false);
   };
 
@@ -55,25 +55,25 @@ const Money = () => {
   };
 
   const sentLog = () => {
-    budget.type === TypeMoney.exp
+    budgetList.type === TypeMoney.budget
       ? console.log({
           taskId: 'constant taskID',
-          expectedBudget: budget.money,
-          realBudget: 0,
-          usedBudget: 0,
+          budget: budgetList.money,
+          advance: 0,
+          expense: 0,
         })
-      : budget.type === TypeMoney.real
+      : budgetList.type === TypeMoney.ad
         ? console.log({
             taskId: 'constant taskID',
-            expectedBudget: 0,
-            realBudget: budget.money,
-            usedBudget: 0,
+            budget: 0,
+            advance: budgetList.money,
+            expense: 0,
           })
         : console.log({
             taskId: 'constant taskID',
-            expectedBudget: 0,
-            realBudget: 0,
-            usedBudget: budget.money,
+            budget: 0,
+            advance: 0,
+            expense: budgetList.money,
           });
   };
 
@@ -91,17 +91,17 @@ const Money = () => {
         <DialogTrigger asChild>
           <div
             className={`h-10 px-4 bg-white rounded-md border border-neutral-200 justify-center items-center flex min-w-32 font-BaiJamjuree hover:cursor-pointer ${
-              budget.type === TypeMoney.real
+              budgetList.type === TypeMoney.ad
                 ? 'text-green'
-                : budget.type === TypeMoney.used
+                : budgetList.type === TypeMoney.exp
                   ? 'text-red'
                   : 'text-black'
             }`}>
-            {budget.type === TypeMoney.null
+            {budgetList.type === TypeMoney.null
               ? 'Add Money'
-              : Number.isNaN(budget.money)
+              : Number.isNaN(budgetList.money)
                 ? 'Add Money'
-                : budget.money.toLocaleString()}
+                : budgetList.money.toLocaleString()}
             {/* Allow up to three decimal */}
           </div>
         </DialogTrigger>
@@ -111,11 +111,11 @@ const Money = () => {
           <DialogDescription className="w-full flex flex-row self-stretch h-24 px-1.5 pt-9 justify-start gap-2">
             <Popover open={openType} onOpenChange={setOpenType}>
               <PopoverTrigger className="w-32 h-10 px-3 rounded-md border border-gray-300 justify-between items-center inline-flex">
-                {budget.type === TypeMoney.null ? (
+                {budgetList.type === TypeMoney.null ? (
                   <div>Select Type</div>
-                ) : budget.type === TypeMoney.exp ? (
+                ) : budgetList.type === TypeMoney.budget ? (
                   <div>งบประมาณ</div>
-                ) : budget.type === TypeMoney.real ? (
+                ) : budgetList.type === TypeMoney.ad ? (
                   <div className="text-green">สำรองจ่าย</div>
                 ) : (
                   <div className="text-red">ค่าใช้จ่าย</div>
@@ -128,9 +128,9 @@ const Money = () => {
                 <Button
                   className="bg-gray-100 text-black text-sm font-normal font-Anuphan leading-normal hover:text-white "
                   onClick={() => {
-                    setBudget((prevBudget) => ({
+                    setBudgetList((prevBudget) => ({
                       ...prevBudget,
-                      type: TypeMoney.exp,
+                      type: TypeMoney.budget,
                     }));
                     setOpenType(false);
                   }}>
@@ -139,9 +139,9 @@ const Money = () => {
                 <Button
                   className="bg-gray-100 text-black text-sm font-normal font-Anuphan leading-normal hover:text-white "
                   onClick={() => {
-                    setBudget((prevBudget) => ({
+                    setBudgetList((prevBudget) => ({
                       ...prevBudget,
-                      type: TypeMoney.real,
+                      type: TypeMoney.ad,
                     }));
                     setOpenType(false);
                   }}>
@@ -150,9 +150,9 @@ const Money = () => {
                 <Button
                   className="bg-gray-100 text-black text-sm font-normal font-Anuphan leading-normal hover:text-white "
                   onClick={() => {
-                    setBudget((prevBudget) => ({
+                    setBudgetList((prevBudget) => ({
                       ...prevBudget,
-                      type: TypeMoney.used,
+                      type: TypeMoney.exp,
                     }));
                     setOpenType(false);
                   }}>
@@ -162,18 +162,18 @@ const Money = () => {
             </Popover>
             <Input
               id="budget"
-              value={Number.isNaN(budget.money) ? '' : budget.money}
+              value={Number.isNaN(budgetList.money) ? '' : budgetList.money}
               onChange={(e) =>
-                setBudget((prevBudget) => ({
+                setBudgetList((prevBudget) => ({
                   ...prevBudget,
                   money: Number.parseFloat(e.target.value),
                 }))
               }
               type="number"
               className={`h-10 w-48 px-4 bg-white rounded-md border-t border-gray-300 font-BaiJamjuree ${
-                budget.type === TypeMoney.real
+                budgetList.type === TypeMoney.ad
                   ? 'text-green'
-                  : budget.type === TypeMoney.used
+                  : budgetList.type === TypeMoney.exp
                     ? 'text-red'
                     : 'text-black'
               }
@@ -195,9 +195,9 @@ const Money = () => {
                 Cancel
               </Button>
               <Button
-                onClick={() => handleSubmit(budget)}
+                onClick={() => handleSubmit(budgetList)}
                 className="h-10 bg-inherit rounded-[100px] flex-col justify-center items-center gap-2 inline-flex text-brown text-sm font-normal font-BaiJamjuree  hover:bg-gray-100"
-                disabled={budget.type === TypeMoney.null || Number.isNaN(budget.money)}>
+                disabled={budgetList.type === TypeMoney.null || Number.isNaN(budgetList.money)}>
                 Ok
               </Button>
             </div>
