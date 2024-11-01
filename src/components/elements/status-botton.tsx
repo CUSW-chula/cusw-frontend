@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { selectedStatusAtom } from '@/atom';
 
@@ -18,29 +18,30 @@ interface Status {
   label: string;
   icon: string; // Icon should be a React component
 }
+
 const statuses: Status[] = [
   {
-    value: 'unassigned',
+    value: 'Unassigned',
     label: 'unassigned',
     icon: unassigned,
   },
   {
-    value: 'assigned',
+    value: 'Assigned',
     label: 'assigned',
     icon: assigned,
   },
   {
-    value: 'under review',
+    value: 'UnderReview',
     label: 'under review',
     icon: inreview,
   },
   {
-    value: 'in recheck',
+    value: 'InRecheck',
     label: 'in recheck',
     icon: inrecheck,
   },
   {
-    value: 'done',
+    value: 'Done',
     label: 'done',
     icon: done,
   },
@@ -49,7 +50,22 @@ const statuses: Status[] = [
 export function StatusButton() {
   const [open, setOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useAtom<Status>(selectedStatusAtom);
+  useEffect(() => {
+    const fetchCurrentStatus = async () => {
+      const url = 'http://localhost:4000/api/tasks/getstatus/cm24lq0sx0001jkpdbc9lxu8x';
+      const options = { method: 'GET' };
 
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        const selected = statuses.find((s) => s.value === data);
+        if (selected) setSelectedStatus(selected);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchCurrentStatus();
+  }, []);
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
