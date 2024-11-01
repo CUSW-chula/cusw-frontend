@@ -44,6 +44,7 @@ function boldAfterToFrom(sentence: string) {
 }
 
 const getInitials = (name: string) => {
+  if (!name) return "";
   const nameParts = name.split(' ');
   return nameParts.map((part) => part[0]).join('');
 };
@@ -90,6 +91,7 @@ function ActivityLogItem({ userId, action, detail, createdAt }: ActivityLogItemP
 const ActivityLogs: React.FC = () => {
   const [activityLogs, setActivityLogs] = useState<ActivityLogItemProps[]>([]);
 
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValue = useCallback((values: any) => {
     const newValue: ActivityLogItemProps = {
       id: values.id ?? '',
