@@ -1,6 +1,6 @@
 'use client';
 import 'yjs';
-import { cache, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Displayfile, Uploadfile } from './uploadfile';
 import Emoji from './emoji';
 import { BlockNoteView } from '@blocknote/shadcn';
@@ -45,25 +45,69 @@ function TitleInput({ content }: { content: string }) {
     />
   );
 }
+
 const Workspace = () => {
   const [fileList, setFileList] = useState<Files[]>([]);
 
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  const pareJsonValue = useCallback((values: any) => {
+    const newValue: Files = {
+      id: values.id,
+      createdAt: values.createdAt,
+      fileName: values.fileName,
+      filePath: values.filePath,
+      fileSize: values.fileSize,
+      projectId: values.projectId,
+      taskId: values.taskId,
+      uploadedBy: values.uploadBy,
+    };
+    return newValue;
+  }, []);
+
   useEffect(() => {
     const fetchFile = async () => {
-      const url = 'http://localhost:4000/api/file/cm24lq0sx0001jkpdbc9lxu8x';
-      const options = { method: 'GET', caches: 'no-store' };
-
       try {
-        const response = await fetch(url, options);
+        const response = await fetch('http://localhost:4000/api/file/cm24lq0sx0001jkpdbc9lxu8x');
         const data = await response.json();
         setFileList(data);
-        console.log(data);
+        console.log('Initial file list:', data);
       } catch (error) {
-        console.error(error);
+        console.error('Error fetching files:', error);
       }
     };
+
     fetchFile();
-  }, []);
+
+    const ws = new WebSocket('ws://localhost:3001');
+    ws.onopen = () => {
+      console.log('Connected to WebSocket');
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const socketEvent = JSON.parse(event.data);
+        const { eventName, data } = socketEvent;
+        const parsedData = pareJsonValue(data);
+
+        if (eventName === 'add-file') {
+          setFileList((prevFiles) => [...prevFiles, parsedData]);
+        } else if (eventName === 'remove-file') {
+          setFileList((prevFiles) => prevFiles.filter((file) => file.id !== parsedData.id));
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    };
+
+    ws.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [pareJsonValue]);
+
   // disable blocks you don't want
   const { audio, image, video, file, ...allowedBlockSpecs } = defaultBlockSpecs;
 
