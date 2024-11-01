@@ -1,12 +1,8 @@
 'use client';
 
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import React, { useEffect, useCallback, useState } from 'react';
+import { set } from 'react-hook-form';
 
 interface ActivityLogItemProps {
   id: string;
@@ -38,11 +34,9 @@ function boldAfterToFrom(sentence: string) {
 
   for (const word of words) {
     const isBold = previousWord === 'to' || previousWord === 'from';
-    const key = `${previousWord}-${word}`; // Create a unique key based on neighboring words
+    const key = `${previousWord}-${word}`; // Unique key based on neighboring words
 
-    elements.push(
-      isBold ? <b key={key}>{word} </b> : <span key={key}>{word} </span>
-    );
+    elements.push(isBold ? <b key={key}>{word} </b> : <span key={key}>{word} </span>);
     previousWord = word;
   }
 
@@ -65,12 +59,7 @@ function formatDate(date?: string): string {
   return `${day}/${month}/${year}, ${hours}:${minutes}`;
 }
 
-function ActivityLogItem({
-  userId,
-  action,
-  detail,
-  createdAt,
-}: ActivityLogItemProps) {
+function ActivityLogItem({ userId, action, detail, createdAt }: ActivityLogItemProps) {
   const [name, setName] = useState('');
 
   useEffect(() => {
@@ -101,27 +90,29 @@ function ActivityLogItem({
 const ActivityLogs: React.FC = () => {
   const [activityLogs, setActivityLogs] = useState<ActivityLogItemProps[]>([]);
 
-  const pareJsonValue = useCallback((values: any): ActivityLogItemProps => {
-    return {
-      id: values.id,
-      userId: values.userId,
-      taskId: values.taskId,
-      action: values.action,
-      detail: values.detail,
+  const parseJsonValue = useCallback((values: any) => {
+    const newValue: ActivityLogItemProps = {
+      id: values.id ?? '',
+      userId: values.userId ?? '',
+      taskId: values.taskId ?? '',
+      action: values.action ?? '',
+      detail: values.detail ?? '',
       createdAt: values.createdAt,
     };
+    return newValue;
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const fetchData = async () => {
+      const url = 'http://localhost:4000/api/activities/cm24lq0sx0001jkpdbc9lxu8x';
+      const options = {method: 'GET'};
+
       try {
-        const response = await fetch(
-          'http://localhost:4000/api/activities/cm24lq0sx0001jkpdbc9lxu8x'
-        );
+        const response = await fetch(url, options);
         const data = await response.json();
         setActivityLogs(data);
       } catch (error) {
-        console.error('Failed to fetch activity logs:', error);
+        console.error(error);
       }
     };
 
@@ -129,24 +120,28 @@ const ActivityLogs: React.FC = () => {
 
     const ws = new WebSocket('ws://localhost:3001');
 
-    ws.onmessage = (event: MessageEvent) => {
+    ws.onopen = () => {
+      console.log('Connected to WebSocket');
+    };
+
+    ws.onmessage = (event) => {
+      console.log('Message received:', event.data);
+
       try {
         const socketEvent = JSON.parse(event.data);
         const eventName = socketEvent.eventName;
-        const data = pareJsonValue(socketEvent.data);
+        const data = parseJsonValue(socketEvent.data);
 
-        if (eventName === 'activity-log') {
-          setActivityLogs((prev) => [...prev, data]);
-        } else if (eventName === 'delete-activity-log') {
-          setActivityLogs((prev) => prev.filter((log) => log.id !== data.id));
-        }
+        setActivityLogs((prevList) =>
+          Array.isArray(prevList)
+            ? eventName === 'activity'
+              ? [...prevList, data]
+              : prevList.filter((item) => item.id !== data.id)
+            : []
+        );
       } catch (error) {
-        console.error('Failed to parse WebSocket message:', error);
+        console.error('Error parsing WebSocket message:', error);
       }
-    };
-
-    ws.onopen = () => {
-      console.log('Connected to WebSocket');
     };
 
     ws.onclose = () => {
@@ -155,18 +150,22 @@ const ActivityLogs: React.FC = () => {
 
     return () => {
       ws.close();
-      ws.onmessage = null;
     };
-  }, [pareJsonValue]);
+  }, [parseJsonValue]);
 
   return (
     <div className="bg-white space-y-2">
-      <h3 className="text-2xl font-semibold text-gray-900 mb-4 font-Anuphan">
-        Activity
-      </h3>
+      <h3 className="text-2xl font-semibold text-gray-900 mb-4 font-Anuphan">Activity</h3>
       <div className="max-h-48 overflow-y-auto">
         <ul>
-          {activityLogs.map((item) => (
+          {activityLogs
+          .slice()
+          .sort((a, b) => {
+            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+            return dateB - dateA;
+          })
+          .map((item) => (
             <li key={item.id}>
               <ActivityLogItem
                 userId={item.userId}
