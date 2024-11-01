@@ -120,8 +120,8 @@ async function getName(authorId: string) {
   }
 }
 
-function formatName(name:string) {
-  const nameParts = (name ?? "").split(' ');
+function formatName(name: string) {
+  const nameParts = (name ?? '').split(' ');
   return nameParts[0];
 }
 
@@ -175,7 +175,7 @@ function CommentBox({
               <TooltipProvider>
                 <Profile userId="test" userName={name ?? '?'} />
               </TooltipProvider>
-              <div className='text-slate-900 font-BaiJamjuree font-semibold'>
+              <div className="text-slate-900 font-BaiJamjuree font-semibold">
                 {formatName(name ?? '') || 'Loading...'}
               </div>
               <div className="text-[#6b5c56] text-base font-normal font-['Bai Jamjuree'] leading-7">
