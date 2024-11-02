@@ -25,7 +25,7 @@ import {
 import { Button } from '../ui/button';
 import { Profile } from './profile';
 import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
-import BASE_URL from '@/lib/shared';
+import BASE_URL, { type TaskManageMentProp } from '@/lib/shared';
 
 interface CommentBoxProp {
   id: string;
@@ -244,7 +244,7 @@ function CommentBox({
   );
 }
 
-const Comment: React.FC = () => {
+const Comment = ({ task_id }: TaskManageMentProp) => {
   const [comment, setComment] = useState('');
   const [list, setList] = useAtom<CommentBoxProp[]>(commentlist);
   const charLimit = 200;
@@ -282,7 +282,7 @@ const Comment: React.FC = () => {
 
   useEffect(() => {
     const fetchComment = async () => {
-      const commentData = await fetch(`${BASE_URL}/comments/cm24lq0sx0001jkpdbc9lxu8x`);
+      const commentData = await fetch(`${BASE_URL}/comments/${task_id}`);
       const commentList = await commentData.json();
       setList(pareJsonValues(commentList));
     };
@@ -341,7 +341,7 @@ const Comment: React.FC = () => {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue, pareJsonValues, setList]); // Add pareJsonValue and pareJsonValues to the dependency array
+  }, [pareJsonValue, pareJsonValues, setList, task_id]); // Add pareJsonValue and pareJsonValues to the dependency array
 
   const handleInputChange = (e: { target: { value: React.SetStateAction<string> } }) => {
     setComment(e.target.value);
@@ -362,7 +362,7 @@ const Comment: React.FC = () => {
       body: JSON.stringify({
         content: comment,
         authorId: 'cm24ll4370008kh59coznldal',
-        taskId: 'cm24lq0sx0001jkpdbc9lxu8x',
+        taskId: task_id,
       }),
     });
     setComment(''); // Clear the input field after submission

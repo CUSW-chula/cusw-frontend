@@ -14,6 +14,10 @@ export interface Status {
   icon: string;
 }
 
+export interface TaskManageMentProp {
+  task_id: string;
+}
+
 const BASE_URL =
   process.env.NODE_ENV === 'production'
     ? 'https://cusw-workspace.sa.chula.ac.th/api'

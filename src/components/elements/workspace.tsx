@@ -17,7 +17,7 @@ import * as Popover from '@/components/ui/popover';
 import * as Tabs from '@/components/ui/tabs';
 import * as Toggle from '@/components/ui/toggle';
 import * as Tooltip from '@/components/ui/tooltip';
-import BASE_URL from '@/lib/shared';
+import BASE_URL, { type TaskManageMentProp } from '@/lib/shared';
 interface Files {
   id: string;
   fileName: string;
@@ -46,8 +46,7 @@ function TitleInput({ content }: { content: string }) {
     />
   );
 }
-
-const Workspace = () => {
+const Workspace = ({ task_id }: TaskManageMentProp) => {
   const [fileList, setFileList] = useState<Files[]>([]);
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
@@ -68,7 +67,7 @@ const Workspace = () => {
   useEffect(() => {
     const fetchFile = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/file/cm24lq0sx0001jkpdbc9lxu8x`);
+        const response = await fetch(`${BASE_URL}/file/${task_id}`);
         const data = await response.json();
         setFileList(data);
         console.log('Initial file list:', data);
@@ -107,7 +106,7 @@ const Workspace = () => {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue]);
+  }, [pareJsonValue, task_id]);
 
   // disable blocks you don't want
   const { audio, image, video, file, ...allowedBlockSpecs } = defaultBlockSpecs;
