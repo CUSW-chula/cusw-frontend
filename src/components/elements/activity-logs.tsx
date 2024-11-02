@@ -2,7 +2,6 @@
 
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import React, { useEffect, useCallback, useState } from 'react';
-import { set } from 'react-hook-form';
 
 interface ActivityLogItemProps {
   id: string;
@@ -27,24 +26,38 @@ async function getName(authorId: string) {
   }
 }
 
-function boldAfterToFrom(sentence: string) {
+function formatSentence(sentence: string) {
   const words = sentence.split(' ');
   const elements = [];
   let previousWord = '';
+  let previousWordHadUppercase = false;
 
   for (const word of words) {
-    const isBold = previousWord === 'to' || previousWord === 'from';
-    const key = `${previousWord}-${word}`; // Unique key based on neighboring words
+    const currentWordHasUppercase = /[A-Z]/.test(word);
+    const shouldBold = previousWord.toLowerCase() === 'to' || previousWord.toLowerCase() === 'from';
 
-    elements.push(isBold ? <b key={key}>{word} </b> : <span key={key}>{word} </span>);
+    // Check if both the previous and current word have uppercase letters, skip if true
+    if (previousWordHadUppercase && currentWordHasUppercase) {
+      previousWordHadUppercase = currentWordHasUppercase; // Set for the next iteration
+      previousWord = word; // Update the previous word
+      continue; // Skip this word
+    }
+
+    // Add the word with bold styling if it follows "to" or "from"
+    elements.push(
+      shouldBold ? <b key={`${previousWord}-${word}`}>{word} </b> : <span key={`${previousWord}-${word}`}>{word} </span>
+    );
+
+    // Update flags and previous word for the next iteration
+    previousWordHadUppercase = currentWordHasUppercase;
     previousWord = word;
   }
 
   return elements;
 }
 
+
 const getInitials = (name: string) => {
-  if (!name) return "";
   const nameParts = name.split(' ');
   return nameParts.map((part) => part[0]).join('');
 };
@@ -67,6 +80,8 @@ function ActivityLogItem({ userId, action, detail, createdAt }: ActivityLogItemP
     getName(userId).then(setName);
   }, [userId]);
 
+  if (!name) return null;
+
   return (
     <div className="flex items-center space-x-2 text-base text-gray-800 font-BaiJamjuree">
       <TooltipProvider>
@@ -81,8 +96,8 @@ function ActivityLogItem({ userId, action, detail, createdAt }: ActivityLogItemP
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-      <span>{action}</span>
-      <span>{boldAfterToFrom(detail)}</span>
+      <span>{action.toLowerCase()}</span>
+      <span>{formatSentence(detail)}</span>
       <span className="text-gray-500 pl-1 text-sm">{formatDate(createdAt)}</span>
     </div>
   );
