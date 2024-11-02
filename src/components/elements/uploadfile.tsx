@@ -13,6 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import BASE_URL from '@/lib/shared';
 
 interface Files {
   id: string;
@@ -83,7 +84,7 @@ const Uploadfile: React.FC<UploadfileProps> = () => {
     formData.append('projectId', 'cm24w5yu000008tlglutu5czu');
     formData.append('file', file);
     formData.append('authorId', 'cm0siagz300003mbv5bsz6wty');
-    const url = 'http://localhost:4000/api/file/';
+    const url = `${BASE_URL}/file/`;
     const options = {
       method: 'POST',
       body: formData,
@@ -110,7 +111,7 @@ interface DisplayfileProps {
 }
 
 const handleDelete = async (id: string) => {
-  const url = 'http://localhost:4000/api/file/';
+  const url = `${BASE_URL}/file/`;
   const options = {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
@@ -128,7 +129,7 @@ const handleDelete = async (id: string) => {
 
 async function getName(authorId: string) {
   try {
-    const response = await fetch(`http://localhost:4000/api/users/${authorId}`);
+    const response = await fetch(`${BASE_URL}/users/${authorId}`);
     if (!response.ok) {
       throw new Error(`Error: ${response.statusText}`);
     }

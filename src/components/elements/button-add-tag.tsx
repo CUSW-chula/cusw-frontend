@@ -13,6 +13,7 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import BASE_URL from '@/lib/shared';
 
 interface Tags {
   id: string;
@@ -36,7 +37,7 @@ export function ButtonAddTags() {
 
   React.useEffect(() => {
     const fetchTags = async () => {
-      const url = 'http://localhost:4000/api/tags/';
+      const url = `${BASE_URL}/tags/`;
       const options = { method: 'GET' };
 
       try {
@@ -49,7 +50,7 @@ export function ButtonAddTags() {
     };
 
     const fetchSelectedTags = async () => {
-      const url = 'http://localhost:4000/api/tags/getassigntag/cm24lq0sx0001jkpdbc9lxu8x';
+      const url = `${BASE_URL}/tags/getassigntag/cm24lq0sx0001jkpdbc9lxu8x`;
       const options = { method: 'GET' };
 
       try {

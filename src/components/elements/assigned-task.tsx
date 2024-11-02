@@ -16,6 +16,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
 import { Profile } from './profile';
+import BASE_URL from '@/lib/shared';
 
 interface UsersInterfaces {
   id: string;
@@ -92,8 +93,8 @@ export function AssignedTaskToMember() {
       const isAlreadySelected = selectedUser.some((user) => user.id === selected.id);
 
       const url = isAlreadySelected
-        ? 'http://localhost:4000/api/tasks/unassigned' // Unassign user
-        : 'http://localhost:4000/api/tasks/assign'; // Assign user
+        ? `${BASE_URL}/tasks/unassigned` // Unassign user
+        : `${BASE_URL}/tasks/assign`; // Assign user
 
       const options = {
         method: isAlreadySelected ? 'DELETE' : 'POST',

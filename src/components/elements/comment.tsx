@@ -25,6 +25,7 @@ import {
 import { Button } from '../ui/button';
 import { Profile } from './profile';
 import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
+import BASE_URL from '@/lib/shared';
 
 interface CommentBoxProp {
   id: string;
@@ -108,7 +109,7 @@ function EditBox({
 
 async function getName(authorId: string) {
   try {
-    const response = await fetch(`http://localhost:4000/api/users/${authorId}`);
+    const response = await fetch(`${BASE_URL}/users/${authorId}`);
     if (!response.ok) {
       throw new Error(`Error: ${response.statusText}`);
     }
@@ -138,7 +139,7 @@ function CommentBox({
 
   const deleteComment = async () => {
     try {
-      await fetch('http://localhost:4000/api/comments/', {
+      await fetch(`${BASE_URL}/comments/`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, authorId }),
@@ -150,7 +151,7 @@ function CommentBox({
 
   const saveEditedContent = async (newContent: string) => {
     try {
-      await fetch('http://localhost:4000/api/comments/', {
+      await fetch(`${BASE_URL}/comments/`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, authorId, content: newContent }),
@@ -281,9 +282,7 @@ const Comment: React.FC = () => {
 
   useEffect(() => {
     const fetchComment = async () => {
-      const commentData = await fetch(
-        'http://localhost:4000/api/comments/cm24lq0sx0001jkpdbc9lxu8x',
-      );
+      const commentData = await fetch(`${BASE_URL}/comments/cm24lq0sx0001jkpdbc9lxu8x`);
       const commentList = await commentData.json();
       setList(pareJsonValues(commentList));
     };
@@ -355,7 +354,7 @@ const Comment: React.FC = () => {
       return;
     }
 
-    await fetch('http://localhost:4000/api/comments/', {
+    await fetch(`${BASE_URL}/comments/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

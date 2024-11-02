@@ -17,6 +17,7 @@ import * as Popover from '@/components/ui/popover';
 import * as Tabs from '@/components/ui/tabs';
 import * as Toggle from '@/components/ui/toggle';
 import * as Tooltip from '@/components/ui/tooltip';
+import BASE_URL from '@/lib/shared';
 interface Files {
   id: string;
   fileName: string;
@@ -67,7 +68,7 @@ const Workspace = () => {
   useEffect(() => {
     const fetchFile = async () => {
       try {
-        const response = await fetch('http://localhost:4000/api/file/cm24lq0sx0001jkpdbc9lxu8x');
+        const response = await fetch(`${BASE_URL}/file/cm24lq0sx0001jkpdbc9lxu8x`);
         const data = await response.json();
         setFileList(data);
         console.log('Initial file list:', data);
