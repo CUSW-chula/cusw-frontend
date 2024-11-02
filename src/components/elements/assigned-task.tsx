@@ -41,11 +41,11 @@ export function AssignedTaskToMember({ task_id }: TaskManageMentProp) {
 
   React.useEffect(() => {
     const fetchAssignAndUsers = async () => {
-      const usersData = await fetch('http://localhost:4000/api/users');
+      const usersData = await fetch(`${BASE_URL}/users`);
       const userList = await usersData.json();
       setUsersList(userList);
 
-      const assignData = await fetch(`${BASE_URL}/api/tasks/getassign/${task_id}`);
+      const assignData = await fetch(`${BASE_URL}/tasks/getassign/${task_id}`);
       const assignList = await assignData.json();
       setSelectedUser(Array.isArray(assignList) ? assignList : []); // Ensure array format
     };
