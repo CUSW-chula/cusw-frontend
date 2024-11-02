@@ -160,7 +160,7 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
       <Displayfile fileList={fileList} setFileList={setFileList} />
       <div className="flex justify-between">
         <Emoji />
-        <Uploadfile setFileList={setFileList} />
+        <Uploadfile task_id={task_id} />
       </div>
     </div>
   );
