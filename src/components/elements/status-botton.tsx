@@ -6,6 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { selectedStatusAtom } from '@/atom';
+import React from 'react';
 
 const unassigned = '/asset/icon/unassigned.svg';
 const assigned = '/asset/icon/assigned.svg';
@@ -50,9 +51,20 @@ const statuses: Status[] = [
 export function StatusButton() {
   const [open, setOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useAtom<Status>(selectedStatusAtom);
+
+  const parseJsonValue = React.useCallback((values: Status) => {
+    const newValue: Status = {
+      value: values.value,
+      label: values.label,
+      icon: values.icon,
+    };
+    return newValue;
+  }, []);
+
   useEffect(() => {
-    const fetchCurrentStatus = async () => {
-      const url = 'http://localhost:4000/api/tasks/getstatus/cm24lq0sx0001jkpdbc9lxu8x';
+    //fetch current status from db
+    const fetchCurrentStatus = async (taskId: string) => {
+      const url = `http://localhost:4000/api/tasks/getstatus/${taskId}`;
       const options = { method: 'GET' };
 
       try {
@@ -64,8 +76,58 @@ export function StatusButton() {
         console.error(error);
       }
     };
-    fetchCurrentStatus();
-  }, []);
+
+    fetchCurrentStatus('cm24lq0sx0001jkpdbc9lxu8x');
+
+    const ws = new WebSocket('ws://localhost:3001');
+
+    ws.onopen = () => console.log('Connected to WebSocket');
+
+    ws.onmessage = (event) => {
+      console.log('Message received:', event.data);
+
+      try {
+        const socketEvent = JSON.parse(event.data);
+        const eventName = socketEvent.eventName;
+        const data = parseJsonValue(socketEvent.data);
+
+        if (eventName === 'assigned-status') {
+          setSelectedStatus(parseJsonValue(socketEvent.data));
+        }
+      } catch (error) {
+        console.error('error parsing websocket message: ', error);
+      }
+    };
+
+    ws.onclose = () => {
+      console.log('websocket connection closed');
+    };
+
+    return () => ws.close();
+  }, [parseJsonValue, setSelectedStatus]);
+
+  const handleSelectStatus = async (status: Status) => {
+    setSelectedStatus(status);
+    setOpen(false);
+    const url = 'http://localhost:4000/api/tasks/';
+    const options = {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        taskId: 'cm24lq0sx0001jkpdbc9lxu8x', // Replace with actual taskId
+        newTaskStatus: status.value,
+      }),
+    };
+
+    try {
+      const response = await fetch(url, options);
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -99,9 +161,10 @@ export function StatusButton() {
                   value={status.value}
                   className="pl-[32px] font-BaiJamjuree text-base"
                   onSelect={() => {
-                    const selected = statuses.find((s) => s.value === status.value);
-                    if (selected) setSelectedStatus(selected);
-                    setOpen(false);
+                    // const selected = statuses.find((s) => s.value === status.value);
+                    // if (selected) setSelectedStatus(selected);
+                    // setOpen(false);
+                    handleSelectStatus(status);
                   }}>
                   <img src={status.icon} className="mr-2 h-4 w-4 shrink-0" alt={status.label} />
                   <span>{status.label}</span>
