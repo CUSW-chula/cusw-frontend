@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-
 interface Budget {
   type: string;
   money: number;
@@ -25,6 +24,7 @@ const Money = () => {
     ad = 'advance',
     exp = 'expense',
   }
+
   const [openDialog, setOpenDialog] = useState(false); // Manage dialog open state
   const [openType, setOpenType] = useState(false); //Manage Popover state Money type
   const [budgetList, setBudgetList] = useState<Budget>({
@@ -35,50 +35,123 @@ const Money = () => {
     type: TypeMoney.null,
     money: budgetList.money,
   });
+  const url = typeof window !== 'undefined' ? window.location.pathname : '';
+  const path = url.split('/');
+  const taskID = path[path.length - 1];
 
-  const handleClear = () => {
-    budgetList.type = TypeMoney.null;
-    budgetList.money = 0;
-    setOpenDialog(false);
-    sentLog();
+  //get budget
+  useEffect(() => {
+    //sent GET method
+    const fetchDataGet = async () => {
+      const url = `http://localhost:4000/api/tasks/money/${taskID}`;
+      const options = { method: 'GET' };
+
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        const types = [TypeMoney.budget, TypeMoney.ad, TypeMoney.exp];
+        const index = data.findIndex((value: number) => value !== 0);
+        setBudgetList({
+          type: types[index] || TypeMoney.budget,
+          money: data[index] || data[0],
+        });
+        if (!response.ok) return console.log('GET failed. Operation aborted.');
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchDataGet();
+  }, [taskID]);
+
+  //submit input budget
+  const handleSubmit = async (budget: Budget) => {
+    //sent POST method
+    const fetchDataPost = async (budgetList: number[]) => {
+      const url = 'http://localhost:4000/api/tasks/money';
+      const options = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: `{"taskID":"${taskID}","budget":${budgetList[0]},"advance":${budgetList[1]},"expense":${budgetList[2]}}`,
+      };
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        // console.log("POST: " + data);
+        if (!response.ok) return false;
+      } catch (error) {
+        console.error(error);
+      }
+      return true;
+    };
+
+    const data =
+      budget.type === TypeMoney.budget
+        ? [budget.money, 0, 0]
+        : budget.type === TypeMoney.ad
+          ? [0, budget.money, 0]
+          : [0, 0, budget.money];
+    if (await fetchDataPost(data)) {
+      setTempBudget(budget);
+      setOpenDialog(false);
+      // sentLog();
+    }
   };
 
+  //clear budget
+  const handleClear = async () => {
+    //sent DELETE method
+    const fetchDataDelete = async () => {
+      const url = 'http://localhost:4000/api/tasks/money';
+      const options = {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: `{"taskID":"${taskID}"}`,
+      };
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        // console.log("DELETE: " + data);
+        if (!response.ok) return false;
+      } catch (error) {
+        console.error(error);
+      }
+      return true;
+    };
+
+    if (await fetchDataDelete()) {
+      budgetList.type = TypeMoney.null;
+      budgetList.money = 0;
+      setOpenDialog(false);
+      // sentLog();
+    }
+  };
+
+  //not save budget input
   const handleCancel = () => {
     setBudgetList(tempBudget);
     setOpenDialog(false);
   };
 
-  const handleSubmit = (budget: Budget) => {
-    setTempBudget(budget);
-    sentLog();
-    setOpenDialog(false);
-  };
-
+  //sent log of budget
   const sentLog = () => {
-    budgetList.type === TypeMoney.budget
-      ? console.log({
-          taskId: 'constant taskID',
-          budget: budgetList.money,
-          advance: 0,
-          expense: 0,
-        })
-      : budgetList.type === TypeMoney.ad
-        ? console.log({
-            taskId: 'constant taskID',
-            budget: 0,
-            advance: budgetList.money,
-            expense: 0,
-          })
-        : console.log({
-            taskId: 'constant taskID',
-            budget: 0,
-            advance: 0,
-            expense: budgetList.money,
-          });
+    const { budget, advance, expense } =
+      budgetList.type === TypeMoney.budget
+        ? { budget: budgetList.money, advance: 0, expense: 0 }
+        : budgetList.type === TypeMoney.ad
+          ? { budget: 0, advance: budgetList.money, expense: 0 }
+          : { budget: 0, advance: 0, expense: budgetList.money };
+
+    console.log({
+      taskId: taskID,
+      budget,
+      advance,
+      expense,
+    });
   };
 
   return (
     <div className="h-10 justify-start items-center gap-[15px] inline-flex">
+      {/* {fetchData("a-1")} */}
       <div className="h-6 justify-start items-center gap-2 inline-flex">
         <div className="text-center text-black text-2xl font-semibold font-BaiJamjuree leading-normal">
           ฿
@@ -197,7 +270,11 @@ const Money = () => {
               <Button
                 onClick={() => handleSubmit(budgetList)}
                 className="h-10 bg-inherit rounded-[100px] flex-col justify-center items-center gap-2 inline-flex text-brown text-sm font-normal font-BaiJamjuree  hover:bg-gray-100"
-                disabled={budgetList.type === TypeMoney.null || Number.isNaN(budgetList.money)}>
+                disabled={
+                  budgetList.type === TypeMoney.null ||
+                  Number.isNaN(budgetList.money) ||
+                  budgetList.money === 0
+                }>
                 Ok
               </Button>
             </div>
