@@ -39,6 +39,19 @@ const Money = () => {
   const path = url.split('/');
   const taskID = path[path.length - 1];
 
+  const pareJsonValue = React.useCallback(
+    (budgetList: { budget: number; advance: number; expense: number }) => {
+      return budgetList.budget
+        ? { type: TypeMoney.budget, money: budgetList.budget }
+        : budgetList.advance
+          ? { type: TypeMoney.ad, money: budgetList.advance }
+          : budgetList.expense
+            ? { type: TypeMoney.exp, money: budgetList.expense }
+            : { type: TypeMoney.null, money: 0 };
+    },
+    [],
+  );
+
   //get budget
   useEffect(() => {
     //sent GET method
@@ -61,7 +74,30 @@ const Money = () => {
       }
     };
     fetchDataGet();
-  }, [taskID]);
+
+    const ws = new WebSocket('ws://localhost:3001');
+    ws.onopen = () => console.log('Connected to WebSocket');
+    ws.onmessage = (event) => {
+      // console.log("Message received:", event.data);
+      try {
+        const socketEvent = JSON.parse(event.data);
+        const eventName = socketEvent.eventName;
+        const newBudgetList = pareJsonValue(socketEvent.data);
+
+        if (eventName === 'addMoney') setBudgetList(newBudgetList);
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    };
+
+    ws.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [taskID, pareJsonValue]);
 
   //submit input budget
   const handleSubmit = async (budget: Budget) => {
@@ -151,15 +187,6 @@ const Money = () => {
 
   return (
     <div className="h-10 justify-start items-center gap-[15px] inline-flex">
-      {/* {fetchData("a-1")} */}
-      <div className="h-6 justify-start items-center gap-2 inline-flex">
-        <div className="text-center text-black text-2xl font-semibold font-BaiJamjuree leading-normal">
-          ฿
-        </div>
-        <div className="text-black text-xs font-medium font-['Bai Jamjuree'] leading-tight">
-          Money :{' '}
-        </div>
-      </div>
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogTrigger asChild>
           <div

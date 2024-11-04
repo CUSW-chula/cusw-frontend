@@ -1,6 +1,6 @@
 'use client';
 import 'yjs';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Displayfile, Uploadfile } from './uploadfile';
 import Emoji from './emoji';
 import { BlockNoteView } from '@blocknote/shadcn';
@@ -17,15 +17,15 @@ import * as Popover from '@/components/ui/popover';
 import * as Tabs from '@/components/ui/tabs';
 import * as Toggle from '@/components/ui/toggle';
 import * as Tooltip from '@/components/ui/tooltip';
+import BASE_URL, { type TaskManageMentProp } from '@/lib/shared';
 interface Files {
   id: string;
-  name: string;
+  fileName: string;
   filePath: string;
   fileSize: number;
   taskId: string;
   projectId: string;
   uploadedBy: string;
-  uploadedAt: Date;
   createdAt: Date;
 }
 
@@ -46,8 +46,68 @@ function TitleInput({ content }: { content: string }) {
     />
   );
 }
-const Workspace = () => {
+const Workspace = ({ task_id }: TaskManageMentProp) => {
   const [fileList, setFileList] = useState<Files[]>([]);
+
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  const pareJsonValue = useCallback((values: any) => {
+    const newValue: Files = {
+      id: values.id,
+      createdAt: values.createdAt,
+      fileName: values.fileName,
+      filePath: values.filePath,
+      fileSize: values.fileSize,
+      projectId: values.projectId,
+      taskId: values.taskId,
+      uploadedBy: values.uploadBy,
+    };
+    return newValue;
+  }, []);
+
+  useEffect(() => {
+    const fetchFile = async () => {
+      try {
+        const response = await fetch(`${BASE_URL}/file/${task_id}`);
+        const data = await response.json();
+        setFileList(data);
+        console.log('Initial file list:', data);
+      } catch (error) {
+        console.error('Error fetching files:', error);
+      }
+    };
+
+    fetchFile();
+
+    const ws = new WebSocket('ws://localhost:3001');
+    ws.onopen = () => {
+      console.log('Connected to WebSocket');
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const socketEvent = JSON.parse(event.data);
+        const { eventName, data } = socketEvent;
+        const parsedData = pareJsonValue(data);
+
+        if (eventName === 'add-file') {
+          setFileList((prevFiles) => [...prevFiles, parsedData]);
+        } else if (eventName === 'remove-file') {
+          setFileList((prevFiles) => prevFiles.filter((file) => file.id !== parsedData.id));
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    };
+
+    ws.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [pareJsonValue, task_id]);
+
   // disable blocks you don't want
   const { audio, image, video, file, ...allowedBlockSpecs } = defaultBlockSpecs;
 
@@ -100,7 +160,7 @@ const Workspace = () => {
       <Displayfile fileList={fileList} setFileList={setFileList} />
       <div className="flex justify-between">
         <Emoji />
-        <Uploadfile setFileList={setFileList} />
+        <Uploadfile task_id={task_id} />
       </div>
     </div>
   );
