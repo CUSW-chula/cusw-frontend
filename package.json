@@ -16,8 +16,8 @@
   "dependencies": {
     "@blocknote/core": "^0.18.0",
     "@blocknote/mantine": "^0.18.1",
-    "@blocknote/react": "^0.18.0",
-    "@blocknote/shadcn": "^0.18.0",
+    "@blocknote/react": "^0.18.1",
+    "@blocknote/shadcn": "^0.18.1",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-alert-dialog": "^1.1.2",
     "@radix-ui/react-context-menu": "^2.2.2",
