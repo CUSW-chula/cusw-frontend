@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { Circle, XCircle, CircleFadingPlus } from 'lucide-react';
-
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,55 +13,147 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import BASE_URL, { type TaskManageMentProp } from '@/lib/shared';
 
-type NewType = {
+interface Tags {
   id: string;
-  nameTag: string;
-};
-
-// Status data
-type Status = NewType;
+  name: string;
+}
 
 // Mock data
-const statuses: Status[] = [
-  { id: '1', nameTag: 'สิงหาคม' },
-  { id: '2', nameTag: 'ไตรมาส 1' },
-  { id: '3', nameTag: 'กันยายน' },
-  { id: '4', nameTag: 'ตุลาคม' },
-  { id: '5', nameTag: 'tag' },
-];
-
-export function ButtonAddTags() {
+export function ButtonAddTags({ task_id }: TaskManageMentProp) {
   const [open, setOpen] = React.useState(false);
-  const [selectedTags, setSelectedTags] = React.useState<Status[]>([]);
+  const [statuses, setStatuses] = React.useState<Tags[]>([]);
+  const [selectedTags, setSelectedTags] = React.useState<Tags[]>([]);
 
-  // ฟังก์ชันจัดการการเลือกแท็ก
-  const handleSelectTag = (value: string) => {
-    const selected = statuses.find((status) => status.nameTag === value);
-    if (selected && !selectedTags.includes(selected)) {
-      setSelectedTags((prev) => [selected, ...prev]); // เพิ่มแท็กใหม่ที่จุดเริ่มต้น
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  const pareJsonValue = React.useCallback((values: any) => {
+    const newValue: Tags = {
+      id: values.id,
+      name: values.name,
+    };
+    return newValue;
+  }, []);
+
+  React.useEffect(() => {
+    const fetchTags = async () => {
+      const url = `${BASE_URL}/tags/`;
+      const options = { method: 'GET' };
+
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        setStatuses(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    const fetchSelectedTags = async () => {
+      const url = `${BASE_URL}/tags/getassigntag/${task_id}`;
+      const options = { method: 'GET' };
+
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        setSelectedTags(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchTags();
+    fetchSelectedTags();
+
+    const ws = new WebSocket('ws://localhost:3001');
+
+    ws.onopen = () => {
+      console.log('Connected to WebSocket');
+    };
+
+    ws.onmessage = (event) => {
+      console.log('Message received:', event.data);
+
+      try {
+        const socketEvent = JSON.parse(event.data);
+        const eventName = socketEvent.eventName;
+        const data = pareJsonValue(socketEvent.data);
+
+        if (eventName === 'assigned-tags') {
+          // Update selected tags with new tag added
+          setSelectedTags((prev) => [...prev, data]);
+        } else if (eventName === 'unassigned-tag') {
+          // Remove tag from selected tags
+          setSelectedTags((prev) => prev.filter((t) => t.id !== data.id));
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    };
+
+    ws.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [pareJsonValue, task_id]);
+
+  const handleSelectTag = async (value: string) => {
+    const selected = statuses.find((status) => status.name === value);
+    if (selected && !selectedTags.some((tag) => tag.id === selected.id)) {
+      const url = `${BASE_URL}/tags/assign`;
+      const options = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ taskId: task_id, tagId: selected.id }),
+      };
+
+      try {
+        await fetch(url, options);
+        // After adding the tag, update the local state
+        setSelectedTags((prev) => [...prev, selected]); // Immediately update state
+      } catch (error) {
+        console.error(error);
+      }
     }
     setOpen(false);
+  };
+
+  const handleDeleteTag = async (value: string) => {
+    const url = `${BASE_URL}/tags/unassigned`;
+    const options = {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ taskId: task_id, tagId: value }),
+    };
+
+    try {
+      await fetch(url, options);
+      // Update local state to remove the deleted tag
+      setSelectedTags((prev) => prev.filter((tag) => tag.id !== value));
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
     <>
       <div className="flex flex-row gap-1 flex-wrap">
-        {/* แสดงแท็กที่ถูกเลือก */}
         {selectedTags.map((tag) => (
           <Button variant="outline" key={tag.id}>
             <Circle className="mr-1 h-4 w-4 fill-greenLight text-greenLight font-BaiJamjuree" />
-            <span>{tag.nameTag}</span>
+            <span>{tag.name}</span>
             <button
               type="button"
-              onClick={() => setSelectedTags((prev) => prev.filter((t) => t.id !== tag.id))}
+              onClick={() => handleDeleteTag(tag.id)}
               className="text-red-500 ml-1">
               <XCircle className="h-4 w-4" />
             </button>
           </Button>
         ))}
 
-        {/* ปุ่ม Add Tag ที่อยู่ด้านหลังสุด */}
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button variant="outline">
@@ -76,7 +167,7 @@ export function ButtonAddTags() {
                 <CommandEmpty>No results found.</CommandEmpty>
                 <CommandGroup>
                   {statuses.map((status) => (
-                    <CommandItem key={status.id} value={status.nameTag} onSelect={handleSelectTag}>
+                    <CommandItem key={status.id} value={status.name} onSelect={handleSelectTag}>
                       <Circle
                         className={cn(
                           'mr-2 h-4 w-4 fill-greenLight text-greenLight',
@@ -85,7 +176,7 @@ export function ButtonAddTags() {
                             : 'opacity-40',
                         )}
                       />
-                      <span>{status.nameTag}</span>
+                      <span>{status.name}</span>
                     </CommandItem>
                   ))}
                 </CommandGroup>
