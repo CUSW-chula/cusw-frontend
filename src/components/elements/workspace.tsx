@@ -1,12 +1,12 @@
 'use client';
 import 'yjs';
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Displayfile, Uploadfile } from './uploadfile';
 import Emoji from './emoji';
 import { BlockNoteView } from '@blocknote/shadcn';
 import '@blocknote/shadcn/style.css';
 import { GridSuggestionMenuController, useCreateBlockNote } from '@blocknote/react';
-import { type Block, BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
+import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
 import * as Button from '@/components/ui/button';
 import * as Card from '@/components/ui/card';
 import * as DropdownMenu from '@/components/ui/dropdown-menu';
@@ -39,13 +39,9 @@ interface Files {
   createdAt: Date;
 }
 
-interface Textedit {
-  title: string;
-  description: string;
-}
 const Workspace = () => {
-  const [TexteditList, setTexteditList] = useState<Textedit | null>(null);
-
+  const [Title, setTitle] = useState<string>('');
+  const [Description, setDescription] = useState<string>('');
   const [fileList, setFileList] = useState<Files[]>([]);
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
@@ -62,26 +58,51 @@ const Workspace = () => {
     };
     return newValue;
   }, []);
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  const pareJsonValues = useCallback((values: any) => {
+    interface Title {
+      title: string;
+    }
+    const newValue: Title = {
+      title: values.title,
+    };
+    return newValue;
+  }, []);
+
   useEffect(() => {
-    const fetchTextedit = async () => {
+    const fetchDescription = async () => {
       try {
         const response = await fetch(
-          'http://localhost:4000/api/tasks/textedit/cm24lq0sx0001jkpdbc9lxu8x',
+          'http://localhost:4000/api/tasks/description/cm24lq0sx0001jkpdbc9lxu8x',
         );
         const data = await response.json();
-        if (data.description) {
-          data.description = data.description.replace(/^"|"$/g, '');
-        }
-        setTexteditList(data);
-        console.log('Initial Textedit list:', data);
+        setDescription(data.description);
+        const blocks = await editor.tryParseHTMLToBlocks(data.description);
+        editor.replaceBlocks(editor.document, blocks);
+        console.log('Initial Description:', data);
       } catch (error) {
-        console.error('Error fetching Textedit:', error);
+        console.error('Error fetching Description:', error);
+      }
+    };
+    fetchDescription();
+  }, []);
+
+  useEffect(() => {
+    const fetchTitle = async () => {
+      try {
+        const response = await fetch(
+          'http://localhost:4000/api/tasks/title/cm24lq0sx0001jkpdbc9lxu8x',
+        );
+        const data = await response.json();
+        setTitle(data.title);
+        console.log('Initial Title:', data);
+      } catch (error) {
+        console.error('Error fetching Title:', error);
       }
     };
 
-    fetchTextedit();
-  }, []);
-  useEffect(() => {
+    fetchTitle();
+
     const fetchFile = async () => {
       try {
         const response = await fetch('http://localhost:4000/api/file/cm24lq0sx0001jkpdbc9lxu8x');
@@ -104,10 +125,13 @@ const Workspace = () => {
         const socketEvent = JSON.parse(event.data);
         const { eventName, data } = socketEvent;
         const parsedData = pareJsonValue(data);
+        const parsedDatas = pareJsonValues(data);
         if (eventName === 'add-file') {
           setFileList((prevFiles) => [...prevFiles, parsedData]);
         } else if (eventName === 'remove-file') {
           setFileList((prevFiles) => prevFiles.filter((file) => file.id !== parsedData.id));
+        } else if (eventName === 'title edited') {
+          setTitle(parsedDatas.title);
         }
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
@@ -121,7 +145,7 @@ const Workspace = () => {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue]);
+  }, [pareJsonValue, pareJsonValues]);
 
   // disable blocks you don't want
   const { audio, image, video, file, codeBlock, ...allowedBlockSpecs } = defaultBlockSpecs;
@@ -132,47 +156,68 @@ const Workspace = () => {
     },
   });
 
-  const handleTextingActions = useCallback(async () => {
-    if (!TexteditList) return;
-    const taskId = 'cm24lq0sx0001jkpdbc9lxu8x';
-    const userId = 'cm24ll4370008kh59coznldal';
-    const url = 'http://localhost:4000/api/tasks/textedit';
-    const options = {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        taskId,
-        userId,
-        title: TexteditList.title,
-        description: TexteditList.description,
-      }),
+  useEffect(() => {
+    if (!Title) return;
+    const updateTitle = async () => {
+      const taskId = 'cm24lq0sx0001jkpdbc9lxu8x';
+      const userId = 'cm24ll4370008kh59coznldal';
+      const url = 'http://localhost:4000/api/tasks/title';
+      const options = {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          taskId,
+          userId,
+          title: Title,
+        }),
+      };
+
+      try {
+        const response = await fetch(url, options);
+        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+        const data = await response.json();
+        console.log('Title updated successfully:', data);
+      } catch (error) {
+        console.error('Error updating Title:', error);
+      }
     };
 
-    try {
-      const response = await fetch(url, options);
-      if (!response.ok) throw new Error(`Error: ${response.statusText}`);
-      const data = await response.json();
-      console.log('Textedit updated successfully:', data);
-    } catch (error) {
-      console.error('Error updating textedit:', error);
-    }
-  }, [TexteditList]);
+    updateTitle();
+  }, [Title]);
 
-  //patch when textedit was update
   useEffect(() => {
-    if (TexteditList) {
-      handleTextingActions();
-    }
-  }, [TexteditList, handleTextingActions]);
+    if (!Description) return;
+    const updateDescription = async () => {
+      const taskId = 'cm24lq0sx0001jkpdbc9lxu8x';
+      const userId = 'cm24ll4370008kh59coznldal';
+      const url = 'http://localhost:4000/api/tasks/description';
+      const options = {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          taskId,
+          userId,
+          description: Description,
+        }),
+      };
+
+      try {
+        const response = await fetch(url, options);
+        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+        const data = await response.json();
+        console.log('Description updated successfully:', data);
+      } catch (error) {
+        console.error('Error updating Description:', error);
+      }
+    };
+    updateDescription();
+  }, [Description]);
 
   const editor = useCreateBlockNote({
     schema,
     collaboration: {
-      // The Yjs Provider responsible for transporting updates:
       provider,
-      // Where to store BlockNote data in the Y.Doc:
       fragment: doc.getXmlFragment('document-store'),
-      // Information (name and color) for this user:
       user: {
         name: 'My Username',
         color: '#ff0000',
@@ -180,59 +225,27 @@ const Workspace = () => {
     },
   });
 
-  //set texteditList from DB
   const onChangeBlock = async () => {
     const html = await editor.blocksToHTMLLossy(editor.document);
-    if (TexteditList?.description !== JSON.stringify(html)) {
-      setTexteditList((prev) => (prev ? { ...prev, description: JSON.stringify(html) } : null));
-    }
+    setDescription(html);
   };
-  const [initialHTML, setInitialHTML] = useState<string>('');
-  const hasRunRef = useRef(false); // Ref to track if the effect has run
-
-  useEffect(() => {
-    // Set initialHTML state when the component mounts
-    const rawDescription = TexteditList?.description || '';
-    // Clean the string: remove backslashes and escaped quotes
-    const cleanedDescription = rawDescription
-      .replace(/\\/g, '') // Remove all backslashes
-      .replace(/\"/g, '');
-
-    setInitialHTML(cleanedDescription);
-  }, [TexteditList]); // Optional: To update initialHTML if TexteditList changes
-
-  useEffect(() => {
-    const loadInitialHTML = async () => {
-      if (editor && initialHTML) {
-        // Ensure it runs only once
-        hasRunRef.current = true; // Prevent further runs
-
-        try {
-          const blocks = await editor.tryParseHTMLToBlocks(initialHTML);
-          await editor.replaceBlocks(editor.document, blocks);
-        } catch (error) {
-          console.error('Failed to load initial HTML:', error);
-        }
-      }
-    };
-
-    loadInitialHTML(); // Call the function
-  }, [editor, initialHTML]);
 
   return (
     <div>
       <input
         className="resize-none border-none w-full outline-none pl-[54px] placeholder-gray-300 text-[30px] leading-[36px] font-semibold font-Anuphan"
         placeholder="Task Title"
-        value={TexteditList?.title || ''}
-        onChange={(e) =>
-          setTexteditList((prev) => (prev ? { ...prev, title: e.target.value } : null))
-        }
+        value={Title}
+        onChange={(e) => {
+          setTitle(e.target.value);
+        }}
       />
       <BlockNoteView
         editor={editor}
         theme={'light'}
-        onChange={onChangeBlock}
+        onChange={() => {
+          onChangeBlock();
+        }}
         emojiPicker={false}
         shadCNComponents={{
           Button,
