@@ -16,8 +16,8 @@
   "dependencies": {
     "@blocknote/core": "^0.18.0",
     "@blocknote/mantine": "^0.18.1",
-    "@blocknote/react": "^0.18.0",
-    "@blocknote/shadcn": "^0.18.0",
+    "@blocknote/react": "^0.18.1",
+    "@blocknote/shadcn": "^0.18.1",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-alert-dialog": "^1.1.2",
     "@radix-ui/react-context-menu": "^2.2.2",
@@ -46,6 +46,7 @@
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "ws": "^8.18.0",
+    "y-partykit": "^0.0.32",
     "zod": "^3.23.8"
   },
   "devDependencies": {
