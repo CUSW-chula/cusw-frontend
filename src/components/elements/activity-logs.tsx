@@ -178,25 +178,29 @@ const ActivityLogs: React.FC = () => {
       <h3 className="text-2xl font-semibold text-gray-900 mb-4 font-Anuphan">Activity</h3>
       <div className="max-h-48 overflow-y-auto">
         <ul>
-          {activityLogs
-            .slice()
-            .sort((a, b) => {
-              const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-              const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-              return dateB - dateA;
-            })
-            .map((item) => (
-              <li key={item.id}>
-                <ActivityLogItem
-                  userId={item.userId}
-                  action={item.action}
-                  detail={item.detail}
-                  createdAt={item.createdAt}
-                  id={item.id}
-                  taskId={item.taskId}
-                />
-              </li>
-            ))}
+          {Array.isArray(activityLogs) && activityLogs.length > 0 ? (
+            activityLogs
+              .slice()
+              .sort((a, b) => {
+                const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                return dateB - dateA;
+              })
+              .map((item) => (
+                <li key={item.id}>
+                  <ActivityLogItem
+                    userId={item.userId}
+                    action={item.action}
+                    detail={item.detail}
+                    createdAt={item.createdAt}
+                    id={item.id}
+                    taskId={item.taskId}
+                  />
+                </li>
+              ))
+          ) : (
+            <li>No activity logs available.</li>
+          )}
         </ul>
       </div>
     </div>
