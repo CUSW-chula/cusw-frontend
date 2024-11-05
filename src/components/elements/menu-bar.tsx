@@ -7,8 +7,9 @@ import StatusLabel from './status-label';
 import { ProjectOwner } from './project-owner';
 import { AssignedTaskToMember } from './assigned-task';
 import { ButtonAddTags } from './button-add-tag';
+import type { TaskManageMentProp } from '@/lib/shared';
 
-const MenuBar = () => {
+const MenuBar = ({ task_id }: TaskManageMentProp) => {
   return (
     <div className="h-[400px] w-[395px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-center items-start gap-4 inline-flex">
       <div aria-label="status" className="h-10 justify-start items-center inline-flex">
@@ -44,7 +45,7 @@ const MenuBar = () => {
             Member :{' '}
           </div>
         </div>
-        <AssignedTaskToMember />
+        <AssignedTaskToMember task_id={task_id} />
       </div>
       <div aria-label="tag" className="h-10 justify-start items-center inline-flex">
         {/* Label Zone */}
@@ -56,7 +57,7 @@ const MenuBar = () => {
             Tag :{' '}
           </div>
         </div>
-        <ButtonAddTags />
+        <ButtonAddTags task_id={task_id} />
       </div>
       <div aria-label="money" className="h-10 justify-start items-center inline-flex">
         {/* Label Zone */}
