@@ -45,6 +45,7 @@
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "ws": "^8.18.0",
+    "y-partykit": "^0.0.32",
     "zod": "^3.23.8"
   },
   "devDependencies": {

@@ -5,7 +5,7 @@ import { Displayfile, Uploadfile } from './uploadfile';
 import Emoji from './emoji';
 import { BlockNoteView } from '@blocknote/shadcn';
 import '@blocknote/shadcn/style.css';
-import { useCreateBlockNote } from '@blocknote/react';
+import { GridSuggestionMenuController, useCreateBlockNote } from '@blocknote/react';
 import { type Block, BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
 import * as Button from '@/components/ui/button';
 import * as Card from '@/components/ui/card';
@@ -17,6 +17,17 @@ import * as Popover from '@/components/ui/popover';
 import * as Tabs from '@/components/ui/tabs';
 import * as Toggle from '@/components/ui/toggle';
 import * as Tooltip from '@/components/ui/tooltip';
+import YPartyKitProvider from 'y-partykit/provider';
+import * as Y from 'yjs';
+
+// Sets up Yjs document and PartyKit Yjs provider.
+const doc = new Y.Doc();
+const provider = new YPartyKitProvider(
+  'blocknote-dev.yousefed.partykit.dev',
+  // Use a unique name as a "room" for your application.
+  'your-project-name',
+  doc,
+);
 interface Files {
   id: string;
   fileName: string;
@@ -35,15 +46,6 @@ interface Textedit {
 const Workspace = () => {
   const [TexteditList, setTexteditList] = useState<Textedit | null>(null);
 
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  const pareJsonValues = useCallback((values: any) => {
-    const newValue: Textedit = {
-      title: values.title,
-      description: values.description,
-    };
-    return newValue;
-  }, []);
-
   const [fileList, setFileList] = useState<Files[]>([]);
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
@@ -60,7 +62,25 @@ const Workspace = () => {
     };
     return newValue;
   }, []);
+  useEffect(() => {
+    const fetchTextedit = async () => {
+      try {
+        const response = await fetch(
+          'http://localhost:4000/api/tasks/textedit/cm24lq0sx0001jkpdbc9lxu8x',
+        );
+        const data = await response.json();
+        if (data.description) {
+          data.description = data.description.replace(/^"|"$/g, '');
+        }
+        setTexteditList(data);
+        console.log('Initial Textedit list:', data);
+      } catch (error) {
+        console.error('Error fetching Textedit:', error);
+      }
+    };
 
+    fetchTextedit();
+  }, []);
   useEffect(() => {
     const fetchFile = async () => {
       try {
@@ -74,21 +94,6 @@ const Workspace = () => {
     };
 
     fetchFile();
-    const fetchTextedit = async () => {
-      try {
-        const response = await fetch(
-          'http://localhost:4000/api/tasks/textedit/cm24lq0sx0001jkpdbc9lxu8x',
-        );
-        const data = await response.json();
-        setTexteditList(data);
-        console.log('Initial Textedit list:', data);
-      } catch (error) {
-        console.error('Error fetching Textedit:', error);
-      }
-    };
-
-    fetchTextedit();
-
     const ws = new WebSocket('ws://localhost:3001');
     ws.onopen = () => {
       console.log('Connected to WebSocket');
@@ -99,13 +104,10 @@ const Workspace = () => {
         const socketEvent = JSON.parse(event.data);
         const { eventName, data } = socketEvent;
         const parsedData = pareJsonValue(data);
-        const parsedDatas = pareJsonValues(data);
         if (eventName === 'add-file') {
           setFileList((prevFiles) => [...prevFiles, parsedData]);
         } else if (eventName === 'remove-file') {
           setFileList((prevFiles) => prevFiles.filter((file) => file.id !== parsedData.id));
-        } else if (eventName === '') {
-          setTexteditList(parsedDatas);
         }
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
@@ -165,12 +167,25 @@ const Workspace = () => {
 
   const editor = useCreateBlockNote({
     schema,
+    collaboration: {
+      // The Yjs Provider responsible for transporting updates:
+      provider,
+      // Where to store BlockNote data in the Y.Doc:
+      fragment: doc.getXmlFragment('document-store'),
+      // Information (name and color) for this user:
+      user: {
+        name: 'My Username',
+        color: '#ff0000',
+      },
+    },
   });
 
   //set texteditList from DB
   const onChangeBlock = async () => {
     const html = await editor.blocksToHTMLLossy(editor.document);
-    setTexteditList((prev) => (prev ? { ...prev, description: JSON.stringify(html) } : null));
+    if (TexteditList?.description !== JSON.stringify(html)) {
+      setTexteditList((prev) => (prev ? { ...prev, description: JSON.stringify(html) } : null));
+    }
   };
   const [initialHTML, setInitialHTML] = useState<string>('');
   const hasRunRef = useRef(false); // Ref to track if the effect has run
@@ -178,12 +193,10 @@ const Workspace = () => {
   useEffect(() => {
     // Set initialHTML state when the component mounts
     const rawDescription = TexteditList?.description || '';
-
     // Clean the string: remove backslashes and escaped quotes
     const cleanedDescription = rawDescription
-      .replace(/\\\"/g, '"') // Replace escaped quotes with regular quotes
       .replace(/\\/g, '') // Remove all backslashes
-      .replace(/^\"|\"$/g, '');
+      .replace(/\"/g, '');
 
     setInitialHTML(cleanedDescription);
   }, [TexteditList]); // Optional: To update initialHTML if TexteditList changes
@@ -197,8 +210,6 @@ const Workspace = () => {
         try {
           const blocks = await editor.tryParseHTMLToBlocks(initialHTML);
           await editor.replaceBlocks(editor.document, blocks);
-          console.log('this initialHTML', initialHTML);
-          console.log('this document', editor.document);
         } catch (error) {
           console.error('Failed to load initial HTML:', error);
         }
@@ -220,12 +231,9 @@ const Workspace = () => {
       />
       <BlockNoteView
         editor={editor}
-        emojiPicker={false}
         theme={'light'}
-        onChange={() => {
-          onChangeBlock();
-          console.log('This is onchage', editor.document);
-        }}
+        onChange={onChangeBlock}
+        emojiPicker={false}
         shadCNComponents={{
           Button,
           Card,
@@ -237,8 +245,14 @@ const Workspace = () => {
           Tabs,
           Toggle,
           Tooltip,
-        }}
-      />
+        }}>
+        <GridSuggestionMenuController
+          triggerCharacter={':'}
+          // Changes the Emoji Picker to only have 5 columns.
+          columns={5}
+          minQueryLength={2}
+        />
+      </BlockNoteView>
 
       <Displayfile fileList={fileList} setFileList={setFileList} />
       <div className="flex justify-between">
