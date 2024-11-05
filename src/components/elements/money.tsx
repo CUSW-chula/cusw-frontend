@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-
 interface Budget {
   type: string;
   money: number;
@@ -21,79 +20,161 @@ interface Budget {
 const Money = () => {
   enum TypeMoney {
     null = '',
-    exp = 'expect',
-    real = 'real',
-    used = 'used',
+    budget = 'budget',
+    ad = 'advance',
+    exp = 'expense',
   }
+
   const [openDialog, setOpenDialog] = useState(false); // Manage dialog open state
   const [openType, setOpenType] = useState(false); //Manage Popover state Money type
-  const [budget, setBudget] = useState<Budget>({
+  const [budgetList, setBudgetList] = useState<Budget>({
     type: TypeMoney.null,
     money: 0,
   });
   const [tempBudget, setTempBudget] = useState<Budget>({
     type: TypeMoney.null,
-    money: budget.money,
+    money: budgetList.money,
   });
+  const url = typeof window !== 'undefined' ? window.location.pathname : '';
+  const path = url.split('/');
+  const taskID = path[path.length - 1];
 
-  const handleClear = () => {
-    budget.type = TypeMoney.null;
-    budget.money = 0;
-    setOpenDialog(false);
-    sentLog();
+  //get budget
+  useEffect(() => {
+    //sent GET method
+    const fetchDataGet = async () => {
+      const url = `http://localhost:4000/api/tasks/money/${taskID}`;
+      const options = { method: 'GET' };
+
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        const types = [TypeMoney.budget, TypeMoney.ad, TypeMoney.exp];
+        const index = data.findIndex((value: number) => value !== 0);
+        setBudgetList({
+          type: types[index] || TypeMoney.budget,
+          money: data[index] || data[0],
+        });
+        if (!response.ok) return console.log('GET failed. Operation aborted.');
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchDataGet();
+  }, [taskID]);
+
+  //submit input budget
+  const handleSubmit = async (budget: Budget) => {
+    //sent POST method
+    const fetchDataPost = async (budgetList: number[]) => {
+      const url = 'http://localhost:4000/api/tasks/money';
+      const options = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: `{"taskID":"${taskID}","budget":${budgetList[0]},"advance":${budgetList[1]},"expense":${budgetList[2]}}`,
+      };
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        // console.log("POST: " + data);
+        if (!response.ok) return false;
+      } catch (error) {
+        console.error(error);
+      }
+      return true;
+    };
+
+    const data =
+      budget.type === TypeMoney.budget
+        ? [budget.money, 0, 0]
+        : budget.type === TypeMoney.ad
+          ? [0, budget.money, 0]
+          : [0, 0, budget.money];
+    if (await fetchDataPost(data)) {
+      setTempBudget(budget);
+      setOpenDialog(false);
+      // sentLog();
+    }
   };
 
+  //clear budget
+  const handleClear = async () => {
+    //sent DELETE method
+    const fetchDataDelete = async () => {
+      const url = 'http://localhost:4000/api/tasks/money';
+      const options = {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: `{"taskID":"${taskID}"}`,
+      };
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        // console.log("DELETE: " + data);
+        if (!response.ok) return false;
+      } catch (error) {
+        console.error(error);
+      }
+      return true;
+    };
+
+    if (await fetchDataDelete()) {
+      budgetList.type = TypeMoney.null;
+      budgetList.money = 0;
+      setOpenDialog(false);
+      // sentLog();
+    }
+  };
+
+  //not save budget input
   const handleCancel = () => {
-    setBudget(tempBudget);
+    setBudgetList(tempBudget);
     setOpenDialog(false);
   };
 
-  const handleSubmit = (budget: Budget) => {
-    setTempBudget(budget);
-    sentLog();
-    setOpenDialog(false);
-  };
-
+  //sent log of budget
   const sentLog = () => {
-    budget.type === TypeMoney.exp
-      ? console.log({
-          taskId: 'constant taskID',
-          expectedBudget: budget.money,
-          realBudget: 0,
-          usedBudget: 0,
-        })
-      : budget.type === TypeMoney.real
-        ? console.log({
-            taskId: 'constant taskID',
-            expectedBudget: 0,
-            realBudget: budget.money,
-            usedBudget: 0,
-          })
-        : console.log({
-            taskId: 'constant taskID',
-            expectedBudget: 0,
-            realBudget: 0,
-            usedBudget: budget.money,
-          });
+    const { budget, advance, expense } =
+      budgetList.type === TypeMoney.budget
+        ? { budget: budgetList.money, advance: 0, expense: 0 }
+        : budgetList.type === TypeMoney.ad
+          ? { budget: 0, advance: budgetList.money, expense: 0 }
+          : { budget: 0, advance: 0, expense: budgetList.money };
+
+    console.log({
+      taskId: taskID,
+      budget,
+      advance,
+      expense,
+    });
   };
 
   return (
     <div className="h-10 justify-start items-center gap-[15px] inline-flex">
+      {/* {fetchData("a-1")} */}
+      <div className="h-6 justify-start items-center gap-2 inline-flex">
+        <div className="text-center text-black text-2xl font-semibold font-BaiJamjuree leading-normal">
+          ฿
+        </div>
+        <div className="text-black text-xs font-medium font-['Bai Jamjuree'] leading-tight">
+          Money :{' '}
+        </div>
+      </div>
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogTrigger asChild>
           <div
             className={`h-10 px-4 bg-white rounded-md border border-neutral-200 justify-center items-center flex min-w-32 font-BaiJamjuree hover:cursor-pointer ${
-              budget.type === TypeMoney.real
+              budgetList.type === TypeMoney.ad
                 ? 'text-green'
-                : budget.type === TypeMoney.used
+                : budgetList.type === TypeMoney.exp
                   ? 'text-red'
                   : 'text-black'
             }`}>
-            {budget.type === TypeMoney.null
+            {budgetList.type === TypeMoney.null
               ? 'Add Money'
-              : Number.isNaN(budget.money)
+              : Number.isNaN(budgetList.money)
                 ? 'Add Money'
-                : budget.money.toLocaleString()}
+                : budgetList.money.toLocaleString()}
             {/* Allow up to three decimal */}
           </div>
         </DialogTrigger>
@@ -103,14 +184,14 @@ const Money = () => {
           <DialogDescription className="w-full flex flex-row self-stretch h-24 px-1.5 pt-9 justify-start gap-2">
             <Popover open={openType} onOpenChange={setOpenType}>
               <PopoverTrigger className="w-32 h-10 px-3 rounded-md border border-gray-300 justify-between items-center inline-flex">
-                {budget.type === TypeMoney.null ? (
+                {budgetList.type === TypeMoney.null ? (
                   <div>Select Type</div>
-                ) : budget.type === TypeMoney.exp ? (
+                ) : budgetList.type === TypeMoney.budget ? (
                   <div>งบประมาณ</div>
-                ) : budget.type === TypeMoney.real ? (
+                ) : budgetList.type === TypeMoney.ad ? (
                   <div className="text-green">สำรองจ่าย</div>
                 ) : (
-                  <div className="text-red">เบิกจริง</div>
+                  <div className="text-red">ค่าใช้จ่าย</div>
                 )}
 
                 <ChevronDown className="w-4 h-4" />
@@ -120,9 +201,9 @@ const Money = () => {
                 <Button
                   className="bg-gray-100 text-black text-sm font-normal font-Anuphan leading-normal hover:text-white "
                   onClick={() => {
-                    setBudget((prevBudget) => ({
+                    setBudgetList((prevBudget) => ({
                       ...prevBudget,
-                      type: TypeMoney.exp,
+                      type: TypeMoney.budget,
                     }));
                     setOpenType(false);
                   }}>
@@ -131,9 +212,9 @@ const Money = () => {
                 <Button
                   className="bg-gray-100 text-black text-sm font-normal font-Anuphan leading-normal hover:text-white "
                   onClick={() => {
-                    setBudget((prevBudget) => ({
+                    setBudgetList((prevBudget) => ({
                       ...prevBudget,
-                      type: TypeMoney.real,
+                      type: TypeMoney.ad,
                     }));
                     setOpenType(false);
                   }}>
@@ -142,30 +223,30 @@ const Money = () => {
                 <Button
                   className="bg-gray-100 text-black text-sm font-normal font-Anuphan leading-normal hover:text-white "
                   onClick={() => {
-                    setBudget((prevBudget) => ({
+                    setBudgetList((prevBudget) => ({
                       ...prevBudget,
-                      type: TypeMoney.used,
+                      type: TypeMoney.exp,
                     }));
                     setOpenType(false);
                   }}>
-                  เบิกจริง
+                  ค่าใช้จ่าย
                 </Button>
               </PopoverContent>
             </Popover>
             <Input
               id="budget"
-              value={Number.isNaN(budget.money) ? '' : budget.money}
+              value={Number.isNaN(budgetList.money) ? '' : budgetList.money}
               onChange={(e) =>
-                setBudget((prevBudget) => ({
+                setBudgetList((prevBudget) => ({
                   ...prevBudget,
                   money: Number.parseFloat(e.target.value),
                 }))
               }
               type="number"
               className={`h-10 w-48 px-4 bg-white rounded-md border-t border-gray-300 font-BaiJamjuree ${
-                budget.type === TypeMoney.real
+                budgetList.type === TypeMoney.ad
                   ? 'text-green'
-                  : budget.type === TypeMoney.used
+                  : budgetList.type === TypeMoney.exp
                     ? 'text-red'
                     : 'text-black'
               }
@@ -187,9 +268,13 @@ const Money = () => {
                 Cancel
               </Button>
               <Button
-                onClick={() => handleSubmit(budget)}
+                onClick={() => handleSubmit(budgetList)}
                 className="h-10 bg-inherit rounded-[100px] flex-col justify-center items-center gap-2 inline-flex text-brown text-sm font-normal font-BaiJamjuree  hover:bg-gray-100"
-                disabled={budget.type === TypeMoney.null || Number.isNaN(budget.money)}>
+                disabled={
+                  budgetList.type === TypeMoney.null ||
+                  Number.isNaN(budgetList.money) ||
+                  budgetList.money === 0
+                }>
                 Ok
               </Button>
             </div>

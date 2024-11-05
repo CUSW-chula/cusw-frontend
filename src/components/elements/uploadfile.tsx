@@ -141,19 +141,23 @@ const Displayfile: React.FC<DisplayfileProps> = ({ fileList }) => {
   return (
     <div className="mt-8">
       <ul>
-        {fileList.map((file) => (
-          <FileItem
-            createdAt={file.createdAt}
-            fileName={file.fileName}
-            filePath={file.filePath}
-            fileSize={file.fileSize}
-            uploadedBy={file.uploadedBy}
-            id={file.id}
-            projectId={file.projectId}
-            taskId={file.taskId}
-            key={file.id}
-          />
-        ))}
+        {Array.isArray(fileList) && fileList.length > 0 ? (
+          fileList.map((file) => (
+            <FileItem
+              key={file.id}
+              createdAt={file.createdAt}
+              fileName={file.fileName}
+              filePath={file.filePath}
+              fileSize={file.fileSize}
+              uploadedBy={file.uploadedBy}
+              id={file.id}
+              projectId={file.projectId}
+              taskId={file.taskId}
+            />
+          ))
+        ) : (
+          <div />
+        )}
       </ul>
     </div>
   );
