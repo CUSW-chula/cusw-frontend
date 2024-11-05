@@ -45,7 +45,11 @@ function formatSentence(sentence: string) {
 
     // Add the word with bold styling if it follows "to" or "from"
     elements.push(
-      shouldBold ? <b key={`${previousWord}-${word}`}>{word} </b> : <span key={`${previousWord}-${word}`}>{word} </span>
+      shouldBold ? (
+        <b key={`${previousWord}-${word}`}>{word} </b>
+      ) : (
+        <span key={`${previousWord}-${word}`}>{word} </span>
+      ),
     );
 
     // Update flags and previous word for the next iteration
@@ -55,7 +59,6 @@ function formatSentence(sentence: string) {
 
   return elements;
 }
-
 
 const getInitials = (name: string) => {
   const nameParts = name.split(' ');
@@ -122,7 +125,7 @@ const ActivityLogs: React.FC = () => {
   React.useEffect(() => {
     const fetchData = async () => {
       const url = 'http://localhost:4000/api/activities/cm24lq0sx0001jkpdbc9lxu8x';
-      const options = {method: 'GET'};
+      const options = { method: 'GET' };
 
       try {
         const response = await fetch(url, options);
@@ -154,7 +157,7 @@ const ActivityLogs: React.FC = () => {
             ? eventName === 'activity'
               ? [...prevList, data]
               : prevList.filter((item) => item.id !== data.id)
-            : []
+            : [],
         );
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
@@ -176,24 +179,24 @@ const ActivityLogs: React.FC = () => {
       <div className="max-h-48 overflow-y-auto">
         <ul>
           {activityLogs
-          .slice()
-          .sort((a, b) => {
-            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-            return dateB - dateA;
-          })
-          .map((item) => (
-            <li key={item.id}>
-              <ActivityLogItem
-                userId={item.userId}
-                action={item.action}
-                detail={item.detail}
-                createdAt={item.createdAt}
-                id={item.id}
-                taskId={item.taskId}
-              />
-            </li>
-          ))}
+            .slice()
+            .sort((a, b) => {
+              const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+              const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+              return dateB - dateA;
+            })
+            .map((item) => (
+              <li key={item.id}>
+                <ActivityLogItem
+                  userId={item.userId}
+                  action={item.action}
+                  detail={item.detail}
+                  createdAt={item.createdAt}
+                  id={item.id}
+                  taskId={item.taskId}
+                />
+              </li>
+            ))}
         </ul>
       </div>
     </div>
