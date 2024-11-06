@@ -5,12 +5,15 @@ import dynamic from 'next/dynamic';
 import { SmilePlus } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import type { EmojiClickData } from 'emoji-picker-react';
+import type { TaskManageMentProp } from '@/lib/shared';
+import { getCookie } from 'cookies-next';
+import BASE_URL from '@/lib/shared';
 
 const Picker = dynamic(
   () => {
     return import('emoji-picker-react');
   },
-  { ssr: false },
+  { ssr: true },
 );
 
 interface EmojiTaskUser {
@@ -19,9 +22,13 @@ interface EmojiTaskUser {
   userId: string;
   taskId: string;
 }
-async function getName(authorId: string) {
+async function getName(authorId: string, auth: string) {
   try {
-    const response = await fetch(`http://localhost:4000/api/users/${authorId}`);
+    const response = await fetch(`${BASE_URL}/users/${authorId}`, {
+      headers: {
+        Authorization: auth,
+      },
+    });
     if (!response.ok) {
       throw new Error(`Error: ${response.statusText}`);
     }
@@ -34,9 +41,11 @@ async function getName(authorId: string) {
 }
 function EmojiUser({ emoji, id, userId }: EmojiTaskUser) {
   const [name, setName] = useState('');
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
   useEffect(() => {
-    getName(userId).then(setName);
-  }, [userId]);
+    getName(userId, auth).then(setName);
+  }, [userId, auth]);
   return (
     <div key={id} className="flex py-1 justify-between">
       <p className="body self-center">{name}</p>
@@ -44,8 +53,10 @@ function EmojiUser({ emoji, id, userId }: EmojiTaskUser) {
     </div>
   );
 }
-const Emoji = () => {
+const Emoji = ({ task_id }: TaskManageMentProp) => {
   const [emojis, setEmojis] = React.useState<EmojiTaskUser[]>([]);
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
 
   const pareJsonValue = React.useCallback((values: EmojiTaskUser) => {
     return {
@@ -58,8 +69,13 @@ const Emoji = () => {
 
   React.useEffect(() => {
     const getEmoji = async () => {
-      const url = 'http://localhost:4000/api/tasks/emoji/cm24lq0sx0001jkpdbc9lxu8x';
-      const options = { method: 'GET' };
+      const url = `${BASE_URL}/tasks/emoji/${task_id}`;
+      const options = {
+        method: 'GET',
+        headers: {
+          Authorization: auth,
+        },
+      };
       try {
         const response = await fetch(url, options);
         const data = await response.json();
@@ -106,18 +122,22 @@ const Emoji = () => {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue]);
+  }, [pareJsonValue, auth, task_id]);
 
   const handleEmojiActions = async (emojiData: EmojiClickData) => {
     const emoji = emojiData.emoji;
-    const taskId = 'cm24lq0sx0001jkpdbc9lxu8x';
-    const userId = 'cm24ll4370008kh59coznldal';
-    const url = 'http://localhost:4000/api/tasks/emoji';
-    const checkResponse = await fetch(`${url}/${taskId}/${userId}`);
+    const taskId = task_id;
+    const userId = 'cm0siagz300003mbv5bsz6wty';
+    const url = `${BASE_URL}/tasks/emoji`;
+    const checkResponse = await fetch(`${url}/${taskId}/${userId}`, {
+      headers: {
+        Authorization: auth,
+      },
+    });
     const isEmojiAssigned = await checkResponse.json();
     const options = {
       method: isEmojiAssigned ? 'PATCH' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: auth },
       body: JSON.stringify({
         taskId: taskId,
         userId: userId,

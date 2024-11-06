@@ -17,6 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
 import { Profile } from './profile';
 import BASE_URL, { type TaskManageMentProp } from '@/lib/shared';
+import { getCookie } from 'cookies-next';
 
 interface UsersInterfaces {
   id: string;
@@ -25,6 +26,8 @@ interface UsersInterfaces {
 }
 
 export function AssignedTaskToMember({ task_id }: TaskManageMentProp) {
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
   const [open, setOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<UsersInterfaces[]>([]);
   const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
@@ -41,11 +44,19 @@ export function AssignedTaskToMember({ task_id }: TaskManageMentProp) {
 
   React.useEffect(() => {
     const fetchAssignAndUsers = async () => {
-      const usersData = await fetch(`${BASE_URL}/users`);
+      const usersData = await fetch(`${BASE_URL}/users`, {
+        headers: {
+          Authorization: auth,
+        },
+      });
       const userList = await usersData.json();
       setUsersList(userList);
 
-      const assignData = await fetch(`${BASE_URL}/tasks/getassign/${task_id}`);
+      const assignData = await fetch(`${BASE_URL}/tasks/getassign/${task_id}`, {
+        headers: {
+          Authorization: auth,
+        },
+      });
       const assignList = await assignData.json();
       setSelectedUser(Array.isArray(assignList) ? assignList : []); // Ensure array format
     };
@@ -82,7 +93,7 @@ export function AssignedTaskToMember({ task_id }: TaskManageMentProp) {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue, task_id]);
+  }, [pareJsonValue, task_id, auth]);
 
   // Handle user selection and unselection
   const handleSelectUser = async (value: string) => {
@@ -96,7 +107,7 @@ export function AssignedTaskToMember({ task_id }: TaskManageMentProp) {
 
       const options = {
         method: isAlreadySelected ? 'DELETE' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
         body: JSON.stringify({ taskId: task_id, userId: selected.id }),
       };
 

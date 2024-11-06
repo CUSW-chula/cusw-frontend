@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import BASE_URL, { type TaskManageMentProp } from '@/lib/shared';
+import { getCookie } from 'cookies-next';
 
 interface Tags {
   id: string;
@@ -22,6 +23,8 @@ interface Tags {
 
 // Mock data
 export function ButtonAddTags({ task_id }: TaskManageMentProp) {
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
   const [open, setOpen] = React.useState(false);
   const [statuses, setStatuses] = React.useState<Tags[]>([]);
   const [selectedTags, setSelectedTags] = React.useState<Tags[]>([]);
@@ -38,7 +41,12 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
   React.useEffect(() => {
     const fetchTags = async () => {
       const url = `${BASE_URL}/tags/`;
-      const options = { method: 'GET' };
+      const options = {
+        method: 'GET',
+        headers: {
+          Authorization: auth,
+        },
+      };
 
       try {
         const response = await fetch(url, options);
@@ -51,7 +59,12 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
 
     const fetchSelectedTags = async () => {
       const url = `${BASE_URL}/tags/getassigntag/${task_id}`;
-      const options = { method: 'GET' };
+      const options = {
+        method: 'GET',
+        headers: {
+          Authorization: auth,
+        },
+      };
 
       try {
         const response = await fetch(url, options);
@@ -98,7 +111,7 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue, task_id]);
+  }, [pareJsonValue, task_id, auth]);
 
   const handleSelectTag = async (value: string) => {
     const selected = statuses.find((status) => status.name === value);
@@ -106,7 +119,7 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
       const url = `${BASE_URL}/tags/assign`;
       const options = {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
         body: JSON.stringify({ taskId: task_id, tagId: selected.id }),
       };
 
@@ -125,7 +138,7 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
     const url = `${BASE_URL}/tags/unassigned`;
     const options = {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: auth },
       body: JSON.stringify({ taskId: task_id, tagId: value }),
     };
 
@@ -141,18 +154,22 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
   return (
     <>
       <div className="flex flex-row gap-1 flex-wrap">
-        {selectedTags.map((tag) => (
-          <Button variant="outline" key={tag.id}>
-            <Circle className="mr-1 h-4 w-4 fill-greenLight text-greenLight font-BaiJamjuree" />
-            <span>{tag.name}</span>
-            <button
-              type="button"
-              onClick={() => handleDeleteTag(tag.id)}
-              className="text-red-500 ml-1">
-              <XCircle className="h-4 w-4" />
-            </button>
-          </Button>
-        ))}
+        {Array.isArray(selectedTags) && selectedTags.length > 0 ? (
+          selectedTags.map((tag) => (
+            <Button variant="outline" key={tag.id}>
+              <Circle className="mr-1 h-4 w-4 fill-greenLight text-greenLight font-BaiJamjuree" />
+              <span>{tag.name}</span>
+              <Button
+                variant="ghost"
+                onClick={() => handleDeleteTag(tag.id)}
+                className="text-red-500 ml-1">
+                <XCircle className="h-4 w-4" />
+              </Button>
+            </Button>
+          ))
+        ) : (
+          <div />
+        )}
 
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
@@ -171,7 +188,8 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
                       <Circle
                         className={cn(
                           'mr-2 h-4 w-4 fill-greenLight text-greenLight',
-                          selectedTags.some((tag) => tag.id === status.id)
+                          Array.isArray(selectedTags) &&
+                            selectedTags.some((tag) => tag.id === status.id)
                             ? 'opacity-100'
                             : 'opacity-40',
                         )}

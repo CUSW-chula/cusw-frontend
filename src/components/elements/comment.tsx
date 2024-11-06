@@ -26,6 +26,7 @@ import { Button } from '../ui/button';
 import { Profile } from './profile';
 import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
 import BASE_URL, { type TaskManageMentProp } from '@/lib/shared';
+import { getCookie } from 'cookies-next';
 
 interface CommentBoxProp {
   id: string;
@@ -68,7 +69,6 @@ function EditBox({
 }) {
   const [editedContent, setEditedContent] = useState(content);
   const charLimit = 200;
-
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const inputText = e.target.value;
     if (inputText.length <= charLimit) {
@@ -107,9 +107,13 @@ function EditBox({
   );
 }
 
-async function getName(authorId: string) {
+async function getName(authorId: string, auth: string) {
   try {
-    const response = await fetch(`${BASE_URL}/users/${authorId}`);
+    const response = await fetch(`${BASE_URL}/users/${authorId}`, {
+      headers: {
+        Authorization: auth,
+      },
+    });
     if (!response.ok) {
       throw new Error(`Error: ${response.statusText}`);
     }
@@ -121,8 +125,8 @@ async function getName(authorId: string) {
   }
 }
 
-function formatName(name:string) {
-  const nameParts = (name ?? "").split(' ');
+function formatName(name: string) {
+  const nameParts = (name ?? '').split(' ');
   return nameParts[0];
 }
 
@@ -136,18 +140,20 @@ function CommentBox({
   editTime,
 }: CommentBoxProp) {
   const [isEditing, setIsEditing] = useState(false);
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
   const [name, setName] = useState<string | null>(null);
 
   useEffect(() => {
-    getName(authorId).then(setName);
-  }, [authorId]);
+    getName(authorId, auth).then(setName);
+  }, [authorId, auth]);
 
   const deleteComment = async () => {
     try {
       await fetch(`${BASE_URL}/comments/`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, authorId }),
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
+        body: JSON.stringify({ id }),
       });
     } catch (error) {
       console.error('Failed to delete comment:', error);
@@ -158,8 +164,8 @@ function CommentBox({
     try {
       await fetch(`${BASE_URL}/comments/`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, authorId, content: newContent }),
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
+        body: JSON.stringify({ content: newContent }),
       });
       setIsEditing(false);
     } catch (error) {
@@ -176,7 +182,7 @@ function CommentBox({
               <TooltipProvider>
                 <Profile userId="test" userName={name ?? '?'} />
               </TooltipProvider>
-              <div className='text-slate-900 font-BaiJamjuree font-semibold'>
+              <div className="text-slate-900 font-BaiJamjuree font-semibold">
                 {formatName(name ?? '') || 'Loading...'}
               </div>
               <div className="text-[#6b5c56] text-base font-normal font-['Bai Jamjuree'] leading-7">
@@ -253,6 +259,8 @@ function CommentBox({
 }
 
 const Comment = ({ task_id }: TaskManageMentProp) => {
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
   const [comment, setComment] = useState('');
   const [list, setList] = useAtom<CommentBoxProp[]>(commentlist);
   const charLimit = 200;
@@ -290,11 +298,14 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
 
   useEffect(() => {
     const fetchComment = async () => {
-      const commentData = await fetch(`${BASE_URL}/comments/${task_id}`);
+      const commentData = await fetch(`${BASE_URL}/comments/${task_id}`, {
+        headers: {
+          Authorization: auth,
+        },
+      });
       const commentList = await commentData.json();
       setList(pareJsonValues(commentList));
     };
-
     fetchComment();
 
     const ws = new WebSocket('ws://localhost:3001');
@@ -349,7 +360,7 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue, pareJsonValues, setList, task_id]); // Add pareJsonValue and pareJsonValues to the dependency array
+  }, [pareJsonValue, pareJsonValues, setList, task_id, auth]); // Add pareJsonValue and pareJsonValues to the dependency array
 
   const handleInputChange = (e: { target: { value: React.SetStateAction<string> } }) => {
     setComment(e.target.value);
@@ -366,10 +377,10 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: auth,
       },
       body: JSON.stringify({
         content: comment,
-        authorId: 'cm24ll4370008kh59coznldal',
         taskId: task_id,
       }),
     });
