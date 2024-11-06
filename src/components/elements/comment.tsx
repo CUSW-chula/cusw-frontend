@@ -308,7 +308,7 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
     };
     fetchComment();
 
-    const ws = new WebSocket('ws://161.200.199.68');
+    const ws = new WebSocket('ws://161.200.199.68/socket');
 
     ws.onopen = () => {
       console.log('Connected to WebSocket');
