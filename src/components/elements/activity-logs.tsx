@@ -1,7 +1,7 @@
 'use client';
 
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
-import BASE_URL, { type TaskManageMentProp } from '@/lib/shared';
+import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import React, { useEffect, useCallback, useState } from 'react';
 
@@ -154,7 +154,7 @@ const ActivityLogs = ({ task_id }: TaskManageMentProp) => {
 
     fetchData();
 
-    const ws = new WebSocket('ws://localhost:3001');
+    const ws = new WebSocket(`ws://${BASE_SOCKET}`);
 
     ws.onopen = () => {
       console.log('Connected to WebSocket');

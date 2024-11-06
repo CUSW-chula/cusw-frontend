@@ -16,7 +16,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
 import { Profile } from './profile';
-import BASE_URL, { type TaskManageMentProp } from '@/lib/shared';
+import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 
 interface UsersInterfaces {
@@ -63,7 +63,7 @@ export function AssignedTaskToMember({ task_id }: TaskManageMentProp) {
 
     fetchAssignAndUsers();
 
-    const ws = new WebSocket('ws://localhost:3001');
+    const ws = new WebSocket(`ws://${BASE_SOCKET}`);
 
     ws.onopen = () => {
       console.log('Connected to WebSocket');

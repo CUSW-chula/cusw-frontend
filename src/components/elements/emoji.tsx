@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import type { EmojiClickData } from 'emoji-picker-react';
 import type { TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
-import BASE_URL from '@/lib/shared';
+import BASE_URL, { BASE_SOCKET } from '@/lib/shared';
 
 const Picker = dynamic(
   () => {
@@ -88,7 +88,7 @@ const Emoji = ({ task_id }: TaskManageMentProp) => {
 
     getEmoji();
 
-    const ws = new WebSocket('ws://localhost:3001');
+    const ws = new WebSocket(`ws://${BASE_SOCKET}`);
 
     ws.onopen = () => {
       console.log('Connected to WebSocket');

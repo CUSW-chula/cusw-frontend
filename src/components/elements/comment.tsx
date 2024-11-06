@@ -25,7 +25,7 @@ import {
 import { Button } from '../ui/button';
 import { Profile } from './profile';
 import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
-import BASE_URL, { type TaskManageMentProp } from '@/lib/shared';
+import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 
 interface CommentBoxProp {
@@ -308,7 +308,7 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
     };
     fetchComment();
 
-    const ws = new WebSocket('ws://161.200.199.68/socket');
+    const ws = new WebSocket(`ws://${BASE_SOCKET}`);
 
     ws.onopen = () => {
       console.log('Connected to WebSocket');

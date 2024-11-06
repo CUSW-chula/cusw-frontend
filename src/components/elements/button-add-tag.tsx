@@ -13,7 +13,7 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import BASE_URL, { type TaskManageMentProp } from '@/lib/shared';
+import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 
 interface Tags {
@@ -78,7 +78,7 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
     fetchTags();
     fetchSelectedTags();
 
-    const ws = new WebSocket('ws://localhost:3001');
+    const ws = new WebSocket(`ws://${BASE_SOCKET}`);
 
     ws.onopen = () => {
       console.log('Connected to WebSocket');

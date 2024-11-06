@@ -17,7 +17,7 @@ import * as Popover from '@/components/ui/popover';
 import * as Tabs from '@/components/ui/tabs';
 import * as Toggle from '@/components/ui/toggle';
 import * as Tooltip from '@/components/ui/tooltip';
-import BASE_URL, { type TaskManageMentProp } from '@/lib/shared';
+import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
 import YPartyKitProvider from 'y-partykit/provider';
 import * as Y from 'yjs';
 import { getCookie } from 'cookies-next';
@@ -124,7 +124,7 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
     };
 
     fetchFile();
-    const ws = new WebSocket('ws://localhost:3001');
+    const ws = new WebSocket(`ws://${BASE_SOCKET}`);
     ws.onopen = () => {
       console.log('Connected to WebSocket');
     };
