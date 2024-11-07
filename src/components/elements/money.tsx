@@ -160,15 +160,6 @@ const Money = () => {
 
   return (
     <div className="h-10 justify-start items-center gap-[15px] inline-flex">
-      {/* {fetchData("a-1")} */}
-      <div className="h-6 justify-start items-center gap-2 inline-flex">
-        <div className="text-center text-black text-2xl font-semibold font-BaiJamjuree leading-normal">
-          ฿
-        </div>
-        <div className="text-black text-xs font-medium font-['Bai Jamjuree'] leading-tight">
-          Money :{' '}
-        </div>
-      </div>
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogTrigger asChild>
           <div

@@ -11,46 +11,28 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Input } from '@/components/ui/input';
 
 export function DatePickerWithRange() {
-  const [date, setDate] = React.useState<DateRange | undefined>({
-    from: new Date(),
-  });
-  const [inputValue, setInputValue] = React.useState<string>('');
+  const [date, setDate] = React.useState<DateRange | undefined>({ from: new Date() });
+  const [inputValue, setInputValue] = React.useState('');
 
-  // Handle input changes and update calendar state based on the input
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setInputValue(value);
-
-    // Try to parse the date from the input
-    const [fromStr, toStr] = value.split(' - ').map((dateStr) => dateStr.trim());
-
+    const [fromStr, toStr] = e.target.value.split(' - ').map((str) => str.trim());
     const from = parse(fromStr, 'MM/dd/yyyy', new Date());
     const to = parse(toStr, 'MM/dd/yyyy', new Date());
-
-    if (isValid(from) && isValid(to)) {
-      setDate({ from, to });
-    } else if (isValid(from)) {
-      setDate({ from, to: undefined });
-    }
+    setDate(isValid(from) ? { from, to: isValid(to) ? to : undefined } : undefined);
+    setInputValue(e.target.value);
   };
 
-  // Handle calendar selection
   const handleCalendarSelect = (range: DateRange | undefined) => {
     setDate(range);
-
-    if (range?.from) {
-      setInputValue(
-        range.to
-          ? `${format(range.from, 'MM/dd/yyyy')} - ${format(range.to, 'MM/dd/yyyy')}`
-          : format(range.from, 'MM/dd/yyyy'),
-      );
-    } else {
-      setInputValue('');
-    }
+    setInputValue(
+      range?.from
+        ? `${format(range.from, 'MM/dd/yyyy')}${range.to ? ` - ${format(range.to, 'MM/dd/yyyy')}` : ''}`
+        : '',
+    );
   };
 
   return (
-    <div className={cn('grid gap-2 min-w-36')}>
+    <div className={cn('grid gap-2')}>
       <Popover>
         <PopoverTrigger asChild>
           <div className="relative">
@@ -58,7 +40,7 @@ export function DatePickerWithRange() {
               value={inputValue}
               onChange={handleInputChange}
               placeholder="MM/DD/YYYY - MM/DD/YYYY"
-              className="w-[300px] pl-10" // Add padding for the icon
+              className="w-[250px] pl-10"
             />
             <CalendarIcon className="absolute left-3 top-3 h-5 w-5 text-gray-400 pointer-events-none" />
           </div>

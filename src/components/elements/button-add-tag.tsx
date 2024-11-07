@@ -159,12 +159,12 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
             <Button variant="outline" key={tag.id}>
               <Circle className="mr-1 h-4 w-4 fill-greenLight text-greenLight font-BaiJamjuree" />
               <span>{tag.name}</span>
-              <Button
-                variant="ghost"
+              <button
+                type="button"
                 onClick={() => handleDeleteTag(tag.id)}
                 className="text-red-500 ml-1">
                 <XCircle className="h-4 w-4" />
-              </Button>
+              </button>
             </Button>
           ))
         ) : (
