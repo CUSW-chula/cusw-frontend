@@ -165,7 +165,7 @@ function CommentBox({
       await fetch(`${BASE_URL}/comments/`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: JSON.stringify({ content: newContent }),
+        body: JSON.stringify({id: id, content: newContent }),
       });
       setIsEditing(false);
     } catch (error) {
