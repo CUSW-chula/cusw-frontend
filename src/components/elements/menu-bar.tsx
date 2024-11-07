@@ -8,6 +8,7 @@ import { ProjectOwner } from './project-owner';
 import { AssignedTaskToMember } from './assigned-task';
 import { ButtonAddTags } from './button-add-tag';
 import type { TaskManageMentProp } from '@/lib/shared';
+import { DatePickerWithRange } from './date-feature';
 
 const MenuBar = ({ task_id }: TaskManageMentProp) => {
   return (
@@ -81,7 +82,7 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
             Date :{' '}
           </div>
         </div>
-        <Money />
+        <DatePickerWithRange />
       </div>
       <Trash2 className="h-6 w-6" />
     </div>
