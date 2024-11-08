@@ -63,7 +63,7 @@ export function AssignedTaskToMember({ task_id }: TaskManageMentProp) {
 
     fetchAssignAndUsers();
 
-    const ws = new WebSocket(`ws://${BASE_SOCKET}`);
+    const ws = new WebSocket(BASE_SOCKET);
 
     ws.onopen = () => {
       console.log('Connected to WebSocket');

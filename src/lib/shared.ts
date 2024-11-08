@@ -20,8 +20,8 @@ export interface TaskManageMentProp {
 
 export const BASE_SOCKET =
   process.env.NODE_ENV === 'production'
-    ? 'cusw-workspace.sa.chula.ac.th/socket/'
-    : 'localhost:3001/socket/';
+    ? 'wss://cusw-workspace.sa.chula.ac.th/socket/'
+    : 'ws://localhost:3001/socket/';
 
 const BASE_URL =
   process.env.NODE_ENV === 'production'

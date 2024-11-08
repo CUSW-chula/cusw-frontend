@@ -154,7 +154,7 @@ const ActivityLogs = ({ task_id }: TaskManageMentProp) => {
 
     fetchData();
 
-    const ws = new WebSocket(`ws://${BASE_SOCKET}`);
+    const ws = new WebSocket(BASE_SOCKET);
 
     ws.onopen = () => {
       console.log('Connected to WebSocket');
