@@ -6,7 +6,7 @@ import { setCookie } from 'cookies-next';
 
 const BASE_URL =
   process.env.NODE_ENV === 'production'
-    ? 'http://cusw-workspace.sa.chula.ac.th'
+    ? 'https://cusw-workspace.sa.chula.ac.th'
     : 'http://localhost:4000';
 
 const Home = () => {
