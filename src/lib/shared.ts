@@ -25,7 +25,7 @@ export const BASE_SOCKET =
 
 const BASE_URL =
   process.env.NODE_ENV === 'production'
-    ? 'http://cusw-workspace.sa.chula.ac.th/api'
-    : 'https://localhost:4000/api';
+    ? 'https://cusw-workspace.sa.chula.ac.th/api'
+    : 'http://localhost:4000/api';
 
 export default BASE_URL;
