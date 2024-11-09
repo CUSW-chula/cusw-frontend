@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import BASE_URL from '@/lib/shared';
+import { getCookie } from 'cookies-next';
 interface Budget {
   type: string;
   money: number;
@@ -27,6 +29,8 @@ const Money = () => {
 
   const [openDialog, setOpenDialog] = useState(false); // Manage dialog open state
   const [openType, setOpenType] = useState(false); //Manage Popover state Money type
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
   const [budgetList, setBudgetList] = useState<Budget>({
     type: TypeMoney.null,
     money: 0,
@@ -56,8 +60,13 @@ const Money = () => {
   useEffect(() => {
     //sent GET method
     const fetchDataGet = async () => {
-      const url = `http://localhost:4000/api/tasks/money/${taskID}`;
-      const options = { method: 'GET' };
+      const url = `${BASE_URL}/tasks/money/${taskID}`;
+      const options = {
+        method: 'GET',
+        headers: {
+          Authorization: auth,
+        },
+      };
 
       try {
         const response = await fetch(url, options);
@@ -74,39 +83,16 @@ const Money = () => {
       }
     };
     fetchDataGet();
-
-    const ws = new WebSocket('ws://localhost:3001');
-    ws.onopen = () => console.log('Connected to WebSocket');
-    ws.onmessage = (event) => {
-      // console.log("Message received:", event.data);
-      try {
-        const socketEvent = JSON.parse(event.data);
-        const eventName = socketEvent.eventName;
-        const newBudgetList = pareJsonValue(socketEvent.data);
-
-        if (eventName === 'addMoney') setBudgetList(newBudgetList);
-      } catch (error) {
-        console.error('Error parsing WebSocket message:', error);
-      }
-    };
-
-    ws.onclose = () => {
-      console.log('WebSocket connection closed');
-    };
-
-    return () => {
-      ws.close();
-    };
-  }, [taskID, pareJsonValue]);
+  }, [taskID, auth]);
 
   //submit input budget
   const handleSubmit = async (budget: Budget) => {
     //sent POST method
     const fetchDataPost = async (budgetList: number[]) => {
-      const url = 'http://localhost:4000/api/tasks/money';
+      const url = `${BASE_URL}/tasks/money`;
       const options = {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
         body: `{"taskID":"${taskID}","budget":${budgetList[0]},"advance":${budgetList[1]},"expense":${budgetList[2]}}`,
       };
       try {
@@ -137,10 +123,10 @@ const Money = () => {
   const handleClear = async () => {
     //sent DELETE method
     const fetchDataDelete = async () => {
-      const url = 'http://localhost:4000/api/tasks/money';
+      const url = `${BASE_URL}/tasks/money`;
       const options = {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
         body: `{"taskID":"${taskID}"}`,
       };
       try {

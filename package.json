@@ -16,8 +16,8 @@
   "dependencies": {
     "@blocknote/core": "^0.18.0",
     "@blocknote/mantine": "^0.18.1",
-    "@blocknote/react": "^0.18.0",
-    "@blocknote/shadcn": "^0.18.0",
+    "@blocknote/react": "^0.18.1",
+    "@blocknote/shadcn": "^0.18.1",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-alert-dialog": "^1.1.2",
     "@radix-ui/react-context-menu": "^2.2.2",
@@ -34,6 +34,8 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "1.0.0",
+    "cookies-next": "^4.3.0",
+    "date-fns": "^4.1.0",
     "emoji-picker-react": "^4.12.0",
     "jotai": "^2.10.1",
     "lucide-react": "^0.453.0",
@@ -41,11 +43,13 @@
     "quill": "^2.0.2",
     "react": "19.0.0-rc-02c0e824-20241028",
     "react-color-palette": "^7.3.0",
+    "react-day-picker": "8.10.1",
     "react-dom": "19.0.0-rc-02c0e824-20241028",
     "react-hook-form": "^7.53.1",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "ws": "^8.18.0",
+    "y-partykit": "^0.0.32",
     "zod": "^3.23.8"
   },
   "devDependencies": {
