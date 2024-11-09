@@ -64,7 +64,8 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
         {/* Label Zone */}
         <div className="w-24 justify-start items-center gap-2 flex">
           {/* Icon */}
-          <DollarSign className="w-6 h-6 relative" />
+          <div className="w-6 text-center text-black text-[30px] font-medium font-BaiJamjuree">฿</div>
+
           {/* Describtion */}
           <div className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight">
             Money :{' '}

@@ -43,6 +43,19 @@ const Money = () => {
   const path = url.split('/');
   const taskID = path[path.length - 1];
 
+  const pareJsonValue = React.useCallback(
+    (budgetList: { budget: number; advance: number; expense: number }) => {
+      return budgetList.budget
+        ? { type: TypeMoney.budget, money: budgetList.budget }
+        : budgetList.advance
+          ? { type: TypeMoney.ad, money: budgetList.advance }
+          : budgetList.expense
+            ? { type: TypeMoney.exp, money: budgetList.expense }
+            : { type: TypeMoney.null, money: 0 };
+    },
+    [],
+  );
+
   //get budget
   useEffect(() => {
     //sent GET method
