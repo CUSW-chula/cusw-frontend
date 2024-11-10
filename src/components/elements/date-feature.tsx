@@ -1,60 +1,85 @@
 'use client';
 
 import * as React from 'react';
-import { addDays, format } from 'date-fns';
+import { format, parse, isValid, addDays } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
 
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Input } from '@/components/ui/input';
 
-export function DatePickerWithRange({ className }: React.HTMLAttributes<HTMLDivElement>) {
+function DatePickerWithRange() {
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: new Date(),
   });
+  const [inputValue, setInputValue] = React.useState<string>('');
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
-  const handleDate = () => {
-    // Process your form submission logic here
+  // Regex for date matching
+  const dateTimeRegEx = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/;
 
-    console.log({
-      date,
-    });
+  // Handle input changes and update calendar state based on the input
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputValue(value);
+
+    // Split from and to date
+    const [fromStr, toStr] = value.split(' - ').map((dateStr) => dateStr.trim());
+
+    // Parse date from string
+    const from =
+      fromStr && dateTimeRegEx.test(fromStr) ? parse(fromStr, 'dd/MM/yyyy', new Date()) : undefined;
+    const to =
+      toStr && dateTimeRegEx.test(toStr) ? parse(toStr, 'dd/MM/yyyy', new Date()) : undefined;
+
+    // Check state in varaible: console.log(value + "\n" + fromStr + " " + toStr + "\n" + from + " " + to);
+
+    if (isValid(from) && isValid(to)) {
+      setDate({ from, to });
+    } else if (isValid(from)) {
+      setDate({ from, to });
+    }
+  };
+
+  // Handle calendar selection
+  const handleCalendarSelect = (range: DateRange | undefined) => {
+    setDate(range);
+
+    if (range?.from) {
+      setInputValue(
+        range.to
+          ? `${format(range.from, 'MM/dd/yyyy')} - ${format(range.to, 'MM/dd/yyyy')}`
+          : format(range.from, 'MM/dd/yyyy'),
+      );
+    } else {
+      setInputValue('');
+    }
   };
 
   return (
-    <div className={cn('grid gap-2', className)}>
+    <div className={cn('grid gap-2')}>
       <Popover>
         <PopoverTrigger asChild>
-          <Button
-            id="date"
-            variant={'outline'}
-            className={cn(
-              'w-[300px] justify-start text-left font-normal',
-              !date && 'text-muted-foreground',
-            )}>
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {date?.from ? (
-              date.to ? (
-                <>
-                  {format(date.from, 'LLL dd, y')} - {format(date.to, 'LLL dd, y')}
-                </>
-              ) : (
-                format(date.from, 'LLL dd, y')
-              )
-            ) : (
-              <span>Pick a date</span>
-            )}
-          </Button>
+          <div className="relative">
+            <Input
+              ref={inputRef}
+              value={inputValue}
+              onChange={handleInputChange}
+              placeholder="DD/MM/YYYY - DD/MM/YYYY"
+              className="w-[300px] pl-10" // Add padding for the icon
+            />
+            <CalendarIcon className="absolute left-3 top-3 h-5 w-5 text-gray-400 pointer-events-none" />
+          </div>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0 z -1" align="start">
           <Calendar
             initialFocus
             mode="range"
             defaultMonth={date?.from}
             selected={date}
-            onSelect={setDate}
+            onSelect={handleCalendarSelect}
             numberOfMonths={1}
           />
         </PopoverContent>
@@ -62,3 +87,5 @@ export function DatePickerWithRange({ className }: React.HTMLAttributes<HTMLDivE
     </div>
   );
 }
+
+export { DatePickerWithRange };
