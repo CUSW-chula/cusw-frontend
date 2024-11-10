@@ -84,10 +84,6 @@ const Workspace = () => {
         console.error('Error fetching Description:', error);
       }
     };
-    fetchDescription();
-  }, []);
-
-  useEffect(() => {
     const fetchTitle = async () => {
       try {
         const response = await fetch(
@@ -102,7 +98,10 @@ const Workspace = () => {
     };
 
     fetchTitle();
+    fetchDescription();
+  }, []);
 
+  useEffect(() => {
     const fetchFile = async () => {
       try {
         const response = await fetch('http://localhost:4000/api/file/cm24lq0sx0001jkpdbc9lxu8x');
