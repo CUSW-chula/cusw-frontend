@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { setCookie } from 'cookies-next';
+import { BreadcrumbComponent } from '@/components/elements/breadcrumb';
 
 const BASE_URL =
   process.env.NODE_ENV === 'production'
@@ -26,6 +27,7 @@ const Home = () => {
   };
   return (
     <div className="min-h-screen flex items-center justify-center">
+      <BreadcrumbComponent />
       <Button onClick={handleSignIn} className="flex items-center gap-2">
         Sign in with Google
       </Button>

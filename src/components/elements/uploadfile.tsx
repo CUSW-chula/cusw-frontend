@@ -80,7 +80,7 @@ const Uploadfile = ({ task_id }: TaskManageMentProp) => {
   const handleFile = async (file: File) => {
     const formData = new FormData();
     formData.append('taskId', task_id);
-    formData.append('projectId', 'cm24w5yu000008tlglutu5czu');
+    formData.append('projectId', '  ');
     formData.append('file', file);
     const url = `${BASE_URL}/file/`;
     const options = {
