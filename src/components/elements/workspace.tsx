@@ -17,6 +17,7 @@ import * as Popover from '@/components/ui/popover';
 import * as Tabs from '@/components/ui/tabs';
 import * as Toggle from '@/components/ui/toggle';
 import * as Tooltip from '@/components/ui/tooltip';
+import BASE_URL, { type TaskManageMentProp } from '@/lib/shared';
 import YPartyKitProvider from 'y-partykit/provider';
 import * as Y from 'yjs';
 
@@ -39,7 +40,7 @@ interface Files {
   createdAt: Date;
 }
 
-const Workspace = () => {
+const Workspace = ({ task_id }: TaskManageMentProp) => {
   const [Title, setTitle] = useState<string>('');
   const [Description, setDescription] = useState<string>('');
   const [fileList, setFileList] = useState<Files[]>([]);
@@ -72,9 +73,7 @@ const Workspace = () => {
   useEffect(() => {
     const fetchDescription = async () => {
       try {
-        const response = await fetch(
-          'http://localhost:4000/api/tasks/description/cm24lq0sx0001jkpdbc9lxu8x',
-        );
+        const response = await fetch(`${BASE_URL}/tasks/description/${task_id}`);
         const data = await response.json();
         setDescription(data.description);
         const blocks = await editor.tryParseHTMLToBlocks(data.description);
@@ -86,9 +85,7 @@ const Workspace = () => {
     };
     const fetchTitle = async () => {
       try {
-        const response = await fetch(
-          'http://localhost:4000/api/tasks/title/cm24lq0sx0001jkpdbc9lxu8x',
-        );
+        const response = await fetch(`${BASE_URL}/tasks/title/${task_id}`);
         const data = await response.json();
         setTitle(data.title);
         console.log('Initial Title:', data);
@@ -104,7 +101,7 @@ const Workspace = () => {
   useEffect(() => {
     const fetchFile = async () => {
       try {
-        const response = await fetch('http://localhost:4000/api/file/cm24lq0sx0001jkpdbc9lxu8x');
+        const response = await fetch(`${BASE_URL}/file/${task_id}`);
         const data = await response.json();
         setFileList(data);
         console.log('Initial file list:', data);
@@ -144,7 +141,7 @@ const Workspace = () => {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue, pareJsonValues]);
+  }, [pareJsonValue, pareJsonValues, task_id]);
 
   // disable blocks you don't want
   const { audio, image, video, file, codeBlock, ...allowedBlockSpecs } = defaultBlockSpecs;
@@ -158,9 +155,9 @@ const Workspace = () => {
   useEffect(() => {
     if (!Title) return;
     const updateTitle = async () => {
-      const taskId = 'cm24lq0sx0001jkpdbc9lxu8x';
+      const taskId = task_id;
       const userId = 'cm24ll4370008kh59coznldal';
-      const url = 'http://localhost:4000/api/tasks/title';
+      const url = `${BASE_URL}/tasks/title`;
       const options = {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -182,14 +179,14 @@ const Workspace = () => {
     };
 
     updateTitle();
-  }, [Title]);
+  }, [Title, task_id]);
 
   useEffect(() => {
     if (!Description) return;
     const updateDescription = async () => {
-      const taskId = 'cm24lq0sx0001jkpdbc9lxu8x';
+      const taskId = task_id;
       const userId = 'cm24ll4370008kh59coznldal';
-      const url = 'http://localhost:4000/api/tasks/description';
+      const url = `${BASE_URL}/tasks/description`;
       const options = {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -210,7 +207,7 @@ const Workspace = () => {
       }
     };
     updateDescription();
-  }, [Description]);
+  }, [Description, task_id]);
 
   const editor = useCreateBlockNote({
     schema,
@@ -269,7 +266,7 @@ const Workspace = () => {
       <Displayfile fileList={fileList} setFileList={setFileList} />
       <div className="flex justify-between">
         <Emoji />
-        <Uploadfile setFileList={setFileList} />
+        <Uploadfile task_id={task_id} />
       </div>
     </div>
   );

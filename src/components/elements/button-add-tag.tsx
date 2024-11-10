@@ -13,6 +13,7 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import BASE_URL, { type TaskManageMentProp } from '@/lib/shared';
 
 interface Tags {
   id: string;
@@ -20,7 +21,7 @@ interface Tags {
 }
 
 // Mock data
-export function ButtonAddTags() {
+export function ButtonAddTags({ task_id }: TaskManageMentProp) {
   const [open, setOpen] = React.useState(false);
   const [statuses, setStatuses] = React.useState<Tags[]>([]);
   const [selectedTags, setSelectedTags] = React.useState<Tags[]>([]);
@@ -36,7 +37,7 @@ export function ButtonAddTags() {
 
   React.useEffect(() => {
     const fetchTags = async () => {
-      const url = 'http://localhost:4000/api/tags/';
+      const url = `${BASE_URL}/tags/`;
       const options = { method: 'GET' };
 
       try {
@@ -49,7 +50,7 @@ export function ButtonAddTags() {
     };
 
     const fetchSelectedTags = async () => {
-      const url = 'http://localhost:4000/api/tags/getassigntag/cm24lq0sx0001jkpdbc9lxu8x';
+      const url = `${BASE_URL}/tags/getassigntag/${task_id}`;
       const options = { method: 'GET' };
 
       try {
@@ -97,16 +98,16 @@ export function ButtonAddTags() {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue]);
+  }, [pareJsonValue, task_id]);
 
   const handleSelectTag = async (value: string) => {
     const selected = statuses.find((status) => status.name === value);
     if (selected && !selectedTags.some((tag) => tag.id === selected.id)) {
-      const url = 'http://localhost:4000/api/tags/assign';
+      const url = `${BASE_URL}/tags/assign`;
       const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ taskId: 'cm24lq0sx0001jkpdbc9lxu8x', tagId: selected.id }),
+        body: JSON.stringify({ taskId: task_id, tagId: selected.id }),
       };
 
       try {
@@ -121,11 +122,11 @@ export function ButtonAddTags() {
   };
 
   const handleDeleteTag = async (value: string) => {
-    const url = 'http://localhost:4000/api/tags/unassigned';
+    const url = `${BASE_URL}/tags/unassigned`;
     const options = {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ taskId: 'cm24lq0sx0001jkpdbc9lxu8x', tagId: value }),
+      body: JSON.stringify({ taskId: task_id, tagId: value }),
     };
 
     try {
