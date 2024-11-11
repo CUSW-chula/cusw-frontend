@@ -28,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${bai_jamjuree.variable} ${anuphan.variable} antialiased`}>{children}</body>
+      <body className={`${bai_jamjuree.variable} ${anuphan.variable} antialiased w-full px-[10%] py-[5%] justify-center`}>{children}</body>
     </html>
   );
 }

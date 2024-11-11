@@ -27,7 +27,6 @@ const Home = () => {
   };
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <BreadcrumbComponent />
       <Button onClick={handleSignIn} className="flex items-center gap-2">
         Sign in with Google
       </Button>

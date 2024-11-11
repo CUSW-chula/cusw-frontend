@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,6 +12,10 @@ import BASE_URL from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import React from 'react';
 import { useEffect, useState } from 'react';
+
+interface BreadcrumbProps {
+  task_id: string;
+}
 
 async function getTitleName(taskId: string, auth: string) {
   try {
@@ -33,24 +39,23 @@ function useBreadcrumbTitles(taskId: string, auth: string) {
   const [titles, setTitles] = useState<string[]>([]);
 
   useEffect(() => {
-    async function fetchTitle() {
-      const title = await getTitleName(taskId, auth);
-      const storedTitles = JSON.parse(localStorage.getItem('breadcrumbTitles') || '[]');
-      storedTitles.push(title);
-      localStorage.setItem('breadcrumbTitles', JSON.stringify(storedTitles));
-      setTitles(storedTitles);
-    }
-
-    fetchTitle();
+    // async function fetchTitle() {
+    // const title = await getTitleName(taskId, auth);
+    //   const storedTitles = JSON.parse(localStorage.getItem('breadcrumbTitles') || '[]');
+    //   storedTitles.push(title);
+    //   localStorage.setItem('breadcrumbTitles', JSON.stringify(storedTitles));
+    //   setTitles(storedTitles);
+    // }
+    // fetchTitle();
   }, [taskId, auth]);
 
   return titles;
 }
 
-export function BreadcrumbComponent() {
+export function BreadcrumbComponent(props: BreadcrumbProps) {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
-  const taskId = 'your-task-id'; // Replace with actual task ID
+  const taskId = props.task_id; // Replace with actual task ID
   const titles = useBreadcrumbTitles(taskId, auth);
 
   return (
