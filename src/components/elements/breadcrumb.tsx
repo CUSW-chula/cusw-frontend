@@ -39,14 +39,14 @@ function useBreadcrumbTitles(taskId: string, auth: string) {
   const [titles, setTitles] = useState<string[]>([]);
 
   useEffect(() => {
-    // async function fetchTitle() {
-    // const title = await getTitleName(taskId, auth);
-    //   const storedTitles = JSON.parse(localStorage.getItem('breadcrumbTitles') || '[]');
-    //   storedTitles.push(title);
-    //   localStorage.setItem('breadcrumbTitles', JSON.stringify(storedTitles));
-    //   setTitles(storedTitles);
-    // }
-    // fetchTitle();
+    async function fetchTitle() {
+      const title = await getTitleName(taskId, auth);
+      const storedTitles = JSON.parse(localStorage.getItem('breadcrumbTitles') || '[]');
+      storedTitles.push(title);
+      localStorage.setItem('breadcrumbTitles', JSON.stringify(storedTitles));
+      setTitles(storedTitles);
+    }
+    fetchTitle();
   }, [taskId, auth]);
 
   return titles;
