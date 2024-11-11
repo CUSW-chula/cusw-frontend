@@ -1,8 +1,8 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
-import { ChevronRight } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge";
+import { ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 import StatusButton from './status-botton';
 import { AssignedTaskToMember } from './assigned-task';
 import { ButtonAddTags } from './button-add-tag';
@@ -54,8 +54,6 @@ function StatusIcon(status: string) {
   }
 }
 
-
-
 function TitleInput({ content, onChange }: { content: string; onChange: (value: string) => void }) {
   const [editedContent, setEditedContent] = useState(content);
 
@@ -81,10 +79,10 @@ const Subtask: React.FC = () => {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [subtaskTitle, setSubtaskTitle] = useState('');
   const [subtasks, setSubtasks] = useState<SubtaskProps[]>([]);
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  const parseJsonValues = useCallback((values: any[]) => {
+  const parseJsonValues = useCallback((values: any[]): SubtaskProps[] => {
     return values.map((value) => ({
       id: value.id,
       title: value.title,
@@ -112,32 +110,25 @@ const Subtask: React.FC = () => {
       }
       return newSet;
     });
-    
-  }
-
+  };
 
   const SubtaskItem = ({ item, depth = 0 }: { item: SubtaskProps; depth?: number }) => {
-    const hasChildren = item.subtasks && item.subtasks.length > 0
-    const isExpanded = expandedItems.has(item.id)
+    const hasChildren = item.subtasks && item.subtasks.length > 0;
+    const isExpanded = expandedItems.has(item.id);
 
     return (
       <div className="w-full">
-        <div 
+        <div
           className={cn(
-            "flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg",
-            depth > 0 && "ml-8"
-          )}
-        >
+            'flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg',
+            depth > 0 && 'ml-8',
+          )}>
           <button
             type="button"
             onClick={() => toggleExpand(item.id)}
-            className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200"
-          >
-            <ChevronRight 
-              className={cn(
-                "h-4 w-4 transition-transform",
-                isExpanded && "transform rotate-90"
-              )}
+            className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200">
+            <ChevronRight
+              className={cn('h-4 w-4 transition-transform', isExpanded && 'transform rotate-90')}
             />
           </button>
           <span className="text-sm">{item.title}</span>
@@ -149,11 +140,13 @@ const Subtask: React.FC = () => {
             <Badge variant="secondary" className="bg-green-100 text-green-800">
               ใบรับเงินผ่าสอน
             </Badge>
-            <span className={cn(
-              "font-medium",
-              item.realBudget > 0 ? "text-green-600" : "text-red-600"
-            )}>
-              {item.realBudget > 0 ? "+" : ""}{item.realBudget.toLocaleString()}
+            <span
+              className={cn(
+                'font-medium',
+                item.realBudget > 0 ? 'text-green-600' : 'text-red-600',
+              )}>
+              {item.realBudget > 0 ? '+' : ''}
+              {item.realBudget.toLocaleString()}
             </span>
             <span className="text-sm text-gray-500">
               {item.startDate ? item.startDate.toLocaleDateString() : ''}
@@ -168,27 +161,25 @@ const Subtask: React.FC = () => {
           </div>
         )}
       </div>
-    )
-  }
-
+    );
+  };
 
   useEffect(() => {
     const ws = new WebSocket('ws://localhost:3001');
 
     fetch('http://localhost:4000/api/tasks/parent/cm24lq0sx0001jkpdbc9lxu8x')
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    })
-    .then((data) => {
-      const parsedData = parseJsonValues(data);
-      setSubtasks(parsedData);
-    })
-    .catch((error) => console.error('Error fetching tasks:', error));
-  
-      
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const parsedData = parseJsonValues(data);
+        setSubtasks(parsedData);
+      })
+      .catch((error) => console.error('Error fetching tasks:', error));
+
     ws.onopen = () => {
       console.log('Connected to WebSocket');
     };
@@ -261,25 +252,25 @@ const Subtask: React.FC = () => {
       )
       .join(' ');
 
-      fetch('http://localhost:4000/api/tasks/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          title: subtaskTitle,
-          description: descriptionText,
-          expectedBudget: 0,
-          realBudget: 0,
-          usedBudget: 0,
-          status: 'Unassigned',
-          parentTaskId: '',
-          projectId: '',
-          createdById: '',
-          startDate: new Date(),
-          endDate: new Date(),
-        })
-      })
+    fetch('http://localhost:4000/api/tasks/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        title: subtaskTitle,
+        description: descriptionText,
+        expectedBudget: 0,
+        realBudget: 0,
+        usedBudget: 0,
+        status: 'Unassigned',
+        parentTaskId: '',
+        projectId: '',
+        createdById: '',
+        startDate: new Date(),
+        endDate: new Date(),
+      }),
+    });
 
     setSubtaskTitle('');
     setIsSubtaskSectionVisible(false);
@@ -292,12 +283,11 @@ const Subtask: React.FC = () => {
           <button
             type="button"
             onClick={handleToggleSubtask}
-            className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200"
-          >
-            <ChevronRight 
+            className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200">
+            <ChevronRight
               className={cn(
-                "h-4 w-4 transition-transform",
-                isSubtaskVisible && "transform rotate-90"
+                'h-4 w-4 transition-transform',
+                isSubtaskVisible && 'transform rotate-90',
               )}
             />
           </button>
@@ -320,71 +310,70 @@ const Subtask: React.FC = () => {
         <Button
           variant="outline"
           className="ml-3 flex items-center text-[#6b5c56] border-[#6b5c56] px-3 py-1 rounded-md"
-          onClick={() => setIsSubtaskSectionVisible(!isSubtaskSectionVisible)}
-        >
+          onClick={() => setIsSubtaskSectionVisible(!isSubtaskSectionVisible)}>
           + Add Subtask
         </Button>
       </div>
 
-    {/* Subtask creation section */}
-    {isSubtaskSectionVisible && (
-      <div className="h-[232px] w-full p-6 bg-gray-50 rounded-md shadow border border-[#6b5c56] flex-col justify-start items-start gap-4 inline-flex">
-        <div className="">
-          <TitleInput content={''} onChange={setSubtaskTitle} />
-          <BlockNoteView
-            editor={editor}
-            theme={'light'}
-            onChange={() => {
-              setBlocks(editor.document);
-              console.log(blocks);
-            }}
-            shadCNComponents={{
-              Card,
-              DropdownMenu,
-              Form,
-              Input,
-              Label,
-              Popover,
-              Tabs,
-              Toggle,
-              Tooltip,
-            }}
-          />
-        </div>
-        <div className="self-stretch h-[92px] flex-col justify-start items-start gap-3 flex">
-          <div className="justify-start items-center gap-2 inline-flex">
-            <StatusButton />
-            <AssignedTaskToMember />
-            <ButtonAddTags />
-            <Money />
+      {/* Subtask creation section */}
+      {isSubtaskSectionVisible && (
+        <div className="h-[232px] w-full p-6 bg-gray-50 rounded-md shadow border border-[#6b5c56] flex-col justify-start items-start gap-4 inline-flex">
+          <div className="">
+            <TitleInput content={''} onChange={setSubtaskTitle} />
+            <BlockNoteView
+              editor={editor}
+              theme={'light'}
+              onChange={() => {
+                setBlocks(editor.document);
+                console.log(blocks);
+              }}
+              shadCNComponents={{
+                Card,
+                DropdownMenu,
+                Form,
+                Input,
+                Label,
+                Popover,
+                Tabs,
+                Toggle,
+                Tooltip,
+              }}
+            />
           </div>
-          <div className="self-stretch justify-end items-center gap-3 inline-flex">
-            <Button
-              variant="outline"
-              className="text-base font-BaiJamjuree font-medium leading-normal border-[#6b5c56]"
-              onClick={handleToggleSubtaskSection}>
-              Cancel
-            </Button>
-            <Button
-              variant="outline"
-              type="submit"
-              className="bg-[#6b5c56] text-base font-BaiJamjuree font-medium text-white leading-normal"
-              onClick={handleCreateSubtask}>
-              Create
-            </Button>
+          <div className="self-stretch h-[92px] flex-col justify-start items-start gap-3 flex">
+            <div className="justify-start items-center gap-2 inline-flex">
+              <StatusButton />
+              <AssignedTaskToMember task_id={''} />
+              <ButtonAddTags task_id={''} />
+              <Money />
+            </div>
+            <div className="self-stretch justify-end items-center gap-3 inline-flex">
+              <Button
+                variant="outline"
+                className="text-base font-BaiJamjuree font-medium leading-normal border-[#6b5c56]"
+                onClick={handleToggleSubtaskSection}>
+                Cancel
+              </Button>
+              <Button
+                variant="outline"
+                type="submit"
+                className="bg-[#6b5c56] text-base font-BaiJamjuree font-medium text-white leading-normal"
+                onClick={handleCreateSubtask}>
+                Create
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
-    )}
+      )}
       {isSubtaskVisible && (
         <div className="w-full space-y-1">
-      {subtasks.map((item) => (
-        <SubtaskItem key={item.id} item={item} />
-      ))}
+          {subtasks.map((item) => (
+            <SubtaskItem key={item.id} item={item} />
+          ))}
+        </div>
+      )}
     </div>
-  )}
-  </div>
-);
+  );
 };
 
 export default Subtask;

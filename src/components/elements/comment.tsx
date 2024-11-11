@@ -25,6 +25,8 @@ import {
 import { Button } from '../ui/button';
 import { Profile } from './profile';
 import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
+import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
+import { getCookie } from 'cookies-next';
 
 interface CommentBoxProp {
   id: string;
@@ -67,7 +69,6 @@ function EditBox({
 }) {
   const [editedContent, setEditedContent] = useState(content);
   const charLimit = 200;
-
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const inputText = e.target.value;
     if (inputText.length <= charLimit) {
@@ -106,9 +107,13 @@ function EditBox({
   );
 }
 
-async function getName(authorId: string) {
+async function getName(authorId: string, auth: string) {
   try {
-    const response = await fetch(`http://localhost:4000/api/users/${authorId}`);
+    const response = await fetch(`${BASE_URL}/users/${authorId}`, {
+      headers: {
+        Authorization: auth,
+      },
+    });
     if (!response.ok) {
       throw new Error(`Error: ${response.statusText}`);
     }
@@ -135,18 +140,20 @@ function CommentBox({
   editTime,
 }: CommentBoxProp) {
   const [isEditing, setIsEditing] = useState(false);
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
   const [name, setName] = useState<string | null>(null);
 
   useEffect(() => {
-    getName(authorId).then(setName);
-  }, [authorId]);
+    getName(authorId, auth).then(setName);
+  }, [authorId, auth]);
 
   const deleteComment = async () => {
     try {
-      await fetch('http://localhost:4000/api/comments/', {
+      await fetch(`${BASE_URL}/comments/`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, authorId }),
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
+        body: JSON.stringify({ id }),
       });
     } catch (error) {
       console.error('Failed to delete comment:', error);
@@ -155,10 +162,10 @@ function CommentBox({
 
   const saveEditedContent = async (newContent: string) => {
     try {
-      await fetch('http://localhost:4000/api/comments/', {
+      await fetch(`${BASE_URL}/comments/`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, authorId, content: newContent }),
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
+        body: JSON.stringify({ id: id, content: newContent }),
       });
       setIsEditing(false);
     } catch (error) {
@@ -251,7 +258,9 @@ function CommentBox({
   );
 }
 
-const Comment: React.FC = () => {
+const Comment = ({ task_id }: TaskManageMentProp) => {
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
   const [comment, setComment] = useState('');
   const [list, setList] = useAtom<CommentBoxProp[]>(commentlist);
   const charLimit = 200;
@@ -289,16 +298,17 @@ const Comment: React.FC = () => {
 
   useEffect(() => {
     const fetchComment = async () => {
-      const commentData = await fetch(
-        'http://localhost:4000/api/comments/cm24lq0sx0001jkpdbc9lxu8x',
-      );
+      const commentData = await fetch(`${BASE_URL}/comments/${task_id}`, {
+        headers: {
+          Authorization: auth,
+        },
+      });
       const commentList = await commentData.json();
       setList(pareJsonValues(commentList));
     };
-
     fetchComment();
 
-    const ws = new WebSocket('ws://localhost:3001');
+    const ws = new WebSocket(BASE_SOCKET);
 
     ws.onopen = () => {
       console.log('Connected to WebSocket');
@@ -350,7 +360,7 @@ const Comment: React.FC = () => {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue, pareJsonValues, setList]); // Add pareJsonValue and pareJsonValues to the dependency array
+  }, [pareJsonValue, pareJsonValues, setList, task_id, auth]); // Add pareJsonValue and pareJsonValues to the dependency array
 
   const handleInputChange = (e: { target: { value: React.SetStateAction<string> } }) => {
     setComment(e.target.value);
@@ -363,15 +373,15 @@ const Comment: React.FC = () => {
       return;
     }
 
-    await fetch('http://localhost:4000/api/comments/', {
+    await fetch(`${BASE_URL}/comments/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: auth,
       },
       body: JSON.stringify({
         content: comment,
-        authorId: 'cm24ll4370008kh59coznldal',
-        taskId: 'cm24lq0sx0001jkpdbc9lxu8x',
+        taskId: task_id,
       }),
     });
     setComment(''); // Clear the input field after submission
