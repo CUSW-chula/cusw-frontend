@@ -21,6 +21,8 @@ import * as Popover from '@/components/ui/popover';
 import * as Tabs from '@/components/ui/tabs';
 import * as Toggle from '@/components/ui/toggle';
 import * as Tooltip from '@/components/ui/tooltip';
+import { getCookie } from 'cookies-next';
+import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
 
 interface SubtaskProps {
   id: string;
@@ -73,13 +75,15 @@ function TitleInput({ content, onChange }: { content: string; onChange: (value: 
   );
 }
 
-const Subtask: React.FC = () => {
+const Subtask = ({ task_id }: TaskManageMentProp) => {
   const [isSubtaskSectionVisible, setIsSubtaskSectionVisible] = useState(false);
   const [isSubtaskVisible, setIsSubtaskVisible] = useState(false);
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [subtaskTitle, setSubtaskTitle] = useState('');
   const [subtasks, setSubtasks] = useState<SubtaskProps[]>([]);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValues = useCallback((values: any[]): SubtaskProps[] => {
@@ -146,7 +150,7 @@ const Subtask: React.FC = () => {
                 item.realBudget > 0 ? 'text-green-600' : 'text-red-600',
               )}>
               {item.realBudget > 0 ? '+' : ''}
-              {item.realBudget.toLocaleString()}
+              {item.realBudget ? item.realBudget.toLocaleString() : '0'}
             </span>
             <span className="text-sm text-gray-500">
               {item.startDate ? item.startDate.toLocaleDateString() : ''}
@@ -166,27 +170,36 @@ const Subtask: React.FC = () => {
 
   useEffect(() => {
     const ws = new WebSocket('ws://localhost:3001');
-
-    fetch('http://localhost:4000/api/tasks/parent/cm24lq0sx0001jkpdbc9lxu8x')
-      .then((response) => {
+  
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${BASE_URL}/tasks/parent/cm24lq0sx0001jkpdbc9lxu8x`, {
+          headers: {
+            Authorization: auth,
+          },
+        });
+        
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-        return response.json();
-      })
-      .then((data) => {
+  
+        const data = await response.json();
         const parsedData = parseJsonValues(data);
         setSubtasks(parsedData);
-      })
-      .catch((error) => console.error('Error fetching tasks:', error));
-
+      } catch (error) {
+        console.error('Error fetching tasks:', error);
+      }
+    };
+  
+    fetchData();
+  
     ws.onopen = () => {
       console.log('Connected to WebSocket');
     };
-
+  
     ws.onmessage = (event) => {
       console.log('Message received:', event.data);
-
+  
       try {
         const socketEvent = JSON.parse(event.data);
         const eventName = socketEvent.eventName;
@@ -198,18 +211,19 @@ const Subtask: React.FC = () => {
         console.error('Error parsing WebSocket message:', error);
       }
     };
-
+  
     ws.onclose = () => {
       console.log('WebSocket connection closed');
     };
-
+  
     return () => {
       ws.close();
       ws.onopen = null;
       ws.onmessage = null;
       ws.onclose = null;
     };
-  }, [parseJsonValues]);
+  }, [auth, parseJsonValues]);
+  
 
   const handleToggleSubtaskSection = () => {
     setIsSubtaskSectionVisible(!isSubtaskSectionVisible);
@@ -243,7 +257,44 @@ const Subtask: React.FC = () => {
     ],
   });
 
-  const handleCreateSubtask = () => {
+  const handleCreateSubtask = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/tasks/`, {
+        method: 'POST',
+        headers: {
+          Authorization: auth,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: '',
+          description: '',
+          expectedBudget: 1,
+          realBudget: 1,
+          usedBudget: 1,
+          status: 'Unassigned',
+          parentTaskId: '',
+          projectId: '',
+          startDate: new Date(),
+          endDate: new Date(),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create subtask');
+      }
+
+      const data = await response.json();
+
+      // Update subtasks with new subtask data
+      setSubtasks((prevSubtasks) => [...prevSubtasks, data]);
+
+      console.log('New subtask created:', data);
+    } catch (error) {
+      console.error('Error creating subtask:', error);
+    }
+  };
+
+  const handleSubmitSubtask = async () => {
     const descriptionText = editor.document
       .map((block) =>
         Array.isArray(block.content) && block.content[0] && 'text' in block.content[0]
@@ -251,30 +302,43 @@ const Subtask: React.FC = () => {
           : '',
       )
       .join(' ');
-
-    fetch('http://localhost:4000/api/tasks/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        title: subtaskTitle,
-        description: descriptionText,
-        expectedBudget: 0,
-        realBudget: 0,
-        usedBudget: 0,
-        status: 'Unassigned',
-        parentTaskId: '',
-        projectId: '',
-        createdById: '',
-        startDate: new Date(),
-        endDate: new Date(),
-      }),
-    });
-
-    setSubtaskTitle('');
-    setIsSubtaskSectionVisible(false);
+  
+    try {
+      const response = await fetch(`${BASE_URL}/tasks/`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: auth,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: subtaskTitle,
+          description: descriptionText,
+          expectedBudget: 0,
+          realBudget: 0,
+          usedBudget: 0,
+          status: 'Unassigned',
+          parentTaskId: '',
+          projectId: '',
+          startDate: new Date(),
+          endDate: new Date(),
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to create subtask');
+      }
+  
+      const data = await response.json();
+      console.log('Subtask created:', data);
+  
+      // Clear the input fields after successful submission
+      setSubtaskTitle('');
+      setIsSubtaskSectionVisible(false);
+    } catch (error) {
+      console.error('Error creating subtask:', error);
+    }
   };
+  
 
   return (
     <div>
@@ -310,7 +374,10 @@ const Subtask: React.FC = () => {
         <Button
           variant="outline"
           className="ml-3 flex items-center text-[#6b5c56] border-[#6b5c56] px-3 py-1 rounded-md"
-          onClick={() => setIsSubtaskSectionVisible(!isSubtaskSectionVisible)}>
+          onClick={() => {
+            setIsSubtaskSectionVisible(!isSubtaskSectionVisible);
+            handleCreateSubtask();
+          }}>
           + Add Subtask
         </Button>
       </div>
@@ -343,9 +410,12 @@ const Subtask: React.FC = () => {
           <div className="self-stretch h-[92px] flex-col justify-start items-start gap-3 flex">
             <div className="justify-start items-center gap-2 inline-flex">
               <StatusButton />
-              <AssignedTaskToMember task_id={''} />
-              <ButtonAddTags task_id={''} />
-              <Money />
+              {subtasks.length > 0 && (
+                <>
+                  <AssignedTaskToMember task_id={subtasks[subtasks.length - 1].id} />
+                  <ButtonAddTags task_id={subtasks[subtasks.length - 1].id} />
+                </>
+              )}
             </div>
             <div className="self-stretch justify-end items-center gap-3 inline-flex">
               <Button
@@ -358,7 +428,7 @@ const Subtask: React.FC = () => {
                 variant="outline"
                 type="submit"
                 className="bg-[#6b5c56] text-base font-BaiJamjuree font-medium text-white leading-normal"
-                onClick={handleCreateSubtask}>
+                onClick={handleSubmitSubtask}>
                 Create
               </Button>
             </div>

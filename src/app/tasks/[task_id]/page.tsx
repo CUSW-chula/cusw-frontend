@@ -2,6 +2,7 @@ import dynamic from 'next/dynamic';
 import ActivityLogs from '@/components/elements/activity-logs';
 import Comment from '@/components/elements/comment';
 import { MenuBar } from '@/components/elements/menu-bar';
+import Subtask from '@/components/elements/subtask';
 
 interface TaskManageMentProp {
   params: {
@@ -18,6 +19,7 @@ export default async function TasksManageMentPage({ params }: TaskManageMentProp
       <div className="w-full lg:w-[60%] rounded-[6px] p-5 border-brown border-[1px] bg-white">
         <Workspace task_id={task_id} />
         <div className="flex flex-col gap-4 mt-4">
+          <Subtask task_id={task_id} />
           <ActivityLogs task_id={task_id} />
           <Comment task_id={task_id} />
         </div>
