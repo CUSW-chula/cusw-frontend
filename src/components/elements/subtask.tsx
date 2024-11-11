@@ -41,19 +41,22 @@ interface SubtaskProps {
   subtasks?: SubtaskProps[];
 }
 
-function StatusIcon(status: string) {
-  switch (status) {
-    case 'Unassigned':
-      return <img src="/icons/unassigned.svg" className="h-6 w-6 shrink-0" alt="Unassigned" />;
-    case 'Assigned':
-      return <img src="/icons/assigned.svg" className="h-6 w-6 shrink-0" alt="Assigned" />;
-    case 'UnderReview':
-      return <img src="/icons/under-review.svg" className="h-6 w-6 shrink-0" alt="Under Review" />;
-    case 'InRecheck':
-      return <img src="/icons/in-recheck.svg" className="h-6 w-6 shrink-0" alt="In Recheck" />;
-    default:
-      return <img src="/icons/done.svg" className="h-6 w-6 shrink-0" alt="Done" />;
+function formatDate(date?: Date | string): string {
+  if (!date) return ''; // Return an empty string if no date is provided
+
+  // Ensure the input is a Date object
+  const validDate = typeof date === 'string' ? new Date(date) : date;
+
+  if (Number.isNaN(validDate.getTime())) {
+    console.error('Invalid date:', date);
+    return 'Invalid date';
   }
+
+  const day = String(validDate.getDate()).padStart(2, '0');
+  const month = String(validDate.getMonth() + 1).padStart(2, '0');
+  const year = validDate.getFullYear();
+
+  return `${day}/${month}/${year}`;
 }
 
 function TitleInput({ content, onChange }: { content: string; onChange: (value: string) => void }) {
@@ -136,7 +139,7 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
             />
           </button>
           <a href={`/tasks/${item.id}`}>
-          <span className="text-sm">{item.title}</span>
+            <span className="text-sm">{item.title}</span>
           </a>
           <div className="flex-1" />
           <div className="flex items-center gap-2">
@@ -155,7 +158,7 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
               {item.realBudget ? item.realBudget.toLocaleString() : '0'}
             </span>
             <span className="text-sm text-gray-500">
-              {item.startDate ? item.startDate.toString() : ''}
+              {item.startDate ? formatDate(item.startDate) : ''}
             </span>
           </div>
         </div>
@@ -279,23 +282,21 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
           endDate: new Date(),
         }),
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to create subtask');
       }
-  
+
       const data = await response.json();
-  
+
       // Update subtasks with the new subtask added to the existing list
       console.log('New subtask created:', data);
 
       setSubtasks((prevSubtasks) => [...prevSubtasks, data]);
-  
     } catch (error) {
       console.error('Error creating subtask:', error);
     }
   };
-  
 
   const handleSubmitSubtask = async () => {
     const descriptionText = editor.document
