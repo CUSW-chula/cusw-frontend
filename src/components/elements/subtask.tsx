@@ -135,7 +135,9 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
               className={cn('h-4 w-4 transition-transform', isExpanded && 'transform rotate-90')}
             />
           </button>
+          <a href={`/tasks/${item.id}`}>
           <span className="text-sm">{item.title}</span>
+          </a>
           <div className="flex-1" />
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="bg-green-100 text-green-800">
@@ -153,7 +155,7 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
               {item.realBudget ? item.realBudget.toLocaleString() : '0'}
             </span>
             <span className="text-sm text-gray-500">
-              {item.startDate ? item.startDate.toLocaleDateString() : ''}
+              {item.startDate ? item.startDate.toString() : ''}
             </span>
           </div>
         </div>
@@ -170,19 +172,19 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
 
   useEffect(() => {
     const ws = new WebSocket('ws://localhost:3001');
-  
+
     const fetchData = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/tasks/parent/cm24lq0sx0001jkpdbc9lxu8x`, {
+        const response = await fetch(`${BASE_URL}/tasks/parent/${task_id}`, {
           headers: {
             Authorization: auth,
           },
         });
-        
+
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-  
+
         const data = await response.json();
         const parsedData = parseJsonValues(data);
         setSubtasks(parsedData);
@@ -190,16 +192,16 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
         console.error('Error fetching tasks:', error);
       }
     };
-  
+
     fetchData();
-  
+
     ws.onopen = () => {
       console.log('Connected to WebSocket');
     };
-  
+
     ws.onmessage = (event) => {
       console.log('Message received:', event.data);
-  
+
       try {
         const socketEvent = JSON.parse(event.data);
         const eventName = socketEvent.eventName;
@@ -211,11 +213,11 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
         console.error('Error parsing WebSocket message:', error);
       }
     };
-  
+
     ws.onclose = () => {
       console.log('WebSocket connection closed');
     };
-  
+
     return () => {
       ws.close();
       ws.onopen = null;
@@ -223,7 +225,6 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
       ws.onclose = null;
     };
   }, [auth, parseJsonValues]);
-  
 
   const handleToggleSubtaskSection = () => {
     setIsSubtaskSectionVisible(!isSubtaskSectionVisible);
@@ -272,27 +273,29 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
           realBudget: 1,
           usedBudget: 1,
           status: 'Unassigned',
-          parentTaskId: '',
-          projectId: '',
+          parentTaskId: task_id,
+          projectId: 'cm3cizozb00014lduhxi8q8lt',
           startDate: new Date(),
           endDate: new Date(),
         }),
       });
-
+  
       if (!response.ok) {
         throw new Error('Failed to create subtask');
       }
-
+  
       const data = await response.json();
-
-      // Update subtasks with new subtask data
-      setSubtasks((prevSubtasks) => [...prevSubtasks, data]);
-
+  
+      // Update subtasks with the new subtask added to the existing list
       console.log('New subtask created:', data);
+
+      setSubtasks((prevSubtasks) => [...prevSubtasks, data]);
+  
     } catch (error) {
       console.error('Error creating subtask:', error);
     }
   };
+  
 
   const handleSubmitSubtask = async () => {
     const descriptionText = editor.document
@@ -302,35 +305,28 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
           : '',
       )
       .join(' ');
-  
+
     try {
       const response = await fetch(`${BASE_URL}/tasks/`, {
         method: 'PATCH',
         headers: {
           Authorization: auth,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          taskId: subtasks[subtasks.length - 1].id,
           title: subtaskTitle,
           description: descriptionText,
-          expectedBudget: 0,
-          realBudget: 0,
-          usedBudget: 0,
-          status: 'Unassigned',
-          parentTaskId: '',
-          projectId: '',
-          startDate: new Date(),
-          endDate: new Date(),
         }),
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to create subtask');
       }
-  
+
       const data = await response.json();
       console.log('Subtask created:', data);
-  
+
       // Clear the input fields after successful submission
       setSubtaskTitle('');
       setIsSubtaskSectionVisible(false);
@@ -338,7 +334,6 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
       console.error('Error creating subtask:', error);
     }
   };
-  
 
   return (
     <div>
@@ -392,7 +387,6 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
               theme={'light'}
               onChange={() => {
                 setBlocks(editor.document);
-                console.log(blocks);
               }}
               shadCNComponents={{
                 Card,
