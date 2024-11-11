@@ -35,43 +35,51 @@ async function getTitleName(taskId: string, auth: string) {
   }
 }
 
-function useBreadcrumbTitles(taskId: string, auth: string) {
-  const [titles, setTitles] = useState<string[]>([]);
-
-  useEffect(() => {
-    async function fetchTitle() {
-      const title = await getTitleName(taskId, auth);
-      const storedTitles = JSON.parse(localStorage.getItem('breadcrumbTitles') || '[]');
-      storedTitles.push(title);
-      localStorage.setItem('breadcrumbTitles', JSON.stringify(storedTitles));
-      setTitles(storedTitles);
-    }
-    fetchTitle();
-  }, [taskId, auth]);
-
-  return titles;
-}
-
-export function BreadcrumbComponent(props: BreadcrumbProps) {
+export function BreadcrumbComponent({ task_id }: BreadcrumbProps) {
+  interface Task {
+    id: string;
+    title: string;
+  }
+  const [tasks, setTasks] = useState<Task[]>([]);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
-  const taskId = props.task_id; // Replace with actual task ID
-  const titles = useBreadcrumbTitles(taskId, auth);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${BASE_URL}/tasks/parent-recursive/${task_id}`, {
+          headers: {
+            Authorization: auth,
+          },
+        });
+        if (!response.ok) {
+          throw new Error(`Error: ${response.statusText}`);
+        }
+        const data = await response.json();
+        setTasks(data);
+        console.log('data:', data);
+      } catch (error) {
+        console.error('Failed to fetch task titles:', error);
+      }
+    };
+    getTitleName(task_id, auth);
+    fetchData();
+  }, [task_id, auth]);
 
   return (
     <div>
       <Breadcrumb>
         <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Project title</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          {titles.map((title) => (
-            <React.Fragment key={title}>
+          {tasks.map((task, index) => (
+            <React.Fragment key={task.id}>
               <BreadcrumbItem>
-                <BreadcrumbLink href={`/components/${title}`}>{title}</BreadcrumbLink>
+                <BreadcrumbLink
+                  href={`/tasks/${task.id}`}
+                  className="font-BaiJamjuree text-lg text-black">
+                  {task.title}
+                </BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator />
+              {index < tasks.length - 1 && <BreadcrumbSeparator />}
             </React.Fragment>
           ))}
         </BreadcrumbList>

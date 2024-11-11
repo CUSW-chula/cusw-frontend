@@ -3,6 +3,7 @@ import ActivityLogs from '@/components/elements/activity-logs';
 import Comment from '@/components/elements/comment';
 import { MenuBar } from '@/components/elements/menu-bar';
 import { BreadcrumbComponent } from '@/components/elements/breadcrumb';
+import { BackButton } from '@/components/elements/backButton';
 
 interface TaskManageMentProp {
   params: {
@@ -16,8 +17,9 @@ export default async function TasksManageMentPage({ params }: TaskManageMentProp
   return (
     <div className="min-w-full min-h-screen flex-col items-start justify-center gap-8">
       {/* page nav */}
-      <div className="flex py-4">
+      <div className="flex flex-row py-4 items-center justify-between">
         <BreadcrumbComponent task_id={task_id} />
+        <BackButton task_id={task_id} />
       </div>
 
       {/* page content */}
