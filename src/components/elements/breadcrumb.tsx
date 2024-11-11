@@ -57,7 +57,6 @@ export function BreadcrumbComponent({ task_id }: BreadcrumbProps) {
         }
         const data = await response.json();
         setTasks(data);
-        console.log('data:', data);
       } catch (error) {
         console.error('Failed to fetch task titles:', error);
       }
