@@ -8,6 +8,7 @@ import { ProjectOwner } from './project-owner';
 import { AssignedTaskToMember } from './assigned-task';
 import { ButtonAddTags } from './button-add-tag';
 import type { TaskManageMentProp } from '@/lib/shared';
+import { DatePickerWithRange } from './date-feature';
 
 const MenuBar = ({ task_id }: TaskManageMentProp) => {
   return (
@@ -63,7 +64,8 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
         {/* Label Zone */}
         <div className="w-24 justify-start items-center gap-2 flex">
           {/* Icon */}
-          <DollarSign className="w-6 h-6 relative" />
+          <div className="w-6 text-center text-black text-[30px] font-medium font-BaiJamjuree">฿</div>
+
           {/* Describtion */}
           <div className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight">
             Money :{' '}
@@ -81,7 +83,7 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
             Date :{' '}
           </div>
         </div>
-        <Money />
+        <DatePickerWithRange />
       </div>
       <Trash2 className="h-6 w-6" />
     </div>

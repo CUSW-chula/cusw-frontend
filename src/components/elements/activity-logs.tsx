@@ -1,6 +1,8 @@
 'use client';
 
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
+import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
+import { getCookie } from 'cookies-next';
 import React, { useEffect, useCallback, useState } from 'react';
 
 interface ActivityLogItemProps {
@@ -12,9 +14,13 @@ interface ActivityLogItemProps {
   createdAt?: string;
 }
 
-async function getName(authorId: string) {
+async function getName(authorId: string, auth: string) {
   try {
-    const response = await fetch(`http://localhost:4000/api/users/${authorId}`);
+    const response = await fetch(`${BASE_URL}/users/${authorId}`, {
+      headers: {
+        Authorization: auth,
+      },
+    });
     if (!response.ok) {
       throw new Error(`Error: ${response.statusText}`);
     }
@@ -78,10 +84,12 @@ function formatDate(date?: string): string {
 
 function ActivityLogItem({ userId, action, detail, createdAt }: ActivityLogItemProps) {
   const [name, setName] = useState('');
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
 
   useEffect(() => {
-    getName(userId).then(setName);
-  }, [userId]);
+    getName(userId, auth).then(setName);
+  }, [userId, auth]);
 
   if (!name) return null;
 
@@ -106,8 +114,10 @@ function ActivityLogItem({ userId, action, detail, createdAt }: ActivityLogItemP
   );
 }
 
-const ActivityLogs: React.FC = () => {
+const ActivityLogs = ({ task_id }: TaskManageMentProp) => {
   const [activityLogs, setActivityLogs] = useState<ActivityLogItemProps[]>([]);
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValue = useCallback((values: any) => {
@@ -124,12 +134,18 @@ const ActivityLogs: React.FC = () => {
 
   React.useEffect(() => {
     const fetchData = async () => {
-      const url = 'http://localhost:4000/api/activities/cm24lq0sx0001jkpdbc9lxu8x';
-      const options = { method: 'GET' };
+      const url = `${BASE_URL}/activities/${task_id}`;
+      const options = {
+        method: 'GET',
+        headers: {
+          Authorization: auth,
+        },
+      };
 
       try {
         const response = await fetch(url, options);
         const data = await response.json();
+        console.log('DD', data);
         setActivityLogs(data);
       } catch (error) {
         console.error(error);
@@ -138,7 +154,7 @@ const ActivityLogs: React.FC = () => {
 
     fetchData();
 
-    const ws = new WebSocket('ws://localhost:3001');
+    const ws = new WebSocket(BASE_SOCKET);
 
     ws.onopen = () => {
       console.log('Connected to WebSocket');
@@ -171,7 +187,7 @@ const ActivityLogs: React.FC = () => {
     return () => {
       ws.close();
     };
-  }, [parseJsonValue]);
+  }, [parseJsonValue, task_id, auth]);
 
   return (
     <div className="bg-white space-y-2">

@@ -17,9 +17,10 @@ import * as Popover from '@/components/ui/popover';
 import * as Tabs from '@/components/ui/tabs';
 import * as Toggle from '@/components/ui/toggle';
 import * as Tooltip from '@/components/ui/tooltip';
-import BASE_URL, { type TaskManageMentProp } from '@/lib/shared';
+import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
 import YPartyKitProvider from 'y-partykit/provider';
 import * as Y from 'yjs';
+import { getCookie } from 'cookies-next';
 
 // Sets up Yjs document and PartyKit Yjs provider.
 const doc = new Y.Doc();
@@ -44,6 +45,8 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
   const [Title, setTitle] = useState<string>('');
   const [Description, setDescription] = useState<string>('');
   const [fileList, setFileList] = useState<Files[]>([]);
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const pareJsonValue = useCallback((values: any) => {
@@ -73,45 +76,57 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
   useEffect(() => {
     const fetchDescription = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/tasks/description/${task_id}`);
+        const response = await fetch(`${BASE_URL}/tasks/description/${task_id}`, {
+          headers: {
+            Authorization: auth,
+          },
+        });
         const data = await response.json();
         setDescription(data.description);
         const blocks = await editor.tryParseHTMLToBlocks(data.description);
         editor.replaceBlocks(editor.document, blocks);
-        console.log('Initial Description:', data);
       } catch (error) {
         console.error('Error fetching Description:', error);
       }
     };
+    fetchDescription();
+  }, [task_id, auth]);
+
+  useEffect(() => {
     const fetchTitle = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/tasks/title/${task_id}`);
+        const response = await fetch(`${BASE_URL}/tasks/title/${task_id}`, {
+          headers: {
+            Authorization: auth,
+          },
+        });
         const data = await response.json();
         setTitle(data.title);
-        console.log('Initial Title:', data);
       } catch (error) {
         console.error('Error fetching Title:', error);
       }
     };
 
     fetchTitle();
-    fetchDescription();
-  }, []);
+  }, [task_id, auth]);
 
   useEffect(() => {
     const fetchFile = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/file/${task_id}`);
+        const response = await fetch(`${BASE_URL}/file/${task_id}`, {
+          headers: {
+            Authorization: auth,
+          },
+        });
         const data = await response.json();
         setFileList(data);
-        console.log('Initial file list:', data);
       } catch (error) {
         console.error('Error fetching files:', error);
       }
     };
 
     fetchFile();
-    const ws = new WebSocket('ws://localhost:3001');
+    const ws = new WebSocket(BASE_SOCKET);
     ws.onopen = () => {
       console.log('Connected to WebSocket');
     };
@@ -141,7 +156,7 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue, pareJsonValues, task_id]);
+  }, [pareJsonValue, pareJsonValues, task_id, auth]);
 
   // disable blocks you don't want
   const { audio, image, video, file, codeBlock, ...allowedBlockSpecs } = defaultBlockSpecs;
@@ -156,14 +171,12 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
     if (!Title) return;
     const updateTitle = async () => {
       const taskId = task_id;
-      const userId = 'cm24ll4370008kh59coznldal';
       const url = `${BASE_URL}/tasks/title`;
       const options = {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
         body: JSON.stringify({
           taskId,
-          userId,
           title: Title,
         }),
       };
@@ -179,20 +192,18 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
     };
 
     updateTitle();
-  }, [Title, task_id]);
+  }, [Title, task_id, auth]);
 
   useEffect(() => {
     if (!Description) return;
     const updateDescription = async () => {
       const taskId = task_id;
-      const userId = 'cm24ll4370008kh59coznldal';
       const url = `${BASE_URL}/tasks/description`;
       const options = {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
         body: JSON.stringify({
           taskId,
-          userId,
           description: Description,
         }),
       };
@@ -207,7 +218,7 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
       }
     };
     updateDescription();
-  }, [Description, task_id]);
+  }, [Description, task_id, auth]);
 
   const editor = useCreateBlockNote({
     schema,
@@ -215,7 +226,7 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
       provider,
       fragment: doc.getXmlFragment('document-store'),
       user: {
-        name: 'My Username',
+        name: 'Bunyawat Naunnak',
         color: '#ff0000',
       },
     },
@@ -265,7 +276,7 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
 
       <Displayfile fileList={fileList} setFileList={setFileList} />
       <div className="flex justify-between">
-        <Emoji />
+        <Emoji task_id={task_id} />
         <Uploadfile task_id={task_id} />
       </div>
     </div>

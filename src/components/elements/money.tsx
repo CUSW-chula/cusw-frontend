@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import BASE_URL from '@/lib/shared';
+import { getCookie } from 'cookies-next';
 interface Budget {
   type: string;
   money: number;
@@ -27,6 +29,8 @@ const Money = () => {
 
   const [openDialog, setOpenDialog] = useState(false); // Manage dialog open state
   const [openType, setOpenType] = useState(false); //Manage Popover state Money type
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
   const [budgetList, setBudgetList] = useState<Budget>({
     type: TypeMoney.null,
     money: 0,
@@ -39,12 +43,30 @@ const Money = () => {
   const path = url.split('/');
   const taskID = path[path.length - 1];
 
+  const pareJsonValue = React.useCallback(
+    (budgetList: { budget: number; advance: number; expense: number }) => {
+      return budgetList.budget
+        ? { type: TypeMoney.budget, money: budgetList.budget }
+        : budgetList.advance
+          ? { type: TypeMoney.ad, money: budgetList.advance }
+          : budgetList.expense
+            ? { type: TypeMoney.exp, money: budgetList.expense }
+            : { type: TypeMoney.null, money: 0 };
+    },
+    [],
+  );
+
   //get budget
   useEffect(() => {
     //sent GET method
     const fetchDataGet = async () => {
-      const url = `http://localhost:4000/api/tasks/money/${taskID}`;
-      const options = { method: 'GET' };
+      const url = `${BASE_URL}/tasks/money/${taskID}`;
+      const options = {
+        method: 'GET',
+        headers: {
+          Authorization: auth,
+        },
+      };
 
       try {
         const response = await fetch(url, options);
@@ -61,16 +83,16 @@ const Money = () => {
       }
     };
     fetchDataGet();
-  }, [taskID]);
+  }, [taskID, auth]);
 
   //submit input budget
   const handleSubmit = async (budget: Budget) => {
     //sent POST method
     const fetchDataPost = async (budgetList: number[]) => {
-      const url = 'http://localhost:4000/api/tasks/money';
+      const url = `${BASE_URL}/tasks/money`;
       const options = {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
         body: `{"taskID":"${taskID}","budget":${budgetList[0]},"advance":${budgetList[1]},"expense":${budgetList[2]}}`,
       };
       try {
@@ -101,10 +123,10 @@ const Money = () => {
   const handleClear = async () => {
     //sent DELETE method
     const fetchDataDelete = async () => {
-      const url = 'http://localhost:4000/api/tasks/money';
+      const url = `${BASE_URL}/tasks/money`;
       const options = {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
         body: `{"taskID":"${taskID}"}`,
       };
       try {
@@ -151,15 +173,6 @@ const Money = () => {
 
   return (
     <div className="h-10 justify-start items-center gap-[15px] inline-flex">
-      {/* {fetchData("a-1")} */}
-      <div className="h-6 justify-start items-center gap-2 inline-flex">
-        <div className="text-center text-black text-2xl font-semibold font-BaiJamjuree leading-normal">
-          ฿
-        </div>
-        <div className="text-black text-xs font-medium font-['Bai Jamjuree'] leading-tight">
-          Money :{' '}
-        </div>
-      </div>
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogTrigger asChild>
           <div
