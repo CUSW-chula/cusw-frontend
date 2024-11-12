@@ -3,63 +3,67 @@
 import { Button } from '@/components/ui/button';
 import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { selectedStatusAtom } from '@/atom';
-import type { Status } from '@/lib/shared';
+import BASE_URL, { BASE_SOCKET, type Status, type TaskManageMentProp } from '@/lib/shared';
 import React from 'react';
+import { getCookie } from 'cookies-next';
 
 const Unassigned = '/asset/icon/unassigned.svg';
 const Assigned = '/asset/icon/assigned.svg';
-const UnderReview = '/asset/icon/inreview.svg';
+const UnderReview = '/asset/icon/underreview.svg';
 const InRecheck = '/asset/icon/inrecheck.svg';
 const Done = '/asset/icon/done.svg';
 
 const statuses: Status[] = [
   {
     value: 'Unassigned',
-    label: 'unassigned',
+    label: 'Unassigned',
     icon: Unassigned,
   },
   {
     value: 'Assigned',
-    label: 'assigned',
+    label: 'Assigned',
     icon: Assigned,
   },
   {
     value: 'UnderReview',
-    label: 'under review',
+    label: 'UnderReview',
     icon: UnderReview,
   },
   {
     value: 'InRecheck',
-    label: 'in recheck',
+    label: 'InRecheck',
     icon: InRecheck,
   },
   {
     value: 'Done',
-    label: 'done',
+    label: 'Done',
     icon: Done,
   },
 ];
 
-export function StatusButton() {
+export function StatusButton({ task_id }: TaskManageMentProp) {
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
   const [open, setOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useAtom<Status>(selectedStatusAtom);
 
-  const parseJsonValue = React.useCallback((values: Status) => {
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  const parseJsonValue = useCallback((values: any) => {
     const newValue: Status = {
-      value: values.value,
-      label: values.label,
-      icon: values.icon,
+      value: values.status,
+      label: values.status,
+      icon: `/asset/icon/${values.status.toLowerCase()}.svg`,
     };
     return newValue;
   }, []);
 
   useEffect(() => {
     const fetchStatus = async (taskId: string) => {
-      const url = `http://localhost:4000/api/tasks/status/${taskId}`;
-      const options = { method: 'GET' };
+      const url = `${BASE_URL}/tasks/status/${taskId}`;
+      const options = { method: 'GET', headers: { Authorization: auth } };
 
       try {
         const response = await fetch(url, options);
@@ -71,9 +75,9 @@ export function StatusButton() {
       }
     };
 
-    fetchStatus('cm24lq0sx0001jkpdbc9lxu8x');
+    fetchStatus(task_id);
 
-    const ws = new WebSocket('ws://localhost:3001');
+    const ws = new WebSocket(BASE_SOCKET);
 
     ws.onopen = () => console.log('Connected to WebSocket');
 
@@ -83,9 +87,10 @@ export function StatusButton() {
       try {
         const socketEvent = JSON.parse(event.data);
         const eventName = socketEvent.eventName;
+        const data = parseJsonValue(socketEvent.data);
 
         if (eventName === 'status-changed') {
-          fetchStatus('cm24lq0sx0001jkpdbc9lxu8x');
+          setSelectedStatus(data);
         }
       } catch (error) {
         console.error('error parsing websocket message: ', error);
@@ -97,17 +102,17 @@ export function StatusButton() {
     };
 
     return () => ws.close();
-  }, [setSelectedStatus]);
+  }, [setSelectedStatus, auth, parseJsonValue, task_id]);
 
   const handleSelectStatus = async (status: Status) => {
     setSelectedStatus(status);
     setOpen(false);
-    const url = 'http://localhost:4000/api/tasks/changedStatus';
+    const url = `${BASE_URL}/tasks/status`;
     const options = {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { Authorization: auth, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        taskId: 'cm24lq0sx0001jkpdbc9lxu8x',
+        taskId: task_id,
         newTaskStatus: status.value,
       }),
     };
@@ -115,7 +120,6 @@ export function StatusButton() {
     try {
       const response = await fetch(url, options);
       const data = await response.json();
-      console.log(data);
     } catch (error) {
       console.error(error);
     }

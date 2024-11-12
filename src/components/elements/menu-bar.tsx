@@ -22,7 +22,7 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
           </div>
         </div>
         {/* Content */}
-        <StatusButton />
+        <StatusButton task_id={task_id} />
       </div>
       <div aria-label="owner" className="h-10 justify-start items-center inline-flex">
         {/* Label Zone */}
