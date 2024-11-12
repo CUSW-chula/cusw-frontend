@@ -6,45 +6,40 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { selectedStatusAtom } from '@/atom';
+import type { Status } from '@/lib/shared';
 import React from 'react';
 
-const unassigned = '/asset/icon/unassigned.svg';
-const assigned = '/asset/icon/assigned.svg';
-const inreview = '/asset/icon/inreview.svg';
-const inrecheck = '/asset/icon/inrecheck.svg';
-const done = '/asset/icon/done.svg';
-
-interface Status {
-  value: string;
-  label: string;
-  icon: string; // Icon should be a React component
-}
+const Unassigned = '/asset/icon/unassigned.svg';
+const Assigned = '/asset/icon/assigned.svg';
+const UnderReview = '/asset/icon/inreview.svg';
+const InRecheck = '/asset/icon/inrecheck.svg';
+const Done = '/asset/icon/done.svg';
 
 const statuses: Status[] = [
   {
     value: 'Unassigned',
     label: 'unassigned',
-    icon: unassigned,
+    icon: Unassigned,
   },
   {
     value: 'Assigned',
     label: 'assigned',
-    icon: assigned,
+    icon: Assigned,
   },
   {
     value: 'UnderReview',
     label: 'under review',
-    icon: inreview,
+    icon: UnderReview,
   },
   {
     value: 'InRecheck',
     label: 'in recheck',
-    icon: inrecheck,
+    icon: InRecheck,
   },
   {
     value: 'Done',
     label: 'done',
-    icon: done,
+    icon: Done,
   },
 ];
 
@@ -62,9 +57,8 @@ export function StatusButton() {
   }, []);
 
   useEffect(() => {
-    //fetch current status from db
-    const fetchCurrentStatus = async (taskId: string) => {
-      const url = `http://localhost:4000/api/tasks/getstatus/${taskId}`;
+    const fetchStatus = async (taskId: string) => {
+      const url = `http://localhost:4000/api/tasks/status/${taskId}`;
       const options = { method: 'GET' };
 
       try {
@@ -77,7 +71,7 @@ export function StatusButton() {
       }
     };
 
-    fetchCurrentStatus('cm24lq0sx0001jkpdbc9lxu8x');
+    fetchStatus('cm24lq0sx0001jkpdbc9lxu8x');
 
     const ws = new WebSocket('ws://localhost:3001');
 
@@ -89,10 +83,9 @@ export function StatusButton() {
       try {
         const socketEvent = JSON.parse(event.data);
         const eventName = socketEvent.eventName;
-        const data = parseJsonValue(socketEvent.data);
 
-        if (eventName === 'assigned-status') {
-          setSelectedStatus(parseJsonValue(socketEvent.data));
+        if (eventName === 'status-changed') {
+          fetchStatus('cm24lq0sx0001jkpdbc9lxu8x');
         }
       } catch (error) {
         console.error('error parsing websocket message: ', error);
@@ -104,17 +97,17 @@ export function StatusButton() {
     };
 
     return () => ws.close();
-  }, [parseJsonValue, setSelectedStatus]);
+  }, [setSelectedStatus]);
 
   const handleSelectStatus = async (status: Status) => {
     setSelectedStatus(status);
     setOpen(false);
-    const url = 'http://localhost:4000/api/tasks/';
+    const url = 'http://localhost:4000/api/tasks/changedStatus';
     const options = {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        taskId: 'cm24lq0sx0001jkpdbc9lxu8x', // Replace with actual taskId
+        taskId: 'cm24lq0sx0001jkpdbc9lxu8x',
         newTaskStatus: status.value,
       }),
     };
@@ -161,9 +154,6 @@ export function StatusButton() {
                   value={status.value}
                   className="pl-[32px] font-BaiJamjuree text-base"
                   onSelect={() => {
-                    // const selected = statuses.find((s) => s.value === status.value);
-                    // if (selected) setSelectedStatus(selected);
-                    // setOpen(false);
                     handleSelectStatus(status);
                   }}>
                   <img src={status.icon} className="mr-2 h-4 w-4 shrink-0" alt={status.label} />
