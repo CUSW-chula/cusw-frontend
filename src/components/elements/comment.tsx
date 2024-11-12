@@ -1,7 +1,7 @@
 'use client';
 import type React from 'react';
 import { Send } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { commentlist } from '@/atom';
 import { useAtom } from 'jotai';
 import { Textarea } from '../ui/textarea';
@@ -25,6 +25,8 @@ import {
 import { Button } from '../ui/button';
 import { Profile } from './profile';
 import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
+import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
+import { getCookie } from 'cookies-next';
 
 interface CommentBoxProp {
   id: string;
@@ -67,7 +69,6 @@ function EditBox({
 }) {
   const [editedContent, setEditedContent] = useState(content);
   const charLimit = 200;
-
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const inputText = e.target.value;
     if (inputText.length <= charLimit) {
@@ -106,9 +107,13 @@ function EditBox({
   );
 }
 
-async function getName(authorId: string) {
+async function getName(authorId: string, auth: string) {
   try {
-    const response = await fetch(`http://localhost:4000/api/users/${authorId}`);
+    const response = await fetch(`${BASE_URL}/users/${authorId}`, {
+      headers: {
+        Authorization: auth,
+      },
+    });
     if (!response.ok) {
       throw new Error(`Error: ${response.statusText}`);
     }
@@ -118,6 +123,11 @@ async function getName(authorId: string) {
     console.error('Failed to fetch user name:', error);
     return 'Unknown'; // Handle error gracefully
   }
+}
+
+function formatName(name: string) {
+  const nameParts = (name ?? '').split(' ');
+  return nameParts[0];
 }
 
 function CommentBox({
@@ -130,18 +140,20 @@ function CommentBox({
   editTime,
 }: CommentBoxProp) {
   const [isEditing, setIsEditing] = useState(false);
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
   const [name, setName] = useState<string | null>(null);
 
   useEffect(() => {
-    getName(authorId).then(setName);
-  }, [authorId]);
+    getName(authorId, auth).then(setName);
+  }, [authorId, auth]);
 
   const deleteComment = async () => {
     try {
-      await fetch('http://localhost:4000/api/comments/', {
+      await fetch(`${BASE_URL}/comments/`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, authorId }),
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
+        body: JSON.stringify({ id }),
       });
     } catch (error) {
       console.error('Failed to delete comment:', error);
@@ -150,10 +162,10 @@ function CommentBox({
 
   const saveEditedContent = async (newContent: string) => {
     try {
-      await fetch('http://localhost:4000/api/comments/', {
+      await fetch(`${BASE_URL}/comments/`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, authorId, content: newContent }),
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
+        body: JSON.stringify({ id: id, content: newContent }),
       });
       setIsEditing(false);
     } catch (error) {
@@ -162,7 +174,7 @@ function CommentBox({
   };
 
   return (
-    <div className="w-[530px] h-auto flex flex-col p-1 gap-4">
+    <div className="w-full h-auto flex flex-col p-1 gap-4">
       <div className="bg-gray-50 rounded-md p-3">
         {!isDelete && (
           <div className="flex justify-between items-center">
@@ -170,6 +182,9 @@ function CommentBox({
               <TooltipProvider>
                 <Profile userId="test" userName={name ?? '?'} />
               </TooltipProvider>
+              <div className="text-slate-900 font-BaiJamjuree font-semibold">
+                {formatName(name ?? '') || 'Loading...'}
+              </div>
               <div className="text-[#6b5c56] text-base font-normal font-['Bai Jamjuree'] leading-7">
                 {editTime ? (
                   <>
@@ -203,7 +218,7 @@ function CommentBox({
                       </AlertDialogTrigger>
                       <AlertDialogContent onClick={(e) => e.stopPropagation()}>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                           <AlertDialogDescription>
                             Do you want to delete your comment? This action cannot be undone.
                           </AlertDialogDescription>
@@ -243,54 +258,64 @@ function CommentBox({
   );
 }
 
-const Comment: React.FC = () => {
+const Comment = ({ task_id }: TaskManageMentProp) => {
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
   const [comment, setComment] = useState('');
   const [list, setList] = useAtom<CommentBoxProp[]>(commentlist);
   const charLimit = 200;
 
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  const pareJsonValues = useCallback((values: any[]) => {
-    const newValue: CommentBoxProp[] = [];
-    for (const value of values) {
-      newValue.push({
-        id: value.id,
-        content: value.content,
-        createdAt: new Date(value.createdAt),
-        taskId: value.taskId,
-        authorId: value.authorId,
-        isDelete: value.isDelete,
-        editTime: value.editTime,
-      });
-    }
-    return newValue;
-  }, []);
+  const commentsEndRef = useRef<HTMLDivElement | null>(null); // Reference for the bottom of the comment list
+
+  // Scroll to the bottom of the comment list
+  const scrollToBottom = () => {
+    commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }); // Run when the list updates
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  const pareJsonValue = useCallback((values: any) => {
-    const newValue: CommentBoxProp = {
-      id: values.id,
-      content: values.content,
-      createdAt: new Date(values.createdAt),
-      taskId: values.taskId,
-      authorId: values.authorId,
-      isDelete: values.isDelete,
-      editTime: values.editTime,
-    };
-    return newValue;
+  const parseJsonValues = useCallback((values: any[]) => {
+    return values.map((value) => ({
+      id: value.id,
+      content: value.content,
+      createdAt: new Date(value.createdAt),
+      taskId: value.taskId,
+      authorId: value.authorId,
+      isDelete: value.isDelete,
+      editTime: value.editTime,
+    }));
   }, []);
+
+  const parseJsonValue = useCallback(
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    (value: any) => ({
+      id: value.id,
+      content: value.content,
+      createdAt: new Date(value.createdAt),
+      taskId: value.taskId,
+      authorId: value.authorId,
+      isDelete: value.isDelete,
+      editTime: value.editTime,
+    }),
+    [],
+  );
 
   useEffect(() => {
     const fetchComment = async () => {
-      const commentData = await fetch(
-        'http://localhost:4000/api/comments/cm24lq0sx0001jkpdbc9lxu8x',
-      );
+      const commentData = await fetch(`${BASE_URL}/comments/${task_id}`, {
+        headers: {
+          Authorization: auth,
+        },
+      });
       const commentList = await commentData.json();
-      setList(pareJsonValues(commentList));
+      setList(parseJsonValues(commentList));
     };
-
     fetchComment();
 
-    const ws = new WebSocket('ws://localhost:3001');
+    const ws = new WebSocket(BASE_SOCKET);
 
     ws.onopen = () => {
       console.log('Connected to WebSocket');
@@ -300,33 +325,20 @@ const Comment: React.FC = () => {
       console.log('Message received:', event.data);
 
       try {
-        const socketEvent = JSON.parse(event.data); // Parse incoming message
+        const socketEvent = JSON.parse(event.data);
         const eventName = socketEvent.eventName;
-        const data = pareJsonValue(socketEvent.data); // Comment Data
-        if (eventName === 'comment')
-          // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-          setList((prevList: any) => [...prevList, data]); // Functional update
-        else if (eventName === 'comment-delete') {
-          setList((prevList: CommentBoxProp[]) =>
-            prevList.map((item) =>
-              item.id === data.id
-                ? {
-                    ...item,
-                    isDelete: true,
-                  }
-                : item,
-            ),
-          ); // Remove deleted comment
+        const data = parseJsonValue(socketEvent.data);
+
+        if (eventName === 'comment') {
+          setList((prevList) => [...prevList, data]);
+        } else if (eventName === 'comment-delete') {
+          setList((prevList) =>
+            prevList.map((item) => (item.id === data.id ? { ...item, isDelete: true } : item)),
+          );
         } else if (eventName === 'comment-edit') {
-          setList((prevList: CommentBoxProp[]) =>
+          setList((prevList) =>
             prevList.map((item) =>
-              item.id === data.id
-                ? {
-                    ...item,
-                    content: data.content,
-                    editTime: new Date(),
-                  }
-                : item,
+              item.id === data.id ? { ...item, content: data.content, editTime: new Date() } : item,
             ),
           );
         }
@@ -342,41 +354,41 @@ const Comment: React.FC = () => {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue, pareJsonValues, setList]); // Add pareJsonValue and pareJsonValues to the dependency array
+  }, [parseJsonValue, parseJsonValues, setList, task_id, auth]);
 
-  const handleInputChange = (e: { target: { value: React.SetStateAction<string> } }) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setComment(e.target.value);
   };
 
-  const handleSubmit = async (e: { preventDefault: () => void }) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (comment.trim().length === 0) {
       alert('Comment cannot be empty!');
       return;
     }
 
-    await fetch('http://localhost:4000/api/comments/', {
+    await fetch(`${BASE_URL}/comments/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: auth,
       },
       body: JSON.stringify({
         content: comment,
-        authorId: 'cm24ll4370008kh59coznldal',
-        taskId: 'cm24lq0sx0001jkpdbc9lxu8x',
+        taskId: task_id,
       }),
     });
-    setComment(''); // Clear the input field after submission
+    setComment('');
   };
 
   return (
-    <div className="w-[530px] h-[362px] flex-col justify-start items-start gap-[18px] inline-flex ">
+    <div className="w-full h-[362px] flex-col justify-start items-start gap-[18px] inline-flex ">
       <div className="font-semibold font-Anuphan text-2xl">Comment</div>
       <div className="max-h-84 overflow-y-scroll">
         <ul>
           {list
-            .slice() // Create a shallow copy to avoid mutating the state
-            .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()) // Sort by createdAt in descending order
+            .slice()
+            .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
             .map((item) => (
               <li key={item.id}>
                 <CommentBox
@@ -390,15 +402,16 @@ const Comment: React.FC = () => {
                 />
               </li>
             ))}
+          <div ref={commentsEndRef} /> {/* Empty div to anchor scroll to bottom */}
         </ul>
       </div>
       <div className="text-black text-sm font-medium font-Bai Jamjuree leading-[14px]">
         Your Comment
       </div>
-      <div className="flex flex-col w-[530px] h-[115px] border-2 border-[#6b5c56] rounded-lg p-[10px]">
+      <div className="flex flex-col w-full h-[115px] border-2 border-[#6b5c56] rounded-lg p-[10px]">
         <form onSubmit={handleSubmit}>
           <textarea
-            className="w-full h-[50px] outline-none resize-none maxlength=150"
+            className="w-full h-[50px] outline-none resize-none"
             placeholder="Add your comment..."
             value={comment}
             maxLength={200}
@@ -408,10 +421,9 @@ const Comment: React.FC = () => {
             <span className="text-sm text-gray-500">
               {comment.length} / {charLimit} characters
             </span>
-            <div />
             <button
               type="submit"
-              className=" text-black border-0 rounded py-[5px] px-[10px] cursor-pointer">
+              className="text-black border-0 rounded py-[5px] px-[10px] cursor-pointer">
               <Send />
             </button>
           </div>
@@ -420,6 +432,7 @@ const Comment: React.FC = () => {
     </div>
   );
 };
+
 export default Comment;
 
 /**

@@ -13,6 +13,8 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
+import { getCookie } from 'cookies-next';
 
 interface Tags {
   id: string;
@@ -20,7 +22,9 @@ interface Tags {
 }
 
 // Mock data
-export function ButtonAddTags() {
+export function ButtonAddTags({ task_id }: TaskManageMentProp) {
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
   const [open, setOpen] = React.useState(false);
   const [statuses, setStatuses] = React.useState<Tags[]>([]);
   const [selectedTags, setSelectedTags] = React.useState<Tags[]>([]);
@@ -36,8 +40,13 @@ export function ButtonAddTags() {
 
   React.useEffect(() => {
     const fetchTags = async () => {
-      const url = 'http://localhost:4000/api/tags/';
-      const options = { method: 'GET' };
+      const url = `${BASE_URL}/tags/`;
+      const options = {
+        method: 'GET',
+        headers: {
+          Authorization: auth,
+        },
+      };
 
       try {
         const response = await fetch(url, options);
@@ -49,8 +58,13 @@ export function ButtonAddTags() {
     };
 
     const fetchSelectedTags = async () => {
-      const url = 'http://localhost:4000/api/tags/getassigntag/cm24lq0sx0001jkpdbc9lxu8x';
-      const options = { method: 'GET' };
+      const url = `${BASE_URL}/tags/getassigntag/${task_id}`;
+      const options = {
+        method: 'GET',
+        headers: {
+          Authorization: auth,
+        },
+      };
 
       try {
         const response = await fetch(url, options);
@@ -64,7 +78,7 @@ export function ButtonAddTags() {
     fetchTags();
     fetchSelectedTags();
 
-    const ws = new WebSocket('ws://localhost:3001');
+    const ws = new WebSocket(BASE_SOCKET);
 
     ws.onopen = () => {
       console.log('Connected to WebSocket');
@@ -97,16 +111,16 @@ export function ButtonAddTags() {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue]);
+  }, [pareJsonValue, task_id, auth]);
 
   const handleSelectTag = async (value: string) => {
     const selected = statuses.find((status) => status.name === value);
     if (selected && !selectedTags.some((tag) => tag.id === selected.id)) {
-      const url = 'http://localhost:4000/api/tags/assign';
+      const url = `${BASE_URL}/tags/assign`;
       const options = {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ taskId: 'cm24lq0sx0001jkpdbc9lxu8x', tagId: selected.id }),
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
+        body: JSON.stringify({ taskId: task_id, tagId: selected.id }),
       };
 
       try {
@@ -121,11 +135,11 @@ export function ButtonAddTags() {
   };
 
   const handleDeleteTag = async (value: string) => {
-    const url = 'http://localhost:4000/api/tags/unassigned';
+    const url = `${BASE_URL}/tags/unassigned`;
     const options = {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ taskId: 'cm24lq0sx0001jkpdbc9lxu8x', tagId: value }),
+      headers: { 'Content-Type': 'application/json', Authorization: auth },
+      body: JSON.stringify({ taskId: task_id, tagId: value }),
     };
 
     try {
@@ -140,18 +154,22 @@ export function ButtonAddTags() {
   return (
     <>
       <div className="flex flex-row gap-1 flex-wrap">
-        {selectedTags.map((tag) => (
-          <Button variant="outline" key={tag.id}>
-            <Circle className="mr-1 h-4 w-4 fill-greenLight text-greenLight font-BaiJamjuree" />
-            <span>{tag.name}</span>
-            <button
-              type="button"
-              onClick={() => handleDeleteTag(tag.id)}
-              className="text-red-500 ml-1">
-              <XCircle className="h-4 w-4" />
-            </button>
-          </Button>
-        ))}
+        {Array.isArray(selectedTags) && selectedTags.length > 0 ? (
+          selectedTags.map((tag) => (
+            <Button variant="outline" key={tag.id}>
+              <Circle className="mr-1 h-4 w-4 fill-greenLight text-greenLight font-BaiJamjuree" />
+              <span>{tag.name}</span>
+              <button
+                type="button"
+                onClick={() => handleDeleteTag(tag.id)}
+                className="text-red-500 ml-1 max-w-20">
+                <XCircle className="h-4 w-4" />
+              </button>
+            </Button>
+          ))
+        ) : (
+          <div />
+        )}
 
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
@@ -170,7 +188,8 @@ export function ButtonAddTags() {
                       <Circle
                         className={cn(
                           'mr-2 h-4 w-4 fill-greenLight text-greenLight',
-                          selectedTags.some((tag) => tag.id === status.id)
+                          Array.isArray(selectedTags) &&
+                            selectedTags.some((tag) => tag.id === status.id)
                             ? 'opacity-100'
                             : 'opacity-40',
                         )}
