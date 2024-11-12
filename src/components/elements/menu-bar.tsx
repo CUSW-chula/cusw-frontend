@@ -12,7 +12,7 @@ import { DatePickerWithRange } from './date-feature';
 
 const MenuBar = ({ task_id }: TaskManageMentProp) => {
   return (
-    <div className="h-[400px] w-[395px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-center items-start gap-4 inline-flex">
+    <div className="h-[360px] w-[395px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-center items-start gap-4 inline-flex">
       <div aria-label="status" className="h-10 justify-start items-center inline-flex">
         {/* Label Zone */}
         <div className="w-24 justify-start items-center gap-2 flex">
@@ -64,14 +64,16 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
         {/* Label Zone */}
         <div className="w-24 justify-start items-center gap-2 flex">
           {/* Icon */}
-          <div className="w-6 text-center text-black text-[30px] font-medium font-BaiJamjuree">฿</div>
+          <div className="w-6 text-center text-black text-[30px] font-medium font-BaiJamjuree">
+            ฿
+          </div>
 
           {/* Describtion */}
           <div className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight">
             Money :{' '}
           </div>
         </div>
-        <Money />
+        <Money task_id={task_id} />
       </div>
       <div aria-label="date" className="h-10 justify-start items-center inline-flex">
         {/* Label Zone */}
@@ -85,7 +87,6 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
         </div>
         <DatePickerWithRange />
       </div>
-      <Trash2 className="h-6 w-6" />
     </div>
   );
 };
