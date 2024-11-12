@@ -16,6 +16,7 @@ export default async function TasksManageMentPage({ params }: TaskManageMentProp
   const { task_id } = await params;
   return (
     <div className="min-w-full min-h-screen flex-col items-start justify-center gap-8">
+      
       {/* page nav */}
       <div className="flex flex-row py-4 items-center justify-between">
         <BreadcrumbComponent task_id={task_id} />
