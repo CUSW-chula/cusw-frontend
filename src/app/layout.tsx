@@ -29,15 +29,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${bai_jamjuree.variable} ${anuphan.variable} antialiased flex flex-col`}>
-          <div className = 'flex flex-row justify-between'>
-            <NavBar />
-          </div>
+      <body className={`${bai_jamjuree.variable} ${anuphan.variable} antialiased flex flex-col`}>
+        <div className="flex flex-row justify-between">
+          <NavBar />
+        </div>
 
-          <div className='w-full px-[10%] pb-[5%] justify-center'>
-            {children}
-          </div>
+        <div className="w-full px-[10%] pb-[5%] justify-center">{children}</div>
       </body>
     </html>
   );

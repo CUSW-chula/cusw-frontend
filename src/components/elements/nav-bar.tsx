@@ -4,7 +4,6 @@ import { Profile } from './profile';
 import { useEffect, useState } from 'react';
 
 export default function NavBar() {
-
   const [isHidden, setIsHidden] = useState('');
 
   useEffect(() => {
