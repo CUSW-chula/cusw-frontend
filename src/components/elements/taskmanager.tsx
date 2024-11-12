@@ -9,6 +9,11 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
+interface Tag {
+  id: string;
+  name: string;
+}
+
 interface taskProps {
   id: string;
   title: string;
@@ -57,6 +62,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   const [projectName, setProjectName] = useState<string>('');
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
+  const [allTags, setAllTags] = useState<Tag[]>([]);
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValues = useCallback((values: any[]): taskProps[] => {
@@ -81,14 +87,19 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     item,
     depth = 0,
     statusIcon,
-  }: { item: taskProps; depth?: number; statusIcon: string }) => {
+  }: {
+    item: taskProps;
+    depth?: number;
+    statusIcon: string;
+  }) => {
     const hasChildren = item.subtasks && item.subtasks.length > 0;
     const isExpanded = expandedItems.has(item.id);
 
-    useEffect(() => {
-      console.log(item);
-    }, [item]);
+    // useEffect(() => {
+    //   console.log(item);
+    // }, [item]);
 
+    //display Money
     const displayValue = (type: string, value: number) => {
       if (value <= 0) return null;
       const color =
@@ -100,6 +111,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       );
     };
 
+    //for subTask
     return (
       <div className="w-full">
         <div
@@ -224,6 +236,106 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     { status: 'Done', icon: done },
   ];
 
+  //filter zone start
+  useEffect(() => {
+    const fetchTagData = async () => {
+      const url = `${BASE_URL}/tags/`;
+      const options = {
+        method: 'GET',
+        headers: {
+          Authorization: auth,
+        },
+      };
+
+      try {
+        const response = await fetch(url, options);
+        const data = (await response.json()) as Tag[];
+        console.log(data);
+        setAllTags(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchTagData();
+  }, [auth]);
+
+  const handleFilter = async (tag_id: string) => {
+    console.log('handleFilter');
+    const fetchData = async () => {
+      const url = `${BASE_URL}/tags/getassigntask/${tag_id}`;
+      const options = { method: 'GET', headers: { Authorization: auth } };
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+
+        // Map the data to extract the task ids as a string array
+        const taskIds = data.map((task: { id: string }) => task.id);
+
+        console.log('taskIds: ', taskIds);
+
+        // Return the task ids array
+        return taskIds;
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // You might want to return an empty array in case of error
+        return [];
+      }
+    };
+
+    const findTaskById = (tasks: taskProps[], taskIds: string[]): taskProps[] => {
+      let matchedTasks: taskProps[] = [];
+
+      for (const task of tasks) {
+        // Check if the current task's id matches the taskIds list
+        if (taskIds.includes(task.id)) {
+          matchedTasks.push(task);
+        }
+
+        // If there are subtasks, call the function recursively on the subtasks
+        if (task.subtasks && task.subtasks.length > 0) {
+          matchedTasks = [
+            ...matchedTasks,
+            ...findTaskById(task.subtasks, taskIds), // Recursive call
+          ];
+        }
+      }
+      settasks(matchedTasks);
+      return matchedTasks;
+    };
+
+    // console.log(
+    //   "sortedTasks: " + sortByEndDate(tasks, false).map((task) => task.id)
+    // );
+
+    const taskids = await fetchData();
+
+    await findTaskById(tasks, taskids);
+  };
+  // filter zone end
+  const sortByStartDate = async (tasks: taskProps[], inOrder: boolean) => {
+    console.log('sortByStartDate');
+    settasks(
+      tasks.sort((task1, task2) => {
+        if (task1.startDate === null) return 1; // If startDate is null, move to the end
+        if (task2.startDate === null) return -1;
+        return inOrder
+          ? new Date(task1.startDate).getTime() - new Date(task2.startDate).getTime()
+          : new Date(task2.startDate).getTime() - new Date(task1.startDate).getTime();
+      }),
+    );
+  };
+  const sortByEndDate = async (tasks: taskProps[], inOrder: boolean) => {
+    settasks(
+      tasks.sort((task1, task2) => {
+        if (task1.endDate === null) return 1; // If startDate is null, move to the end
+        if (task2.endDate === null) return -1;
+        return inOrder
+          ? new Date(task1.endDate).getTime() - new Date(task2.endDate).getTime()
+          : new Date(task2.endDate).getTime() - new Date(task1.endDate).getTime();
+      }),
+    );
+  };
+
   return (
     <div className="h-auto w-[1580px] p-5 bg-white rounded-md border border-[#6b5c56] flex flex-col gap-6">
       <div className="text-black text-3xl font-semibold leading-9">{projectName}</div>
@@ -234,7 +346,11 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
               <SelectValue className="text-[#6b5c56]" placeholder="Filter By: Default" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Default">Filter By: Default</SelectItem>
+              {allTags.map((tag: Tag) => (
+                <SelectItem key={tag.id} value={tag.name} onClick={() => handleFilter(tag.id)}>
+                  {tag.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -251,7 +367,12 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
               <SelectValue className="text-[#6b5c56]" placeholder="Sort By: Start Date" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Start Date">Sort By: Start Date</SelectItem>
+              <SelectItem value="Start Date" onClick={() => sortByStartDate(tasks, true)}>
+                Sort By: Start Date
+              </SelectItem>
+              <SelectItem value="End Date" onClick={() => sortByEndDate(tasks, true)}>
+                Sort By: End Date
+              </SelectItem>
             </SelectContent>
           </Select>
           <Button
@@ -286,6 +407,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
 const GetTagList = ({ taskId, auth }: { taskId: string; auth: string }) => {
   const [tagList, setTagList] = useState<Array<{ id: string; name: string }>>([]);
 
+  //What tags does this task have
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -321,7 +443,13 @@ const GetTagList = ({ taskId, auth }: { taskId: string; auth: string }) => {
   );
 };
 
-const GetAssignPeopleList = ({ taskId, auth }: { taskId: string; auth: string }) => {
+const GetAssignPeopleList = ({
+  taskId,
+  auth,
+}: {
+  taskId: string;
+  auth: string;
+}) => {
   interface PeopleList {
     id: string;
     name: string;
