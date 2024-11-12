@@ -1,5 +1,5 @@
 import React from 'react';
-import { TaskManager } from '@/components/elements/taskmaneger';
+import { TaskManager } from '@/components/elements/taskmanager';
 
 interface TaskManageMentProp {
   params: {
