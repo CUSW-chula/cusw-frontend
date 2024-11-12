@@ -60,7 +60,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValues = useCallback((values: any[]): taskProps[] => {
-
     return values.map((value) => ({
       id: value.id,
       title: value.title,
@@ -92,7 +91,8 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
 
     const displayValue = (type: string, value: number) => {
       if (value <= 0) return null;
-      const color = type === 'budget' ? 'text-black' : type === 'advance' ? 'text-[#69bca0]' : 'text-[#c30010]';
+      const color =
+        type === 'budget' ? 'text-black' : type === 'advance' ? 'text-[#69bca0]' : 'text-[#c30010]';
       return (
         <div className={`text-base font-medium font-['Bai Jamjuree'] leading-normal ${color}`}>
           ฿ {value.toLocaleString()}
@@ -125,6 +125,17 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
             <Badge variant="secondary" className="bg-green-100 text-green-800">
               {item.tags?.join(', ')}
             </Badge>
+
+            <GetTagList taskId={item.id} auth={auth} />
+
+            {(item.budget > 0 || item.advance > 0 || item.expense > 0) && (
+              <div className="h-auto px-3 py-2 bg-white rounded-md border border-[#6b5c56] flex items-center gap-2">
+                {item.budget > 0 && displayValue('budget', item.budget)}
+                {item.advance > 0 && displayValue('advance', item.advance)}
+                {item.expense > 0 && displayValue('expense', item.expense)}
+              </div>
+            )}
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -133,15 +144,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
                 <GetAssignPeopleList taskId={item.id} auth={auth} />
               </Tooltip>
             </TooltipProvider>
-
-            {/* Merged budget display */}
-            {(item.budget > 0 || item.advance > 0 || item.expense > 0) && (
-              <div className="h-auto px-3 py-2 bg-white rounded-md border border-[#6b5c56] flex items-center gap-2">
-                {item.budget > 0 && displayValue('budget', item.budget)}
-                {item.advance > 0 && displayValue('advance', item.advance)}
-                {item.expense > 0 && displayValue('expense', item.expense)}
-              </div>
-            )}
 
             {/* Date range display */}
             {item.startDate && item.endDate && (
@@ -162,8 +164,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       </div>
     );
   };
-
-
 
   const toggleExpand = (id: string) => {
     setExpandedItems((prev) => {
@@ -283,6 +283,45 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   );
 };
 
+const GetTagList = ({ taskId, auth }: { taskId: string; auth: string }) => {
+  const [tagList, setTagList] = useState<Array<{ id: string; name: string }>>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetch(`${BASE_URL}/tags/getassigntag/${taskId}`, {
+          headers: {
+            Authorization: auth,
+          },
+        });
+        if (data.ok) {
+          const tags = await data.json();
+          setTagList(tags);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+  }, [auth, taskId]);
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {tagList.length !== 0 ? (
+        tagList.map((tag) => (
+          <div key={tag.id} className="h-auto px-3 py-2 bg-white rounded-md border border-[#6b5c56] flex items-center gap-2">
+            <div className="w-[18px] h-[18px] bg-[#94d0bc] rounded-full" />
+            <span className="text-sm">{tag.name}</span>
+          </div>
+        ))
+      ) : (
+        null
+      )}
+    </div>
+  );
+};
+
+
 const GetAssignPeopleList = ({ taskId, auth }: { taskId: string; auth: string }) => {
   interface PeopleList {
     id: string;
@@ -291,6 +330,7 @@ const GetAssignPeopleList = ({ taskId, auth }: { taskId: string; auth: string })
   }
 
   const [peopleList, setPeopleList] = useState<PeopleList[]>([]);
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -301,7 +341,6 @@ const GetAssignPeopleList = ({ taskId, auth }: { taskId: string; auth: string })
         });
         if (data.ok) {
           const users = await data.json();
-          console.log(users);
           setPeopleList(users);
         }
       } catch (error) {
@@ -310,6 +349,7 @@ const GetAssignPeopleList = ({ taskId, auth }: { taskId: string; auth: string })
     };
     fetchData();
   }, [auth, taskId]);
+
   return (
     <TooltipContent>
       {peopleList.length !== 0 ? (
@@ -324,3 +364,4 @@ const GetAssignPeopleList = ({ taskId, auth }: { taskId: string; auth: string })
     </TooltipContent>
   );
 };
+
