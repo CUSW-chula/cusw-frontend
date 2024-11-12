@@ -4,9 +4,10 @@ import { getCookie } from 'cookies-next';
 import BASE_URL, { BASE_SOCKET, type TaskManageMentOverviewProp } from '@/lib/shared';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Button } from '../ui/button';
-import { ChevronRight, SquareDashed } from 'lucide-react';
+import { Calendar, ChevronRight, CircleUserRound, SquareDashed } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 interface taskProps {
   id: string;
@@ -34,8 +35,6 @@ const done = '/asset/icon/done.svg';
 
 export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   const [tasks, settasks] = useState<taskProps[]>([]);
-  const [isSubtaskSectionVisible, setIsSubtaskSectionVisible] = useState(false);
-  const [isSubtaskVisible, setIsSubtaskVisible] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [projectName, setProjectName] = useState<string>('');
   const cookie = getCookie('auth');
@@ -60,7 +59,11 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     }));
   }, []);
 
-  const SubtaskItem = ({ item, depth = 0 }: { item: taskProps; depth?: number }) => {
+  const SubtaskItem = ({
+    item,
+    depth = 0,
+    statusIcon,
+  }: { item: taskProps; depth?: number; statusIcon: string }) => {
     const hasChildren = item.subtasks && item.subtasks.length > 0;
     const isExpanded = expandedItems.has(item.id);
 
@@ -79,6 +82,8 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
               className={cn('h-4 w-4 transition-transform', isExpanded && 'transform rotate-90')}
             />
           </button>
+          {/* Add status icon here */}
+          <img src={statusIcon} alt={`${item.status} Icon`} className="w-5 h-5" />
           <a href={`/tasks/${item.id}`}>
             <span className="text-sm">{item.title}</span>
           </a>
@@ -87,9 +92,14 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
             <Badge variant="secondary" className="bg-green-100 text-green-800">
               {item.status}
             </Badge>
-            <Badge variant="secondary" className="bg-green-100 text-green-800">
-              ใบรับเงินผ่าสอน
-            </Badge>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <CircleUserRound className="w-6 h-6 hover:cursor-pointer" />
+                </TooltipTrigger>
+                <GetAssignPeopleList taskId={item.id} auth={auth} />
+              </Tooltip>
+            </TooltipProvider>
             <span
               className={cn(
                 'font-medium',
@@ -98,12 +108,13 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
               {item.realBudget > 0 ? '+' : ''}
               {item.realBudget ? item.realBudget.toLocaleString() : '0'}
             </span>
+            <Calendar className="w-6 h-6" />
           </div>
         </div>
         {hasChildren && isExpanded && (
           <div className="mt-1">
             {item.subtasks?.map((child) => (
-              <SubtaskItem key={child.id} item={child} depth={depth + 1} />
+              <SubtaskItem key={child.id} item={child} depth={depth + 1} statusIcon={statusIcon} />
             ))}
           </div>
         )}
@@ -121,15 +132,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       }
       return newSet;
     });
-  };
-
-
-  const handleToggleSubtaskSection = () => {
-    setIsSubtaskSectionVisible(!isSubtaskSectionVisible);
-  };
-
-  const handleToggleSubtask = () => {
-    setIsSubtaskVisible(!isSubtaskVisible);
   };
 
   useEffect(() => {
@@ -169,9 +171,15 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       }
     };
     fetchData();
-
-
   }, [project_id, auth, parseJsonValues]);
+
+  const statusSections = [
+    { status: 'Unassigned', icon: unassigned },
+    { status: 'Assigned', icon: assigned },
+    { status: 'InRecheck', icon: inrecheck },
+    { status: 'UnderReview', icon: underreview },
+    { status: 'Done', icon: done },
+  ];
 
   return (
     <div className="h-auto w-[1580px] p-5 bg-white rounded-md border border-[#6b5c56] flex flex-col gap-6">
@@ -212,53 +220,64 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       </div>
 
       <div className="mt-4 flex flex-col gap-2">
-        <div className="flex items-center gap-2">
-          <img src={unassigned} alt="Unassigned Icon" className="w-5 h-5" />
-          <span>unassigned</span>
-          <div className="w-full space-y-1">
-          {tasks.map((item) => (
-            <SubtaskItem key={item.id} item={item}  />
-          ))}
-        </div>
-
-        </div>
-        <div className="flex items-center gap-2">
-          <img src={assigned} alt="Assigned Icon" className="w-5 h-5" />
-          <span>assigned</span>
-          <div className="w-full space-y-1">
-          {tasks.map((item) => (
-            <SubtaskItem key={item.id} item={item}  />
-          ))}
-        </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <img src={inrecheck} alt="In Recheck Icon" className="w-5 h-5" />
-          <span>in recheck</span>
-          <div className="w-full space-y-1">
-          {tasks.map((item) => (
-            <SubtaskItem key={item.id} item={item}  />
-          ))}
-        </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <img src={underreview} alt="Under Review Icon" className="w-5 h-5" />
-          <span>under review</span>
-          <div className="w-full space-y-1">
-          {tasks.map((item) => (
-            <SubtaskItem key={item.id} item={item}  />
-          ))}
-        </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <img src={done} alt="Done Icon" className="w-5 h-5" />
-          <span>done</span>
-          <div className="w-full space-y-1">
-          {tasks.map((item) => (
-            <SubtaskItem key={item.id,item.status === "Done"} item={item} it  />
-          ))}
-        </div>
-        </div>
+        {statusSections.map(({ status, icon }) => (
+          <div key={status}>
+            <div className="flex items-center gap-2">
+              <img src={icon} alt={`${status} Icon`} className="w-5 h-5" />
+              <span>{status.toLowerCase()}</span>
+            </div>
+            <div className="w-full space-y-1">
+              {tasks
+                .filter((item) => item.status === status)
+                .map((item) => (
+                  <SubtaskItem key={item.id} item={item} statusIcon={icon} />
+                ))}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
+  );
+};
+
+const GetAssignPeopleList = ({ taskId, auth }: { taskId: string; auth: string }) => {
+  interface PeopleList {
+    id: string;
+    name: string;
+    email: string;
+  }
+
+  const [peopleList, setPeopleList] = useState<PeopleList[]>([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetch(`${BASE_URL}/tasks/getassign/${taskId}`, {
+          headers: {
+            Authorization: auth,
+          },
+        });
+        if (data.ok) {
+          const users = await data.json();
+          console.log(users);
+          setPeopleList(users);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+  }, [auth, taskId]);
+  return (
+    <TooltipContent>
+      {peopleList.length !== 0 ? (
+        peopleList.map((user) => (
+          <div key={user.id} className="flex items-center gap-2">
+            <span>{user.name}</span>
+          </div>
+        ))
+      ) : (
+        <span>No one assigned</span>
+      )}
+    </TooltipContent>
   );
 };
