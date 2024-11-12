@@ -274,7 +274,7 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
 
   useEffect(() => {
     scrollToBottom();
-  }, ); // Run when the list updates
+  }); // Run when the list updates
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValues = useCallback((values: any[]) => {
@@ -291,14 +291,16 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValue = useCallback((value: any) => ({
-    id: value.id,
-    content: value.content,
-    createdAt: new Date(value.createdAt),
-    taskId: value.taskId,
-    authorId: value.authorId,
-    isDelete: value.isDelete,
-    editTime: value.editTime,
-  }), []);
+      id: value.id,
+      content: value.content,
+      createdAt: new Date(value.createdAt),
+      taskId: value.taskId,
+      authorId: value.authorId,
+      isDelete: value.isDelete,
+      editTime: value.editTime,
+    }),
+    [],
+  );
 
   useEffect(() => {
     const fetchComment = async () => {
@@ -330,15 +332,13 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
           setList((prevList) => [...prevList, data]);
         } else if (eventName === 'comment-delete') {
           setList((prevList) =>
-            prevList.map((item) =>
-              item.id === data.id ? { ...item, isDelete: true } : item
-            )
+            prevList.map((item) => (item.id === data.id ? { ...item, isDelete: true } : item)),
           );
         } else if (eventName === 'comment-edit') {
           setList((prevList) =>
             prevList.map((item) =>
-              item.id === data.id ? { ...item, content: data.content, editTime: new Date() } : item
-            )
+              item.id === data.id ? { ...item, content: data.content, editTime: new Date() } : item,
+            ),
           );
         }
       } catch (error) {
@@ -386,8 +386,8 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
       <div className="max-h-84 overflow-y-scroll">
         <ul>
           {list
-            .slice() 
-            .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()) 
+            .slice()
+            .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
             .map((item) => (
               <li key={item.id}>
                 <CommentBox

@@ -64,14 +64,16 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
         {/* Label Zone */}
         <div className="w-24 justify-start items-center gap-2 flex">
           {/* Icon */}
-          <div className="w-6 text-center text-black text-[30px] font-medium font-BaiJamjuree">฿</div>
+          <div className="w-6 text-center text-black text-[30px] font-medium font-BaiJamjuree">
+            ฿
+          </div>
 
           {/* Describtion */}
           <div className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight">
             Money :{' '}
           </div>
         </div>
-        <Money />
+        <Money task_id={task_id} />
       </div>
       <div aria-label="date" className="h-10 justify-start items-center inline-flex">
         {/* Label Zone */}
