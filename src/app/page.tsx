@@ -3,7 +3,6 @@
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { setCookie } from 'cookies-next';
-import { BreadcrumbComponent } from '@/components/elements/breadcrumb';
 
 const BASE_URL =
   process.env.NODE_ENV === 'production'

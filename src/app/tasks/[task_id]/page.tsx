@@ -4,7 +4,7 @@ import Comment from '@/components/elements/comment';
 import { MenuBar } from '@/components/elements/menu-bar';
 import { BreadcrumbComponent } from '@/components/elements/breadcrumb';
 import { BackButton } from '@/components/elements/backButton';
-
+import { DeleteTask } from '@/components/elements/deleteTask';
 interface TaskManageMentProp {
   params: {
     task_id: string;
@@ -36,6 +36,7 @@ export default async function TasksManageMentPage({ params }: TaskManageMentProp
         {/* Right Section */}
         <div className="w-fit">
           <MenuBar task_id={task_id} />
+          <DeleteTask task_id={task_id} />
         </div>
       </div>
     </div>

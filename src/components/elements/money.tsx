@@ -12,14 +12,14 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import BASE_URL from '@/lib/shared';
+import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 interface Budget {
   type: string;
   money: number;
 }
 
-const Money = () => {
+const Money = ({ task_id }: TaskManageMentProp) => {
   enum TypeMoney {
     null = '',
     budget = 'budget',
@@ -39,9 +39,6 @@ const Money = () => {
     type: TypeMoney.null,
     money: budgetList.money,
   });
-  const url = typeof window !== 'undefined' ? window.location.pathname : '';
-  const path = url.split('/');
-  const taskID = path[path.length - 1];
 
   const pareJsonValue = React.useCallback(
     (budgetList: { budget: number; advance: number; expense: number }) => {
@@ -60,7 +57,7 @@ const Money = () => {
   useEffect(() => {
     //sent GET method
     const fetchDataGet = async () => {
-      const url = `${BASE_URL}/tasks/money/${taskID}`;
+      const url = `${BASE_URL}/tasks/money/${task_id}`;
       const options = {
         method: 'GET',
         headers: {
@@ -83,7 +80,26 @@ const Money = () => {
       }
     };
     fetchDataGet();
-  }, [taskID, auth]);
+    const ws = new WebSocket(BASE_SOCKET);
+    ws.onopen;
+    ws.onmessage = (event) => {
+      try {
+        const socketEvent = JSON.parse(event.data);
+        const eventName = socketEvent.eventName;
+        const newBudgetList = pareJsonValue(socketEvent.data);
+        if (eventName === 'addMoney') setBudgetList(newBudgetList);
+        if (eventName === 'deleteMoney') setBudgetList(newBudgetList);
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    };
+    ws.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+    return () => {
+      ws.close();
+    };
+  }, [task_id, auth, pareJsonValue]);
 
   //submit input budget
   const handleSubmit = async (budget: Budget) => {
@@ -93,12 +109,11 @@ const Money = () => {
       const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: `{"taskID":"${taskID}","budget":${budgetList[0]},"advance":${budgetList[1]},"expense":${budgetList[2]}}`,
+        body: `{"taskID":"${task_id}","budget":${budgetList[0]},"advance":${budgetList[1]},"expense":${budgetList[2]}}`,
       };
       try {
         const response = await fetch(url, options);
         const data = await response.json();
-        // console.log("POST: " + data);
         if (!response.ok) return false;
       } catch (error) {
         console.error(error);
@@ -127,7 +142,7 @@ const Money = () => {
       const options = {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: `{"taskID":"${taskID}"}`,
+        body: `{"taskID":"${task_id}"}`,
       };
       try {
         const response = await fetch(url, options);
@@ -164,7 +179,7 @@ const Money = () => {
           : { budget: 0, advance: 0, expense: budgetList.money };
 
     console.log({
-      taskId: taskID,
+      taskId: task_id,
       budget,
       advance,
       expense,
