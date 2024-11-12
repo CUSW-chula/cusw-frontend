@@ -18,6 +18,10 @@ export interface TaskManageMentProp {
   task_id: string;
 }
 
+export interface TaskManageMentOverviewProp {
+  project_id: string;
+}
+
 export const BASE_SOCKET =
   process.env.NODE_ENV === 'production'
     ? 'wss://cusw-workspace.sa.chula.ac.th/socket/'
