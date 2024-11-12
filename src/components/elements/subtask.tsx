@@ -178,7 +178,7 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
 
     const fetchData = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/tasks/parent/${task_id}`, {
+        const response = await fetch(`${BASE_URL}/tasks/child/${task_id}`, {
           headers: {
             Authorization: auth,
           },
