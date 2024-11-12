@@ -13,9 +13,9 @@ interface taskProps {
   id: string;
   title: string;
   description: string;
-  expectedBudget: number;
-  realBudget: number;
-  usedBudget: number;
+  budget: number;
+  advance: number;
+  expense: number;
   status: 'Unassigned' | 'Assigned' | 'UnderReview' | 'InRecheck' | 'Done';
   parentTaskId: string;
   projectId: string;
@@ -25,6 +25,24 @@ interface taskProps {
   tags?: string[];
   subtasks?: taskProps[];
 }
+
+const formatDate = (startdate: Date | null, enddate: Date | null): string => {
+  // Return an empty string if both dates are not provided
+  if (!startdate || !enddate) return '';
+
+  const format = (date: Date): string => {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  // Format startdate and enddate if they are valid
+  const start = startdate ? format(startdate) : '';
+  const end = enddate ? format(enddate) : '';
+
+  return `${start}${start && end ? ' -> ' : ''}${end}`;
+};
 
 // Paths for status icons
 const unassigned = '/asset/icon/unassigned.svg';
@@ -42,13 +60,14 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValues = useCallback((values: any[]): taskProps[] => {
+
     return values.map((value) => ({
       id: value.id,
       title: value.title,
       description: value.description,
-      expectedBudget: value.expectedBudget,
-      realBudget: value.realBudget,
-      usedBudget: value.usedBudget,
+      budget: value.budget,
+      advance: value.advance,
+      expense: value.expense,
       status: value.status,
       parentTaskId: value.parentTaskId,
       projectId: value.projectId,
@@ -67,6 +86,20 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     const hasChildren = item.subtasks && item.subtasks.length > 0;
     const isExpanded = expandedItems.has(item.id);
 
+    useEffect(() => {
+      console.log(item);
+    }, [item]);
+
+    const displayValue = (type: string, value: number) => {
+      if (value <= 0) return null;
+      const color = type === 'budget' ? 'text-black' : type === 'advance' ? 'text-[#69bca0]' : 'text-[#c30010]';
+      return (
+        <div className={`text-base font-medium font-['Bai Jamjuree'] leading-normal ${color}`}>
+          ฿ {value.toLocaleString()}
+        </div>
+      );
+    };
+
     return (
       <div className="w-full">
         <div
@@ -82,7 +115,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
               className={cn('h-4 w-4 transition-transform', isExpanded && 'transform rotate-90')}
             />
           </button>
-          {/* Add status icon here */}
+          {/* Status icon */}
           <img src={statusIcon} alt={`${item.status} Icon`} className="w-5 h-5" />
           <a href={`/tasks/${item.id}`}>
             <span className="text-sm">{item.title}</span>
@@ -90,7 +123,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           <div className="flex-1" />
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="bg-green-100 text-green-800">
-              {item.status}
+              {item.tags?.join(', ')}
             </Badge>
             <TooltipProvider>
               <Tooltip>
@@ -100,15 +133,23 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
                 <GetAssignPeopleList taskId={item.id} auth={auth} />
               </Tooltip>
             </TooltipProvider>
-            <span
-              className={cn(
-                'font-medium',
-                item.realBudget > 0 ? 'text-green-600' : 'text-red-600',
-              )}>
-              {item.realBudget > 0 ? '+' : ''}
-              {item.realBudget ? item.realBudget.toLocaleString() : '0'}
-            </span>
-            <Calendar className="w-6 h-6" />
+
+            {/* Merged budget display */}
+            {(item.budget > 0 || item.advance > 0 || item.expense > 0) && (
+              <div className="h-auto px-3 py-2 bg-white rounded-md border border-[#6b5c56] flex items-center gap-2">
+                {item.budget > 0 && displayValue('budget', item.budget)}
+                {item.advance > 0 && displayValue('advance', item.advance)}
+                {item.expense > 0 && displayValue('expense', item.expense)}
+              </div>
+            )}
+
+            {/* Date range display */}
+            {item.startDate && item.endDate && (
+              <>
+                <Calendar className="w-6 h-6" />
+                <span>{formatDate(item.startDate, item.endDate)}</span>
+              </>
+            )}
           </div>
         </div>
         {hasChildren && isExpanded && (
@@ -121,6 +162,8 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       </div>
     );
   };
+
+
 
   const toggleExpand = (id: string) => {
     setExpandedItems((prev) => {
