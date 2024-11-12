@@ -174,7 +174,7 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
   };
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:3001');
+    const ws = new WebSocket(BASE_SOCKET);
 
     const fetchData = async () => {
       try {
