@@ -1,4 +1,4 @@
-import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 interface ProfileProp {
   userId: string;
@@ -12,6 +12,7 @@ const getInitials = (name: string) => {
 
 export const Profile = ({ userId, userName }: ProfileProp) => {
   return (
+    <TooltipProvider>
     <Tooltip key={userId}>
       <TooltipTrigger>
         <div className="flex items-center space-x-2">
@@ -26,5 +27,6 @@ export const Profile = ({ userId, userName }: ProfileProp) => {
         <span>{userName}</span>
       </TooltipContent>
     </Tooltip>
+    </TooltipProvider>
   );
 };
