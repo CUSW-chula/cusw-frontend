@@ -289,8 +289,9 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
     }));
   }, []);
 
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  const parseJsonValue = useCallback((value: any) => ({
+  const parseJsonValue = useCallback(
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    (value: any) => ({
       id: value.id,
       content: value.content,
       createdAt: new Date(value.createdAt),
