@@ -90,6 +90,7 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValues = useCallback((values: any[]): SubtaskProps[] => {
+    console.log('VALVAL', values);
     return values.map((value) => ({
       id: value.id,
       title: value.title,
@@ -209,7 +210,8 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
         const socketEvent = JSON.parse(event.data);
         const eventName = socketEvent.eventName;
         const data = parseJsonValues(socketEvent.data);
-        if (eventName === 'task') {
+        if (eventName === 'taskid edited') {
+          console.log('SOCKET', data);
           setSubtasks((prevList) => [...prevList, ...data]);
         }
       } catch (error) {
@@ -227,7 +229,7 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
       ws.onmessage = null;
       ws.onclose = null;
     };
-  }, [auth, parseJsonValues]);
+  }, [auth, parseJsonValues, task_id]);
 
   const handleToggleSubtaskSection = () => {
     setIsSubtaskSectionVisible(!isSubtaskSectionVisible);
@@ -277,7 +279,7 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
           usedBudget: 1,
           status: 'Unassigned',
           parentTaskId: task_id,
-          projectId: 'cm3cizozb00014lduhxi8q8lt',
+          projectId: 'cm24w5yu000008tlglutu5czu',
           startDate: new Date(),
           endDate: new Date(),
         }),
@@ -326,10 +328,8 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
       }
 
       const data = await response.json();
-      console.log('Subtask created:', data);
-
       // Clear the input fields after successful submission
-      setSubtaskTitle('');
+      setSubtaskTitle(subtaskTitle);
       setIsSubtaskSectionVisible(false);
     } catch (error) {
       console.error('Error creating subtask:', error);

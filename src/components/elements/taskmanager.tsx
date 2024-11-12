@@ -307,20 +307,19 @@ const GetTagList = ({ taskId, auth }: { taskId: string; auth: string }) => {
 
   return (
     <div className="flex flex-wrap gap-2">
-      {tagList.length !== 0 ? (
-        tagList.map((tag) => (
-          <div key={tag.id} className="h-auto px-3 py-2 bg-white rounded-md border border-[#6b5c56] flex items-center gap-2">
-            <div className="w-[18px] h-[18px] bg-[#94d0bc] rounded-full" />
-            <span className="text-sm">{tag.name}</span>
-          </div>
-        ))
-      ) : (
-        null
-      )}
+      {tagList.length !== 0
+        ? tagList.map((tag) => (
+            <div
+              key={tag.id}
+              className="h-auto px-3 py-2 bg-white rounded-md border border-[#6b5c56] flex items-center gap-2">
+              <div className="w-[18px] h-[18px] bg-[#94d0bc] rounded-full" />
+              <span className="text-sm">{tag.name}</span>
+            </div>
+          ))
+        : null}
     </div>
   );
 };
-
 
 const GetAssignPeopleList = ({ taskId, auth }: { taskId: string; auth: string }) => {
   interface PeopleList {
@@ -330,7 +329,7 @@ const GetAssignPeopleList = ({ taskId, auth }: { taskId: string; auth: string })
   }
 
   const [peopleList, setPeopleList] = useState<PeopleList[]>([]);
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -364,4 +363,3 @@ const GetAssignPeopleList = ({ taskId, auth }: { taskId: string; auth: string })
     </TooltipContent>
   );
 };
-
