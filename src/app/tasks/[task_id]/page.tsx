@@ -5,6 +5,7 @@ import { MenuBar } from '@/components/elements/menu-bar';
 import { BreadcrumbComponent } from '@/components/elements/breadcrumb';
 import { BackButton } from '@/components/elements/backButton';
 import { DeleteTask } from '@/components/elements/deleteTask';
+import NavBar from '@/components/elements/nav-bar';
 interface TaskManageMentProp {
   params: {
     task_id: string;
@@ -16,6 +17,7 @@ export default async function TasksManageMentPage({ params }: TaskManageMentProp
   const { task_id } = await params;
   return (
     <div className="min-w-full min-h-screen flex-col items-start justify-center gap-8">
+      
       {/* page nav */}
       <div className="flex flex-row py-4 items-center justify-between">
         <BreadcrumbComponent task_id={task_id} />
