@@ -5,7 +5,6 @@ import { MenuBar } from '@/components/elements/menu-bar';
 import { BreadcrumbComponent } from '@/components/elements/breadcrumb';
 import { BackButton } from '@/components/elements/backButton';
 import { DeleteTask } from '@/components/elements/deleteTask';
-import NavBar from '@/components/elements/nav-bar';
 interface TaskManageMentProp {
   params: {
     task_id: string;
