@@ -5,9 +5,9 @@ import BASE_URL, { BASE_SOCKET, type TaskManageMentOverviewProp } from '@/lib/sh
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Button } from '../ui/button';
 import { Calendar, ChevronRight, CircleUserRound, SquareDashed } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { useRouter } from 'next/navigation';
 
 interface taskProps {
   id: string;
@@ -57,6 +57,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   const [projectName, setProjectName] = useState<string>('');
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
+  const router = useRouter();
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValues = useCallback((values: any[]): taskProps[] => {
@@ -76,6 +77,34 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       subtasks: value.subTasks ? parseJsonValues(value.subTasks) : [],
     }));
   }, []);
+
+  const handleCreateTask = async () => {
+    const url = `${BASE_URL}/tasks/`;
+    const options = {
+      method: 'POST',
+      headers: { Authorization: auth, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: '',
+        description: '',
+        expectedBudget: 0,
+        realBudget: 0,
+        parentTaskId: "",
+        usedBudget: 1,
+        status: 'Unassigned',
+        projectId: project_id,
+        startDate: new Date(),
+        endDate: new Date(),
+      }),
+    };
+
+    try {
+      const response = await fetch(url, options);
+      const data = await response.json();
+      router.push(`/tasks/${data.id}`);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const SubtaskItem = ({
     item,
@@ -107,7 +136,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     };
 
     return (
-      <div className="w-full">
+      <div className="w-full font-BaiJamjuree">
         <div
           className={cn(
             'flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg',
@@ -232,7 +261,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   ];
 
   return (
-    <div className="h-auto w-[1580px] p-5 bg-white rounded-md border border-[#6b5c56] flex flex-col gap-6">
+    <div className="h-auto w-[1580px] p-5 font-BaiJamjuree bg-white rounded-md border border-[#6b5c56] flex flex-col gap-6">
       <div className="text-black text-3xl font-semibold leading-9">{projectName}</div>
       <div className="flex items-center justify-between w-full">
         <div className="flex items-center gap-4">
@@ -263,6 +292,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           </Select>
           <Button
             variant="outline"
+            onClick={handleCreateTask}
             className="flex items-center text-[#6b5c56] border-[#6b5c56] px-3 py-1 rounded-md">
             + New Task
           </Button>

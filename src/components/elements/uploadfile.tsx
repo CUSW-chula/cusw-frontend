@@ -181,45 +181,44 @@ const FileItem = ({ id, fileName, uploadedBy, filePath, fileSize, createdAt }: F
     getName(uploadedBy, auth).then(setName);
   }, [uploadedBy, auth]);
   return (
-    <div
-      className="flex items-center border-2 border-brown bg-gray-50 rounded-[6px] p-2 my-2"
-      key={id}>
-      <File />
-      <div className="flex flex-col w-full justify-between ml-2">
-        <div>
-          <p>{fileName}</p>
+    <a href={filePath} target="_blank" rel="noopener noreferrer">
+      <div
+        className="flex items-center border-2 border-brown bg-gray-50 rounded-[6px] p-2 my-2"
+        key={id}>
+        <File />
+        <div className="flex flex-col w-full justify-between ml-2">
+          <div>
+            <p>{fileName}</p>
+          </div>
+          <div className="flex gap-4 items-center">
+            <p className="flex">Uploaded by {name || 'Loading...'}</p>
+            <Circle className="fill-black size-2 mx-1" />
+            <p className="flex">{formatDate(createdAt)}</p>
+            <Circle className="fill-black size-2 mx-1" />
+            <p className="flex">{Math.round(fileSize / 1024)} KB</p>
+          </div>
         </div>
-        <div className="flex gap-4 items-center">
-          <p className="flex">Uploaded by {name || 'Loading...'}</p>
-          <Circle className="fill-black size-2 mx-1" />
-          <p className="flex">{formatDate(createdAt)}</p>
-          <Circle className="fill-black size-2 mx-1" />
-          <p className="flex">{Math.round(fileSize / 1024)} KB</p>
+        <div className="flex-row">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <X className="m-auto mt-[-14px] mr-[-4px] size-4 cursor-pointer" />
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action will permanently delete the file.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => handleDelete(id, auth)}>Delete</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
-      <div className="flex-row">
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <X className="m-auto mt-[-14px] mr-[-4px] size-4 cursor-pointer" />
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action will permanently delete the file.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={() => handleDelete(id, auth)}>Delete</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-        <a href={filePath}>
-          <Download className="m-auto mt-[4px] cursor-pointer" />
-        </a>
-      </div>
-    </div>
+    </a>
   );
 };
 
