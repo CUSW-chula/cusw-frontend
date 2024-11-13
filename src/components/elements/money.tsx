@@ -12,14 +12,14 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
+import BASE_URL from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 interface Budget {
   type: string;
   money: number;
 }
 
-const Money = ({ task_id }: TaskManageMentProp) => {
+const Money = () => {
   enum TypeMoney {
     null = '',
     budget = 'budget',
@@ -39,6 +39,9 @@ const Money = ({ task_id }: TaskManageMentProp) => {
     type: TypeMoney.null,
     money: budgetList.money,
   });
+  const url = typeof window !== 'undefined' ? window.location.pathname : '';
+  const path = url.split('/');
+  const taskID = path[path.length - 1];
 
   const pareJsonValue = React.useCallback(
     (budgetList: { budget: number; advance: number; expense: number }) => {
@@ -57,7 +60,7 @@ const Money = ({ task_id }: TaskManageMentProp) => {
   useEffect(() => {
     //sent GET method
     const fetchDataGet = async () => {
-      const url = `${BASE_URL}/tasks/money/${task_id}`;
+      const url = `${BASE_URL}/tasks/money/${taskID}`;
       const options = {
         method: 'GET',
         headers: {
@@ -80,26 +83,7 @@ const Money = ({ task_id }: TaskManageMentProp) => {
       }
     };
     fetchDataGet();
-    const ws = new WebSocket(BASE_SOCKET);
-    ws.onopen;
-    ws.onmessage = (event) => {
-      try {
-        const socketEvent = JSON.parse(event.data);
-        const eventName = socketEvent.eventName;
-        const newBudgetList = pareJsonValue(socketEvent.data);
-        if (eventName === 'addMoney') setBudgetList(newBudgetList);
-        if (eventName === 'deleteMoney') setBudgetList(newBudgetList);
-      } catch (error) {
-        console.error('Error parsing WebSocket message:', error);
-      }
-    };
-    ws.onclose = () => {
-      console.log('WebSocket connection closed');
-    };
-    return () => {
-      ws.close();
-    };
-  }, [task_id, auth, pareJsonValue]);
+  }, [taskID, auth]);
 
   //submit input budget
   const handleSubmit = async (budget: Budget) => {
@@ -109,11 +93,12 @@ const Money = ({ task_id }: TaskManageMentProp) => {
       const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: `{"taskID":"${task_id}","budget":${budgetList[0]},"advance":${budgetList[1]},"expense":${budgetList[2]}}`,
+        body: `{"taskID":"${taskID}","budget":${budgetList[0]},"advance":${budgetList[1]},"expense":${budgetList[2]}}`,
       };
       try {
         const response = await fetch(url, options);
         const data = await response.json();
+        // console.log("POST: " + data);
         if (!response.ok) return false;
       } catch (error) {
         console.error(error);
@@ -142,7 +127,7 @@ const Money = ({ task_id }: TaskManageMentProp) => {
       const options = {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: `{"taskID":"${task_id}"}`,
+        body: `{"taskID":"${taskID}"}`,
       };
       try {
         const response = await fetch(url, options);
@@ -179,7 +164,7 @@ const Money = ({ task_id }: TaskManageMentProp) => {
           : { budget: 0, advance: 0, expense: budgetList.money };
 
     console.log({
-      taskId: task_id,
+      taskId: taskID,
       budget,
       advance,
       expense,

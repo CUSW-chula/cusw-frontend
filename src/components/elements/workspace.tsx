@@ -108,9 +108,7 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
     };
 
     fetchTitle();
-  }, [task_id, auth]);
 
-  useEffect(() => {
     const fetchFile = async () => {
       try {
         const response = await fetch(`${BASE_URL}/file/${task_id}`, {
