@@ -23,7 +23,6 @@ import * as Toggle from '@/components/ui/toggle';
 import * as Tooltip from '@/components/ui/tooltip';
 import { getCookie } from 'cookies-next';
 import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
-import { set } from 'date-fns';
 
 interface SubtaskProps {
   id: string;
@@ -275,12 +274,12 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
         body: JSON.stringify({
           title: '',
           description: '',
-          expectedBudget: 1,
-          realBudget: 1,
-          usedBudget: 1,
+          expectedBudget: 0,
+          realBudget: 0,
+          usedBudget: 0,
           status: 'Unassigned',
           parentTaskId: task_id,
-          projectId: 'cm24w5yu000008tlglutu5czu',
+          projectId: 'cm3cizozb00014lduhxi8q8lt',
           startDate: new Date(),
           endDate: new Date(),
         }),
@@ -300,6 +299,28 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
       console.error('Error creating subtask:', error);
     }
   };
+
+  const handleDeleteSubtask = async () => {
+    try {
+      const latestSubtask = subtasks[subtasks.length - 1];
+      const response = await fetch(`${BASE_URL}/tasks/${latestSubtask.id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: auth,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete subtask');
+      }
+
+      // Update the subtasks array by removing the deleted subtask
+      setSubtasks((prevSubtasks) => prevSubtasks.filter((task) => task.id !== latestSubtask.id));
+    } catch (error) {
+      console.error('Error deleting subtask:', error);
+    }
+  }
+
 
   const handleSubmitSubtask = async () => {
     const descriptionText = editor.document
@@ -348,27 +369,6 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
       console.error('Error updating subtask:', error);
     }
   };
-
-    const handleDeleteSubtask = async () => {
-    try {
-      const latestSubtask = subtasks[subtasks.length - 1];
-      const response = await fetch(`${BASE_URL}/tasks/${latestSubtask.id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: auth,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete subtask');
-      }
-
-      // Update the subtasks array by removing the deleted subtask
-      setSubtasks((prevSubtasks) => prevSubtasks.filter((task) => task.id !== latestSubtask.id));
-    } catch (error) {
-      console.error('Error deleting subtask:', error);
-    }
-  }
 
   return (
     <div>
@@ -440,21 +440,22 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
             <div className="justify-start items-center gap-2 inline-flex">
               {subtasks.length > 0 && (
                 <>
+                 <StatusButton task_id={subtasks[subtasks.length - 1].id}/>
                   <AssignedTaskToMember task_id={subtasks[subtasks.length - 1].id} />
                   <ButtonAddTags task_id={subtasks[subtasks.length - 1].id} />
-                  <StatusButton task_id={subtasks[subtasks.length - 1].id}/>
                 </>
               )}
             </div>
             <div className="self-stretch justify-end items-center gap-3 inline-flex">
-              <Button
-                variant="outline"
-                className="text-base font-BaiJamjuree font-medium leading-normal border-[#6b5c56]"
-                onClick={() => {handleToggleSubtaskSection;
-                  handleDeleteSubtask;
-                }}>
-                Cancel
-              </Button>
+            <Button
+  variant="outline"
+  className="text-base font-BaiJamjuree font-medium leading-normal border-[#6b5c56]"
+  onClick={() => {
+    handleToggleSubtaskSection();
+    handleDeleteSubtask();
+  }}>
+  Cancel
+</Button>
               <Button
                 variant="outline"
                 type="submit"
