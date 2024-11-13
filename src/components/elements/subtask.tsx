@@ -227,7 +227,7 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
       ws.onmessage = null;
       ws.onclose = null;
     };
-  }, [auth, parseJsonValues]);
+  }, [auth, parseJsonValues, task_id]);
 
   const handleToggleSubtaskSection = () => {
     setIsSubtaskSectionVisible(!isSubtaskSectionVisible);
@@ -306,7 +306,7 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
           : '',
       )
       .join(' ');
-  
+
     try {
       const latestSubtask = subtasks[subtasks.length - 1]; // Get the latest created subtask
       const response = await fetch(`${BASE_URL}/tasks/`, {
@@ -321,30 +321,30 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
           description: descriptionText,
         }),
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to update subtask');
       }
-  
+
       const data = await response.json();
       console.log('Subtask updated:', data);
-  
+
       // Update the subtasks array with the new data
       setSubtasks((prevSubtasks) =>
         prevSubtasks.map((task) =>
-          task.id === latestSubtask.id ? { ...task, title: subtaskTitle, description: descriptionText } : task
-        )
+          task.id === latestSubtask.id
+            ? { ...task, title: subtaskTitle, description: descriptionText }
+            : task,
+        ),
       );
-  
+
       // Clear the input fields after successful update
       setSubtaskTitle('');
-      ;
       setIsSubtaskSectionVisible(false);
     } catch (error) {
       console.error('Error updating subtask:', error);
     }
   };
-  
 
   return (
     <div>
