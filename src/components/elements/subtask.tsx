@@ -23,6 +23,7 @@ import * as Toggle from '@/components/ui/toggle';
 import * as Tooltip from '@/components/ui/tooltip';
 import { getCookie } from 'cookies-next';
 import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
+import { set } from 'date-fns';
 
 interface SubtaskProps {
   id: string;
@@ -348,6 +349,27 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
     }
   };
 
+    const handleDeleteSubtask = async () => {
+    try {
+      const latestSubtask = subtasks[subtasks.length - 1];
+      const response = await fetch(`${BASE_URL}/tasks/${latestSubtask.id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: auth,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete subtask');
+      }
+
+      // Update the subtasks array by removing the deleted subtask
+      setSubtasks((prevSubtasks) => prevSubtasks.filter((task) => task.id !== latestSubtask.id));
+    } catch (error) {
+      console.error('Error deleting subtask:', error);
+    }
+  }
+
   return (
     <div>
       <div className="flex items-center border-l-4 border-blue-200 pl-2 py-1">
@@ -416,11 +438,11 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
           </div>
           <div className="self-stretch h-[92px] flex-col justify-start items-start gap-3 flex">
             <div className="justify-start items-center gap-2 inline-flex">
-              <StatusButton />
               {subtasks.length > 0 && (
                 <>
                   <AssignedTaskToMember task_id={subtasks[subtasks.length - 1].id} />
                   <ButtonAddTags task_id={subtasks[subtasks.length - 1].id} />
+                  <StatusButton task_id={subtasks[subtasks.length - 1].id}/>
                 </>
               )}
             </div>
@@ -428,7 +450,9 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
               <Button
                 variant="outline"
                 className="text-base font-BaiJamjuree font-medium leading-normal border-[#6b5c56]"
-                onClick={handleToggleSubtaskSection}>
+                onClick={() => {handleToggleSubtaskSection;
+                  handleDeleteSubtask;
+                }}>
                 Cancel
               </Button>
               <Button
