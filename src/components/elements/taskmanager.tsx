@@ -88,7 +88,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         description: '',
         expectedBudget: 0,
         realBudget: 0,
-        parentTaskId: "",
+        parentTaskId: '',
         usedBudget: 1,
         status: 'Unassigned',
         projectId: project_id,
