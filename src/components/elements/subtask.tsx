@@ -174,7 +174,7 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
   };
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:3001');
+    const ws = new WebSocket(BASE_SOCKET);
 
     const fetchData = async () => {
       try {
@@ -306,8 +306,9 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
           : '',
       )
       .join(' ');
-
+  
     try {
+      const latestSubtask = subtasks[subtasks.length - 1]; // Get the latest created subtask
       const response = await fetch(`${BASE_URL}/tasks/`, {
         method: 'PATCH',
         headers: {
@@ -315,26 +316,35 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          taskId: subtasks[subtasks.length - 1].id,
+          taskId: latestSubtask.id,
           title: subtaskTitle,
           description: descriptionText,
         }),
       });
-
+  
       if (!response.ok) {
-        throw new Error('Failed to create subtask');
+        throw new Error('Failed to update subtask');
       }
-
+  
       const data = await response.json();
-      console.log('Subtask created:', data);
-
-      // Clear the input fields after successful submission
+      console.log('Subtask updated:', data);
+  
+      // Update the subtasks array with the new data
+      setSubtasks((prevSubtasks) =>
+        prevSubtasks.map((task) =>
+          task.id === latestSubtask.id ? { ...task, title: subtaskTitle, description: descriptionText } : task
+        )
+      );
+  
+      // Clear the input fields after successful update
       setSubtaskTitle('');
+      ;
       setIsSubtaskSectionVisible(false);
     } catch (error) {
-      console.error('Error creating subtask:', error);
+      console.error('Error updating subtask:', error);
     }
   };
+  
 
   return (
     <div>
