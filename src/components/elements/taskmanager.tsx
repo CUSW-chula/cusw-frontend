@@ -48,7 +48,7 @@ const formatDate = (startdate: Date | null, enddate: Date | null): string => {
 const unassigned = '/asset/icon/unassigned.svg';
 const assigned = '/asset/icon/assigned.svg';
 const inrecheck = '/asset/icon/inrecheck.svg';
-const underreview = '/asset/icon/inreview.svg';
+const underreview = '/asset/icon/underreview.svg';
 const done = '/asset/icon/done.svg';
 
 export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
@@ -80,7 +80,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   const SubtaskItem = ({
     item,
     depth = 0,
-    statusIcon,
   }: { item: taskProps; depth?: number; statusIcon: string }) => {
     const hasChildren = item.subtasks && item.subtasks.length > 0;
     const isExpanded = expandedItems.has(item.id);
@@ -94,10 +93,17 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       const color =
         type === 'budget' ? 'text-black' : type === 'advance' ? 'text-[#69bca0]' : 'text-[#c30010]';
       return (
-        <div className={`text-base font-medium font-['Bai Jamjuree'] leading-normal ${color}`}>
-          ฿ {value.toLocaleString()}
+        <div className="h-10 px-3 py-2 flex items-center justify-center gap-2">
+          <div className={`text-base font-medium font-BaiJamjuree leading-normal ${color}`}>
+            ฿ {value.toLocaleString()}
+          </div>
         </div>
       );
+    };
+
+    const getStatusIcon = (status: string) => {
+      const section = statusSections.find((section) => section.status === status);
+      return section ? section.icon : unassigned; // Fallback icon if status not found
     };
 
     return (
@@ -116,20 +122,16 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
             />
           </button>
           {/* Status icon */}
-          <img src={statusIcon} alt={`${item.status} Icon`} className="w-5 h-5" />
+          <img src={getStatusIcon(item.status)} alt={`${item.status} Icon`} className="w-5 h-5" />
           <a href={`/tasks/${item.id}`}>
-            <span className="text-sm">{item.title}</span>
+            <span className="text-sm font-BaiJamjuree">{item.title}</span>
           </a>
           <div className="flex-1" />
           <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="bg-green-100 text-green-800">
-              {item.tags?.join(', ')}
-            </Badge>
-
             <GetTagList taskId={item.id} auth={auth} />
 
             {(item.budget > 0 || item.advance > 0 || item.expense > 0) && (
-              <div className="h-auto px-3 py-2 bg-white rounded-md border border-[#6b5c56] flex items-center gap-2">
+              <div className="h-10 bg-white rounded-md border border-[#6b5c56] justify-start items-center gap-2 inline-flex">
                 {item.budget > 0 && displayValue('budget', item.budget)}
                 {item.advance > 0 && displayValue('advance', item.advance)}
                 {item.expense > 0 && displayValue('expense', item.expense)}
@@ -157,7 +159,12 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         {hasChildren && isExpanded && (
           <div className="mt-1">
             {item.subtasks?.map((child) => (
-              <SubtaskItem key={child.id} item={child} depth={depth + 1} statusIcon={statusIcon} />
+              <SubtaskItem
+                key={child.id}
+                item={child}
+                depth={depth + 1}
+                statusIcon={getStatusIcon(child.status)}
+              />
             ))}
           </div>
         )}
@@ -217,11 +224,11 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   }, [project_id, auth, parseJsonValues]);
 
   const statusSections = [
-    { status: 'Unassigned', icon: unassigned },
-    { status: 'Assigned', icon: assigned },
-    { status: 'InRecheck', icon: inrecheck },
-    { status: 'UnderReview', icon: underreview },
-    { status: 'Done', icon: done },
+    { status: 'Unassigned', displayName: 'Unassigned', icon: unassigned },
+    { status: 'Assigned', displayName: 'Assigned', icon: assigned },
+    { status: 'InRecheck', displayName: 'In Recheck', icon: inrecheck },
+    { status: 'UnderReview', displayName: 'Under Review', icon: underreview },
+    { status: 'Done', displayName: 'Done', icon: done },
   ];
 
   return (
@@ -263,15 +270,15 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       </div>
 
       <div className="mt-4 flex flex-col gap-2">
-        {statusSections.map(({ status, icon }) => (
+        {statusSections.map(({ status, displayName, icon }) => (
           <div key={status}>
             <div className="flex items-center gap-2">
               <img src={icon} alt={`${status} Icon`} className="w-5 h-5" />
-              <span>{status.toLowerCase()}</span>
+              <span>{displayName.toLowerCase()}</span> {/* Use displayName here */}
             </div>
             <div className="w-full space-y-1">
               {tasks
-                .filter((item) => item.status === status)
+                .filter((item) => item.status === status) // Match with the status property
                 .map((item) => (
                   <SubtaskItem key={item.id} item={item} statusIcon={icon} />
                 ))}
@@ -304,14 +311,13 @@ const GetTagList = ({ taskId, auth }: { taskId: string; auth: string }) => {
     };
     fetchData();
   }, [auth, taskId]);
-
   return (
     <div className="flex flex-wrap gap-2">
       {tagList.length !== 0
         ? tagList.map((tag) => (
             <div
               key={tag.id}
-              className="h-auto px-3 py-2 bg-white rounded-md border border-[#6b5c56] flex items-center gap-2">
+              className="h-10 min-w-[100px] px-3 py-2 bg-white rounded-md border border-[#6b5c56] flex items-center gap-2 justify-center">
               <div className="w-[18px] h-[18px] bg-[#94d0bc] rounded-full" />
               <span className="text-sm">{tag.name}</span>
             </div>
