@@ -416,7 +416,7 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
           </div>
           <div className="self-stretch h-[92px] flex-col justify-start items-start gap-3 flex">
             <div className="justify-start items-center gap-2 inline-flex">
-              <StatusButton />
+              <StatusButton task_id={task_id} />
               {subtasks.length > 0 && (
                 <>
                   <AssignedTaskToMember task_id={subtasks[subtasks.length - 1].id} />
