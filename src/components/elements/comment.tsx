@@ -174,11 +174,11 @@ function CommentBox({
   };
 
   return (
-    <div className="w-full h-auto flex flex-col p-1 gap-4">
-      <div className="bg-gray-50 rounded-md p-3">
+    <div className="h-auto w-full min-w-full flex flex-col p-1 gap-4 ">
+      <div className="bg-gray-50 rounded-md p-3 w-full">
         {!isDelete && (
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 ">
               <TooltipProvider>
                 <Profile userId="test" userName={name ?? '?'} />
               </TooltipProvider>
@@ -382,9 +382,9 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
   };
 
   return (
-    <div className="w-full h-[362px] flex-col justify-start items-start gap-[18px] inline-flex ">
+    <div className="w-full h-[362px] flex-col min-w-full justify-start items-start gap-[18px] inline-flex ">
       <div className="font-semibold font-Anuphan text-2xl">Comment</div>
-      <div className="max-h-84 overflow-y-scroll">
+      <div className="max-h-84 overflow-y-scroll w-full min-w-full">
         <ul>
           {list
             .slice()
