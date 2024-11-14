@@ -5,7 +5,6 @@ import BASE_URL, { BASE_SOCKET, type TaskManageMentOverviewProp } from '@/lib/sh
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Button } from '../ui/button';
 import { Calendar, ChevronRight, CircleUserRound, SquareDashed } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
@@ -13,6 +12,7 @@ interface Tag {
   id: string;
   name: string;
 }
+import { useRouter } from 'next/navigation';
 
 interface taskProps {
   id: string;
@@ -53,16 +53,18 @@ const formatDate = (startdate: Date | null, enddate: Date | null): string => {
 const unassigned = '/asset/icon/unassigned.svg';
 const assigned = '/asset/icon/assigned.svg';
 const inrecheck = '/asset/icon/inrecheck.svg';
-const underreview = '/asset/icon/inreview.svg';
+const underreview = '/asset/icon/underreview.svg';
 const done = '/asset/icon/done.svg';
 
 export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   const [tasks, settasks] = useState<taskProps[]>([]);
+  const [showTasks, setShowTasks] = useState<taskProps[]>([]);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [projectName, setProjectName] = useState<string>('');
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [allTags, setAllTags] = useState<Tag[]>([]);
+  const router = useRouter();
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValues = useCallback((values: any[]): taskProps[] => {
@@ -82,6 +84,34 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       subtasks: value.subTasks ? parseJsonValues(value.subTasks) : [],
     }));
   }, []);
+
+  const handleCreateTask = async () => {
+    const url = `${BASE_URL}/tasks/`;
+    const options = {
+      method: 'POST',
+      headers: { Authorization: auth, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: '',
+        description: '',
+        expectedBudget: 0,
+        realBudget: 0,
+        parentTaskId: '',
+        usedBudget: 1,
+        status: 'Unassigned',
+        projectId: project_id,
+        startDate: new Date(),
+        endDate: new Date(),
+      }),
+    };
+
+    try {
+      const response = await fetch(url, options);
+      const data = await response.json();
+      router.push(`/tasks/${data.id}`);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const SubtaskItem = ({
     item,
@@ -105,15 +135,22 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       const color =
         type === 'budget' ? 'text-black' : type === 'advance' ? 'text-[#69bca0]' : 'text-[#c30010]';
       return (
-        <div className={`text-base font-medium font-['Bai Jamjuree'] leading-normal ${color}`}>
-          ฿ {value.toLocaleString()}
+        <div className="h-10 px-3 py-2 flex items-center justify-center gap-2">
+          <div className={`text-base font-medium font-BaiJamjuree leading-normal ${color}`}>
+            ฿ {value.toLocaleString()}
+          </div>
         </div>
       );
     };
 
+    const getStatusIcon = (status: string) => {
+      const section = statusSections.find((section) => section.status === status);
+      return section ? section.icon : unassigned; // Fallback icon if status not found
+    };
+
     //for subTask
     return (
-      <div className="w-full">
+      <div className="w-full font-BaiJamjuree">
         <div
           className={cn(
             'flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg',
@@ -128,20 +165,16 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
             />
           </button>
           {/* Status icon */}
-          <img src={statusIcon} alt={`${item.status} Icon`} className="w-5 h-5" />
+          <img src={getStatusIcon(item.status)} alt={`${item.status} Icon`} className="w-5 h-5" />
           <a href={`/tasks/${item.id}`}>
-            <span className="text-sm">{item.title}</span>
+            <span className="text-sm font-BaiJamjuree">{item.title}</span>
           </a>
           <div className="flex-1" />
           <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="bg-green-100 text-green-800">
-              {item.tags?.join(', ')}
-            </Badge>
-
             <GetTagList taskId={item.id} auth={auth} />
 
             {(item.budget > 0 || item.advance > 0 || item.expense > 0) && (
-              <div className="h-auto px-3 py-2 bg-white rounded-md border border-[#6b5c56] flex items-center gap-2">
+              <div className="h-10 bg-white rounded-md border border-[#6b5c56] justify-start items-center gap-2 inline-flex">
                 {item.budget > 0 && displayValue('budget', item.budget)}
                 {item.advance > 0 && displayValue('advance', item.advance)}
                 {item.expense > 0 && displayValue('expense', item.expense)}
@@ -169,7 +202,12 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         {hasChildren && isExpanded && (
           <div className="mt-1">
             {item.subtasks?.map((child) => (
-              <SubtaskItem key={child.id} item={child} depth={depth + 1} statusIcon={statusIcon} />
+              <SubtaskItem
+                key={child.id}
+                item={child}
+                depth={depth + 1}
+                statusIcon={getStatusIcon(child.status)}
+              />
             ))}
           </div>
         )}
@@ -220,20 +258,21 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           const tasks = await data.json();
           const parsedData = parseJsonValues(tasks);
           settasks(parsedData);
+          if (showTasks.length === 0) setShowTasks(parsedData);
         }
       } catch (error) {
         console.error(error);
       }
     };
     fetchData();
-  }, [project_id, auth, parseJsonValues]);
+  }, [project_id, auth, parseJsonValues,showTasks]);
 
   const statusSections = [
-    { status: 'Unassigned', icon: unassigned },
-    { status: 'Assigned', icon: assigned },
-    { status: 'InRecheck', icon: inrecheck },
-    { status: 'UnderReview', icon: underreview },
-    { status: 'Done', icon: done },
+    { status: 'Unassigned', displayName: 'Unassigned', icon: unassigned },
+    { status: 'Assigned', displayName: 'Assigned', icon: assigned },
+    { status: 'InRecheck', displayName: 'In Recheck', icon: inrecheck },
+    { status: 'UnderReview', displayName: 'Under Review', icon: underreview },
+    { status: 'Done', displayName: 'Done', icon: done },
   ];
 
   //filter zone start
@@ -250,7 +289,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       try {
         const response = await fetch(url, options);
         const data = (await response.json()) as Tag[];
-        console.log(data);
         setAllTags(data);
       } catch (error) {
         console.error(error);
@@ -260,8 +298,8 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   }, [auth]);
 
   const handleFilter = async (tag_id: string) => {
-    console.log('handleFilter');
-    const fetchData = async () => {
+    //get task have this tag
+    const fetchData = async (tag_id: string) => {
       const url = `${BASE_URL}/tags/getassigntask/${tag_id}`;
       const options = { method: 'GET', headers: { Authorization: auth } };
       try {
@@ -282,7 +320,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       }
     };
 
-    const findTaskById = (tasks: taskProps[], taskIds: string[]): taskProps[] => {
+    const setTaskAssignedByTag = (tasks: taskProps[], taskIds: string[]): taskProps[] => {
       let matchedTasks: taskProps[] = [];
 
       for (const task of tasks) {
@@ -295,11 +333,12 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         if (task.subtasks && task.subtasks.length > 0) {
           matchedTasks = [
             ...matchedTasks,
-            ...findTaskById(task.subtasks, taskIds), // Recursive call
+            ...setTaskAssignedByTag(task.subtasks, taskIds), // Recursive call
           ];
         }
       }
-      settasks(matchedTasks);
+      console.log(matchedTasks);
+      setShowTasks(matchedTasks);
       return matchedTasks;
     };
 
@@ -307,47 +346,47 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     //   "sortedTasks: " + sortByEndDate(tasks, false).map((task) => task.id)
     // );
 
-    const taskids = await fetchData();
+    const taskids = await fetchData(tag_id);
 
-    await findTaskById(tasks, taskids);
+    setTaskAssignedByTag(tasks, taskids);
   };
   // filter zone end
   const sortByStartDate = async (tasks: taskProps[], inOrder: boolean) => {
-    console.log('sortByStartDate');
-    settasks(
-      tasks.sort((task1, task2) => {
-        if (task1.startDate === null) return 1; // If startDate is null, move to the end
-        if (task2.startDate === null) return -1;
-        return inOrder
-          ? new Date(task1.startDate).getTime() - new Date(task2.startDate).getTime()
-          : new Date(task2.startDate).getTime() - new Date(task1.startDate).getTime();
-      }),
-    );
-  };
-  const sortByEndDate = async (tasks: taskProps[], inOrder: boolean) => {
-    settasks(
-      tasks.sort((task1, task2) => {
-        if (task1.endDate === null) return 1; // If startDate is null, move to the end
-        if (task2.endDate === null) return -1;
-        return inOrder
-          ? new Date(task1.endDate).getTime() - new Date(task2.endDate).getTime()
-          : new Date(task2.endDate).getTime() - new Date(task1.endDate).getTime();
-      }),
-    );
+    const sorted = [...tasks].sort((task1, task2) => {
+      if (task1.startDate === null) return 1; // If startDate is null, move to the end
+      if (task2.startDate === null) return -1;
+      return inOrder
+        ? new Date(task1.startDate).getTime() - new Date(task2.startDate).getTime()
+        : new Date(task2.startDate).getTime() - new Date(task1.startDate).getTime();
+    });
+    setShowTasks(sorted);
   };
 
+  const sortByEndDate = async (tasks: taskProps[], inOrder: boolean) => {
+    const sorted = tasks.sort((task1, task2) => {
+      if (task1.endDate === null) return 1; // If startDate is null, move to the end
+      if (task2.endDate === null) return -1;
+      return inOrder
+        ? new Date(task1.endDate).getTime() - new Date(task2.endDate).getTime()
+        : new Date(task2.endDate).getTime() - new Date(task1.endDate).getTime();
+    });
+    setShowTasks(sorted);
+  };
   return (
-    <div className="h-auto w-[1580px] p-5 bg-white rounded-md border border-[#6b5c56] flex flex-col gap-6">
+    <div className="h-auto w-[1580px] p-5 font-BaiJamjuree bg-white rounded-md border border-[#6b5c56] flex flex-col gap-6">
       <div className="text-black text-3xl font-semibold leading-9">{projectName}</div>
       <div className="flex items-center justify-between w-full">
         <div className="flex items-center gap-4">
-          <Select>
+          <Select
+            onValueChange={(value) => {
+              handleFilter(value);
+            }}>
             <SelectTrigger className="w-[150px] border-[#6b5c56]">
               <SelectValue className="text-[#6b5c56]" placeholder="Filter By: Default" />
             </SelectTrigger>
             <SelectContent>
               {allTags.map((tag: Tag) => (
-                <SelectItem key={tag.id} value={tag.name} onClick={() => handleFilter(tag.id)}>
+                <SelectItem key={tag.id} value={tag.id}>
                   {tag.name}
                 </SelectItem>
               ))}
@@ -362,21 +401,47 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
             <SquareDashed className="w-5 h-5 mr-2" />
             Select Task
           </Button>
-          <Select>
+          <Select
+            onValueChange={(value) => {
+              value === 'StartDate123'
+                ? sortByStartDate(tasks, true)
+                : value === 'StartDate321'
+                  ? sortByStartDate(tasks, false)
+                  : value === 'EndDate123'
+                    ? sortByEndDate(tasks, true)
+                    : sortByEndDate(tasks, false);
+            }}>
             <SelectTrigger className="w-[150px] border-[#6b5c56]">
               <SelectValue className="text-[#6b5c56]" placeholder="Sort By: Start Date" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Start Date" onClick={() => sortByStartDate(tasks, true)}>
-                Sort By: Start Date
-              </SelectItem>
-              <SelectItem value="End Date" onClick={() => sortByEndDate(tasks, true)}>
-                Sort By: End Date
-              </SelectItem>
+              {[
+                {
+                  value: 'StartDate123',
+                  label: 'Start Date ↓',
+                },
+                {
+                  value: 'StartDate321',
+                  label: 'Start Date ↑',
+                },
+                {
+                  value: 'EndDate123',
+                  label: 'End Date ↓',
+                },
+                {
+                  value: 'EndDate321',
+                  label: 'End Date ↑',
+                },
+              ].map(({ value, label }) => (
+                <SelectItem key={value} value={value}>
+                  Sort By: {label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <Button
             variant="outline"
+            onClick={handleCreateTask}
             className="flex items-center text-[#6b5c56] border-[#6b5c56] px-3 py-1 rounded-md">
             + New Task
           </Button>
@@ -384,15 +449,15 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       </div>
 
       <div className="mt-4 flex flex-col gap-2">
-        {statusSections.map(({ status, icon }) => (
+        {statusSections.map(({ status, displayName, icon }) => (
           <div key={status}>
             <div className="flex items-center gap-2">
               <img src={icon} alt={`${status} Icon`} className="w-5 h-5" />
-              <span>{status.toLowerCase()}</span>
+              <span>{displayName.toLowerCase()}</span> {/* Use displayName here */}
             </div>
             <div className="w-full space-y-1">
-              {tasks
-                .filter((item) => item.status === status)
+              {showTasks
+                .filter((item) => item.status === status) // Match with the status property
                 .map((item) => (
                   <SubtaskItem key={item.id} item={item} statusIcon={icon} />
                 ))}
@@ -426,14 +491,13 @@ const GetTagList = ({ taskId, auth }: { taskId: string; auth: string }) => {
     };
     fetchData();
   }, [auth, taskId]);
-
   return (
     <div className="flex flex-wrap gap-2">
       {tagList.length !== 0
         ? tagList.map((tag) => (
             <div
               key={tag.id}
-              className="h-auto px-3 py-2 bg-white rounded-md border border-[#6b5c56] flex items-center gap-2">
+              className="h-10 min-w-[100px] px-3 py-2 bg-white rounded-md border border-[#6b5c56] flex items-center gap-2 justify-center">
               <div className="w-[18px] h-[18px] bg-[#94d0bc] rounded-full" />
               <span className="text-sm">{tag.name}</span>
             </div>

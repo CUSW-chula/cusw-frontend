@@ -2,14 +2,14 @@ import { atom } from 'jotai';
 import type { CommentBoxProp } from './lib/shared';
 import type { Status } from './lib/shared';
 
-const unassigned = '/asset/icon/unassigned.svg';
+const Unassigned = '/asset/icon/unassigned.svg';
 
 const commentlist = atom<CommentBoxProp[]>([]);
 
 const selectedStatusAtom = atom<Status>({
-  value: 'unassigned',
+  value: 'Unassigned',
   label: 'unassigned',
-  icon: unassigned,
+  icon: Unassigned,
 });
 
 export { commentlist };

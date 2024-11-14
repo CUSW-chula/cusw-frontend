@@ -56,10 +56,10 @@ BreadcrumbLink.displayName = 'BreadcrumbLink';
 
 const BreadcrumbPage = React.forwardRef<HTMLSpanElement, React.ComponentPropsWithoutRef<'span'>>(
   ({ className, ...props }, ref) => (
+    // biome-ignore lint/a11y/useFocusableInteractive: <explanation>
     <span
       ref={ref}
       role="link"
-      tabIndex={0}
       aria-disabled="true"
       aria-current="page"
       className={cn('font-normal text-neutral-950 dark:text-neutral-50', className)}

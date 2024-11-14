@@ -14,6 +14,7 @@ import {
 } from '../ui/alert-dialog';
 import { getCookie } from 'cookies-next';
 import { useRouter } from 'next/navigation';
+import BASE_URL from '@/lib/shared';
 
 interface DeleteTaskProps {
   task_id: string;
@@ -24,7 +25,7 @@ export const DeleteTask: React.FC<DeleteTaskProps> = ({ task_id }) => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const handleDeleteTask = async () => {
-    const url = `http://localhost:4000/api/tasks/${task_id}`;
+    const url = `${BASE_URL}/tasks/${task_id}`;
     const options = { method: 'DELETE', headers: { Authorization: auth } };
 
     try {

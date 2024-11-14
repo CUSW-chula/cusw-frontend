@@ -125,6 +125,7 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
 
       try {
         await fetch(url, options);
+        // After adding the tag, update the local state
       } catch (error) {
         console.error(error);
       }

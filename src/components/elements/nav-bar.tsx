@@ -15,7 +15,7 @@ export default function NavBar() {
 
   return (
     <div className={`flex flex-row min-w-full h-[84px] justify-between items-center ${isHidden}`}>
-      <a href="/">
+      <a href="/projects/cm24w5yu000008tlglutu5czu">
         <img src="/asset/logo/Logo_s2.svg" alt="CUSW" />
       </a>
       <div className="flex flex-row px-5">
