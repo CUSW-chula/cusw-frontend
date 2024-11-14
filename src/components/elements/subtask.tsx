@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { Calendar, ChevronRight, CircleUserRound } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import StatusButton from './status-botton';
@@ -28,9 +28,9 @@ interface SubtaskProps {
   id: string;
   title: string;
   description: string;
-  expectedBudget: number;
-  realBudget: number;
-  usedBudget: number;
+  budget: number;
+  advance: number;
+  expense: number;
   status: 'Unassigned' | 'Assigned' | 'UnderReview' | 'InRecheck' | 'Done';
   parentTaskId: string;
   projectId: string;
@@ -40,6 +40,49 @@ interface SubtaskProps {
   tags?: string[];
   subtasks?: SubtaskProps[];
 }
+
+const unassigned = '/asset/icon/unassigned.svg';
+const assigned = '/asset/icon/assigned.svg';
+const inrecheck = '/asset/icon/inrecheck.svg';
+const underreview = '/asset/icon/underreview.svg';
+const done = '/asset/icon/done.svg';
+
+const GetTagList = ({ taskId, auth }: { taskId: string; auth: string }) => {
+  const [tagList, setTagList] = useState<Array<{ id: string; name: string }>>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetch(`${BASE_URL}/tags/getassigntag/${taskId}`, {
+          headers: {
+            Authorization: auth,
+          },
+        });
+        if (data.ok) {
+          const tags = await data.json();
+          setTagList(tags);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+  }, [auth, taskId]);
+  return (
+    <div className="flex flex-wrap gap-2">
+      {tagList.length !== 0
+        ? tagList.map((tag) => (
+            <Badge
+              key={tag.id}
+              variant="destructive"
+              className="h-7 min-w-fit px-2 py-2 flex items-center gap-1 justify-center bg-emerald-300 font-BaiJamjuree text-black ">
+              <span className="text-sm">{tag.name}</span>
+            </Badge>
+          ))
+        : null}
+    </div>
+  );
+};
 
 function formatDate(date?: Date | string): string {
   if (!date) return ''; // Return an empty string if no date is provided
@@ -95,9 +138,9 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
       id: value.id,
       title: value.title,
       description: value.description,
-      expectedBudget: value.expectedBudget,
-      realBudget: value.realBudget,
-      usedBudget: value.usedBudget,
+      budget: value.budget,
+      advance: value.advance,
+      expense: value.expense,
       status: value.status,
       parentTaskId: value.parentTaskId,
       projectId: value.projectId,
@@ -124,6 +167,32 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
     const hasChildren = item.subtasks && item.subtasks.length > 0;
     const isExpanded = expandedItems.has(item.id);
 
+    const displayValue = (type: string, value: number) => {
+      if (value <= 0) return null;
+      const color =
+        type === 'budget' ? 'text-black' : type === 'advance' ? 'text-[#69bca0]' : 'text-[#c30010]';
+      return (
+        <div className="h-10 px-3 py-2 flex items-center justify-center gap-2">
+          <div className={`text-base font-medium font-BaiJamjuree leading-normal ${color}`}>
+            ฿ {value.toLocaleString()}
+          </div>
+        </div>
+      );
+    };
+
+    const statusSections = [
+      { status: 'Unassigned', icon: unassigned },
+      { status: 'Assigned', icon: assigned },
+      { status: 'InRecheck',icon: inrecheck },
+      { status: 'UnderReview',icon: underreview },
+      { status: 'Done',icon: done },
+    ];
+
+    const getStatusIcon = (status: string) => {
+      const section = statusSections.find((section) => section.status === status);
+      return section ? section.icon : unassigned; // Fallback icon if status not found
+    };
+
     return (
       <div className="w-full">
         <div
@@ -139,40 +208,47 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
               className={cn('h-4 w-4 transition-transform', isExpanded && 'transform rotate-90')}
             />
           </button>
+          {/* Status icon */}
+          <img src={getStatusIcon(item.status)} alt={`${item.status} Icon`} className="w-5 h-5" />
           <a href={`/tasks/${item.id}`}>
-            <span className="text-sm">{item.title}</span>
+            <span className="text-sm font-BaiJamjuree">{item.title}</span>
           </a>
           <div className="flex-1" />
           <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="bg-green-100 text-green-800">
-              {item.status}
-            </Badge>
-            <Badge variant="secondary" className="bg-green-100 text-green-800">
-              ใบรับเงินผ่าสอน
-            </Badge>
-            <span
-              className={cn(
-                'font-medium',
-                item.realBudget > 0 ? 'text-green-600' : 'text-red-600',
-              )}>
-              {item.realBudget > 0 ? '+' : ''}
-              {item.realBudget ? item.realBudget.toLocaleString() : '0'}
-            </span>
-            <span className="text-sm text-gray-500">
-              {item.startDate ? formatDate(item.startDate) : ''}
-            </span>
+            <GetTagList taskId={item.id} auth={auth} />
+
+            {(item.budget > 0 || item.advance > 0 || item.expense > 0) && (
+              <div className="h-10 bg-white rounded-md border border-[#6b5c56] justify-start items-center gap-2 inline-flex">
+                {item.budget > 0 && displayValue('budget', item.budget)}
+                {item.advance > 0 && displayValue('advance', item.advance)}
+                {item.expense > 0 && displayValue('expense', item.expense)}
+              </div>
+            )}
+
+            {/* Date range display */}
+            {item.startDate && item.endDate && (
+              <>
+                <Calendar className="w-6 h-6" />
+                <span>{formatDate(item.startDate)}</span>
+              </>
+            )}
           </div>
         </div>
         {hasChildren && isExpanded && (
           <div className="mt-1">
             {item.subtasks?.map((child) => (
-              <SubtaskItem key={child.id} item={child} depth={depth + 1} />
+              <SubtaskItem
+                key={child.id}
+                item={child}
+                depth={depth + 1}
+              />
             ))}
           </div>
         )}
       </div>
     );
   };
+
 
   useEffect(() => {
     const ws = new WebSocket(BASE_SOCKET);
@@ -319,8 +395,7 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
     } catch (error) {
       console.error('Error deleting subtask:', error);
     }
-  }
-
+  };
 
   const handleSubmitSubtask = async () => {
     const descriptionText = editor.document
@@ -440,22 +515,22 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
             <div className="justify-start items-center gap-2 inline-flex">
               {subtasks.length > 0 && (
                 <>
-                 <StatusButton task_id={subtasks[subtasks.length - 1].id}/>
+                  <StatusButton task_id={subtasks[subtasks.length - 1].id} />
                   <AssignedTaskToMember task_id={subtasks[subtasks.length - 1].id} />
                   <ButtonAddTags task_id={subtasks[subtasks.length - 1].id} />
                 </>
               )}
             </div>
             <div className="self-stretch justify-end items-center gap-3 inline-flex">
-            <Button
-  variant="outline"
-  className="text-base font-BaiJamjuree font-medium leading-normal border-[#6b5c56]"
-  onClick={() => {
-    handleToggleSubtaskSection();
-    handleDeleteSubtask();
-  }}>
-  Cancel
-</Button>
+              <Button
+                variant="outline"
+                className="text-base font-BaiJamjuree font-medium leading-normal border-[#6b5c56]"
+                onClick={() => {
+                  handleToggleSubtaskSection();
+                  handleDeleteSubtask();
+                }}>
+                Cancel
+              </Button>
               <Button
                 variant="outline"
                 type="submit"
