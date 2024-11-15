@@ -183,9 +183,9 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
     const statusSections = [
       { status: 'Unassigned', icon: unassigned },
       { status: 'Assigned', icon: assigned },
-      { status: 'InRecheck',icon: inrecheck },
-      { status: 'UnderReview',icon: underreview },
-      { status: 'Done',icon: done },
+      { status: 'InRecheck', icon: inrecheck },
+      { status: 'UnderReview', icon: underreview },
+      { status: 'Done', icon: done },
     ];
 
     const getStatusIcon = (status: string) => {
@@ -237,18 +237,13 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
         {hasChildren && isExpanded && (
           <div className="mt-1">
             {item.subtasks?.map((child) => (
-              <SubtaskItem
-                key={child.id}
-                item={child}
-                depth={depth + 1}
-              />
+              <SubtaskItem key={child.id} item={child} depth={depth + 1} />
             ))}
           </div>
         )}
       </div>
     );
   };
-
 
   useEffect(() => {
     const ws = new WebSocket(BASE_SOCKET);
