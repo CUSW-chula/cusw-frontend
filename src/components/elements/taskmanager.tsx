@@ -4,10 +4,11 @@ import { getCookie } from 'cookies-next';
 import BASE_URL, { BASE_SOCKET, type TaskManageMentOverviewProp } from '@/lib/shared';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Button } from '../ui/button';
-import { Calendar, ChevronRight, CircleUserRound, SquareDashed } from 'lucide-react';
+import { Calendar, ChevronRight, ChevronsRight, CircleUserRound, SquareDashed } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { useRouter } from 'next/navigation';
+import { Badge } from '../ui/badge';
 
 interface taskProps {
   id: string;
@@ -109,22 +110,20 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   const SubtaskItem = ({
     item,
     depth = 0,
+    statusIcon,
   }: { item: taskProps; depth?: number; statusIcon: string }) => {
     const hasChildren = item.subtasks && item.subtasks.length > 0;
     const isExpanded = expandedItems.has(item.id);
-
-    useEffect(() => {
-      console.log(item);
-    }, [item]);
 
     const displayValue = (type: string, value: number) => {
       if (value <= 0) return null;
       const color =
         type === 'budget' ? 'text-black' : type === 'advance' ? 'text-[#69bca0]' : 'text-[#c30010]';
       return (
-        <div className="h-10 px-3 py-2 flex items-center justify-center gap-2">
+        <div className="h-fit px-1 flex items-center justify-center gap-2 rounded-md border border-[#6b5c56]">
+          <div className={`text-2xl font-semibold font-BaiJamjuree leading-normal ${color}`}>฿</div>
           <div className={`text-base font-medium font-BaiJamjuree leading-normal ${color}`}>
-            ฿ {value.toLocaleString()}
+            {value.toLocaleString()}
           </div>
         </div>
       );
@@ -140,49 +139,62 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         <div
           className={cn(
             'flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg',
-            depth > 0 && 'ml-8',
+            depth > 0 && 'pl-8', // Dynamic margin based on depth
           )}>
-          <button
-            type="button"
-            onClick={() => toggleExpand(item.id)}
-            className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200">
-            <ChevronRight
-              className={cn('h-4 w-4 transition-transform', isExpanded && 'transform rotate-90')}
-            />
-          </button>
-          {/* Status icon */}
-          <img src={getStatusIcon(item.status)} alt={`${item.status} Icon`} className="w-5 h-5" />
-          <a href={`/tasks/${item.id}`}>
-            <span className="text-sm font-BaiJamjuree">{item.title}</span>
-          </a>
-          <div className="flex-1" />
-          <div className="flex items-center gap-2">
-            <GetTagList taskId={item.id} auth={auth} />
-
-            {(item.budget > 0 || item.advance > 0 || item.expense > 0) && (
-              <div className="h-10 bg-white rounded-md border border-[#6b5c56] justify-start items-center gap-2 inline-flex">
-                {item.budget > 0 && displayValue('budget', item.budget)}
-                {item.advance > 0 && displayValue('advance', item.advance)}
-                {item.expense > 0 && displayValue('expense', item.expense)}
-              </div>
+          <div className="flex items-center gap-2 w-full" style={{ marginLeft: `${depth * 16}px` }}>
+            {hasChildren && (
+              <button
+                type="button"
+                onClick={() => toggleExpand(item.id)}
+                className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200">
+                {item.parentTaskId ? (
+                  <ChevronRight
+                    className={cn(
+                      'h-4 w-4 transition-transform',
+                      isExpanded && 'transform rotate-90',
+                    )}
+                  />
+                ) : (
+                  <ChevronsRight
+                    className={cn(
+                      'h-4 w-4 transition-transform',
+                      isExpanded && 'transform rotate-90',
+                    )}
+                  />
+                )}
+              </button>
             )}
+            <img src={getStatusIcon(item.status)} alt={`${item.status} Icon`} className="w-5 h-5" />
+            <a href={`/tasks/${item.id}`}>
+              <span className="text-sm font-BaiJamjuree">{item.title}</span>
+            </a>
+            <div className="flex-1" />
+            <div className="flex items-center gap-2">
+              <GetTagList taskId={item.id} auth={auth} />
+              {(item.budget > 0 || item.advance > 0 || item.expense > 0) && (
+                <div className="h-fit bg-white justify-start items-center gap-2 inline-flex">
+                  {item.budget > 0 && displayValue('budget', item.budget)}
+                  {item.advance > 0 && displayValue('advance', item.advance)}
+                  {item.expense > 0 && displayValue('expense', item.expense)}
+                </div>
+              )}
 
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <CircleUserRound className="w-6 h-6 hover:cursor-pointer" />
-                </TooltipTrigger>
-                <GetAssignPeopleList taskId={item.id} auth={auth} />
-              </Tooltip>
-            </TooltipProvider>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <CircleUserRound className="w-6 h-6 hover:cursor-pointer" />
+                  </TooltipTrigger>
+                  <GetAssignPeopleList taskId={item.id} auth={auth} />
+                </Tooltip>
+              </TooltipProvider>
 
-            {/* Date range display */}
-            {item.startDate && item.endDate && (
-              <>
-                <Calendar className="w-6 h-6" />
-                <span>{formatDate(item.startDate, item.endDate)}</span>
-              </>
-            )}
+              {item.startDate && item.endDate && (
+                <>
+                  <Calendar className="w-6 h-6" />
+                  <span>{formatDate(item.startDate, item.endDate)}</span>
+                </>
+              )}
+            </div>
           </div>
         </div>
         {hasChildren && isExpanded && (
@@ -191,7 +203,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
               <SubtaskItem
                 key={child.id}
                 item={child}
-                depth={depth + 1}
+                depth={depth + 1} // Increase depth for child tasks
                 statusIcon={getStatusIcon(child.status)}
               />
             ))}
@@ -345,12 +357,12 @@ const GetTagList = ({ taskId, auth }: { taskId: string; auth: string }) => {
     <div className="flex flex-wrap gap-2">
       {tagList.length !== 0
         ? tagList.map((tag) => (
-            <div
+            <Badge
               key={tag.id}
-              className="h-10 min-w-[100px] px-3 py-2 bg-white rounded-md border border-[#6b5c56] flex items-center gap-2 justify-center">
-              <div className="w-[18px] h-[18px] bg-[#94d0bc] rounded-full" />
-              <span className="text-sm">{tag.name}</span>
-            </div>
+              variant="destructive"
+              className="h-7 min-w-fit px-2 py-2 flex items-center gap-1 justify-center bg-emerald-300  text-black ">
+              <span className="text-base font-medium font-BaiJamjuree">{tag.name}</span>
+            </Badge>
           ))
         : null}
     </div>
