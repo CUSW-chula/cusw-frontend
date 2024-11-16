@@ -15,6 +15,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
+import { Badge } from '@/components/ui/badge';
 
 interface Tags {
   id: string;
@@ -94,7 +95,7 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
 
         if (eventName === 'assigned-tags') {
           // Update selected tags with new tag added
-          setSelectedTags((prev) => [...prev, data]);
+          setSelectedTags((prev) => [data, ...prev]);
         } else if (eventName === 'unassigned-tag') {
           // Remove tag from selected tags
           setSelectedTags((prev) => prev.filter((t) => t.id !== data.id));
@@ -152,19 +153,21 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
 
   return (
     <>
-      <div className="flex flex-row gap-1 flex-wrap">
+      <div className="flex flex-row flex-wrap items-center gap-0.5 overflow-hidden ">
         {Array.isArray(selectedTags) && selectedTags.length > 0 ? (
           selectedTags.map((tag) => (
-            <Button variant="outline" key={tag.id}>
-              <Circle className="mr-1 h-4 w-4 fill-greenLight text-greenLight font-BaiJamjuree" />
-              <span>{tag.name}</span>
+            <Badge
+              key={tag.id}
+              variant="destructive"
+              className="h-7 min-w-fit px-2 py-2 flex items-center gap-1 justify-center bg-emerald-300  text-black ">
+              <span className="text-base font-medium font-BaiJamjuree">{tag.name}</span>
               <button
                 type="button"
                 onClick={() => handleDeleteTag(tag.id)}
                 className="text-red-500 ml-1 max-w-20">
                 <XCircle className="h-4 w-4" />
               </button>
-            </Button>
+            </Badge>
           ))
         ) : (
           <div />
