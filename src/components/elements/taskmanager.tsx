@@ -265,7 +265,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       }
     };
     fetchData();
-  }, [project_id, auth, parseJsonValues,showTasks]);
+  }, [project_id, auth, parseJsonValues, showTasks]);
 
   const statusSections = [
     { status: 'Unassigned', displayName: 'Unassigned', icon: unassigned },
@@ -308,8 +308,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
 
         // Map the data to extract the task ids as a string array
         const taskIds = data.map((task: { id: string }) => task.id);
-
-        console.log('taskIds: ', taskIds);
+        // console.log('taskIds: ', taskIds);
 
         // Return the task ids array
         return taskIds;
@@ -337,7 +336,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           ];
         }
       }
-      console.log(matchedTasks);
+      // console.log(matchedTasks);
       setShowTasks(matchedTasks);
       return matchedTasks;
     };
@@ -404,12 +403,12 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           <Select
             onValueChange={(value) => {
               value === 'StartDate123'
-                ? sortByStartDate(tasks, true)
+                ? sortByStartDate(showTasks, true)
                 : value === 'StartDate321'
-                  ? sortByStartDate(tasks, false)
+                  ? sortByStartDate(showTasks, false)
                   : value === 'EndDate123'
-                    ? sortByEndDate(tasks, true)
-                    : sortByEndDate(tasks, false);
+                    ? sortByEndDate(showTasks, true)
+                    : sortByEndDate(showTasks, false);
             }}>
             <SelectTrigger className="w-[150px] border-[#6b5c56]">
               <SelectValue className="text-[#6b5c56]" placeholder="Sort By: Start Date" />
