@@ -7,6 +7,11 @@ import { Button } from '../ui/button';
 import { Calendar, ChevronRight, ChevronsRight, CircleUserRound, SquareDashed } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+
+interface Tag {
+  id: string;
+  name: string;
+}
 import { useRouter } from 'next/navigation';
 import { Badge } from '../ui/badge';
 
@@ -54,10 +59,12 @@ const done = '/asset/icon/done.svg';
 
 export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   const [tasks, settasks] = useState<taskProps[]>([]);
+  const [showTasks, setShowTasks] = useState<taskProps[]>([]);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [projectName, setProjectName] = useState<string>('');
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
+  const [allTags, setAllTags] = useState<Tag[]>([]);
   const router = useRouter();
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
@@ -111,10 +118,15 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     item,
     depth = 0,
     statusIcon,
-  }: { item: taskProps; depth?: number; statusIcon: string }) => {
+  }: {
+    item: taskProps;
+    depth?: number;
+    statusIcon: string;
+  }) => {
     const hasChildren = item.subtasks && item.subtasks.length > 0;
     const isExpanded = expandedItems.has(item.id);
 
+    //display Money
     const displayValue = (type: string, value: number) => {
       if (value <= 0) return null;
       const color =
@@ -134,6 +146,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       return section ? section.icon : unassigned; // Fallback icon if status not found
     };
 
+    //for subTask
     return (
       <div className="w-full font-BaiJamjuree">
         <div
@@ -256,13 +269,14 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           const tasks = await data.json();
           const parsedData = parseJsonValues(tasks);
           settasks(parsedData);
+          if (showTasks.length === 0) setShowTasks(parsedData);
         }
       } catch (error) {
         console.error(error);
       }
     };
     fetchData();
-  }, [project_id, auth, parseJsonValues]);
+  }, [project_id, auth, parseJsonValues, showTasks]);
 
   const statusSections = [
     { status: 'Unassigned', displayName: 'Unassigned', icon: unassigned },
@@ -272,17 +286,120 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     { status: 'Done', displayName: 'Done', icon: done },
   ];
 
+  //filter zone start
+  useEffect(() => {
+    const fetchTagData = async () => {
+      const url = `${BASE_URL}/tags/`;
+      const options = {
+        method: 'GET',
+        headers: {
+          Authorization: auth,
+        },
+      };
+
+      try {
+        const response = await fetch(url, options);
+        const data = (await response.json()) as Tag[];
+        setAllTags(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchTagData();
+  }, [auth]);
+
+  const handleFilter = async (tag_id: string) => {
+    //get task have this tag
+    const fetchData = async (tag_id: string) => {
+      const url = `${BASE_URL}/tags/getassigntask/${tag_id}`;
+      const options = { method: 'GET', headers: { Authorization: auth } };
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+
+        // Map the data to extract the task ids as a string array
+        const taskIds = data.map((task: { id: string }) => task.id);
+        // console.log('taskIds: ', taskIds);
+
+        // Return the task ids array
+        return taskIds;
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // You might want to return an empty array in case of error
+        return [];
+      }
+    };
+
+    const setTaskAssignedByTag = (tasks: taskProps[], taskIds: string[]): taskProps[] => {
+      let matchedTasks: taskProps[] = [];
+
+      for (const task of tasks) {
+        // Check if the current task's id matches the taskIds list
+        if (taskIds.includes(task.id)) {
+          matchedTasks.push(task);
+        }
+
+        // If there are subtasks, call the function recursively on the subtasks
+        if (task.subtasks && task.subtasks.length > 0) {
+          matchedTasks = [
+            ...matchedTasks,
+            ...setTaskAssignedByTag(task.subtasks, taskIds), // Recursive call
+          ];
+        }
+      }
+      // console.log(matchedTasks);
+      setShowTasks(matchedTasks);
+      return matchedTasks;
+    };
+
+    // console.log(
+    //   "sortedTasks: " + sortByEndDate(tasks, false).map((task) => task.id)
+    // );
+
+    const taskids = await fetchData(tag_id);
+
+    setTaskAssignedByTag(tasks, taskids);
+  };
+  // filter zone end
+  const sortByStartDate = async (tasks: taskProps[], inOrder: boolean) => {
+    const sorted = [...tasks].sort((task1, task2) => {
+      if (task1.startDate === null) return 1; // If startDate is null, move to the end
+      if (task2.startDate === null) return -1;
+      return inOrder
+        ? new Date(task1.startDate).getTime() - new Date(task2.startDate).getTime()
+        : new Date(task2.startDate).getTime() - new Date(task1.startDate).getTime();
+    });
+    setShowTasks(sorted);
+  };
+
+  const sortByEndDate = async (tasks: taskProps[], inOrder: boolean) => {
+    const sorted = tasks.sort((task1, task2) => {
+      if (task1.endDate === null) return 1; // If startDate is null, move to the end
+      if (task2.endDate === null) return -1;
+      return inOrder
+        ? new Date(task1.endDate).getTime() - new Date(task2.endDate).getTime()
+        : new Date(task2.endDate).getTime() - new Date(task1.endDate).getTime();
+    });
+    setShowTasks(sorted);
+  };
   return (
     <div className="h-auto w-[1580px] p-5 font-BaiJamjuree bg-white rounded-md border border-[#6b5c56] flex flex-col gap-6">
       <div className="text-black text-3xl font-semibold leading-9">{projectName}</div>
       <div className="flex items-center justify-between w-full">
         <div className="flex items-center gap-4">
-          <Select>
+          <Select
+            onValueChange={(value) => {
+              handleFilter(value);
+            }}>
             <SelectTrigger className="w-[150px] border-[#6b5c56]">
               <SelectValue className="text-[#6b5c56]" placeholder="Filter By: Default" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Default">Filter By: Default</SelectItem>
+              {allTags.map((tag: Tag) => (
+                <SelectItem key={tag.id} value={tag.id}>
+                  {tag.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -294,12 +411,42 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
             <SquareDashed className="w-5 h-5 mr-2" />
             Select Task
           </Button>
-          <Select>
+          <Select
+            onValueChange={(value) => {
+              value === 'StartDate123'
+                ? sortByStartDate(showTasks, true)
+                : value === 'StartDate321'
+                  ? sortByStartDate(showTasks, false)
+                  : value === 'EndDate123'
+                    ? sortByEndDate(showTasks, true)
+                    : sortByEndDate(showTasks, false);
+            }}>
             <SelectTrigger className="w-[150px] border-[#6b5c56]">
               <SelectValue className="text-[#6b5c56]" placeholder="Sort By: Start Date" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Start Date">Sort By: Start Date</SelectItem>
+              {[
+                {
+                  value: 'StartDate123',
+                  label: 'Start Date ↓',
+                },
+                {
+                  value: 'StartDate321',
+                  label: 'Start Date ↑',
+                },
+                {
+                  value: 'EndDate123',
+                  label: 'End Date ↓',
+                },
+                {
+                  value: 'EndDate321',
+                  label: 'End Date ↑',
+                },
+              ].map(({ value, label }) => (
+                <SelectItem key={value} value={value}>
+                  Sort By: {label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <Button
@@ -319,7 +466,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
               <span>{displayName.toLowerCase()}</span> {/* Use displayName here */}
             </div>
             <div className="w-full space-y-1">
-              {tasks
+              {showTasks
                 .filter((item) => item.status === status) // Match with the status property
                 .map((item) => (
                   <SubtaskItem key={item.id} item={item} statusIcon={icon} />
@@ -335,6 +482,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
 const GetTagList = ({ taskId, auth }: { taskId: string; auth: string }) => {
   const [tagList, setTagList] = useState<Array<{ id: string; name: string }>>([]);
 
+  //What tags does this task have
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -369,7 +517,13 @@ const GetTagList = ({ taskId, auth }: { taskId: string; auth: string }) => {
   );
 };
 
-const GetAssignPeopleList = ({ taskId, auth }: { taskId: string; auth: string }) => {
+const GetAssignPeopleList = ({
+  taskId,
+  auth,
+}: {
+  taskId: string;
+  auth: string;
+}) => {
   interface PeopleList {
     id: string;
     name: string;
