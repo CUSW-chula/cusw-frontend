@@ -355,7 +355,10 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     // console.log(
     //   "sortedTasks: " + sortByEndDate(tasks, false).map((task) => task.id)
     // );
-
+    if (tag_id === 'default') {
+      setShowTasks(tasks);
+      return;
+    }
     const taskids = await fetchData(tag_id);
 
     setTaskAssignedByTag(tasks, taskids);
@@ -395,6 +398,9 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
               <SelectValue className="text-[#6b5c56]" placeholder="Filter By: Default" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem key="default" value="default">
+                Defualt
+              </SelectItem>
               {allTags.map((tag: Tag) => (
                 <SelectItem key={tag.id} value={tag.id}>
                   {tag.name}
