@@ -16,6 +16,8 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
 import { Profile } from './profile';
+import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
+import { getCookie } from 'cookies-next';
 
 interface UsersInterfaces {
   id: string;
@@ -23,7 +25,9 @@ interface UsersInterfaces {
   email: string;
 }
 
-export function AssignedTaskToMember() {
+export function AssignedTaskToMember({ task_id }: TaskManageMentProp) {
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
   const [open, setOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<UsersInterfaces[]>([]);
   const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
@@ -40,20 +44,26 @@ export function AssignedTaskToMember() {
 
   React.useEffect(() => {
     const fetchAssignAndUsers = async () => {
-      const usersData = await fetch('http://localhost:4000/api/users');
+      const usersData = await fetch(`${BASE_URL}/users`, {
+        headers: {
+          Authorization: auth,
+        },
+      });
       const userList = await usersData.json();
       setUsersList(userList);
 
-      const assignData = await fetch(
-        'http://localhost:4000/api/tasks/getassign/cm24lq0sx0001jkpdbc9lxu8x',
-      );
+      const assignData = await fetch(`${BASE_URL}/tasks/getassign/${task_id}`, {
+        headers: {
+          Authorization: auth,
+        },
+      });
       const assignList = await assignData.json();
       setSelectedUser(Array.isArray(assignList) ? assignList : []); // Ensure array format
     };
 
     fetchAssignAndUsers();
 
-    const ws = new WebSocket('ws://localhost:3001');
+    const ws = new WebSocket(BASE_SOCKET);
 
     ws.onopen = () => {
       console.log('Connected to WebSocket');
@@ -83,7 +93,7 @@ export function AssignedTaskToMember() {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue]);
+  }, [pareJsonValue, task_id, auth]);
 
   // Handle user selection and unselection
   const handleSelectUser = async (value: string) => {
@@ -92,13 +102,13 @@ export function AssignedTaskToMember() {
       const isAlreadySelected = selectedUser.some((user) => user.id === selected.id);
 
       const url = isAlreadySelected
-        ? 'http://localhost:4000/api/tasks/unassigned' // Unassign user
-        : 'http://localhost:4000/api/tasks/assign'; // Assign user
+        ? `${BASE_URL}/tasks/unassigned` // Unassign user
+        : `${BASE_URL}/tasks/assign`; // Assign user
 
       const options = {
         method: isAlreadySelected ? 'DELETE' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ taskId: 'cm24lq0sx0001jkpdbc9lxu8x', userId: selected.id }),
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
+        body: JSON.stringify({ taskId: task_id, userId: selected.id }),
       };
 
       try {

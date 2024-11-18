@@ -13,6 +13,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import BASE_URL, { type TaskManageMentProp } from '@/lib/shared';
+import { getCookie } from 'cookies-next';
 
 interface Files {
   id: string;
@@ -60,10 +62,6 @@ const FileUploader = ({ handleFile }: { handleFile: (file: File) => void }) => {
   );
 };
 
-interface UploadfileProps {
-  setFileList: React.Dispatch<React.SetStateAction<Files[]>>;
-}
-
 function formatDate(_date: Date): string {
   const date = new Date(_date);
   if (!date) return ''; // Return an empty string if no date is provided
@@ -76,22 +74,26 @@ function formatDate(_date: Date): string {
   return `${day}/${month}/${year}, ${hours}:${minutes}`;
 }
 
-const Uploadfile: React.FC<UploadfileProps> = () => {
+const Uploadfile = ({ task_id }: TaskManageMentProp) => {
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
   const handleFile = async (file: File) => {
     const formData = new FormData();
-    formData.append('taskId', 'cm24lq0sx0001jkpdbc9lxu8x');
+    formData.append('taskId', task_id);
     formData.append('projectId', 'cm24w5yu000008tlglutu5czu');
     formData.append('file', file);
-    formData.append('authorId', 'cm0siagz300003mbv5bsz6wty');
-    const url = 'http://localhost:4000/api/file/';
+    const url = `${BASE_URL}/file/`;
     const options = {
       method: 'POST',
       body: formData,
+      headers: {
+        Authorization: auth,
+      },
     };
 
     try {
       const response = await fetch(url, options);
-      const data = await response.json();
+      await response.json();
     } catch (error) {
       console.error(error);
     }
@@ -109,11 +111,11 @@ interface DisplayfileProps {
   setFileList: React.Dispatch<React.SetStateAction<Files[]>>;
 }
 
-const handleDelete = async (id: string) => {
-  const url = 'http://localhost:4000/api/file/';
+const handleDelete = async (id: string, auth: string) => {
+  const url = `${BASE_URL}/file/`;
   const options = {
     method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Authorization: auth },
     body: JSON.stringify({ fileId: id }),
   };
 
@@ -126,9 +128,13 @@ const handleDelete = async (id: string) => {
   }
 };
 
-async function getName(authorId: string) {
+async function getName(authorId: string, auth: string) {
   try {
-    const response = await fetch(`http://localhost:4000/api/users/${authorId}`);
+    const response = await fetch(`${BASE_URL}/users/${authorId}`, {
+      headers: {
+        Authorization: auth,
+      },
+    });
     if (!response.ok) {
       throw new Error(`Error: ${response.statusText}`);
     }
@@ -144,19 +150,23 @@ const Displayfile: React.FC<DisplayfileProps> = ({ fileList }) => {
   return (
     <div className="mt-8">
       <ul>
-        {fileList.map((file) => (
-          <FileItem
-            createdAt={file.createdAt}
-            fileName={file.fileName}
-            filePath={file.filePath}
-            fileSize={file.fileSize}
-            uploadedBy={file.uploadedBy}
-            id={file.id}
-            projectId={file.projectId}
-            taskId={file.taskId}
-            key={file.id}
-          />
-        ))}
+        {Array.isArray(fileList) && fileList.length > 0 ? (
+          fileList.map((file) => (
+            <FileItem
+              key={file.id}
+              createdAt={file.createdAt}
+              fileName={file.fileName}
+              filePath={file.filePath}
+              fileSize={file.fileSize}
+              uploadedBy={file.uploadedBy}
+              id={file.id}
+              projectId={file.projectId}
+              taskId={file.taskId}
+            />
+          ))
+        ) : (
+          <div />
+        )}
       </ul>
     </div>
   );
@@ -164,27 +174,31 @@ const Displayfile: React.FC<DisplayfileProps> = ({ fileList }) => {
 
 const FileItem = ({ id, fileName, uploadedBy, filePath, fileSize, createdAt }: Files) => {
   const [name, setName] = useState('');
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
 
   useEffect(() => {
-    getName(uploadedBy).then(setName);
-  }, [uploadedBy]);
+    getName(uploadedBy, auth).then(setName);
+  }, [uploadedBy, auth]);
   return (
     <div
       className="flex items-center border-2 border-brown bg-gray-50 rounded-[6px] p-2 my-2"
       key={id}>
       <File />
-      <div className="flex flex-col w-full justify-between ml-2">
-        <div>
-          <p>{fileName}</p>
+      <a href={filePath} target="_blank" rel="noopener noreferrer">
+        <div className="flex flex-col w-full justify-between ml-2">
+          <div>
+            <p>{fileName}</p>
+          </div>
+          <div className="flex gap-4 items-center">
+            <p className="flex">Uploaded by {name || 'Loading...'}</p>
+            <Circle className="fill-black size-2 mx-1" />
+            <p className="flex">{formatDate(createdAt)}</p>
+            <Circle className="fill-black size-2 mx-1" />
+            <p className="flex">{Math.round(fileSize / 1024)} KB</p>
+          </div>
         </div>
-        <div className="flex gap-4 items-center">
-          <p className="flex">Uploaded by {name || 'Loading...'}</p>
-          <Circle className="fill-black size-2 mx-1" />
-          <p className="flex">{formatDate(createdAt)}</p>
-          <Circle className="fill-black size-2 mx-1" />
-          <p className="flex">{Math.round(fileSize / 1024)} KB</p>
-        </div>
-      </div>
+      </a>
       <div className="flex-row">
         <AlertDialog>
           <AlertDialogTrigger asChild>
@@ -199,13 +213,10 @@ const FileItem = ({ id, fileName, uploadedBy, filePath, fileSize, createdAt }: F
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={() => handleDelete(id)}>Delete</AlertDialogAction>
+              <AlertDialogAction onClick={() => handleDelete(id, auth)}>Delete</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        <a href={filePath}>
-          <Download className="m-auto mt-[4px] cursor-pointer" />
-        </a>
       </div>
     </div>
   );

@@ -9,16 +9,84 @@ import { cn } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
+import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
+import { getCookie } from 'cookies-next';
 
-function DatePickerWithRange() {
+interface DateInterface {
+  id: string;
+  startDate: Date | null;
+  endDate: Date | null;
+}
+
+function DatePickerWithRange({ task_id }: TaskManageMentProp) {
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: new Date(),
   });
   const [inputValue, setInputValue] = React.useState<string>('');
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
 
   // Regex for date matching
   const dateTimeRegEx = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/;
+
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  const parseJsonValue = React.useCallback((values: any) => {
+    const newValue: DateInterface = {
+      id: values.id,
+      startDate: values.startDate,
+      endDate: values.endDate,
+    };
+    return newValue;
+  }, []);
+
+  React.useEffect(() => {
+    // Fetch Data
+    const fetchDate = async () => {
+      const curDate = await fetch(`${BASE_URL}/tasks/getdate/${task_id}`, {
+        headers: {
+          Authorization: auth,
+        },
+      });
+      console.log(curDate);
+    };
+
+    fetchDate();
+
+    const ws = new WebSocket(BASE_SOCKET);
+
+    ws.onopen = () => {
+      console.log('Connected to WebSocket');
+    };
+
+    ws.onmessage = async (event) => {
+      console.log('Message received:', event.data);
+
+      try {
+        const url = `${BASE_URL}/tasks/date`;
+        const options = {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', Authorization: auth },
+          body: JSON.stringify({ taskId: task_id, startDate: date?.from, endDate: date?.to }),
+        };
+
+        try {
+          await fetch(url, options);
+        } catch (error) {
+          console.error(error);
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    };
+
+    ws.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [date, task_id, auth]);
 
   // Handle input changes and update calendar state based on the input
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,7 +132,6 @@ function DatePickerWithRange() {
         <PopoverTrigger asChild>
           <div className="relative">
             <Input
-              ref={inputRef}
               value={inputValue}
               onChange={handleInputChange}
               placeholder="DD/MM/YYYY - DD/MM/YYYY"
