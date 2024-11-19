@@ -11,7 +11,6 @@ import BASE_URL from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { ChevronRight } from 'lucide-react';
 
 interface BreadcrumbProps {
   task_id: string;
