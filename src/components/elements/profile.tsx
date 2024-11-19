@@ -1,4 +1,4 @@
-import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 interface ProfileProp {
   userId: string;
@@ -12,19 +12,21 @@ const getInitials = (name: string) => {
 
 export const Profile = ({ userId, userName }: ProfileProp) => {
   return (
-    <Tooltip key={userId}>
-      <TooltipTrigger>
-        <div className="flex items-center space-x-2">
-          {/* Circle with initials */}
-          <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center">
-            <span className="text-slate-900">{getInitials(userName)}</span>
+    <TooltipProvider>
+      <Tooltip key={userId}>
+        <TooltipTrigger>
+          <div className="flex items-center space-x-2">
+            {/* Circle with initials */}
+            <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center">
+              <span className="text-slate-900">{getInitials(userName)}</span>
+            </div>
           </div>
-        </div>
-      </TooltipTrigger>
-      {/* Tooltip content showing the full name */}
-      <TooltipContent>
-        <span>{userName}</span>
-      </TooltipContent>
-    </Tooltip>
+        </TooltipTrigger>
+        {/* Tooltip content showing the full name */}
+        <TooltipContent>
+          <span>{userName}</span>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };

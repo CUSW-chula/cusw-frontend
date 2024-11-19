@@ -3,7 +3,6 @@
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { setCookie } from 'cookies-next';
-import { BreadcrumbComponent } from '@/components/elements/breadcrumb';
 
 const BASE_URL =
   process.env.NODE_ENV === 'production'
@@ -20,7 +19,7 @@ const Home = () => {
       const data = await response.text();
       const token = `Bearer ${data}`;
       setCookie('auth', token);
-      router.push('/tasks/cm24lq0sx0001jkpdbc9lxu8x');
+      router.push('/projects/cm24w5yu000008tlglutu5czu');
     } catch (error) {
       console.error(error);
     }

@@ -1,7 +1,7 @@
 'use client';
 import type React from 'react';
 import { Send } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { commentlist } from '@/atom';
 import { useAtom } from 'jotai';
 import { Textarea } from '../ui/textarea';
@@ -174,11 +174,11 @@ function CommentBox({
   };
 
   return (
-    <div className="w-[530px] h-auto flex flex-col p-1 gap-4">
-      <div className="bg-gray-50 rounded-md p-3">
+    <div className="h-auto w-full min-w-full flex flex-col p-1 gap-4 ">
+      <div className="bg-gray-50 rounded-md p-3 w-full">
         {!isDelete && (
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 ">
               <TooltipProvider>
                 <Profile userId="test" userName={name ?? '?'} />
               </TooltipProvider>
@@ -265,36 +265,43 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
   const [list, setList] = useAtom<CommentBoxProp[]>(commentlist);
   const charLimit = 200;
 
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  const pareJsonValues = useCallback((values: any[]) => {
-    const newValue: CommentBoxProp[] = [];
-    for (const value of values) {
-      newValue.push({
-        id: value.id,
-        content: value.content,
-        createdAt: new Date(value.createdAt),
-        taskId: value.taskId,
-        authorId: value.authorId,
-        isDelete: value.isDelete,
-        editTime: value.editTime,
-      });
-    }
-    return newValue;
-  }, []);
+  const commentsEndRef = useRef<HTMLDivElement | null>(null); // Reference for the bottom of the comment list
+
+  // Scroll to the bottom of the comment list
+  const scrollToBottom = () => {
+    commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }); // Run when the list updates
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  const pareJsonValue = useCallback((values: any) => {
-    const newValue: CommentBoxProp = {
-      id: values.id,
-      content: values.content,
-      createdAt: new Date(values.createdAt),
-      taskId: values.taskId,
-      authorId: values.authorId,
-      isDelete: values.isDelete,
-      editTime: values.editTime,
-    };
-    return newValue;
+  const parseJsonValues = useCallback((values: any[]) => {
+    return values.map((value) => ({
+      id: value.id,
+      content: value.content,
+      createdAt: new Date(value.createdAt),
+      taskId: value.taskId,
+      authorId: value.authorId,
+      isDelete: value.isDelete,
+      editTime: value.editTime,
+    }));
   }, []);
+
+  const parseJsonValue = useCallback(
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    (value: any) => ({
+      id: value.id,
+      content: value.content,
+      createdAt: new Date(value.createdAt),
+      taskId: value.taskId,
+      authorId: value.authorId,
+      isDelete: value.isDelete,
+      editTime: value.editTime,
+    }),
+    [],
+  );
 
   useEffect(() => {
     const fetchComment = async () => {
@@ -304,7 +311,7 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
         },
       });
       const commentList = await commentData.json();
-      setList(pareJsonValues(commentList));
+      setList(parseJsonValues(commentList));
     };
     fetchComment();
 
@@ -318,33 +325,20 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
       console.log('Message received:', event.data);
 
       try {
-        const socketEvent = JSON.parse(event.data); // Parse incoming message
+        const socketEvent = JSON.parse(event.data);
         const eventName = socketEvent.eventName;
-        const data = pareJsonValue(socketEvent.data); // Comment Data
-        if (eventName === 'comment')
-          // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-          setList((prevList: any) => [...prevList, data]); // Functional update
-        else if (eventName === 'comment-delete') {
-          setList((prevList: CommentBoxProp[]) =>
-            prevList.map((item) =>
-              item.id === data.id
-                ? {
-                    ...item,
-                    isDelete: true,
-                  }
-                : item,
-            ),
-          ); // Remove deleted comment
+        const data = parseJsonValue(socketEvent.data);
+
+        if (eventName === 'comment') {
+          setList((prevList) => [...prevList, data]);
+        } else if (eventName === 'comment-delete') {
+          setList((prevList) =>
+            prevList.map((item) => (item.id === data.id ? { ...item, isDelete: true } : item)),
+          );
         } else if (eventName === 'comment-edit') {
-          setList((prevList: CommentBoxProp[]) =>
+          setList((prevList) =>
             prevList.map((item) =>
-              item.id === data.id
-                ? {
-                    ...item,
-                    content: data.content,
-                    editTime: new Date(),
-                  }
-                : item,
+              item.id === data.id ? { ...item, content: data.content, editTime: new Date() } : item,
             ),
           );
         }
@@ -360,13 +354,13 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue, pareJsonValues, setList, task_id, auth]); // Add pareJsonValue and pareJsonValues to the dependency array
+  }, [parseJsonValue, parseJsonValues, setList, task_id, auth]);
 
-  const handleInputChange = (e: { target: { value: React.SetStateAction<string> } }) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setComment(e.target.value);
   };
 
-  const handleSubmit = async (e: { preventDefault: () => void }) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (comment.trim().length === 0) {
       alert('Comment cannot be empty!');
@@ -384,17 +378,17 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
         taskId: task_id,
       }),
     });
-    setComment(''); // Clear the input field after submission
+    setComment('');
   };
 
   return (
-    <div className="w-[530px] h-[362px] flex-col justify-start items-start gap-[18px] inline-flex ">
+    <div className="w-full h-[362px] flex-col min-w-full justify-start items-start gap-[18px] inline-flex ">
       <div className="font-semibold font-Anuphan text-2xl">Comment</div>
-      <div className="max-h-84 overflow-y-scroll">
+      <div className="max-h-84 overflow-y-scroll w-full min-w-full">
         <ul>
           {list
-            .slice() // Create a shallow copy to avoid mutating the state
-            .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()) // Sort by createdAt in descending order
+            .slice()
+            .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
             .map((item) => (
               <li key={item.id}>
                 <CommentBox
@@ -408,15 +402,16 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
                 />
               </li>
             ))}
+          <div ref={commentsEndRef} /> {/* Empty div to anchor scroll to bottom */}
         </ul>
       </div>
       <div className="text-black text-sm font-medium font-Bai Jamjuree leading-[14px]">
         Your Comment
       </div>
-      <div className="flex flex-col w-[530px] h-[115px] border-2 border-[#6b5c56] rounded-lg p-[10px]">
+      <div className="flex flex-col w-full h-[115px] border-2 border-[#6b5c56] rounded-lg p-[10px]">
         <form onSubmit={handleSubmit}>
           <textarea
-            className="w-full h-[50px] outline-none resize-none maxlength=150"
+            className="w-full h-[50px] outline-none resize-none"
             placeholder="Add your comment..."
             value={comment}
             maxLength={200}
@@ -426,10 +421,9 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
             <span className="text-sm text-gray-500">
               {comment.length} / {charLimit} characters
             </span>
-            <div />
             <button
               type="submit"
-              className=" text-black border-0 rounded py-[5px] px-[10px] cursor-pointer">
+              className="text-black border-0 rounded py-[5px] px-[10px] cursor-pointer">
               <Send />
             </button>
           </div>
@@ -438,6 +432,7 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
     </div>
   );
 };
+
 export default Comment;
 
 /**

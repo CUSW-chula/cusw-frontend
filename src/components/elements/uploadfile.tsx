@@ -80,7 +80,7 @@ const Uploadfile = ({ task_id }: TaskManageMentProp) => {
   const handleFile = async (file: File) => {
     const formData = new FormData();
     formData.append('taskId', task_id);
-    formData.append('projectId', '  ');
+    formData.append('projectId', 'cm24w5yu000008tlglutu5czu');
     formData.append('file', file);
     const url = `${BASE_URL}/file/`;
     const options = {
@@ -185,18 +185,20 @@ const FileItem = ({ id, fileName, uploadedBy, filePath, fileSize, createdAt }: F
       className="flex items-center border-2 border-brown bg-gray-50 rounded-[6px] p-2 my-2"
       key={id}>
       <File />
-      <div className="flex flex-col w-full justify-between ml-2">
-        <div>
-          <p>{fileName}</p>
+      <a href={filePath} target="_blank" rel="noopener noreferrer">
+        <div className="flex flex-col w-full justify-between ml-2">
+          <div>
+            <p>{fileName}</p>
+          </div>
+          <div className="flex gap-4 items-center">
+            <p className="flex">Uploaded by {name || 'Loading...'}</p>
+            <Circle className="fill-black size-2 mx-1" />
+            <p className="flex">{formatDate(createdAt)}</p>
+            <Circle className="fill-black size-2 mx-1" />
+            <p className="flex">{Math.round(fileSize / 1024)} KB</p>
+          </div>
         </div>
-        <div className="flex gap-4 items-center">
-          <p className="flex">Uploaded by {name || 'Loading...'}</p>
-          <Circle className="fill-black size-2 mx-1" />
-          <p className="flex">{formatDate(createdAt)}</p>
-          <Circle className="fill-black size-2 mx-1" />
-          <p className="flex">{Math.round(fileSize / 1024)} KB</p>
-        </div>
-      </div>
+      </a>
       <div className="flex-row">
         <AlertDialog>
           <AlertDialogTrigger asChild>
@@ -215,9 +217,6 @@ const FileItem = ({ id, fileName, uploadedBy, filePath, fileSize, createdAt }: F
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        <a href={filePath}>
-          <Download className="m-auto mt-[4px] cursor-pointer" />
-        </a>
       </div>
     </div>
   );
