@@ -411,12 +411,12 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         </div>
 
         <div className="flex items-center gap-4">
-          <Button
+          {/* <Button
             variant="outline"
             className="flex items-center text-[#6b5c56] border-[#6b5c56] px-3 py-1 rounded-md">
             <SquareDashed className="w-5 h-5 mr-2" />
             Select Task
-          </Button>
+          </Button> */}
           <Select
             onValueChange={(value) => {
               value === 'StartDate123'
