@@ -350,7 +350,7 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
           usedBudget: 0,
           status: 'Unassigned',
           parentTaskId: task_id,
-          projectId: 'cm3cizozb00014lduhxi8q8lt',
+          projectId: 'cm24w5yu000008tlglutu5czu',
           startDate: new Date(),
           endDate: new Date(),
         }),

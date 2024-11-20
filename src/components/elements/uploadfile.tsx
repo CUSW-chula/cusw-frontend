@@ -213,7 +213,11 @@ const FileItem = ({ id, fileName, uploadedBy, filePath, fileSize, createdAt }: F
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction className='bg-red text-white' onClick={() => handleDelete(id, auth)}>Delete</AlertDialogAction>
+              <AlertDialogAction
+                className="bg-red text-white"
+                onClick={() => handleDelete(id, auth)}>
+                Delete
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
