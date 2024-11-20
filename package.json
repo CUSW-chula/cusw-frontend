@@ -11,10 +11,7 @@
     "lint": "bunx biome lint ./src",
     "lint:fix": "bunx biome lint --write ./src",
     "format": "bunx biome format ./src",
-    "format:fix": "bunx biome format --write ./src",
-    "deploy:local": "next build && pm2 startOrRestart ecosystem.config.js --env local",
-    "deploy:dev": "next build && pm2 startOrRestart ecosystem.config.js --env dev",
-    "deploy:prod": "next build && pm2 startOrRestart ecosystem.config.js --env prod"
+    "format:fix": "bunx biome format --write ./src"
   },
   "dependencies": {
     "@blocknote/core": "^0.18.0",
@@ -38,17 +35,16 @@
     "clsx": "^2.1.1",
     "cmdk": "1.0.0",
     "cookies-next": "^4.3.0",
-    "cusw-frontend": ".",
     "date-fns": "^4.1.0",
     "emoji-picker-react": "^4.12.0",
-    "jotai": "^2.10.0",
-    "lucide-react": "^0.449.0",
-    "next": "15.0.3",
+    "jotai": "^2.10.1",
+    "lucide-react": "^0.453.0",
+    "next": "15.0.2",
     "quill": "^2.0.2",
-    "react": "19.0.0-rc-66855b96-20241106",
+    "react": "19.0.0-rc-02c0e824-20241028",
     "react-color-palette": "^7.3.0",
     "react-day-picker": "8.10.1",
-    "react-dom": "19.0.0-rc-66855b96-20241106",
+    "react-dom": "19.0.0-rc-02c0e824-20241028",
     "react-hook-form": "^7.53.1",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
@@ -57,20 +53,20 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.9.3",
+    "@biomejs/biome": "1.9.4",
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",
-    "@types/node": "^20",
+    "@types/node": "^22.8.5",
     "@types/react": "npm:types-react@19.0.0-rc.1",
     "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
     "cz-conventional-changelog": "^3.3.0",
-    "cz-git": "^1.10.0",
-    "globals": "^15.9.0",
+    "cz-git": "^1.10.1",
+    "globals": "^15.11.0",
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.14",
+    "typescript": "^5.6.3"
   },
   "config": {
     "commitizen": {
