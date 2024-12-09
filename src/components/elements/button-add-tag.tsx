@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Circle, XCircle, CircleFadingPlus,} from 'lucide-react';
+import { Circle, XCircle, CircleFadingPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,8 +15,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
-import {Badge} from "@/components/ui/badge"
-
+import { Badge } from '@/components/ui/badge';
 
 interface Tags {
   id: string;
@@ -96,7 +95,7 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
 
         if (eventName === 'assigned-tags') {
           // Update selected tags with new tag added
-          setSelectedTags((prev) => [data,...prev]);
+          setSelectedTags((prev) => [data, ...prev]);
         } else if (eventName === 'unassigned-tag') {
           // Remove tag from selected tags
           setSelectedTags((prev) => prev.filter((t) => t.id !== data.id));
@@ -157,11 +156,11 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
       <div className="flex flex-row flex-wrap items-center gap-0.5 overflow-hidden ">
         {Array.isArray(selectedTags) && selectedTags.length > 0 ? (
           selectedTags.map((tag) => (
-            <Badge  
-            key={tag.id}
-            variant="destructive"
-            className="h-7 min-w-fit px-2 py-2 flex items-center gap-1 justify-center bg-emerald-300  text-black ">
-            <span className="text-base font-medium font-BaiJamjuree">{tag.name}</span>
+            <Badge
+              key={tag.id}
+              variant="destructive"
+              className="h-7 min-w-fit px-2 py-2 flex items-center gap-1 justify-center bg-emerald-300  text-black ">
+              <span className="text-base font-medium font-BaiJamjuree">{tag.name}</span>
               <button
                 type="button"
                 onClick={() => handleDeleteTag(tag.id)}
