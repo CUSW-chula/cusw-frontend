@@ -1,5 +1,6 @@
 'use client';
-import 'yjs';
+import * as Y from 'yjs';
+import { WebsocketProvider } from 'y-websocket';
 import { useCallback, useEffect, useState } from 'react';
 import { Displayfile, Uploadfile } from './uploadfile';
 import Emoji from './emoji';
@@ -18,18 +19,9 @@ import * as Tabs from '@/components/ui/tabs';
 import * as Toggle from '@/components/ui/toggle';
 import * as Tooltip from '@/components/ui/tooltip';
 import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
-import YPartyKitProvider from 'y-partykit/provider';
-import * as Y from 'yjs';
 import { getCookie } from 'cookies-next';
-
-// Sets up Yjs document and PartyKit Yjs provider.
 const doc = new Y.Doc();
-const provider = new YPartyKitProvider(
-  'blocknote-dev.yousefed.partykit.dev',
-  // Use a unique name as a "room" for your application.
-  'your-project-name',
-  doc,
-);
+const provider = new WebsocketProvider('ws://localhost:3000', 'my-roomname', doc);
 interface Files {
   id: string;
   fileName: string;
@@ -223,10 +215,13 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
   const editor = useCreateBlockNote({
     schema,
     collaboration: {
+      // The Yjs Provider responsible for transporting updates:
       provider,
+      // Where to store BlockNote data in the Y.Doc:
       fragment: doc.getXmlFragment('document-store'),
+      // Information (name and color) for this user:
       user: {
-        name: 'Bunyawat Naunnak',
+        name: 'My Username',
         color: '#ff0000',
       },
     },
@@ -266,12 +261,7 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
           Toggle,
           Tooltip,
         }}>
-        <GridSuggestionMenuController
-          triggerCharacter={':'}
-          // Changes the Emoji Picker to only have 5 columns.
-          columns={5}
-          minQueryLength={2}
-        />
+        <GridSuggestionMenuController triggerCharacter={':'} columns={5} minQueryLength={2} />
       </BlockNoteView>
 
       <Displayfile fileList={fileList} setFileList={setFileList} />
