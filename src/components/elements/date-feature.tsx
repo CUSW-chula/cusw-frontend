@@ -189,8 +189,8 @@ function DatePickerWithRange({ task_id }: TaskManageMentProp) {
 
   return (
     <div className={cn('grid gap-2')}>
-      <Popover>
-        <PopoverTrigger asChild>
+      <Popover >
+        <PopoverTrigger asChild className='border-brown text-brown' >
           <div className="relative">
             <Input
               value={inputValue}
@@ -201,7 +201,7 @@ function DatePickerWithRange({ task_id }: TaskManageMentProp) {
             <CalendarIcon className="absolute left-3 top-3 h-5 w-5 text-gray-400 pointer-events-none" />
           </div>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0 z -1" align="start">
+        <PopoverContent className="w-auto p-0 z -1  " align="start">
           <Calendar
             initialFocus
             mode="range"

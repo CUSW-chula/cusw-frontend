@@ -25,10 +25,10 @@ export function ProjectOwner() {
 
   return (
     <>
-      <div className="flex flex-row gap-1 flex-wrap">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-row gap-1 flex-wrap ">
+        <div className="flex items-center space-x-4 ">
           <div className="flex space-x-2">
-            <Button variant={'outline'} className="flex gap-2">
+            <Button variant={'outline'} className="flex gap-2  border-brown text-brown">
               {users.map((user) => (
                 <div key={user.id} className="flex items-center space-x-2">
                   {/* Display default users as circles with initials */}

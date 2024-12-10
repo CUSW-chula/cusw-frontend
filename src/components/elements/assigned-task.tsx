@@ -125,7 +125,7 @@ export function AssignedTaskToMember({ task_id }: TaskManageMentProp) {
       <div className="flex flex-row gap-1 flex-wrap">
         <div className="flex items-center space-x-4">
           <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
+            <PopoverTrigger asChild className=' border-brown text-brown'>
               <Button variant="outline">
                 {selectedUser.length > 0 ? (
                   // Display selected users as circles with initials

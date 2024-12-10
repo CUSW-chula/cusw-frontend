@@ -153,13 +153,13 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
 
   return (
     <>
-      <div className="flex flex-row flex-wrap items-center gap-0.5 overflow-hidden ">
+      <div className="flex flex-row flex-wrap items-center gap-x-1 gap-y-1.5 overflow-hidden  ">
         {Array.isArray(selectedTags) && selectedTags.length > 0 ? (
           selectedTags.map((tag) => (
             <Badge
               key={tag.id}
               variant="destructive"
-              className="h-7 min-w-fit px-2 py-2 flex items-center gap-1 justify-center bg-emerald-300  text-black ">
+              className="h-7 min-w-fit px-[8px] py-[12px] flex items-center gap-1 justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] ">
               <span className="text-base font-medium font-BaiJamjuree">{tag.name}</span>
               <button
                 type="button"
@@ -174,7 +174,7 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
         )}
 
         <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
+          <PopoverTrigger asChild className=' border-brown text-brown'>
             <Button variant="outline">
               <CircleFadingPlus className="mr-2 h-4 w-4" /> <p className="p-ui">Add Tag</p>
             </Button>

@@ -32,7 +32,7 @@ export const BackButton: React.FC<BackButtonProps> = ({ task_id }) => {
       variant="link"
       size="sm"
       onClick={handleBack}
-      className="font-BaiJamjuree bg-white border-2 border-brown text-brown text-md">
+      className="font-BaiJamjuree bg-white border-x border-y border-brown text-brown text-md">
       <Redo2 className="transform rotate-180 text-brown" /> Back
     </Button>
   );
