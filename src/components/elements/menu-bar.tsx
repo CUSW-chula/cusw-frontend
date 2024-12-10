@@ -87,7 +87,7 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
             Date :{' '}
           </div>
         </div>
-        <DatePickerWithRange />
+        <DatePickerWithRange task_id={task_id} />
       </div>
     </div>
   );
