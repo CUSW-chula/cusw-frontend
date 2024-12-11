@@ -1,27 +1,10 @@
 'use client';
-import * as Y from 'yjs';
-import { WebsocketProvider } from 'y-websocket';
 import { useCallback, useEffect, useState } from 'react';
 import { Displayfile, Uploadfile } from './uploadfile';
 import Emoji from './emoji';
-import { BlockNoteView } from '@blocknote/shadcn';
-import '@blocknote/shadcn/style.css';
-import { GridSuggestionMenuController, useCreateBlockNote } from '@blocknote/react';
-import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
-import * as Button from '@/components/ui/button';
-import * as Card from '@/components/ui/card';
-import * as DropdownMenu from '@/components/ui/dropdown-menu';
-import * as Form from '@/components/ui/form';
-import * as Input from '@/components/ui/input';
-import * as Label from '@/components/ui/label';
-import * as Popover from '@/components/ui/popover';
-import * as Tabs from '@/components/ui/tabs';
-import * as Toggle from '@/components/ui/toggle';
-import * as Tooltip from '@/components/ui/tooltip';
 import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
-const doc = new Y.Doc();
-const provider = new WebsocketProvider('ws://localhost:3000', 'my-roomname', doc);
+import Blocknotes from './blocknote';
 interface Files {
   id: string;
   fileName: string;
@@ -35,7 +18,6 @@ interface Files {
 
 const Workspace = ({ task_id }: TaskManageMentProp) => {
   const [Title, setTitle] = useState<string>('');
-  const [Description, setDescription] = useState<string>('');
   const [fileList, setFileList] = useState<Files[]>([]);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
@@ -64,25 +46,6 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
     };
     return newValue;
   }, []);
-
-  useEffect(() => {
-    const fetchDescription = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/tasks/description/${task_id}`, {
-          headers: {
-            Authorization: auth,
-          },
-        });
-        const data = await response.json();
-        setDescription(data.description);
-        const blocks = await editor.tryParseHTMLToBlocks(data.description);
-        editor.replaceBlocks(editor.document, blocks);
-      } catch (error) {
-        console.error('Error fetching Description:', error);
-      }
-    };
-    fetchDescription();
-  }, [task_id, auth]);
 
   useEffect(() => {
     const fetchTitle = async () => {
@@ -150,15 +113,6 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
     };
   }, [pareJsonValue, pareJsonValues, task_id, auth]);
 
-  // disable blocks you don't want
-  const { audio, image, video, file, codeBlock, ...allowedBlockSpecs } = defaultBlockSpecs;
-
-  const schema = BlockNoteSchema.create({
-    blockSpecs: {
-      ...allowedBlockSpecs,
-    },
-  });
-
   useEffect(() => {
     if (!Title) return;
     const updateTitle = async () => {
@@ -185,53 +139,6 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
 
     updateTitle();
   }, [Title, task_id, auth]);
-
-  useEffect(() => {
-    if (!Description) return;
-    const updateDescription = async () => {
-      const taskId = task_id;
-      const url = `${BASE_URL}/tasks/description`;
-      const options = {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: JSON.stringify({
-          taskId,
-          description: Description,
-        }),
-      };
-
-      try {
-        const response = await fetch(url, options);
-        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
-        const data = await response.json();
-        console.log('Description updated successfully:', data);
-      } catch (error) {
-        console.error('Error updating Description:', error);
-      }
-    };
-    updateDescription();
-  }, [Description, task_id, auth]);
-
-  const editor = useCreateBlockNote({
-    schema,
-    collaboration: {
-      // The Yjs Provider responsible for transporting updates:
-      provider,
-      // Where to store BlockNote data in the Y.Doc:
-      fragment: doc.getXmlFragment('document-store'),
-      // Information (name and color) for this user:
-      user: {
-        name: 'My Username',
-        color: '#ff0000',
-      },
-    },
-  });
-
-  const onChangeBlock = async () => {
-    const html = await editor.blocksToHTMLLossy(editor.document);
-    setDescription(html);
-  };
-
   return (
     <div>
       <input
@@ -242,28 +149,7 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
           setTitle(e.target.value);
         }}
       />
-      <BlockNoteView
-        editor={editor}
-        theme={'light'}
-        onChange={() => {
-          onChangeBlock();
-        }}
-        emojiPicker={false}
-        shadCNComponents={{
-          Button,
-          Card,
-          DropdownMenu,
-          Form,
-          Input,
-          Label,
-          Popover,
-          Tabs,
-          Toggle,
-          Tooltip,
-        }}>
-        <GridSuggestionMenuController triggerCharacter={':'} columns={5} minQueryLength={2} />
-      </BlockNoteView>
-
+      <Blocknotes task_id={task_id} />
       <Displayfile fileList={fileList} setFileList={setFileList} />
       <div className="flex justify-between">
         <Emoji task_id={task_id} />
@@ -272,5 +158,4 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
     </div>
   );
 };
-
 export default Workspace;
