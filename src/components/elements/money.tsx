@@ -248,14 +248,17 @@ const Money = () => {
             </Popover>
             <Input
               id="budget"
-              value={Number.isNaN(budgetList.money) ? '' : budgetList.money}
-              onChange={(e) =>
+              value={Number.isNaN(budgetList.money) ? '' : budgetList.money.toLocaleString()}
+              onChange={(e) => {
+                const unformattedValue = e.target.value.replace(/,/g, ''); // Remove commas
+                const parsedValue = Number.parseFloat(unformattedValue);
+
                 setBudgetList((prevBudget) => ({
                   ...prevBudget,
-                  money: Number.parseFloat(e.target.value),
-                }))
-              }
-              type="number"
+                  money: Number.isNaN(parsedValue) ? 0 : parsedValue,
+                }));
+              }}
+              type="text"
               className={`h-10 w-48 px-4 bg-white rounded-md border-t border-gray-300 font-BaiJamjuree ${
                 budgetList.type === TypeMoney.ad
                   ? 'text-green'
