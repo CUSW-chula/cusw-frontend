@@ -10,7 +10,6 @@ import { ButtonAddTags } from './button-add-tag';
 import type { TaskManageMentProp } from '@/lib/shared';
 import { DatePickerWithRange } from './date-feature';
 
-
 const MenuBar = ({ task_id }: TaskManageMentProp) => {
   return (
     <div className="min-h-[400px] w-[384px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-center items-start gap-4 inline-flex">
@@ -26,7 +25,6 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
         <StatusButton task_id={task_id} />
       </div>
 
-      
       <div aria-label="owner" className="h-10 justify-start items-center inline-flex">
         {/* Label Zone */}
         <div className="w-24 justify-start items-center gap-2 flex">
@@ -40,7 +38,6 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
         <ProjectOwner />
       </div>
 
-
       <div aria-label="member" className="h-10 justify-start items-center inline-flex">
         {/* Label Zone */}
         <div className="w-24 justify-start items-center gap-2 flex">
@@ -53,7 +50,6 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
         </div>
         <AssignedTaskToMember task_id={task_id} />
       </div>
-
 
       <div aria-label="tag" className="justify-start items-center inline-flex flex-wrap w-full">
         {/* Label Zone */}
@@ -70,13 +66,12 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
         </div>
       </div>
 
-
       <div aria-label="money" className="h-10 justify-start items-center inline-flex">
         {/* Label Zone */}
         <div className="w-24 justify-start items-center gap-2 flex">
           {/* Icon */}
           <div className="w-6 text-center text-black text-[30px] font-medium font-BaiJamjuree">
-              <img src="/asset/icon/budget.svg"  className=' text-brown  ' />
+            <img src="/asset/icon/budget.svg" alt="Budget Icon " className=" text-brown  " />
           </div>
           {/* Describtion */}
           <div className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight">
@@ -85,7 +80,6 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
         </div>
         <Money />
       </div>
-
 
       <div aria-label="date" className="h-10 justify-start items-center inline-flex">
         {/* Label Zone */}
@@ -99,8 +93,6 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
         </div>
         <DatePickerWithRange task_id={task_id} />
       </div>
-
-
     </div>
   );
 };

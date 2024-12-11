@@ -192,13 +192,12 @@ function DatePickerWithRange({ task_id }: TaskManageMentProp) {
       <Popover>
         <PopoverTrigger asChild className="border-brown text-brown">
           <div className="relative ">
-            <Input 
+            <Input
               value={inputValue}
               onChange={handleInputChange}
               placeholder="DD/MM/YYYY - DD/MM/YYYY"
               className="w-auto  border-brown text-brown " // Add padding for the icon
             />
-      
           </div>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0 z -1  " align="start">
