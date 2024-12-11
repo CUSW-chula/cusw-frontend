@@ -32,7 +32,7 @@ export function ProjectOwner() {
               {users.map((user) => (
                 <div key={user.id} className="flex items-center space-x-2">
                   {/* Display default users as circles with initials */}
-                  <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center">
+                  <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center border-[1px] border-brown">
                     <span className="text-slate-900 text-sm">{getInitials(user.userName)}</span>
                   </div>
                   <span className="text-sm">{getFirstName(user.userName)}</span>

@@ -189,16 +189,16 @@ function DatePickerWithRange({ task_id }: TaskManageMentProp) {
 
   return (
     <div className={cn('grid gap-2')}>
-      <Popover >
-        <PopoverTrigger asChild className='border-brown text-brown' >
-          <div className="relative">
-            <Input
+      <Popover>
+        <PopoverTrigger asChild className="border-brown text-brown">
+          <div className="relative ">
+            <Input 
               value={inputValue}
               onChange={handleInputChange}
               placeholder="DD/MM/YYYY - DD/MM/YYYY"
-              className="w-auto pl-10" // Add padding for the icon
+              className="w-auto  border-brown text-brown " // Add padding for the icon
             />
-            <CalendarIcon className="absolute left-3 top-3 h-5 w-5 text-gray-400 pointer-events-none" />
+      
           </div>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0 z -1  " align="start">

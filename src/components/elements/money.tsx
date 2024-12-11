@@ -174,7 +174,7 @@ const Money = () => {
   return (
     <div className="h-10 justify-start items-center gap-[15px] inline-flex ">
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogTrigger asChild >
+        <DialogTrigger asChild>
           <div
             className={`h-10 px-4 bg-white rounded-md border justify-center items-center flex min-w-32 font-BaiJamjuree hover:cursor-pointer  border-brown text-brown${
               budgetList.type === TypeMoney.ad
