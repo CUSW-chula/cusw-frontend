@@ -43,7 +43,7 @@ function Document({ task_id }: TaskManageMentProp) {
         });
         const data = await response.json();
         setDescription(data.description);
-        const blocks = await editor.tryParseMarkdownToBlocks(data.description);
+        const blocks = await editor.tryParseHTMLToBlocks(data.description);
         editor.replaceBlocks(editor.document, blocks);
       } catch (error) {
         console.error('Error fetching Description:', error);
@@ -97,7 +97,7 @@ function Document({ task_id }: TaskManageMentProp) {
   });
 
   const onChangeBlock = async () => {
-    const Markdown = await editor.blocksToMarkdownLossy(editor.document);
+    const Markdown = await editor.blocksToHTMLLossy(editor.document);
     setDescription(Markdown);
   };
 
