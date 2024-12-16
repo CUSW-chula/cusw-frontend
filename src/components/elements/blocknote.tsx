@@ -29,6 +29,13 @@ export default function Blocknotes({ task_id }: TaskManageMentProp) {
     </YDocProvider>
   );
 }
+function getRandomLightColor(): string {
+  const getLightValue = () => Math.floor(Math.random() * 128) + 128;
+  const r = getLightValue().toString(16).padStart(2, '0');
+  const g = getLightValue().toString(16).padStart(2, '0');
+  const b = getLightValue().toString(16).padStart(2, '0');
+  return `#${r}${g}${b}`;
+}
 
 function Document({ task_id }: TaskManageMentProp) {
   const [Description, setDescription] = useState<string>('');
@@ -92,7 +99,7 @@ function Document({ task_id }: TaskManageMentProp) {
     collaboration: {
       provider,
       fragment: doc.getXmlFragment('blocknote'),
-      user: { color: '#ff0000', name: 'Banyaphon Kongtham' },
+      user: { color: getRandomLightColor(), name: 'userData' },
     },
   });
 
