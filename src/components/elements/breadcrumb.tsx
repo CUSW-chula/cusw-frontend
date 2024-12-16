@@ -66,13 +66,13 @@ export function BreadcrumbComponent({ task_id }: BreadcrumbProps) {
   }, [task_id, auth]);
 
   return (
-    <div>
+    <div >
       <Breadcrumb className="flex flex-row">
-        <BreadcrumbList className="gap-6">
-          <BreadcrumbItem>
+        <BreadcrumbList className='gap-1 sm:gap-1'>
+          <BreadcrumbItem >
             <BreadcrumbLink
               href={`/projects/${project?.id}`}
-              className="font-BaiJamjuree text-lg text-black">
+              className="font-BaiJamjuree text-[12px] text-black">
               {project?.title}
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -82,7 +82,7 @@ export function BreadcrumbComponent({ task_id }: BreadcrumbProps) {
               <BreadcrumbItem>
                 <BreadcrumbLink
                   href={`/tasks/${task.id}`}
-                  className="font-BaiJamjuree text-lg text-black">
+                  className="font-BaiJamjuree text-[12px] text-black ">
                   {task.title}
                 </BreadcrumbLink>
               </BreadcrumbItem>
