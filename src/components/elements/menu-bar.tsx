@@ -1,7 +1,7 @@
 'use client';
 
 import { Money } from './money';
-import { CrownIcon, Users, Tag, Calendar, Trash2, DollarSign } from 'lucide-react';
+import { CrownIcon, Users, Tag, Calendar, Trash2, DollarSign, Weight } from 'lucide-react';
 import StatusButton from './status-botton';
 import StatusLabel from './status-label';
 import { ProjectOwner } from './project-owner';
@@ -44,24 +44,27 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
           {/* Icon */}
           <Users className="w-6 h-6 relative text-brown" />
           {/* Describtion */}
-          <div className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight">
+          <div className="text-brown text-xs font-medium font-['Bai Jamjuree'] leading-tight">
             Member :{' '}
           </div>
         </div>
         <AssignedTaskToMember task_id={task_id} />
       </div>
 
-      <div aria-label="tag" className="justify-start items-center inline-flex flex-wrap w-full">
+      <div aria-label="tag" className="inline-flex justify-start items-start w-full">
         {/* Label Zone */}
-        <div className="w-24 justify-start items-center gap-2 flex self-start ">
-          {/* Icon */}
-          <Tag className="w-6 h-6 relative text-brown" />
-          {/* Description */}
-          <div className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight text-center ">
-            Tag :{' '}
-          </div>
-        </div>
         <div>
+          <div className="flex w-24 h-10 items-center gap-2" >
+            {/* Icon & text */}
+            <Tag className="w-6 h-6 relative text-brown" />
+            <p className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight">
+              Tag :
+            </p>
+            </div>
+          </div>
+        {/* Description */}
+        <div className='flex flex-wrap w-full'>
+          {' '}
           <ButtonAddTags task_id={task_id} />
         </div>
       </div>

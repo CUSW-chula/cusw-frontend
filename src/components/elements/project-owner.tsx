@@ -33,7 +33,7 @@ export function ProjectOwner() {
                 <div key={user.id} className="flex items-center space-x-2">
                   {/* Display default users as circles with initials */}
                   <div className="w-[24px] h-[24px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown">
-                    <span className="text-brown text-sm font-BaiJamjuree">{getInitials(user.userName)}</span>
+                    <span className="text-brown text-[12px] font-BaiJamjuree">{getInitials(user.userName)}</span>
                   </div>
                   <span className="text-[16px] font-BaiJamjuree ml-[4px] ">{getFirstName(user.userName)}</span>
                 </div>

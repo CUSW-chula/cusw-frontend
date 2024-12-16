@@ -160,7 +160,7 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
               <Badge
                 key={tag.id}
                 variant="destructive"
-                className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0]  mr-1 mt-1 mb-1">
+                className="h-10 min-w-fit flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mb-1">
                 <span className="text-base font-medium font-BaiJamjuree">{tag.name}</span>
                 <button
                   type="button"
