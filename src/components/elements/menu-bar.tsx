@@ -12,7 +12,7 @@ import { DatePickerWithRange } from './date-feature';
 
 const MenuBar = ({ task_id }: TaskManageMentProp) => {
   return (
-    <div className="min-h-[400px] w-[384px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-center items-start gap-4 inline-flex">
+    <div className="min-h-[400px] w-[360px] p-[20px] bg-white rounded-md border border-[#6b5c56] flex-col justify-center items-start gap-4 inline-flex">
       <div aria-label="status" className="h-10 justify-start items-center inline-flex">
         {/* Label Zone */}
         <div className="w-24 justify-start items-center gap-2 flex">

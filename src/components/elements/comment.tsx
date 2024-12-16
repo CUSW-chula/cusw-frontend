@@ -23,7 +23,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '../ui/button';
-import { Profile } from './profile';
+import { Profile, Profile2 } from './profile';
 import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
 import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
@@ -85,24 +85,27 @@ function EditBox({
   };
 
   return (
-    <div className="flex w-full items-end space-x-2">
+    <div className="flex w-full flex-col items-end space-x-2 gap-[8px]">
       <Textarea
         className="resize-none outline-none bg-gray-50"
         value={editedContent}
         onChange={handleInputChange}
       />
-      <span className="text-sm text-gray-500">
-        {editedContent.length} / {charLimit} characters
-      </span>
-      <Button className="border-[#6b5c56]" variant="outline" onClick={onCancel}>
-        Cancel
-      </Button>
-      <Button
-        className="bg-[#6b5c56] text-white hover:bg-[#6b5c56]"
-        onClick={handleSave}
-        disabled={editedContent.trim().length === 0 || editedContent === content}>
-        Confirm
-      </Button>
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-gray-500">
+          {editedContent.length} / {charLimit} characters
+        </span>
+        <Button className="border-[#6b5c56]" variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button
+          className="bg-[#6b5c56] text-white hover:bg-[#6b5c56]"
+          onClick={handleSave}
+          disabled={editedContent.trim().length === 0 || editedContent === content}>
+          Confirm
+        </Button>
+      </div>
+      
     </div>
   );
 }
@@ -174,13 +177,14 @@ function CommentBox({
   };
 
   return (
-    <div className="h-auto w-full min-w-full flex flex-col p-1 gap-4 ">
+    <div className="h-auto w-full min-w-full flex flex-col p-1 gap-4">
       <div className="bg-gray-50 rounded-md p-3 w-full">
         {!isDelete && (
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2 ">
+            <div className="flex items-center gap-2 mb-2">
               <TooltipProvider>
-                <Profile userId="test" userName={name ?? '?'} />
+                <Profile2 userId="test" userName={name ?? '?'} />
+                
               </TooltipProvider>
               <div className="text-slate-900 font-BaiJamjuree font-semibold">
                 {formatName(name ?? '') || 'Loading...'}
@@ -382,7 +386,7 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
   };
 
   return (
-    <div className="w-full h-[362px] flex-col min-w-full justify-start items-start gap-[18px] inline-flex ">
+    <div className="w-full max-h-[550px] flex-col min-w-full justify-start items-start gap-[18px] inline-flex ">
       <div className="font-semibold font-Anuphan text-2xl">Comment</div>
       <div className="max-h-84 overflow-y-scroll w-full min-w-full">
         <ul>
@@ -408,7 +412,7 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
       <div className="text-black text-sm font-medium font-Bai Jamjuree leading-[14px]">
         Your Comment
       </div>
-      <div className="flex flex-col w-full h-[115px] border-2 border-[#6b5c56] rounded-lg p-[10px]">
+      <div className="flex flex-col w-full h-[115px] border-[1px] border-[#6b5c56] rounded-lg p-[10px]">
         <form onSubmit={handleSubmit}>
           <textarea
             className="w-full h-[50px] outline-none resize-none"

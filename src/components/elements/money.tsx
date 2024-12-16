@@ -74,7 +74,7 @@ const Money = () => {
         const types = [TypeMoney.budget, TypeMoney.ad, TypeMoney.exp];
         const index = data.findIndex((value: number) => value !== 0);
         setBudgetList({
-          type: types[index] || TypeMoney.budget,
+          type: types[index] || TypeMoney.null,
           money: data[index] || data[0],
         });
         if (!response.ok) return console.log('GET failed. Operation aborted.');
@@ -179,11 +179,13 @@ const Money = () => {
             className={`h-10 px-4 bg-white rounded-md border justify-center items-center flex min-w-32 font-BaiJamjuree hover:cursor-pointer  border-brown text-brown${
               budgetList.type === TypeMoney.ad
                 ? 'text-green'
-                : budgetList.type === TypeMoney.exp
+                :budgetList.type === TypeMoney.null
+                ? 'text-brown'
+                :budgetList.type === TypeMoney.exp
                   ? 'text-red'
                   : 'text-black'
             }`}>
-            {budgetList.type === TypeMoney.null
+            {budgetList.type === TypeMoney.null 
               ? 'Add Money'
               : Number.isNaN(budgetList.money)
                 ? 'Add Money'
