@@ -4,7 +4,7 @@ import { getCookie } from 'cookies-next';
 import BASE_URL, { BASE_SOCKET, type TaskManageMentOverviewProp } from '@/lib/shared';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Button } from '../ui/button';
-import { Calendar, ChevronRight, ChevronsRight, CircleUserRound, SquareDashed } from 'lucide-react';
+import { Calendar, ChevronRight, ChevronsRight, User, SquareDashed } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
@@ -130,9 +130,9 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     const displayValue = (type: string, value: number) => {
       if (value <= 0) return null;
       const color =
-        type === 'budget' ? 'text-black' : type === 'advance' ? 'text-[#69bca0]' : 'text-[#c30010]';
+        type === 'budget' ? 'text-black' : type === 'advance' ? 'text-green' : 'text-[#c30010]';
       return (
-        <div className="h-fit px-1 flex items-center justify-center gap-2 rounded-md border border-[#6b5c56]">
+        <div className="h-10 px-3 py-2 bg-white rounded-md border border-brown justify-start items-center gap-2 flex">
           <div className={`text-2xl font-semibold font-BaiJamjuree leading-normal ${color}`}>฿</div>
           <div className={`text-base font-medium font-BaiJamjuree leading-normal ${color}`}>
             {value.toLocaleString()}
@@ -151,15 +151,16 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       <div className="w-full font-BaiJamjuree">
         <div
           className={cn(
-            'flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg',
-            depth > 0 && 'pl-8', // Dynamic margin based on depth
+            'flex items-center hover:bg-gray-50',
+            depth > 0, // Dynamic margin based on depth
           )}>
-          <div className="flex items-center gap-2 w-full" style={{ marginLeft: `${depth * 16}px` }}>
-            {hasChildren && (
+          <div className="flex items-center w-full h-10 my-1.5" style={{ marginLeft: `${depth * 24+24}px` }}>
+
+            <div className="inline-flex grow items-center">
               <button
                 type="button"
                 onClick={() => toggleExpand(item.id)}
-                className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200">
+                className={`w-6 h-6 mr-1 flex items-center justify-center rounded hover:bg-gray-200 ${hasChildren ? 'visible' : 'invisible'}`}>
                 {item.parentTaskId ? (
                   <ChevronRight
                     className={cn(
@@ -176,16 +177,21 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
                   />
                 )}
               </button>
-            )}
-            <img src={getStatusIcon(item.status)} alt={`${item.status} Icon`} className="w-5 h-5" />
-            <a href={`/tasks/${item.id}`}>
-              <span className="text-sm font-BaiJamjuree">{item.title}</span>
-            </a>
-            <div className="flex-1" />
-            <div className="flex items-center gap-2">
+
+              <img
+                src={getStatusIcon(item.status)}
+                alt={`${item.status} Icon`}
+                className="w-6 h-6 mr-2"
+              />
+              <a href={`/tasks/${item.id}`}>
+                <span className="text-black text-base font-normal font-BaiJamjuree">{item.title}</span>
+              </a>
+            </div>
+
+            <div className="inline-flex items-center gap-1">
               <GetTagList taskId={item.id} auth={auth} />
               {(item.budget > 0 || item.advance > 0 || item.expense > 0) && (
-                <div className="h-fit bg-white justify-start items-center gap-2 inline-flex">
+                <div>
                   {item.budget > 0 && displayValue('budget', item.budget)}
                   {item.advance > 0 && displayValue('advance', item.advance)}
                   {item.expense > 0 && displayValue('expense', item.expense)}
@@ -195,23 +201,24 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <CircleUserRound className="w-6 h-6 hover:cursor-pointer" />
+                    <User className="h-8 w-8 p-1 text-brown border border-[#6b5c56] rounded-full hover:cursor-pointer" />
                   </TooltipTrigger>
                   <GetAssignPeopleList taskId={item.id} auth={auth} />
                 </Tooltip>
               </TooltipProvider>
 
               {item.startDate && item.endDate && (
-                <>
+                <div className="w-60 inline-flex gap-1">
                   <Calendar className="w-6 h-6" />
                   <span>{formatDate(item.startDate, item.endDate)}</span>
-                </>
+                </div>
               )}
             </div>
+
           </div>
         </div>
         {hasChildren && isExpanded && (
-          <div className="mt-1">
+          <div>
             {item.subtasks?.map((child) => (
               <SubtaskItem
                 key={child.id}
@@ -386,9 +393,9 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     setShowTasks(sorted);
   };
   return (
-    <div className="h-auto w-[1580px] p-5 font-BaiJamjuree bg-white rounded-md border border-[#6b5c56] flex flex-col gap-6">
-      <div className="text-black text-3xl font-semibold leading-9">{projectName}</div>
-      <div className="flex items-center justify-between w-full">
+    <div className="h-auto w-[1580px] p-5 font-BaiJamjuree bg-white rounded-md border border-[#6b5c56] flex flex-col">
+      <div className="text-black text-3xl font-semibold leading-9 mb-6">{projectName}</div>
+      <div className="flex items-center justify-between w-full mb-3">
         <div className="flex items-center gap-4">
           <Select
             onValueChange={(value) => {
@@ -464,14 +471,15 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         </div>
       </div>
 
-      <div className="mt-4 flex flex-col gap-2">
+      <div className="col-auto">
         {statusSections.map(({ status, displayName, icon }) => (
           <div key={status}>
-            <div className="flex items-center gap-2">
-              <img src={icon} alt={`${status} Icon`} className="w-5 h-5" />
-              <span>{displayName.toLowerCase()}</span> {/* Use displayName here */}
+            <div className="flex items-center gap-2 border-b border-gray-300 py-3">
+              <img src={icon} alt={`${status} Icon`} className="w-6 h-6" />
+              <span className="text-black text-sm font-medium font-BaiJamjuree">{displayName}</span>{' '}
+              {/* Use displayName here */}
             </div>
-            <div className="w-full space-y-1">
+            <div className="w-full flex flex-col">
               {showTasks
                 .filter((item) => item.status === status) // Match with the status property
                 .map((item) => (
@@ -514,8 +522,10 @@ const GetTagList = ({ taskId, auth }: { taskId: string; auth: string }) => {
             <Badge
               key={tag.id}
               variant="destructive"
-              className="h-7 min-w-fit px-2 py-2 flex items-center gap-1 justify-center bg-emerald-300  text-black ">
-              <span className="text-base font-medium font-BaiJamjuree">{tag.name}</span>
+              className="h-10 px-3 py-2 bg-[#eefdf7] rounded-[360px] border border-green flex-col justify-start items-start gap-2.5 inline-flex">
+              <span className="text-green text-base font-medium font-['Bai Jamjuree'] leading-normal">
+                {tag.name}
+              </span>
             </Badge>
           ))
         : null}
