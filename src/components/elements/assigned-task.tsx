@@ -131,11 +131,7 @@ export function AssignedTaskToMember({ task_id }: TaskManageMentProp) {
                   // Display selected users as circles with initials
                   <div className="flex space-x-2 ">
                     {selectedUser.map((user) => (
-                      <Profile 
-                       key={user.id} 
-                       userId={user.id} 
-                       userName={user.name} 
-                        />
+                      <Profile key={user.id} userId={user.id} userName={user.name} />
                     ))}
                   </div>
                 ) : (
