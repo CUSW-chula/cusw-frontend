@@ -37,9 +37,11 @@ export default async function TasksManageMentPage({ params }: TaskManageMentProp
         </div>
 
         {/* Right Section */}
-        <div className="w-fit">
+        <div className="flex flex-col w-fit gap-4">
           <MenuBar task_id={task_id} />
-          <DeleteTask task_id={task_id} />
+          <div className="inline-flex justify-end">
+            <DeleteTask task_id={task_id} />
+          </div>
         </div>
       </div>
     </div>
