@@ -66,7 +66,8 @@ function Document({ task_id }: TaskManageMentProp) {
 
   useEffect(() => {
     if (!Description) return;
-    const updateDescription = async () => {
+
+    const timer = setTimeout(async () => {
       const taskId = task_id;
       const url = `${BASE_URL}/tasks/description`;
       const options = {
@@ -86,8 +87,10 @@ function Document({ task_id }: TaskManageMentProp) {
       } catch (error) {
         console.error('Error updating Description:', error);
       }
-    };
-    updateDescription();
+    }, 5000); // 5-second delay
+
+    // Cleanup the timer if Description or task_id changes
+    return () => clearTimeout(timer);
   }, [Description, task_id]);
 
   const { audio, image, video, file, codeBlock, ...allowedBlockSpecs } = defaultBlockSpecs;
