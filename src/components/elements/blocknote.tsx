@@ -103,29 +103,6 @@ function Document({ task_id }: TaskManageMentProp) {
   };
 
   const userData = getUserDataFromCookie();
-  const [name, setName] = useState<string>('Guest');
-
-  useEffect(() => {
-    async function fetchUserName() {
-      try {
-        const response = await fetch(`${BASE_URL}/users/${userData.id}`, {
-          headers: {
-            Authorization: auth,
-          },
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setName(data.name);
-        } else {
-          console.error('Error fetching user name');
-        }
-      } catch (error) {
-        console.error('Error fetching user name:', error);
-      }
-    }
-    fetchUserName();
-  });
-
   const provider = useYjsProvider();
   const doc = useYDoc();
   const editor = useCreateBlockNote({
@@ -133,7 +110,7 @@ function Document({ task_id }: TaskManageMentProp) {
     collaboration: {
       provider,
       fragment: doc.getXmlFragment('blocknote'),
-      user: { color: getRandomLightColor(), name: 'name' },
+      user: { color: getRandomLightColor(), name: userData.id },
     },
   });
 
