@@ -142,7 +142,7 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
   return (
     <div>
       <input
-        className="resize-none border-none w-full outline-none pl-[54px] placeholder-gray-300 text-[30px] leading-[36px] font-semibold font-Anuphan"
+        className="resize-none border-none w-full outline-none pl-[54px] placeholder-gray-300 text-[30px] font-semibold font-Anuphan"
         placeholder="Task Title"
         value={Title}
         onChange={(e) => {
