@@ -66,6 +66,13 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   const auth = cookie?.toString() ?? '';
   const [allTags, setAllTags] = useState<Tag[]>([]);
   const router = useRouter();
+  const statusSections = [
+    { status: 'Unassigned', displayName: 'Unassigned', icon: unassigned },
+    { status: 'Assigned', displayName: 'Assigned', icon: assigned },
+    { status: 'InRecheck', displayName: 'In Recheck', icon: inrecheck },
+    { status: 'UnderReview', displayName: 'Under Review', icon: underreview },
+    { status: 'Done', displayName: 'Done', icon: done },
+  ];
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValues = useCallback((values: any[]): taskProps[] => {
@@ -117,7 +124,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   const SubtaskItem = ({
     item,
     depth = 0,
-    statusIcon,
   }: {
     item: taskProps;
     depth?: number;
@@ -130,20 +136,35 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     const displayValue = (type: string, value: number) => {
       if (value <= 0) return null;
       const color =
-        type === 'budget' ? 'text-black' : type === 'advance' ? 'text-green' : 'text-[#c30010]';
+        type === 'budget'
+          ? 'text-black'
+          : type === 'advance'
+            ? 'text-green'
+            : type === 'expense'
+              ? 'text-red'
+              : null;
+      const textBaseClass = `font-BaiJamjuree leading-normal ${color}`;
       return (
-        <div className="h-10 px-3 py-2 bg-white rounded-md border border-brown justify-start items-center gap-2 flex">
-          <div className={`text-2xl font-semibold font-BaiJamjuree leading-normal ${color}`}>฿</div>
-          <div className={`text-base font-medium font-BaiJamjuree leading-normal ${color}`}>
-            {value.toLocaleString()}
-          </div>
+        <div className="h-10 px-3 py-2 bg-white rounded-md border border-brown justify-start items-center gap-2 inline-flex">
+          <div className={`text-2xl font-semibold ${textBaseClass}`}>฿</div>
+          <div className={`text-base font-medium ${textBaseClass}`}>{value.toLocaleString()}</div>
         </div>
       );
     };
 
+    //display task status
     const getStatusIcon = (status: string) => {
       const section = statusSections.find((section) => section.status === status);
       return section ? section.icon : unassigned; // Fallback icon if status not found
+    };
+
+    //expand subtask
+    const toggleExpand = (id: string) => {
+      setExpandedItems((prev) => {
+        const newSet = new Set(prev);
+        newSet.has(id) ? newSet.delete(id) : newSet.add(id);
+        return newSet;
+      });
     };
 
     //for subTask
@@ -154,26 +175,27 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
             'flex items-center hover:bg-gray-50',
             depth > 0, // Dynamic margin based on depth
           )}>
-          <div className="flex items-center w-full h-10 my-1.5" style={{ marginLeft: `${depth * 24+24}px` }}>
-
+          <div
+            className="flex items-center w-full h-10 my-1.5"
+            style={{ marginLeft: `${depth * 24 + 24}px` }}>
             <div className="inline-flex grow items-center">
               <button
                 type="button"
                 onClick={() => toggleExpand(item.id)}
-                className={`w-6 h-6 mr-1 flex items-center justify-center rounded hover:bg-gray-200 ${hasChildren ? 'visible' : 'invisible'}`}>
+                className={`w-6 h-6 mr-1 flex items-center justify-center rounded hover:bg-gray-200 ${
+                  hasChildren ? 'visible' : 'invisible'
+                }`}>
                 {item.parentTaskId ? (
                   <ChevronRight
-                    className={cn(
-                      'h-4 w-4 transition-transform',
-                      isExpanded && 'transform rotate-90',
-                    )}
+                    className={`h-4 w-4 transition-transform${
+                      isExpanded ? 'transform rotate-90' : ''
+                    }`}
                   />
                 ) : (
                   <ChevronsRight
-                    className={cn(
-                      'h-4 w-4 transition-transform',
-                      isExpanded && 'transform rotate-90',
-                    )}
+                    className={`h-4 w-4 transition-transform${
+                      isExpanded ? 'transform rotate-90' : ''
+                    }`}
                   />
                 )}
               </button>
@@ -184,7 +206,9 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
                 className="w-6 h-6 mr-2"
               />
               <a href={`/tasks/${item.id}`}>
-                <span className="text-black text-base font-normal font-BaiJamjuree">{item.title}</span>
+                <span className="text-black text-base font-normal font-BaiJamjuree">
+                  {item.title}
+                </span>
               </a>
             </div>
 
@@ -201,7 +225,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <User className="h-8 w-8 p-1 text-brown border border-[#6b5c56] rounded-full hover:cursor-pointer" />
+                    <User className="h-8 w-8 p-1 text-brown border border-brown rounded-full hover:cursor-pointer" />
                   </TooltipTrigger>
                   <GetAssignPeopleList taskId={item.id} auth={auth} />
                 </Tooltip>
@@ -214,7 +238,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
                 </div>
               )}
             </div>
-
           </div>
         </div>
         {hasChildren && isExpanded && (
@@ -231,18 +254,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         )}
       </div>
     );
-  };
-
-  const toggleExpand = (id: string) => {
-    setExpandedItems((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      return newSet;
-    });
   };
 
   useEffect(() => {
@@ -284,14 +295,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     };
     fetchData();
   }, [project_id, auth, parseJsonValues, showTasks]);
-
-  const statusSections = [
-    { status: 'Unassigned', displayName: 'Unassigned', icon: unassigned },
-    { status: 'Assigned', displayName: 'Assigned', icon: assigned },
-    { status: 'InRecheck', displayName: 'In Recheck', icon: inrecheck },
-    { status: 'UnderReview', displayName: 'Under Review', icon: underreview },
-    { status: 'Done', displayName: 'Done', icon: done },
-  ];
 
   //filter zone start
   useEffect(() => {
@@ -354,14 +357,10 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           ];
         }
       }
-      // console.log(matchedTasks);
       setShowTasks(matchedTasks);
       return matchedTasks;
     };
 
-    // console.log(
-    //   "sortedTasks: " + sortByEndDate(tasks, false).map((task) => task.id)
-    // );
     if (tag_id === 'default') {
       setShowTasks(tasks);
       return;
@@ -393,16 +392,18 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     setShowTasks(sorted);
   };
   return (
-    <div className="h-auto w-[1580px] p-5 font-BaiJamjuree bg-white rounded-md border border-[#6b5c56] flex flex-col">
-      <div className="text-black text-3xl font-semibold leading-9 mb-6">{projectName}</div>
+    <div className="h-auto w-[1280px] p-11 font-BaiJamjuree bg-white rounded-md border border-brown flex flex-col">
+      <div className="h-9 text-black text-3xl font-semibold leading-9 mb-6">{projectName}</div>
+      {/* Controller section */}
       <div className="flex items-center justify-between w-full mb-3">
+        {/* Filter Task */}
         <div className="flex items-center gap-4">
           <Select
             onValueChange={(value) => {
               handleFilter(value);
             }}>
-            <SelectTrigger className="w-[150px] border-[#6b5c56]">
-              <SelectValue className="text-[#6b5c56]" placeholder="Filter By: Default" />
+            <SelectTrigger className="w-[150px] border-brown">
+              <SelectValue className="text-brown" placeholder="Filter By: Default" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem key="default" value="default">
@@ -416,14 +417,8 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
             </SelectContent>
           </Select>
         </div>
-
+        {/* Sort and New Task  */}
         <div className="flex items-center gap-4">
-          {/* <Button
-            variant="outline"
-            className="flex items-center text-[#6b5c56] border-[#6b5c56] px-3 py-1 rounded-md">
-            <SquareDashed className="w-5 h-5 mr-2" />
-            Select Task
-          </Button> */}
           <Select
             onValueChange={(value) => {
               value === 'StartDate123'
@@ -434,8 +429,8 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
                     ? sortByEndDate(showTasks, true)
                     : sortByEndDate(showTasks, false);
             }}>
-            <SelectTrigger className="w-[150px] border-[#6b5c56]">
-              <SelectValue className="text-[#6b5c56]" placeholder="Sort By: Start Date" />
+            <SelectTrigger className="w-[150px] border-brown">
+              <SelectValue className="text-brown" placeholder="Sort By: Start Date" />
             </SelectTrigger>
             <SelectContent>
               {[
@@ -465,7 +460,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           <Button
             variant="outline"
             onClick={handleCreateTask}
-            className="flex items-center text-[#6b5c56] border-[#6b5c56] px-3 py-1 rounded-md">
+            className="flex items-center text-brown border-brown px-3 py-1 rounded-md">
             + New Task
           </Button>
         </div>
@@ -474,11 +469,12 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       <div className="col-auto">
         {statusSections.map(({ status, displayName, icon }) => (
           <div key={status}>
+            {/* Status Title */}
             <div className="flex items-center gap-2 border-b border-gray-300 py-3">
               <img src={icon} alt={`${status} Icon`} className="w-6 h-6" />
-              <span className="text-black text-sm font-medium font-BaiJamjuree">{displayName}</span>{' '}
-              {/* Use displayName here */}
+              <span className="text-black text-sm font-medium font-BaiJamjuree">{displayName}</span>
             </div>
+            {/* Tasks in there group */}
             <div className="w-full flex flex-col">
               {showTasks
                 .filter((item) => item.status === status) // Match with the status property
@@ -522,8 +518,8 @@ const GetTagList = ({ taskId, auth }: { taskId: string; auth: string }) => {
             <Badge
               key={tag.id}
               variant="destructive"
-              className="h-10 px-3 py-2 bg-[#eefdf7] rounded-[360px] border border-green flex-col justify-start items-start gap-2.5 inline-flex">
-              <span className="text-green text-base font-medium font-['Bai Jamjuree'] leading-normal">
+              className="h-10 px-3 py-2 bg-[#eefdf7] rounded-3xl border border-green ">
+              <span className="text-green text-base font-medium font-BaiJamjuree leading-normal">
                 {tag.name}
               </span>
             </Badge>
