@@ -14,6 +14,7 @@ interface Tag {
 }
 import { useRouter } from 'next/navigation';
 import { Badge } from '../ui/badge';
+import { ta } from 'date-fns/locale';
 
 interface taskProps {
   id: string;
@@ -385,6 +386,30 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     });
     setShowTasks(sorted);
   };
+
+  const statusToInt = (status: string): number => {
+    const statusMap: { [key: string]: number } = {
+      Unassigned: 1,
+      Assigned: 2,
+      InRecheck: 3,
+      UnderReview: 4,
+      Done: 5,
+    };
+    return statusMap[status] || -1;
+  };
+
+  const groupingStatus = (task: taskProps, max: number): number => {
+    let currentMax = Math.min(max, statusToInt(task.status));
+
+    if (task.subtasks) {
+      currentMax = task.subtasks.reduce((acc, subtask) => {
+        return Math.min(acc, groupingStatus(subtask, currentMax));
+      }, currentMax);
+    }
+
+    return currentMax;
+  };
+
   return (
     <div className="h-auto w-[1580px] p-5 font-BaiJamjuree bg-white rounded-md border border-[#6b5c56] flex flex-col gap-6">
       <div className="text-black text-3xl font-semibold leading-9">{projectName}</div>
@@ -473,7 +498,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
             </div>
             <div className="w-full space-y-1">
               {showTasks
-                .filter((item) => item.status === status) // Match with the status property
+                .filter((item) => groupingStatus(item, 9) === statusToInt(status)) // Match with the status property
                 .map((item) => (
                   <SubtaskItem key={item.id} item={item} statusIcon={icon} />
                 ))}
