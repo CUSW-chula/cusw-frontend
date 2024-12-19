@@ -50,7 +50,7 @@ const CancelButton = () => {
   );
 };
 
-export const CreateProject = ({ project_id }: ProjectProps) => {
+export const CreateProject = () => {
   const [photo, setPhoto] = useState<string | null>(null);
   const token = getCookie('token');
 
@@ -86,7 +86,7 @@ export const CreateProject = ({ project_id }: ProjectProps) => {
   };
 
   return (
-    <div className="h-[414px] px-20 flex-col justify-start items-start gap-[18px] inline-flex">
+    <div className="h-[414px] px-20 flex-col justify-start items-start gap-[18px] inline-flex w-full">
       <div className="self-stretch text-black text-5xl font-semibold font-Anuphan leading-[48px]">
         Project
       </div>
