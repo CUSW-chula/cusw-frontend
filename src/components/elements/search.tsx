@@ -1,29 +1,12 @@
 import React from 'react';
-import {
-  Command,
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-  CommandShortcut,
-} from '@/components/ui/command';
-const Search = () => {
+import { Search } from 'lucide-react';
+const Searchbar = () => {
   return (
-    <Command>
-      <CommandInput placeholder="search the project..." />
-      <CommandList>
-        <CommandEmpty>No results found.</CommandEmpty>
-        <CommandGroup heading="Suggestions">
-          <CommandItem>Calendar</CommandItem>
-          <CommandItem>Search Emoji</CommandItem>
-          <CommandItem>Calculator</CommandItem>
-        </CommandGroup>
-      </CommandList>
-    </Command>
+  <div className='flex flex-1 min-w-[300px] rounded-[6px] border-[1px] w-full h-[40px] px-4 border-brown bg-white items-center gap-2'>
+    <Search className='text-brown'/>
+    <input type="text" placeholder="Search the project.." className='resize-none w-full max-w-[575px] h-[40px] outline-none placeholder-gray-300 text-sm font-BaiJamjuree bg-transparent'/>
+    </div>
   );
 };
 
-export default Search;
+export default Searchbar;
