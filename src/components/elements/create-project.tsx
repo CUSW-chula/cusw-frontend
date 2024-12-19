@@ -178,11 +178,13 @@ export const CreateProject = () => {
                             </div>
                           </div>
                           <div className="justify-start items-start gap-3 inline-flex">
-                            <Button
-                              variant="outline"
-                              className="px-4 py-2 bg-white border-[#6b5c56] justify-center items-center gap-2.5 flex">
-                              Cancel
-                            </Button>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="outline"
+                                className="px-4 py-2 bg-white border-[#6b5c56] justify-center items-center gap-2.5 flex">
+                                Cancel
+                              </Button>
+                            </DialogTrigger>
                             <Button
                               variant="destructive"
                               className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex">
@@ -218,11 +220,13 @@ export const CreateProject = () => {
                         </div>
                         <div className="self-stretch flex-col justify-center items-end flex">
                           <div className="justify-start items-start gap-3 inline-flex">
-                            <Button
-                              variant="outline"
-                              className="px-4 py-2 bg-white border-[#6b5c56] justify-center items-center gap-2.5 flex">
-                              Cancel
-                            </Button>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="outline"
+                                className="px-4 py-2 bg-white border-[#6b5c56] justify-center items-center gap-2.5 flex">
+                                Cancel
+                              </Button>
+                            </DialogTrigger>
                             <Button
                               variant="destructive"
                               className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex">
