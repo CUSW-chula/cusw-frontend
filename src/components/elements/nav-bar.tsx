@@ -1,6 +1,6 @@
 'use client';
 
-import { Profile } from './profile';
+import { Profile, Profile2 } from './profile';
 import { useEffect, useState } from 'react';
 
 export default function NavBar() {
@@ -19,7 +19,7 @@ export default function NavBar() {
         <img src="/asset/logo/Logo_s2.svg" alt="CUSW" />
       </a>
       <div className="flex flex-row px-5">
-        <Profile userId={''} userName={'Bunyawat Naunnak'} />
+        <Profile2 userId={''} userName={'Bunyawat Naunnak'} />
       </div>
     </div>
   );
