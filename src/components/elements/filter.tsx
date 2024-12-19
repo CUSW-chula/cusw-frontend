@@ -1,46 +1,37 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import { addDays, format } from "date-fns"
-import { Calendar as CalendarIcon } from "lucide-react"
-import { DateRange } from "react-day-picker"
+import * as React from 'react';
+import { addDays, format } from 'date-fns';
+import { Calendar as CalendarIcon } from 'lucide-react';
+import type { DateRange } from 'react-day-picker';
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Calendar2 } from "@/components/ui/calendar2"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Calendar2 } from '@/components/ui/calendar2';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
-export function Filter({
-  className,
-}: React.HTMLAttributes<HTMLDivElement>) {
-    const [date, setDate] = React.useState<DateRange | undefined>();
-
+export function Filter({ className }: React.HTMLAttributes<HTMLDivElement>) {
+  const [date, setDate] = React.useState<DateRange | undefined>();
 
   return (
-    <div className={cn("grid gap-2", className)}>
+    <div className={cn('grid gap-2', className)}>
       <Popover>
         <PopoverTrigger asChild>
           <Button
             id="date"
-            variant={"outline"}
+            variant={'outline'}
             className={cn(
-              "w-[240px] justify-start text-left font-BaiJamjuree border-[1px] border-brown",
-              !date && "text-muted-foreground"
-            )}
-          >
+              'w-[240px] justify-start text-left font-BaiJamjuree border-[1px] border-brown',
+              !date && 'text-muted-foreground',
+            )}>
             <CalendarIcon />
             {date?.from ? (
               date.to ? (
                 <>
-                  {format(date.from, "LLL dd, y")} -{" "}
-                  {format(date.to, "LLL dd, y")}
+                  {format(date.from, 'LLL dd, y')} - {format(date.to, 'LLL dd, y')}
                 </>
               ) : (
-                format(date.from, "LLL dd, y")
+                format(date.from, 'LLL dd, y')
               )
             ) : (
               <span>Pick a date</span>
@@ -59,5 +50,5 @@ export function Filter({
         </PopoverContent>
       </Popover>
     </div>
-  )
+  );
 }
