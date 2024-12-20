@@ -382,7 +382,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   };
 
   const sortByEndDate = async (tasks: taskProps[], inOrder: boolean) => {
-    const sorted = tasks.sort((task1, task2) => {
+    const sorted = [...tasks].sort((task1, task2) => {
       if (task1.endDate === null) return 1; // If startDate is null, move to the end
       if (task2.endDate === null) return -1;
       return inOrder
@@ -403,10 +403,10 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
               handleFilter(value);
             }}>
             <SelectTrigger className="w-[150px] border-brown">
-              <SelectValue className="text-brown" placeholder="Filter By: Default" />
+              <SelectValue className="text-brown" placeholder="Filter by: Task" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem key="default" value="default">
+              <SelectItem key="default" value="All Tasks">
                 Defualt
               </SelectItem>
               {allTags.map((tag: Tag) => (
@@ -419,6 +419,9 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         </div>
         {/* Sort and New Task  */}
         <div className="flex items-center gap-4">
+          <div className="h-10 px-4 bg-white rounded-md border border-brown justify-center items-center flex text-brown text-base font-normal font-BaiJamjuree leading-normal hover:cursor-pointer">
+              Menu
+          </div>
           <Select
             onValueChange={(value) => {
               value === 'StartDate123'
@@ -427,10 +430,12 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
                   ? sortByStartDate(showTasks, false)
                   : value === 'EndDate123'
                     ? sortByEndDate(showTasks, true)
-                    : sortByEndDate(showTasks, false);
+                    : value === 'EndDate321'
+                      ? sortByEndDate(showTasks, false)
+                      : null;
             }}>
             <SelectTrigger className="w-[150px] border-brown">
-              <SelectValue className="text-brown" placeholder="Sort By: Start Date" />
+              <SelectValue className="text-brown" placeholder="Sort by: Start Date" />
             </SelectTrigger>
             <SelectContent>
               {[
@@ -519,7 +524,7 @@ const GetTagList = ({ taskId, auth }: { taskId: string; auth: string }) => {
               key={tag.id}
               variant="destructive"
               className="h-10 px-3 py-2 bg-[#eefdf7] rounded-3xl border border-green ">
-              <span className="text-green text-base font-medium font-BaiJamjuree leading-normal">
+              <span className="text-green text-base font-semibold font-BaiJamjuree leading-normal">
                 {tag.name}
               </span>
             </Badge>
