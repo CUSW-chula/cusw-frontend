@@ -420,7 +420,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         {/* Sort and New Task  */}
         <div className="flex items-center gap-4">
           <div className="h-10 px-4 bg-white rounded-md border border-brown justify-center items-center flex text-brown text-base font-normal font-BaiJamjuree leading-normal hover:cursor-pointer">
-              Menu
+            Menu
           </div>
           <Select
             onValueChange={(value) => {
