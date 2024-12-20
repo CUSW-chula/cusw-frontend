@@ -1,13 +1,15 @@
 'use client';
 import { getCookie } from 'cookies-next';
 import type React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { Money } from './money';
 import { ProjectOwner } from './project-owner';
 import { Input } from '../ui/input';
 import { AssignedTaskToMember } from './assigned-task';
+import BASE_URL from '@/lib/shared';
+import type { ProjectOverviewProps } from '@/lib/shared';
 
 interface ProjectProps {
   id: string;
@@ -39,9 +41,31 @@ interface taskProps {
   subtasks?: taskProps[];
 }
 
-export const ProjectDetail = () => {
+export const ProjectDetail = ({project_id}: ProjectOverviewProps) => {
   const [photo, setPhoto] = useState<string | null>(null);
-  const token = getCookie('token');
+  const [projectName, setProjectName] = useState<string>('');
+  const [projectDescription, setProjectDescription] = useState<string>('');
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
+
+  // Fetch project data
+  useEffect(() => {
+    const fetchProject = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/projects/${project_id}`, {
+          headers: {
+            Authorization: auth,
+          },
+        });
+        const data = await res.json();
+        setProjectName(data.title);
+        setProjectDescription(data.description);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    fetchProject();
+  }, [project_id, auth]);
 
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,20 +122,18 @@ export const ProjectDetail = () => {
         </div>
         <div className="grow shrink basis-0 h-[348px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start inline-flex">
           <div className="self-stretch h-[82px] flex-col justify-start items-start gap-[18px] flex">
-            <Input
+            <div
               className="resize-none border-none w-full outline-none placeholder-black font-semibold text-3xl font-Anuphan leading-[48px]"
-              placeholder="Project title"
-            />
-            <Textarea
+            >{projectName}</div>
+            <div
               className="resize-none border-none w-full outline-none text-black text-xl font-Anuphan leading-7"
-              placeholder="Project description"
-            />
+            >{projectDescription}</div>
           </div>
           <div className="self-stretch h-[104px] flex-col justify-center items-end gap-3 flex">
             <div className="self-stretch h-[52px] flex-col justify-center items-start gap-3 flex">
               <div className="justify-start items-center gap-3 inline-flex">
                 <ProjectOwner />
-                <AssignedTaskToMember task_id={''} />
+                {/* <AssignedTaskToMember task_id={project_id} /> */}
                 <Money />
               </div>
             </div>
