@@ -361,7 +361,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       return matchedTasks;
     };
 
-    if (tag_id === 'default') {
+    if (tag_id === 'all') {
       setShowTasks(tasks);
       return;
     }
@@ -403,11 +403,11 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
               handleFilter(value);
             }}>
             <SelectTrigger className="w-[150px] border-brown">
-              <SelectValue className="text-brown" placeholder="Filter by: Task" />
+              <SelectValue className="text-brown" placeholder="Filter by: Tag" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem key="default" value="All Tasks">
-                Defualt
+              <SelectItem key="default" value="all">
+                Default             
               </SelectItem>
               {allTags.map((tag: Tag) => (
                 <SelectItem key={tag.id} value={tag.id}>
