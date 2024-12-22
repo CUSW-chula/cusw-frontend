@@ -12,7 +12,7 @@ const BASE_URL =
 const Home = () => {
   const router = useRouter();
   const handleSignIn = async () => {
-    const url = `${BASE_URL}/sign/cm4iswgmv0000vyjjf9asuuvc`;
+    const url = `${BASE_URL}/sign/cm4l9133n000giqjztqwecz5q`;
     const options = { method: 'GET' };
     try {
       const response = await fetch(url, options);
