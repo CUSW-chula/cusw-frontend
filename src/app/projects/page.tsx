@@ -17,12 +17,7 @@ export default async function Page({ params }: TaskManageMentProp) {
   return (
     <div className="min-w-full min-h-screen flex flex-col lg:flex-row items-start justify-center mt-10 gap-8">
       <div className=" flex flex-wrap flex- w-full items-start gap-[16px]  ">
-        <ProjectList_1 />
         <ProjectList_2 />
-        <ProjectList_3 />
-        <ProjectList_4 />
-        <ProjectList_5 />
-        <ProjectList_6 />
       </div>
     </div>
   );

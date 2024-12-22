@@ -5,13 +5,6 @@ import { Calendar, CrownIcon, Users } from 'lucide-react';
 import * as React from 'react';
 
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
-type ImageProps = {
-  src: string; // URL ของรูปภาพ
-  alt: string; // คำอธิบายภาพ
-  width?: number | string; // ความกว้าง (ไม่บังคับ)
-  height?: number | string; // ความสูง (ไม่บังคับ)
-  className?: string; // คลาส CSS (ไม่บังคับ)
-};
 
 interface UsersInterfaces {
   id: string;
