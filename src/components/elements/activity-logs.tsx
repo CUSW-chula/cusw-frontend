@@ -94,12 +94,12 @@ function ActivityLogItem({ userId, action, detail, createdAt }: ActivityLogItemP
   if (!name) return null;
 
   return (
-    <div className="flex items-center space-x-2 text-base text-gray-800 font-BaiJamjuree">
+    <div className="flex items-center space-x-2 text-base text-gray-800 font-BaiJamjuree gap-[8px]">
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger>
-            <div className="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center">
-              <span className="text-slate-900">{getInitials(name)}</span>
+            <div className="w-[24px] h-[24px]  bg-gray-100 rounded-full text-center flex items-center justify-center border-[1px] border-brown">
+              <span className="text-brown ">{getInitials(name)}</span>
             </div>
           </TooltipTrigger>
           <TooltipContent>

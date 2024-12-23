@@ -127,7 +127,7 @@ export function StatusButton({ task_id }: TaskManageMentProp) {
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+      <PopoverTrigger asChild className=" border-brown text-brown">
         <Button
           variant="outline"
           size="sm"
