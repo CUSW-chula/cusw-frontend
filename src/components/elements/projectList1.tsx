@@ -89,13 +89,12 @@ export const ProjectList_1 = () => {
 
   return (
     <>
-      <div className='flex items-start content-start gap-[16px] flex-wrap '>
+      <div className="flex items-start content-start gap-[16px] flex-wrap ">
         {projectList.length > 0 ? (
           projectList.map((project) => (
             <div
               key={project.id}
-              className="flex flex-start w-[416px] h-[260px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px]"
-            >
+              className="flex flex-start w-[416px] h-[260px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px]">
               <div className="flex flex-start gap-[10px] rounded-[6px] self-stretch">
                 <img width={158} height={224} alt="img" src="/asset/Options.svg" />
               </div>
