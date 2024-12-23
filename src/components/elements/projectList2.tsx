@@ -89,100 +89,68 @@ export const ProjectList_2 = () => {
 
   return (
     <>
-      <div>
+      <div className='flex items-start content-start gap-[16px] flex-wrap '>
         {projectList.length > 0 ? (
-          <div className="flex flex-start w-[416px] h-[260px] p-[18px] gap-[10px]  bg-white border-[1px] border-brown rounded-[6px]">
-            <div className="flex flex-start gap-[10px] rounded-[6px] self-stretch">
-              <img width={158} height={224} alt="img" src="/asset/Options.svg" />
-            </div>
-            {/*Project name  */}
-            <div className="flex flex-col gap-y-2 ">
-              <div className="h-[56px] w-[204px] self-stretch">
-                <div className="font-BaiJamjuree text-[16px] text-base font-medium leading-[1.75] ">
-                  {projectList[0].title}
-                </div>
+          projectList.map((project) => (
+            <div
+              key={project.id}
+              className="flex flex-start w-[416px] h-[260px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px]"
+            >
+              <div className="flex flex-start gap-[10px] rounded-[6px] self-stretch">
+                <img width={158} height={224} alt="img" src="/asset/Options.svg" />
               </div>
-
-              {/*Budget  */}
-              <div className="w-[24px] h-[24px] flex flex-row  ">
-                <img
-                  src="/asset/icon/budget-black.svg"
-                  alt="Budget Icon "
-                  className=" text-black  "
-                />
-                <div className="font-BaiJamjuree text-[14px] font-medium flex text-center">
-                  1,500,000.00
+              <div className="flex flex-col gap-y-[16px] ">
+                <div className="h-[56px] w-[204px] self-stretch">
+                  <div className="font-BaiJamjuree text-[16px] text-base font-medium leading-[1.75] ">
+                    {project.title}
+                  </div>
                 </div>
-              </div>
-
-              <div className="w-[24px] h-[24px] flex flex-row  ">
-                <img src="/asset/icon/budget-red.svg" alt="Budget Icon " />
-                <div className="font-BaiJamjuree text-[14px] font-medium flex text-center text-[#EF4444]">
-                  1,245,145.14
+                <div className="w-[24px] h-[24px] flex flex-row  ">
+                  <img src="/asset/icon/budget-black.svg" alt="Budget Icon " />
+                  <div className="font-BaiJamjuree text-[14px] font-medium flex text-center">
+                    1,500,000.00
+                  </div>
                 </div>
-              </div>
-
-              {/* Project owner */}
-              <div className="flex-row flex">
-                <CrownIcon className="w-[24px] h-[24px] relative text-black" />
-                <TooltipProvider>
-                  <div className="flex items-center space-x-[4px]">
-                    {users.map((user) => (
-                      <Tooltip key={user.id}>
-                        <TooltipTrigger>
-                          <div className="flex items-center space-x-2">
-                            <div className="w-[24px] h-[24px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown">
-                              <span className="text-brown text-sm font-BaiJamjuree">
-                                {getInitials(user.userName)}
-                              </span>
+                <div className="w-[24px] h-[24px] flex flex-row  ">
+                  <img src="/asset/icon/budget-red.svg" alt="Budget Icon " />
+                  <div className="font-BaiJamjuree text-[14px] font-medium flex text-center text-[#EF4444]">
+                    1,245,145.14
+                  </div>
+                </div>
+                <div className="flex-row flex">
+                  <CrownIcon className="w-[24px] h-[24px] relative text-black" />
+                  <TooltipProvider>
+                    <div className="flex items-center space-x-[4px]">
+                      {users.map((user) => (
+                        <Tooltip key={user.id}>
+                          <TooltipTrigger>
+                            <div className="flex items-center space-x-2">
+                              <div className="w-[24px] h-[24px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown">
+                                <span className="text-brown text-sm font-BaiJamjuree">
+                                  {getInitials(user.userName)}
+                                </span>
+                              </div>
                             </div>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{user.userName}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    ))}
-                  </div>
-                </TooltipProvider>
-              </div>
-
-              {/* Member */}
-              <div className="flex flex-row ">
-                <Users className="w-[24px] h-[24px] relative text-black" />
-                <TooltipProvider>
-                  <div className="flex items-center space-x-[4px]">
-                    {users.map((user) => (
-                      <Tooltip key={user.id}>
-                        <TooltipTrigger>
-                          <div className="flex items-center space-x-2">
-                            <div className="w-[24px] h-[24px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown">
-                              <span className="text-brown text-sm font-BaiJamjuree">
-                                {getInitials(user.userName)}
-                              </span>
-                            </div>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{user.userName}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    ))}
-                  </div>
-                </TooltipProvider>
-              </div>
-
-              {/* Date */}
-              <div className="flex flex-row">
-                <Calendar className="w-[24px] h-[24px] relative text-black" />
-                {item.startDate && item.endDate && (
-                  <div className="text-[14px] font-BaiJamjuree flex  gap-1 items-center">
-                    <span>{formatDate(item.startDate, item.endDate)}</span>
-                  </div>
-                )}
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{user.userName}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      ))}
+                    </div>
+                  </TooltipProvider>
+                </div>
+                <div className="flex flex-row">
+                  <Calendar className="w-[24px] h-[24px] relative text-black" />
+                  {item.startDate && item.endDate && (
+                    <div className="text-[14px] font-BaiJamjuree flex  gap-1 items-center">
+                      <span>{formatDate(item.startDate, item.endDate)}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          ))
         ) : (
           <div>No projects found</div>
         )}

@@ -5,6 +5,18 @@ import { Calendar, CrownIcon, Users } from 'lucide-react';
 import * as React from 'react';
 
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
+import { getCookie } from 'cookies-next';
+import BASE_URL from '@/lib/shared';
+interface ProjectInterface {
+  id: string;
+  title: string;
+  description: string;
+  expectedBudget: number;
+  realBudget: number;
+  usedBudget: number;
+  startDate: Date;
+  endDate: Date;
+}
 
 interface UsersInterfaces {
   id: string;
@@ -21,9 +33,31 @@ const item: Date_st = {
 };
 
 // mock data (default users)
-const users: UsersInterfaces[] = [{ id: '1', userName: 'Siwadol Dungmart' }];
+const users: UsersInterfaces[] = [
+  { id: '1', userName: 'Mintada Phuangminthada' },
+  { id: '2', userName: 'Dintada Ahuangminthada' },
+];
 
 export const ProjectList_1 = () => {
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
+  const [projectList, setProjectList] = React.useState<ProjectInterface[]>([]);
+
+  // ดึงข้อมูลโปรเจกต์เมื่อคอมโพเนนต์ถูกโหลด
+  React.useEffect(() => {
+    const fetchProjectTitle = async () => {
+      try {
+        const response = await fetch(`${BASE_URL}/projects`, {
+          headers: { Authorization: auth },
+        });
+        const data = await response.json();
+        setProjectList(data);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
+    fetchProjectTitle();
+  }, [auth]);
   //owner
   const getInitials = (name: string) => {
     const nameParts = name.split(' ');
@@ -55,99 +89,71 @@ export const ProjectList_1 = () => {
 
   return (
     <>
-      <div>
-        <div className="flex flex-start w-[416px] h-[260px] p-[18px] gap-[10px]  bg-white border-[1px] border-brown rounded-[6px]">
-          <div className="flex flex-start gap-[10px] rounded-[6px] self-stretch">
-            <img width={158} height={224} alt="img" src="/asset/Options.svg" />
-          </div>
-          {/*Project name  */}
-          <div className="flex flex-col gap-y-2 ">
-            <div className="h-[56px] w-[204px] self-stretch">
-              <div className="font-BaiJamjuree  text-base font-medium leading-[1.75] ">
-                จ้างบุลคล Hotline
+      <div className='flex items-start content-start gap-[16px] flex-wrap '>
+        {projectList.length > 0 ? (
+          projectList.map((project) => (
+            <div
+              key={project.id}
+              className="flex flex-start w-[416px] h-[260px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px]"
+            >
+              <div className="flex flex-start gap-[10px] rounded-[6px] self-stretch">
+                <img width={158} height={224} alt="img" src="/asset/Options.svg" />
+              </div>
+              <div className="flex flex-col gap-y-[16px] ">
+                <div className="h-[56px] w-[204px] self-stretch">
+                  <div className="font-BaiJamjuree text-[16px] text-base font-medium leading-[1.75] ">
+                    {project.title}
+                  </div>
+                </div>
+                <div className="w-[24px] h-[24px] flex flex-row  ">
+                  <img src="/asset/icon/budget-black.svg" alt="Budget Icon " />
+                  <div className="font-BaiJamjuree text-[14px] font-medium flex text-center">
+                    1,500,000.00
+                  </div>
+                </div>
+                <div className="w-[24px] h-[24px] flex flex-row  ">
+                  <img src="/asset/icon/budget-red.svg" alt="Budget Icon " />
+                  <div className="font-BaiJamjuree text-[14px] font-medium flex text-center text-[#EF4444]">
+                    1,245,145.14
+                  </div>
+                </div>
+                <div className="flex-row flex">
+                  <CrownIcon className="w-[24px] h-[24px] relative text-black" />
+                  <TooltipProvider>
+                    <div className="flex items-center space-x-[4px]">
+                      {users.map((user) => (
+                        <Tooltip key={user.id}>
+                          <TooltipTrigger>
+                            <div className="flex items-center space-x-2">
+                              <div className="w-[24px] h-[24px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown">
+                                <span className="text-brown text-sm font-BaiJamjuree">
+                                  {getInitials(user.userName)}
+                                </span>
+                              </div>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{user.userName}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      ))}
+                    </div>
+                  </TooltipProvider>
+                </div>
+                <div className="flex flex-row">
+                  <Calendar className="w-[24px] h-[24px] relative text-black" />
+                  {item.startDate && item.endDate && (
+                    <div className="text-[14px] font-BaiJamjuree flex  gap-1 items-center">
+                      <span>{formatDate(item.startDate, item.endDate)}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-
-            {/*Budget  */}
-            <div className="w-[24px] h-[24px] flex flex-row  ">
-              <img
-                src="/asset/icon/budget-black.svg"
-                alt="Budget Icon "
-                className=" text-black  "
-              />
-              <div className="font-BaiJamjuree text-[14px] font-medium flex text-center">
-                1,000,000.00
-              </div>
-            </div>
-
-            <div className="w-[24px] h-[24px] flex flex-row  ">
-              <img src="/asset/icon/budget-red.svg" alt="Budget Icon " />
-              <div className="font-BaiJamjuree text-[14px] font-medium flex text-center text-[#EF4444]">
-                514,452.17
-              </div>
-            </div>
-
-            {/* Project owner */}
-            <div className="flex-row flex">
-              <CrownIcon className="w-[24px] h-[24px] relative text-black" />
-              <TooltipProvider>
-                <div className="flex items-center space-x-[4px]">
-                  {users.map((user) => (
-                    <Tooltip key={user.id}>
-                      <TooltipTrigger>
-                        <div className="flex items-center space-x-2">
-                          <div className="w-[24px] h-[24px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown">
-                            <span className="text-brown text-sm font-BaiJamjuree">
-                              {getInitials(user.userName)}
-                            </span>
-                          </div>
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{user.userName}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  ))}
-                </div>
-              </TooltipProvider>
-            </div>
-
-            {/* Member */}
-            <div className="flex flex-row ">
-              <Users className="w-[24px] h-[24px] relative text-black" />
-              <TooltipProvider>
-                <div className="flex items-center space-x-[4px]">
-                  {users.map((user) => (
-                    <Tooltip key={user.id}>
-                      <TooltipTrigger>
-                        <div className="flex items-center space-x-2">
-                          <div className="w-[24px] h-[24px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown">
-                            <span className="text-brown text-sm font-BaiJamjuree">
-                              {getInitials(user.userName)}
-                            </span>
-                          </div>
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{user.userName}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  ))}
-                </div>
-              </TooltipProvider>
-            </div>
-
-            {/* Date */}
-            <div className="flex flex-row">
-              <Calendar className="w-[24px] h-[24px] relative text-black" />
-              {item.startDate && item.endDate && (
-                <div className="text-[14px] font-BaiJamjuree flex  gap-1 items-center">
-                  <span>{formatDate(item.startDate, item.endDate)}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+          ))
+        ) : (
+          <div>No projects found</div>
+        )}
       </div>
     </>
   );
