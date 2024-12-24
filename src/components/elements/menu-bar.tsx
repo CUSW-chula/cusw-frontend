@@ -54,16 +54,16 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
       <div aria-label="tag" className="inline-flex justify-start items-start w-full">
         {/* Label Zone */}
         <div>
-          <div className="flex w-24 h-10 items-center gap-2" >
+          <div className="flex w-24 h-10 items-center gap-2">
             {/* Icon & text */}
             <Tag className="w-6 h-6 relative text-brown" />
             <p className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight">
               Tag :
             </p>
-            </div>
           </div>
+        </div>
         {/* Description */}
-        <div className='flex flex-wrap w-full'>
+        <div className="flex flex-wrap w-full">
           {' '}
           <ButtonAddTags task_id={task_id} />
         </div>
