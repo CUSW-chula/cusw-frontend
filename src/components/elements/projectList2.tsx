@@ -42,7 +42,7 @@ export const ProjectList_2 = () => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [projectList, setProjectList] = React.useState<ProjectInterface[]>([]);
-  
+
   // ดึงข้อมูลโปรเจกต์เมื่อคอมโพเนนต์ถูกโหลด
   React.useEffect(() => {
     const fetchProjectTitle = async () => {
@@ -167,7 +167,9 @@ export const ProjectList_2 = () => {
                   <Calendar className="w-[24px] h-[24px] relative text-black" />
                   {item.startDate && item.endDate && (
                     <div className="text-[14px] font-BaiJamjuree flex  gap-1 items-center">
-                      <span>{formatDate(new Date (project.startDate),new Date (project.endDate))}</span>
+                      <span>
+                        {formatDate(new Date(project.startDate), new Date(project.endDate))}
+                      </span>
                     </div>
                   )}
                 </div>
