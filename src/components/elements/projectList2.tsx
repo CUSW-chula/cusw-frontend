@@ -1,7 +1,7 @@
 'use client';
 import { PopoverContent } from '@radix-ui/react-popover';
 import { CommandGroup, CommandItem } from 'cmdk';
-import { Calendar, CrownIcon, Users } from 'lucide-react';
+import { Calendar, CrownIcon, User, Users } from 'lucide-react';
 import * as React from 'react';
 
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
@@ -42,7 +42,7 @@ export const ProjectList_2 = () => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [projectList, setProjectList] = React.useState<ProjectInterface[]>([]);
-
+  
   // ดึงข้อมูลโปรเจกต์เมื่อคอมโพเนนต์ถูกโหลด
   React.useEffect(() => {
     const fetchProjectTitle = async () => {
@@ -139,11 +139,35 @@ export const ProjectList_2 = () => {
                     </div>
                   </TooltipProvider>
                 </div>
+                <div className="flex-row flex">
+                  <User className="w-[24px] h-[24px] relative text-black" />
+                  <TooltipProvider>
+                    <div className="flex items-center space-x-[4px]">
+                      {users.map((user) => (
+                        <Tooltip key={user.id}>
+                          <TooltipTrigger>
+                            <div className="flex items-center space-x-2">
+                              <div className="w-[24px] h-[24px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown">
+                                <span className="text-brown text-sm font-BaiJamjuree">
+                                  {getInitials(user.userName)}
+                                </span>
+                              </div>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{user.userName}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      ))}
+                    </div>
+                  </TooltipProvider>
+                </div>
+
                 <div className="flex flex-row">
                   <Calendar className="w-[24px] h-[24px] relative text-black" />
                   {item.startDate && item.endDate && (
                     <div className="text-[14px] font-BaiJamjuree flex  gap-1 items-center">
-                      <span>{formatDate(item.startDate, item.endDate)}</span>
+                      <span>{formatDate(new Date (project.startDate),new Date (project.endDate))}</span>
                     </div>
                   )}
                 </div>
