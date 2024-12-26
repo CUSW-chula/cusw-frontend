@@ -176,9 +176,9 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
             depth > 0, // Dynamic margin based on depth
           )}>
           <div
-            className="flex items-center w-full h-10 my-1.5"
+            className="flex items-center w-full h-fit my-1.5 gap-2"
             style={{ marginLeft: `${depth * 24 + 24}px` }}>
-            <div className="inline-flex grow items-center">
+            <div className="inline-flex grow items-center w-7/12">
               <button
                 type="button"
                 onClick={() => toggleExpand(item.id)}
@@ -205,14 +205,22 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
                 alt={`${item.status} Icon`}
                 className="w-6 h-6 mr-2"
               />
-              <a href={`/tasks/${item.id}`}>
+              <div
+                onClick={() => router.push(`/tasks/${item.id}`)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault(); // Prevent default scroll behavior for space key
+                    router.push(`/tasks/${item.id}`);
+                  }
+                }}
+                className="w-[620px] overflow-auto break-words cursor-pointer">
                 <span className="text-black text-base font-normal font-BaiJamjuree">
                   {item.title}
                 </span>
-              </a>
+              </div>
             </div>
 
-            <div className="inline-flex items-center gap-1">
+            <div className="inline-flex gap-1 relative w-[520px] justify-end">
               <GetTagList taskId={item.id} auth={auth} />
               {(item.budget > 0 || item.advance > 0 || item.expense > 0) && (
                 <div>
@@ -231,9 +239,24 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
                 </Tooltip>
               </TooltipProvider>
 
+              {/* <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Calendar className="w-6 h-6" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {item.startDate && item.endDate ? (
+                      <span>{formatDate(item.startDate, item.endDate)}</span>
+                    ) : (
+                      <div></div>
+                    )}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider> */}
+
               {item.startDate && item.endDate && (
-                <div className="w-60 inline-flex gap-1">
-                  <Calendar className="w-6 h-6" />
+                <div className="inline-flex gap-1" title={formatDate(item.startDate, item.endDate)}>
+                  <Calendar className="w-6 h-6 whitespace-nowrap" />
                   <span>{formatDate(item.startDate, item.endDate)}</span>
                 </div>
               )}
@@ -407,7 +430,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem key="default" value="all">
-                Default             
+                Default
               </SelectItem>
               {allTags.map((tag: Tag) => (
                 <SelectItem key={tag.id} value={tag.id}>
@@ -517,19 +540,47 @@ const GetTagList = ({ taskId, auth }: { taskId: string; auth: string }) => {
     fetchData();
   }, [auth, taskId]);
   return (
-    <div className="flex flex-wrap gap-2">
-      {tagList.length !== 0
-        ? tagList.map((tag) => (
-            <Badge
-              key={tag.id}
-              variant="destructive"
-              className="h-10 px-3 py-2 bg-[#eefdf7] rounded-3xl border border-green ">
-              <span className="text-green text-base font-semibold font-BaiJamjuree leading-normal">
-                {tag.name}
-              </span>
-            </Badge>
-          ))
-        : null}
+    <div className="relative flex justify-start group ">
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild className="cursor-pointer flex">
+            <div className=" w-20 overflow-hidden">
+              {tagList.length !== 0
+                ? tagList.slice(0, 3).map((tag, index) => (
+                    <Badge
+                    key={tag.id}
+                      variant="destructive"
+                      className="h-10 px-3 py-2 bg-[#eefdf7] rounded-3xl border border-green absolute self-center right-0 transition-transform"
+                      style={
+                        {
+                          transform: `translateX(${index * -28}px)`, // Custom CSS property for group hover
+                        } as React.CSSProperties
+                      }>
+                      <span className="text-green text-base font-semibold font-BaiJamjuree leading-normal whitespace-nowrap">
+                        {tag.name}
+                      </span>
+                    </Badge>
+                  ))
+                : null}
+            </div>
+          </TooltipTrigger>
+          <TooltipContent className="inline-flex gap-1">
+            {tagList.length !== 0
+              ? tagList.map((tag) => (
+                  <div key={tag.id}>
+                    <Badge
+                      variant="destructive"
+                      className="h-10 px-3 py-2 bg-[#eefdf7] rounded-3xl border border-green ">
+                      <span className="text-green text-base font-semibold font-BaiJamjuree leading-normal whitespace-nowrap">
+                        {tag.name}
+                      </span>
+                    </Badge>
+                  </div>
+                ))
+              : null}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </div>
   );
 };
