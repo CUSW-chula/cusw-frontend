@@ -1,17 +1,12 @@
 'use client';
 import { getCookie } from 'cookies-next';
 import type React from 'react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '../ui/button';
-import { Textarea } from '../ui/textarea';
-import { Money } from './money';
-import { ProjectOwner } from './project-owner';
-import { Input } from '../ui/input';
-import { AssignedTaskToMember } from './assigned-task';
-import { DatePickerWithRange } from './date-feature';
 import BASE_URL from '@/lib/shared';
 import type { ProjectOverviewProps } from '@/lib/shared';
-import { Calendar, Redo2 } from 'lucide-react';
+import { Calendar, CrownIcon, Redo2, User, Users } from 'lucide-react';
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
 
 interface ProjectProps {
   id: string;
@@ -24,6 +19,11 @@ interface ProjectProps {
   endDate: Date;
   tasks: taskProps[];
   files: File[];
+}
+interface UsersProps {
+  id: string;
+  name: string;
+  email: string;
 }
 
 interface taskProps {
@@ -92,7 +92,6 @@ const SunMoney = ({ projectid }: { projectid: string }) => {
           throw new Error('Failed to fetch project data');
         }
         const data = await res.json();
-        console.log(data);
 
         setBudget(data.budget);
         setAdvance(data.advance);
@@ -103,8 +102,6 @@ const SunMoney = ({ projectid }: { projectid: string }) => {
     };
     fetchProject();
   }, [projectid, auth]);
-
-  console.log(budget, advance, expense);
 
   const total = budget - expense;
 
@@ -140,16 +137,26 @@ const SunMoney = ({ projectid }: { projectid: string }) => {
   );
 };
 
-
-
 export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
   const [photo, setPhoto] = useState<string | null>(null);
   const [projectName, setProjectName] = useState<string>('');
   const [projectDescription, setProjectDescription] = useState<string>('');
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
+  const [ProjectOwner, setProjectOwner] = useState<UsersProps[]>([]);
+  const [member, setMember] = useState<UsersProps[]>([]);
+  const MAX_VISIBLE_MEMBERS = 3;
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
+
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  const parseJsonValue = useCallback((value: any[]) => {
+    return value.map((item) => ({
+      id: item.id,
+      name: item.name,
+      email: item.email,
+    }));
+  }, []);
 
   // Fetch project data
   useEffect(() => {
@@ -172,6 +179,58 @@ export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
     fetchProject();
   }, [project_id, auth]);
 
+  useEffect(() => {
+    const fetchProject = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/users/projectowner/${project_id}`, {
+          headers: {
+            Authorization: auth,
+          },
+        });
+        if (!res.ok) {
+          throw new Error('Failed to fetch project data');
+        }
+        const data = await res.json();
+        setProjectOwner(parseJsonValue(data));
+      } catch (error) {
+        console.error('Error fetching project data:', error);
+      }
+    };
+    fetchProject();
+  }, [project_id, auth, parseJsonValue]);
+
+  useEffect(() => {
+    const fetchProject = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/users/projectmember/${project_id}`, {
+          headers: {
+            Authorization: auth,
+          },
+        });
+        if (!res.ok) {
+          throw new Error('Failed to fetch project data');
+        }
+        const data = await res.json();
+        setMember(parseJsonValue(data));
+      } catch (error) {
+        console.error('Error fetching project data:', error);
+      }
+    };
+    fetchProject();
+  }, [project_id, auth, parseJsonValue]);
+
+  const getInitials = (name: string) => {
+    if (typeof name !== 'string') return ''; // Handle non-string input
+    const nameParts = name.split(' ');
+    return nameParts.map((part) => part[0]).join(''); // Take the first letter of each part
+  };
+
+  const getFirstName = (name: string) => {
+    if (typeof name !== 'string') return ''; // Handle non-string input
+    const nameParts = name.split(' ');
+    return nameParts[0];
+  };
+
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -188,17 +247,16 @@ export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
   const handleClickPhoto = () => {
     document.getElementById('photoInput')?.click(); // Trigger hidden file input
   };
+
   return (
     <div className="max-h-[414px] px-20 flex-col justify-start items-start gap-[18px] inline-flex max-w-1260px w-full ">
       <div className="max-w-[1260px] h-12 px-0.5 justify-between items-center inline-flex w-full">
-        <div className="text-black text-5xl font-semibold font-Anuphan leading-[48px]">
-          Project
-        </div>
-          <div className="justify-start items-center gap-2 inline-flex">
-            <div className="w-6 h-6 relative origin-top-left -rotate-180 overflow-hidden" />
-            <div className="text-[#6b5c56] text-base font-normal font-BaiJamjuree leading-normal">
-              <BackButton/>
-            </div>
+        <div className="text-black text-5xl font-semibold font-Anuphan leading-[48px]">Project</div>
+        <div className="justify-start items-center gap-2 inline-flex">
+          <div className="w-6 h-6 relative origin-top-left -rotate-180 overflow-hidden" />
+          <div className="text-[#6b5c56] text-base font-normal font-BaiJamjuree leading-normal">
+            <BackButton />
+          </div>
         </div>
       </div>
       <div className="self-stretch justify-center items-start gap-7 inline-flex">
@@ -243,6 +301,52 @@ export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
           <div className="self-stretch h-[104px] flex-col justify-center items-end gap-3 flex">
             <div className="self-stretch h-[52px] flex-col justify-center items-start gap-3 flex">
               <div className="justify-start items-center gap-3 inline-flex">
+                <CrownIcon className="w-[24px] h-[24px] text-black" />
+                <TooltipProvider>
+                  <div className="flex items-center space-x-2">
+                    {ProjectOwner.map((owner) => (
+                      <Tooltip key={owner.id}>
+                        <TooltipTrigger>
+                          <div className="w-[24px] h-[24px] bg-gray-100 rounded-full border flex items-center justify-center border-brown text-brown text-sm font-BaiJamjuree">
+                            {getInitials(owner.name)}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>{owner.name}</TooltipContent>
+                      </Tooltip>
+                    ))}
+                  </div>
+                </TooltipProvider>
+
+                <Users className="w-[24px] h-[24px] text-black" />
+                <TooltipProvider>
+                  <div className="flex items-center space-x-2">
+                    {member.slice(0, MAX_VISIBLE_MEMBERS).map((user) => (
+                      <Tooltip key={user.id}>
+                        <TooltipTrigger>
+                          <div className="w-[24px] h-[24px] bg-gray-100 rounded-full border border-[#6b5c56] flex-col justify-center items-center gap-2.5 inline-flex text-center text-[#6b5c56] text-sm font-BaiJamjuree ">
+                            {getInitials(user.name)}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>{user.name}</TooltipContent>
+                      </Tooltip>
+                    ))}
+                    {member.length > MAX_VISIBLE_MEMBERS && (
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <div className="w-[24px] h-[24px] bg-gray-100 rounded-xl border border-[#6b5c56] flex-col justify-center items-center gap-2.5 inline-flex text-center text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-3">
+                            +{member.length - MAX_VISIBLE_MEMBERS}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {member.slice(MAX_VISIBLE_MEMBERS).map((user) => (
+                            <p key={user.id}>{user.name}</p>
+                          ))}
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </div>
+                </TooltipProvider>
+
                 <SunMoney projectid={project_id} />
                 <Calendar className="w-[24px] h-[24px] relative text-black" />
                 {formatDate(startDate, endDate)}
