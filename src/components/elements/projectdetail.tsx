@@ -352,6 +352,7 @@ export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
                 {formatDate(startDate, endDate)}
               </div>
             </div>
+            <hr className="my-4 w-full border-t-1 border-gray-200" />
             <div className="justify-start items-start gap-3 inline-flex">
               <Button
                 variant="destructive"
