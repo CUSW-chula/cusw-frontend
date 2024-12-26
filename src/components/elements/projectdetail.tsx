@@ -11,7 +11,7 @@ import { AssignedTaskToMember } from './assigned-task';
 import { DatePickerWithRange } from './date-feature';
 import BASE_URL from '@/lib/shared';
 import type { ProjectOverviewProps } from '@/lib/shared';
-import { Redo2 } from 'lucide-react';
+import { Calendar, Redo2 } from 'lucide-react';
 
 interface ProjectProps {
   id: string;
@@ -52,6 +52,24 @@ const BackButton = () => {
       <Redo2 className="transform rotate-180 text-brown" /> Back
     </Button>
   );
+};
+
+const formatDate = (startdate: Date | null, enddate: Date | null): string => {
+  // Return an empty string if both dates are not provided
+  if (!startdate || !enddate) return '';
+
+  const format = (date: Date): string => {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  // Format startdate and enddate if they are valid
+  const start = startdate ? format(startdate) : '';
+  const end = enddate ? format(enddate) : '';
+
+  return `${start}${start && end ? ' -> ' : ''}${end}`;
 };
 
 const SunMoney = ({ projectid }: { projectid: string }) => {
@@ -123,10 +141,13 @@ const SunMoney = ({ projectid }: { projectid: string }) => {
 };
 
 
+
 export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
   const [photo, setPhoto] = useState<string | null>(null);
   const [projectName, setProjectName] = useState<string>('');
   const [projectDescription, setProjectDescription] = useState<string>('');
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
 
@@ -142,6 +163,8 @@ export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
         const data = await res.json();
         setProjectName(data.title);
         setProjectDescription(data.description);
+        setStartDate(new Date(data.startDate));
+        setEndDate(new Date(data.endDate));
       } catch (error) {
         console.error(error);
       }
@@ -221,6 +244,8 @@ export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
             <div className="self-stretch h-[52px] flex-col justify-center items-start gap-3 flex">
               <div className="justify-start items-center gap-3 inline-flex">
                 <SunMoney projectid={project_id} />
+                <Calendar className="w-[24px] h-[24px] relative text-black" />
+                {formatDate(startDate, endDate)}
               </div>
             </div>
             <div className="justify-start items-start gap-3 inline-flex">
