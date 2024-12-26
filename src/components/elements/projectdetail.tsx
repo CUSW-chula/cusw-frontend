@@ -298,7 +298,7 @@ export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
               {projectDescription}
             </div>
           </div>
-          <div className="self-stretch h-[104px] flex-col justify-center items-end gap-3 flex">
+          <div className="self-stretch h-[120px] flex-col justify-center items-end gap-3 flex">
             <div className="self-stretch h-[52px] flex-col justify-center items-start gap-3 flex">
               <div className="justify-start items-center gap-3 inline-flex">
                 <CrownIcon className="w-[24px] h-[24px] text-black" />
@@ -311,6 +311,9 @@ export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
                             {getInitials(owner.name)}
                           </div>
                         </TooltipTrigger>
+                        <span className="text-black text-sm font-BaiJamjuree">
+                        {owner.name}
+                        </span>
                         <TooltipContent>{owner.name}</TooltipContent>
                       </Tooltip>
                     ))}
@@ -353,7 +356,7 @@ export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
               </div>
             </div>
             <hr className="my-4 w-full border-t-1 border-gray-200" />
-            <div className="justify-start items-start gap-3 inline-flex">
+            <div className="justify-start items-start gap-1 inline-flex">
               <Button
                 variant="destructive"
                 className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex">
