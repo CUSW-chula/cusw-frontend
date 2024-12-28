@@ -2,18 +2,19 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getCookie } from 'cookies-next';
 import BASE_URL, { BASE_SOCKET, type TaskManageMentOverviewProp } from '@/lib/shared';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Button } from '../ui/button';
 import { Calendar, ChevronRight, ChevronsRight, User, SquareDashed } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+import { Checkbox } from '../ui/checkbox';
+import { useRouter } from 'next/navigation';
 
 interface Tag {
   id: string;
   name: string;
 }
-import { useRouter } from 'next/navigation';
-import { Badge } from '../ui/badge';
 
 interface taskProps {
   id: string;
@@ -32,47 +33,30 @@ interface taskProps {
   subtasks?: taskProps[];
 }
 
-const formatDate = (startdate: Date | null, enddate: Date | null): string => {
-  // Return an empty string if both dates are not provided
-  if (!startdate || !enddate) return '';
-
-  const format = (date: Date): string => {
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
-
-  // Format startdate and enddate if they are valid
-  const start = startdate ? format(startdate) : '';
-  const end = enddate ? format(enddate) : '';
-
-  return `${start}${start && end ? ' -> ' : ''}${end}`;
-};
-
 // Paths for status icons
 const unassigned = '/asset/icon/unassigned.svg';
 const assigned = '/asset/icon/assigned.svg';
 const inrecheck = '/asset/icon/inrecheck.svg';
 const underreview = '/asset/icon/underreview.svg';
 const done = '/asset/icon/done.svg';
+const statusSections = [
+  { status: 'Unassigned', displayName: 'Unassigned', icon: unassigned },
+  { status: 'Assigned', displayName: 'Assigned', icon: assigned },
+  { status: 'InRecheck', displayName: 'In Recheck', icon: inrecheck },
+  { status: 'UnderReview', displayName: 'Under Review', icon: underreview },
+  { status: 'Done', displayName: 'Done', icon: done },
+];
+
+const cookie = getCookie('auth');
+const auth = cookie?.toString() ?? '';
 
 export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
+  const router = useRouter();
   const [tasks, settasks] = useState<taskProps[]>([]);
   const [showTasks, setShowTasks] = useState<taskProps[]>([]);
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [projectName, setProjectName] = useState<string>('');
-  const cookie = getCookie('auth');
-  const auth = cookie?.toString() ?? '';
-  const [allTags, setAllTags] = useState<Tag[]>([]);
-  const router = useRouter();
-  const statusSections = [
-    { status: 'Unassigned', displayName: 'Unassigned', icon: unassigned },
-    { status: 'Assigned', displayName: 'Assigned', icon: assigned },
-    { status: 'InRecheck', displayName: 'In Recheck', icon: inrecheck },
-    { status: 'UnderReview', displayName: 'Under Review', icon: underreview },
-    { status: 'Done', displayName: 'Done', icon: done },
-  ];
+  const [isExportTasks, setIsExportTasks] = useState<boolean>(false);
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValues = useCallback((values: any[]): taskProps[] => {
@@ -93,32 +77,272 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     }));
   }, []);
 
-  const handleCreateTask = async () => {
-    const url = `${BASE_URL}/tasks/`;
-    const options = {
-      method: 'POST',
-      headers: { Authorization: auth, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title: '',
-        description: '',
-        expectedBudget: 0,
-        realBudget: 0,
-        parentTaskId: '',
-        usedBudget: 1,
-        status: 'Unassigned',
-        projectId: project_id,
-        startDate: new Date(),
-        endDate: new Date(),
-      }),
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetch(`${BASE_URL}/projects/${project_id}`, {
+          headers: {
+            Authorization: auth,
+          },
+        });
+        if (data.ok) {
+          const project = await data.json();
+          setProjectName(project.title);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+  }, [project_id]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetch(`${BASE_URL}/tasks/project/${project_id}`, {
+          headers: {
+            Authorization: auth,
+          },
+        });
+        if (data.ok) {
+          const tasks = await data.json();
+          const parsedData = parseJsonValues(tasks);
+          settasks(parsedData);
+          if (showTasks.length === 0) setShowTasks(parsedData);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+  }, [project_id, parseJsonValues, showTasks]);
+
+  const ProjectController = () => {
+    const [allTags, setAllTags] = useState<Tag[]>([]);
+    const sortItem = [
+      {
+        value: 'StartDate123',
+        label: 'Start date ↓',
+      },
+      {
+        value: 'StartDate321',
+        label: 'Start date ↑',
+      },
+      {
+        value: 'EndDate123',
+        label: 'End date ↓',
+      },
+      {
+        value: 'EndDate321',
+        label: 'End date ↑',
+      },
+    ];
+
+    useEffect(() => {
+      const fetchTagData = async () => {
+        const url = `${BASE_URL}/tags/`;
+        const options = {
+          method: 'GET',
+          headers: {
+            Authorization: auth,
+          },
+        };
+
+        try {
+          const response = await fetch(url, options);
+          const data = (await response.json()) as Tag[];
+          setAllTags(data);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+      fetchTagData();
+    }, []);
+
+    const handleFilter = async (tag_id: string) => {
+      //get task have this tag
+      const fetchData = async (tag_id: string) => {
+        const url = `${BASE_URL}/tags/getassigntask/${tag_id}`;
+        const options = { method: 'GET', headers: { Authorization: auth } };
+        try {
+          const response = await fetch(url, options);
+          const data = await response.json();
+
+          // Map the data to extract the task ids as a string array
+          const tasksHavetag = data.map((task: { id: string }) => task.id);
+          // console.log('taskIds: ', taskIds);
+
+          // Return the task ids array
+          console.log(tasksHavetag);
+          return tasksHavetag;
+        } catch (error) {
+          console.error('Error fetching data:', error);
+          // You might want to return an empty array in case of error
+          return [];
+        }
+      };
+
+      const setTaskAssignedByTag = (tasks: taskProps[], taskIds: string[]): taskProps[] => {
+        let matchedTasks: taskProps[] = [];
+
+        for (const task of tasks) {
+          // Check if the current task's id matches the taskIds list
+          if (taskIds.includes(task.id)) {
+            matchedTasks.push(task);
+          }
+
+          // If there are subtasks, call the function recursively on the subtasks
+          if (task.subtasks && task.subtasks.length > 0) {
+            matchedTasks = [
+              ...matchedTasks,
+              ...setTaskAssignedByTag(task.subtasks, taskIds), // Recursive call
+            ];
+          }
+        }
+        setShowTasks(matchedTasks);
+        return matchedTasks;
+      };
+
+      if (tag_id === 'all') {
+        setShowTasks(tasks);
+        return;
+      }
+      const tasksHavetag = await fetchData(tag_id);
+
+      setTaskAssignedByTag(tasks, tasksHavetag);
     };
 
-    try {
-      const response = await fetch(url, options);
-      const data = await response.json();
-      router.push(`/tasks/${data.id}`);
-    } catch (error) {
-      console.error(error);
-    }
+    const handleSort = (value: string) => {
+      value === 'StartDate123'
+        ? sortByStartDate(showTasks, true)
+        : value === 'StartDate321'
+          ? sortByStartDate(showTasks, false)
+          : value === 'EndDate123'
+            ? sortByEndDate(showTasks, true)
+            : value === 'EndDate321'
+              ? sortByEndDate(showTasks, false)
+              : null;
+    };
+
+    const sortByStartDate = async (tasks: taskProps[], inOrder: boolean) => {
+      const sorted = [...tasks].sort((task1, task2) => {
+        if (task1.startDate === null) return 1; // If startDate is null, move to the end
+        if (task2.startDate === null) return -1;
+        return inOrder
+          ? new Date(task1.startDate).getTime() - new Date(task2.startDate).getTime()
+          : new Date(task2.startDate).getTime() - new Date(task1.startDate).getTime();
+      });
+      setShowTasks(sorted);
+    };
+
+    const sortByEndDate = async (tasks: taskProps[], inOrder: boolean) => {
+      const sorted = [...tasks].sort((task1, task2) => {
+        if (task1.endDate === null) return 1; // If startDate is null, move to the end
+        if (task2.endDate === null) return -1;
+        return inOrder
+          ? new Date(task1.endDate).getTime() - new Date(task2.endDate).getTime()
+          : new Date(task2.endDate).getTime() - new Date(task1.endDate).getTime();
+      });
+      setShowTasks(sorted);
+    };
+
+    const handleCreateTask = async () => {
+      const url = `${BASE_URL}/tasks/`;
+      const options = {
+        method: 'POST',
+        headers: { Authorization: auth, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: '',
+          description: '',
+          expectedBudget: 0,
+          realBudget: 0,
+          parentTaskId: '',
+          usedBudget: 1,
+          status: 'Unassigned',
+          projectId: project_id,
+          startDate: new Date(),
+          endDate: new Date(),
+        }),
+      };
+
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        router.push(`/tasks/${data.id}`);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    const handleSelectTasks = () => {
+      const expandItemsRecursively = (tasks: taskProps[]) => {
+        const expandTask = (task: taskProps) => {
+          setExpandedItems((prev) => {
+            const newSet = new Set(prev);
+            if (!newSet.has(task.id)) {
+              newSet.add(task.id);
+            }
+            return newSet;
+          });
+
+          if (task.subtasks?.length) {
+            expandItemsRecursively(task.subtasks);
+          }
+        };
+        tasks.forEach(expandTask);
+      };
+      setIsExportTasks(!isExportTasks);
+      if (!isExportTasks) expandItemsRecursively(showTasks);
+    };
+    return (
+      <div className="flex items-center justify-between w-full mb-3">
+        {/* Filter Task */}
+        <div className="flex items-center gap-4">
+          <Select onValueChange={(value) => handleFilter(value)}>
+            <SelectTrigger className="w-[150px] border-brown">
+              <SelectValue className="text-brown" placeholder="Filter by: Tag" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem key="default" value="all" className="font-BaiJamjuree">
+                Default
+              </SelectItem>
+              {allTags.map((tag: Tag) => (
+                <SelectItem key={tag.id} value={tag.id} className="font-BaiJamjuree">
+                  {tag.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        {/* Sort and New Task  */}
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            className="h-10 px-4 bg-white rounded-md border border-brown justify-center items-center flex text-brown text-base font-normal font-BaiJamjuree leading-normal hover:cursor-pointer"
+            onClick={handleSelectTasks}>
+            Select tasks
+          </Button>
+          <Select onValueChange={(value) => handleSort(value)}>
+            <SelectTrigger className="w-[150px] border-brown">
+              <SelectValue className="text-brown" placeholder="Sort by: Start date" />
+            </SelectTrigger>
+            <SelectContent>
+              {sortItem.map(({ value, label }) => (
+                <SelectItem key={value} value={value}>
+                  Sort by: {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button
+            variant="outline"
+            onClick={handleCreateTask}
+            className="flex items-center text-brown border-brown px-3 py-1 rounded-md">
+            + New task
+          </Button>
+        </div>
+      </div>
+    );
   };
 
   const SubtaskItem = ({
@@ -131,6 +355,25 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   }) => {
     const hasChildren = item.subtasks && item.subtasks.length > 0;
     const isExpanded = expandedItems.has(item.id);
+
+    //format Date display
+    const formatDate = (startdate: Date | null, enddate: Date | null): string => {
+      // Return an empty string if both dates are not provided
+      if (!startdate || !enddate) return '';
+
+      const format = (date: Date): string => {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+      };
+
+      // Format startdate and enddate if they are valid
+      const start = startdate ? format(startdate) : '';
+      const end = enddate ? format(enddate) : '';
+
+      return `${start}${start && end ? ' -> ' : ''}${end}`;
+    };
 
     //display Money
     const displayValue = (type: string, value: number) => {
@@ -158,13 +401,50 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       return section ? section.icon : unassigned; // Fallback icon if status not found
     };
 
-    //expand subtask
-    const toggleExpand = (id: string) => {
-      setExpandedItems((prev) => {
-        const newSet = new Set(prev);
-        newSet.has(id) ? newSet.delete(id) : newSet.add(id);
-        return newSet;
-      });
+    const Chevron = ({
+      task,
+    }: {
+      task: taskProps;
+    }) => {
+      //expand subtask
+      const toggleExpand = (id: string) => {
+        setExpandedItems((prev) => {
+          const newSet = new Set(prev);
+          newSet.has(id) ? newSet.delete(id) : newSet.add(id);
+          return newSet;
+        });
+      };
+
+      const handleChecked = (task: taskProps) => {
+        if (task.subtasks && task.subtasks?.length !== 0) {
+          task.subtasks?.map((item) => {});
+        }
+      };
+
+      return (
+        <div>
+          {isExportTasks ? (
+            <Checkbox className="mr-3" onCheckedChange={() => handleChecked(task)} />
+          ) : (
+            <button
+              type="button"
+              onClick={() => toggleExpand(item.id)}
+              className={`w-6 h-6 mr-1 flex items-center justify-center rounded hover:bg-gray-200 ${
+                hasChildren ? 'visible' : 'invisible'
+              }`}>
+              {item.parentTaskId ? (
+                <ChevronRight
+                  className={`h-4 w-4 transition-transform${isExpanded ? 'transform rotate-90' : ''}`}
+                />
+              ) : (
+                <ChevronsRight
+                  className={`h-4 w-4 transition-transform${isExpanded ? 'transform rotate-90' : ''}`}
+                />
+              )}
+            </button>
+          )}
+        </div>
+      );
     };
 
     //for subTask
@@ -176,29 +456,10 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
             depth > 0, // Dynamic margin based on depth
           )}>
           <div
-            className="flex items-center w-full h-fit my-1.5 gap-2"
+            className="flex items-center w-full h-fit my-1.5"
             style={{ marginLeft: `${depth * 24 + 24}px` }}>
-            <div className="inline-flex grow items-center w-7/12">
-              <button
-                type="button"
-                onClick={() => toggleExpand(item.id)}
-                className={`w-6 h-6 mr-1 flex items-center justify-center rounded hover:bg-gray-200 ${
-                  hasChildren ? 'visible' : 'invisible'
-                }`}>
-                {item.parentTaskId ? (
-                  <ChevronRight
-                    className={`h-4 w-4 transition-transform${
-                      isExpanded ? 'transform rotate-90' : ''
-                    }`}
-                  />
-                ) : (
-                  <ChevronsRight
-                    className={`h-4 w-4 transition-transform${
-                      isExpanded ? 'transform rotate-90' : ''
-                    }`}
-                  />
-                )}
-              </button>
+            <div className="inline-flex w-7/12 items-center">
+              <Chevron task={item} />
 
               <img
                 src={getStatusIcon(item.status)}
@@ -213,14 +474,14 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
                     router.push(`/tasks/${item.id}`);
                   }
                 }}
-                className="w-[620px] overflow-auto break-words cursor-pointer">
-                <span className="text-black text-base font-normal font-BaiJamjuree">
+                className="cursor-pointer w-full">
+                <span className="flex text-black text-base font-normal font-BaiJamjuree w-11/12">
                   {item.title}
                 </span>
               </div>
             </div>
 
-            <div className="inline-flex gap-1 relative w-[520px] justify-end">
+            <div className="w-5/12 flex gap-1 relative justify-end items-center">
               <GetTagList taskId={item.id} auth={auth} />
               {(item.budget > 0 || item.advance > 0 || item.expense > 0) && (
                 <div>
@@ -238,21 +499,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
                   <GetAssignPeopleList taskId={item.id} auth={auth} />
                 </Tooltip>
               </TooltipProvider>
-
-              {/* <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Calendar className="w-6 h-6" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {item.startDate && item.endDate ? (
-                      <span>{formatDate(item.startDate, item.endDate)}</span>
-                    ) : (
-                      <div></div>
-                    )}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider> */}
 
               {item.startDate && item.endDate && (
                 <div className="inline-flex gap-1" title={formatDate(item.startDate, item.endDate)}>
@@ -279,240 +525,31 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     );
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetch(`${BASE_URL}/projects/${project_id}`, {
-          headers: {
-            Authorization: auth,
-          },
-        });
-        if (data.ok) {
-          const project = await data.json();
-          setProjectName(project.title);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchData();
-  }, [project_id, auth]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetch(`${BASE_URL}/tasks/project/${project_id}`, {
-          headers: {
-            Authorization: auth,
-          },
-        });
-        if (data.ok) {
-          const tasks = await data.json();
-          const parsedData = parseJsonValues(tasks);
-          settasks(parsedData);
-          if (showTasks.length === 0) setShowTasks(parsedData);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchData();
-  }, [project_id, auth, parseJsonValues, showTasks]);
-
-  //filter zone start
-  useEffect(() => {
-    const fetchTagData = async () => {
-      const url = `${BASE_URL}/tags/`;
-      const options = {
-        method: 'GET',
-        headers: {
-          Authorization: auth,
-        },
-      };
-
-      try {
-        const response = await fetch(url, options);
-        const data = (await response.json()) as Tag[];
-        setAllTags(data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchTagData();
-  }, [auth]);
-
-  const handleFilter = async (tag_id: string) => {
-    //get task have this tag
-    const fetchData = async (tag_id: string) => {
-      const url = `${BASE_URL}/tags/getassigntask/${tag_id}`;
-      const options = { method: 'GET', headers: { Authorization: auth } };
-      try {
-        const response = await fetch(url, options);
-        const data = await response.json();
-
-        // Map the data to extract the task ids as a string array
-        const taskIds = data.map((task: { id: string }) => task.id);
-        // console.log('taskIds: ', taskIds);
-
-        // Return the task ids array
-        return taskIds;
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        // You might want to return an empty array in case of error
-        return [];
-      }
-    };
-
-    const setTaskAssignedByTag = (tasks: taskProps[], taskIds: string[]): taskProps[] => {
-      let matchedTasks: taskProps[] = [];
-
-      for (const task of tasks) {
-        // Check if the current task's id matches the taskIds list
-        if (taskIds.includes(task.id)) {
-          matchedTasks.push(task);
-        }
-
-        // If there are subtasks, call the function recursively on the subtasks
-        if (task.subtasks && task.subtasks.length > 0) {
-          matchedTasks = [
-            ...matchedTasks,
-            ...setTaskAssignedByTag(task.subtasks, taskIds), // Recursive call
-          ];
-        }
-      }
-      setShowTasks(matchedTasks);
-      return matchedTasks;
-    };
-
-    if (tag_id === 'all') {
-      setShowTasks(tasks);
-      return;
-    }
-    const taskids = await fetchData(tag_id);
-
-    setTaskAssignedByTag(tasks, taskids);
-  };
-  // filter zone end
-  const sortByStartDate = async (tasks: taskProps[], inOrder: boolean) => {
-    const sorted = [...tasks].sort((task1, task2) => {
-      if (task1.startDate === null) return 1; // If startDate is null, move to the end
-      if (task2.startDate === null) return -1;
-      return inOrder
-        ? new Date(task1.startDate).getTime() - new Date(task2.startDate).getTime()
-        : new Date(task2.startDate).getTime() - new Date(task1.startDate).getTime();
-    });
-    setShowTasks(sorted);
-  };
-
-  const sortByEndDate = async (tasks: taskProps[], inOrder: boolean) => {
-    const sorted = [...tasks].sort((task1, task2) => {
-      if (task1.endDate === null) return 1; // If startDate is null, move to the end
-      if (task2.endDate === null) return -1;
-      return inOrder
-        ? new Date(task1.endDate).getTime() - new Date(task2.endDate).getTime()
-        : new Date(task2.endDate).getTime() - new Date(task1.endDate).getTime();
-    });
-    setShowTasks(sorted);
-  };
   return (
-    <div className="h-auto w-[1280px] p-11 font-BaiJamjuree bg-white rounded-md border border-brown flex flex-col">
-      <div className="h-9 text-black text-3xl font-semibold leading-9 mb-6">{projectName}</div>
+    <div className="h-auto w-full p-11 font-BaiJamjuree bg-white rounded-md border border-brown flex flex-col">
+      <header className="h-9 text-black text-3xl font-semibold leading-9 mb-6">
+        {projectName}
+      </header>
       {/* Controller section */}
-      <div className="flex items-center justify-between w-full mb-3">
-        {/* Filter Task */}
-        <div className="flex items-center gap-4">
-          <Select
-            onValueChange={(value) => {
-              handleFilter(value);
-            }}>
-            <SelectTrigger className="w-[150px] border-brown">
-              <SelectValue className="text-brown" placeholder="Filter by: Tag" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem key="default" value="all">
-                Default
-              </SelectItem>
-              {allTags.map((tag: Tag) => (
-                <SelectItem key={tag.id} value={tag.id}>
-                  {tag.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        {/* Sort and New Task  */}
-        <div className="flex items-center gap-4">
-          <div className="h-10 px-4 bg-white rounded-md border border-brown justify-center items-center flex text-brown text-base font-normal font-BaiJamjuree leading-normal hover:cursor-pointer">
-            Menu
+      <ProjectController />
+      {/* Content section */}
+      {statusSections.map(({ status, displayName, icon }) => (
+        <div key={status}>
+          {/* Status Title */}
+          <div className="flex items-center gap-2 border-b border-gray-300 py-3">
+            <img src={icon} alt={`${status} Icon`} className="w-6 h-6" />
+            <span className="text-black text-sm font-medium font-BaiJamjuree">{displayName}</span>
           </div>
-          <Select
-            onValueChange={(value) => {
-              value === 'StartDate123'
-                ? sortByStartDate(showTasks, true)
-                : value === 'StartDate321'
-                  ? sortByStartDate(showTasks, false)
-                  : value === 'EndDate123'
-                    ? sortByEndDate(showTasks, true)
-                    : value === 'EndDate321'
-                      ? sortByEndDate(showTasks, false)
-                      : null;
-            }}>
-            <SelectTrigger className="w-[150px] border-brown">
-              <SelectValue className="text-brown" placeholder="Sort by: Start Date" />
-            </SelectTrigger>
-            <SelectContent>
-              {[
-                {
-                  value: 'StartDate123',
-                  label: 'Start Date ↓',
-                },
-                {
-                  value: 'StartDate321',
-                  label: 'Start Date ↑',
-                },
-                {
-                  value: 'EndDate123',
-                  label: 'End Date ↓',
-                },
-                {
-                  value: 'EndDate321',
-                  label: 'End Date ↑',
-                },
-              ].map(({ value, label }) => (
-                <SelectItem key={value} value={value}>
-                  Sort By: {label}
-                </SelectItem>
+          {/* Tasks in there group */}
+          <div className="w-full block">
+            {showTasks
+              .filter((item) => item.status === status) // Match with the status property
+              .map((item) => (
+                <SubtaskItem key={item.id} item={item} statusIcon={icon} />
               ))}
-            </SelectContent>
-          </Select>
-          <Button
-            variant="outline"
-            onClick={handleCreateTask}
-            className="flex items-center text-brown border-brown px-3 py-1 rounded-md">
-            + New Task
-          </Button>
-        </div>
-      </div>
-
-      <div className="col-auto">
-        {statusSections.map(({ status, displayName, icon }) => (
-          <div key={status}>
-            {/* Status Title */}
-            <div className="flex items-center gap-2 border-b border-gray-300 py-3">
-              <img src={icon} alt={`${status} Icon`} className="w-6 h-6" />
-              <span className="text-black text-sm font-medium font-BaiJamjuree">{displayName}</span>
-            </div>
-            {/* Tasks in there group */}
-            <div className="w-full flex flex-col">
-              {showTasks
-                .filter((item) => item.status === status) // Match with the status property
-                .map((item) => (
-                  <SubtaskItem key={item.id} item={item} statusIcon={icon} />
-                ))}
-            </div>
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
   );
 };
@@ -539,16 +576,17 @@ const GetTagList = ({ taskId, auth }: { taskId: string; auth: string }) => {
     };
     fetchData();
   }, [auth, taskId]);
+
   return (
-    <div className="relative flex justify-start group ">
+    <div className="relative flex">
       <TooltipProvider>
         <Tooltip>
-          <TooltipTrigger asChild className="cursor-pointer flex">
-            <div className=" w-20 overflow-hidden">
+          <TooltipTrigger asChild className="cursor-pointer flex max-w-32">
+            <div>
               {tagList.length !== 0
                 ? tagList.slice(0, 3).map((tag, index) => (
                     <Badge
-                    key={tag.id}
+                      key={tag.id}
                       variant="destructive"
                       className="h-10 px-3 py-2 bg-[#eefdf7] rounded-3xl border border-green absolute self-center right-0 transition-transform"
                       style={
@@ -564,7 +602,7 @@ const GetTagList = ({ taskId, auth }: { taskId: string; auth: string }) => {
                 : null}
             </div>
           </TooltipTrigger>
-          <TooltipContent className="inline-flex gap-1">
+          <TooltipContent className="flex flex-col gap-1">
             {tagList.length !== 0
               ? tagList.map((tag) => (
                   <div key={tag.id}>
