@@ -15,7 +15,6 @@ interface Tag {
   id: string;
   name: string;
 }
-
 interface taskProps {
   id: string;
   title: string;
