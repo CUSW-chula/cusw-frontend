@@ -3,10 +3,10 @@ import { PopoverContent } from '@radix-ui/react-popover';
 import { CommandGroup, CommandItem } from 'cmdk';
 import { Calendar, CrownIcon, Users } from 'lucide-react';
 import * as React from 'react';
-
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { getCookie } from 'cookies-next';
 import BASE_URL from '@/lib/shared';
+import { Filter, Createproject, SortButton, Searchbar } from '@/components/elements/control-bar';
 interface ProjectInterface {
   id: string;
   title: string;
@@ -87,8 +87,39 @@ export const ProjectList_1 = () => {
     return `${start}${start && end ? ' -> ' : ''}${end}`;
   };
 
+  const handleFilterChange = (dateRange: { from: string; to?: string } | undefined) => {
+    console.log('Selected Date Range:', dateRange);
+    const updateProjectlist = async () => {
+      const url = `${BASE_URL}/projects/daterange`;
+      const options = {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
+        body: JSON.stringify({
+          startDate: dateRange?.from,
+          endDate: dateRange?.to,
+        }),
+      };
+
+      try {
+        const response = await fetch(url, options);
+        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+        const data = await response.json();
+        setProjectList(data);
+        console.log('Projectlist updated successfully:', data);
+      } catch (error) {
+        console.error('Error updating Projectlist:', error);
+      }
+    };
+    updateProjectlist();
+  };
   return (
     <>
+      <div className="flex w-full justify-between flex-wrap gap-2">
+        <Filter onDateChange={handleFilterChange} />
+        <Searchbar />
+        <SortButton />
+        <Createproject />
+      </div>
       <div className="flex items-start content-start gap-[16px] flex-wrap ">
         {projectList.length > 0 ? (
           projectList.map((project) => (
