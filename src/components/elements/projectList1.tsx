@@ -43,6 +43,7 @@ export const ProjectList_1 = () => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [projectList, setProjectList] = React.useState<ProjectInterface[]>([]);
+  const [query, setQuery] = React.useState<ProjectInterface[]>([]);
 
   const fetchAllProjects = async () => {
     try {
@@ -51,7 +52,7 @@ export const ProjectList_1 = () => {
       });
       const data = await response.json();
       setProjectList(data);
-      setQurrys(data);
+      setQuery(data);
       console.log('All projects fetched successfully:', data);
     } catch (error) {
       console.error('Error fetching projects:', error);
@@ -93,13 +94,11 @@ export const ProjectList_1 = () => {
   };
 
   /* filter by daterange zone */
-  const [Qurrys, setQurrys] = React.useState<ProjectInterface[]>([]);
 
   const handleFilterDateRangeChange = (dateRange: { from: string; to: string } | undefined) => {
     console.log('Selected Date Range:', dateRange);
-
     if (!dateRange || !dateRange.from || !dateRange.to) {
-      setQurrys(projectList);
+      setQuery(projectList);
       return;
     }
 
@@ -115,20 +114,28 @@ export const ProjectList_1 = () => {
         (projectStartDate <= fromDate && projectEndDate >= toDate)
       );
     });
-    setQurrys(filteredProjects);
+    setQuery(filteredProjects);
   };
 
+  /* search by project title zone */
+  const handleSearch = (text: string) => {
+    const filteredProjects = projectList.filter((project) => {
+      const projectTitle = project.title.toLocaleLowerCase().trim();
+      return projectTitle.includes(text.toLocaleLowerCase().trim());
+    });
+    setQuery(filteredProjects);
+  };
   return (
     <>
       <div className="flex w-full justify-between flex-wrap gap-2">
         <Filter onDateChange={handleFilterDateRangeChange} />
-        <Searchbar />
+        <Searchbar onSearchChange={handleSearch} />
         <SortButton />
         <Createproject />
       </div>
       <div className="flex items-start content-start gap-[16px] flex-wrap ">
-        {Qurrys.length > 0 ? (
-          Qurrys.map((project) => (
+        {query.length > 0 ? (
+          query.map((project) => (
             <div
               key={project.id}
               className="flex flex-start w-[416px] h-[260px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px]">
