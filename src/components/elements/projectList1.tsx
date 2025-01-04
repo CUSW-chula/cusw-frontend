@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/comp
 import { getCookie } from 'cookies-next';
 import BASE_URL from '@/lib/shared';
 import { Filter, Createproject, SortButton, Searchbar } from '@/components/elements/control-bar';
+import { useEffect } from 'react';
 interface ProjectInterface {
   id: string;
   title: string;
@@ -43,21 +44,25 @@ export const ProjectList_1 = () => {
   const auth = cookie?.toString() ?? '';
   const [projectList, setProjectList] = React.useState<ProjectInterface[]>([]);
 
+  const fetchAllProjects = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/projects`, {
+        headers: { Authorization: auth },
+      });
+      const data = await response.json();
+      setProjectList(data);
+      setQurrys(data);
+      console.log('All projects fetched successfully:', data);
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+    }
+  };
+
   // ดึงข้อมูลโปรเจกต์เมื่อคอมโพเนนต์ถูกโหลด
-  React.useEffect(() => {
-    const fetchProjectTitle = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/projects`, {
-          headers: { Authorization: auth },
-        });
-        const data = await response.json();
-        setProjectList(data);
-      } catch (error) {
-        console.error('Error fetching projects:', error);
-      }
-    };
-    fetchProjectTitle();
+  useEffect(() => {
+    fetchAllProjects();
   }, [auth]);
+
   //owner
   const getInitials = (name: string) => {
     const nameParts = name.split(' ');
@@ -87,42 +92,43 @@ export const ProjectList_1 = () => {
     return `${start}${start && end ? ' -> ' : ''}${end}`;
   };
 
-  const handleFilterChange = (dateRange: { from: string; to?: string } | undefined) => {
-    console.log('Selected Date Range:', dateRange);
-    const updateProjectlist = async () => {
-      const url = `${BASE_URL}/projects/daterange`;
-      const options = {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: JSON.stringify({
-          startDate: dateRange?.from,
-          endDate: dateRange?.to,
-        }),
-      };
+  /* filter by daterange zone */
+  const [Qurrys, setQurrys] = React.useState<ProjectInterface[]>([]);
 
-      try {
-        const response = await fetch(url, options);
-        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
-        const data = await response.json();
-        setProjectList(data);
-        console.log('Projectlist updated successfully:', data);
-      } catch (error) {
-        console.error('Error updating Projectlist:', error);
-      }
-    };
-    updateProjectlist();
+  const handleFilterDateRangeChange = (dateRange: { from: string; to: string } | undefined) => {
+    console.log('Selected Date Range:', dateRange);
+
+    if (!dateRange || !dateRange.from || !dateRange.to) {
+      setQurrys(projectList);
+      return;
+    }
+
+    const filteredProjects = projectList.filter((project) => {
+      const projectStartDate = new Date(project.startDate);
+      const projectEndDate = new Date(project.endDate);
+      const fromDate = new Date(dateRange.from);
+      const toDate = new Date(dateRange.to);
+
+      return (
+        (projectStartDate >= fromDate && projectStartDate <= toDate) ||
+        (projectEndDate >= fromDate && projectEndDate <= toDate) ||
+        (projectStartDate <= fromDate && projectEndDate >= toDate)
+      );
+    });
+    setQurrys(filteredProjects);
   };
+
   return (
     <>
       <div className="flex w-full justify-between flex-wrap gap-2">
-        <Filter onDateChange={handleFilterChange} />
+        <Filter onDateChange={handleFilterDateRangeChange} />
         <Searchbar />
         <SortButton />
         <Createproject />
       </div>
       <div className="flex items-start content-start gap-[16px] flex-wrap ">
-        {projectList.length > 0 ? (
-          projectList.map((project) => (
+        {Qurrys.length > 0 ? (
+          Qurrys.map((project) => (
             <div
               key={project.id}
               className="flex flex-start w-[416px] h-[260px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px]">

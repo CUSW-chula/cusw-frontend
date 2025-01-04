@@ -13,16 +13,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 
 /* filter zone */
 interface FilterProps extends React.HTMLAttributes<HTMLDivElement> {
-  onDateChange?: (dateRange: { from: string; to?: string } | undefined) => void;
+  onDateChange?: (dateRange: { from: string; to: string } | undefined) => void;
 }
 
 export function Filter({ className, onDateChange }: FilterProps) {
   const [date, setDate] = React.useState<DateRange | undefined>();
+  const handleReset = () => {
+    setDate(undefined);
+    if (onDateChange) {
+      onDateChange(undefined);
+    }
+  };
   const handleApply = () => {
-    if (onDateChange && date?.from) {
+    if (onDateChange && date?.from && date?.to) {
       const formattedDateRange = {
         from: date.from.toISOString(),
-        to: date.to ? date.to.toISOString() : undefined,
+        to: date.to.toISOString(),
       };
       onDateChange(formattedDateRange);
     }
@@ -65,7 +71,7 @@ export function Filter({ className, onDateChange }: FilterProps) {
             <Button
               className="m-2 bg-transparent text-brown border-brown hover:text-brown"
               variant={'outline'}
-              onClick={() => setDate(undefined)}
+              onClick={handleReset}
               aria-label="Reset the selected date range">
               Reset
             </Button>
