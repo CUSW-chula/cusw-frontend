@@ -20,6 +20,10 @@ interface SearchProp {
   onSearchChange?: (search: string) => void;
 }
 
+interface SortProp {
+  onSelectChange?: (value: string) => void;
+}
+
 export function Filter({ className, onDateChange }: FilterProps) {
   const [date, setDate] = React.useState<DateRange | undefined>();
   const handleReset = () => {
@@ -93,16 +97,23 @@ export function Filter({ className, onDateChange }: FilterProps) {
 }
 
 /* sort button zone */
-export function SortButton() {
+export function SortButton({ onSelectChange }: SortProp) {
+  const handleSelectChange = (value: string) => {
+    if (onSelectChange) {
+      onSelectChange(value);
+    }
+  };
   return (
     <div>
-      <Select>
+      <Select onValueChange={(value) => handleSelectChange(value)}>
         <SelectTrigger className="w-[200px] font-BaiJamjuree text-brown border-[#6b5c56] outline-none focus:ring-none ring-offset-transparent focus:ring-offset-transparent ">
-          <SelectValue placeholder="Sort By: Start Date" />
+          <SelectValue placeholder="Sort By: Default" />
         </SelectTrigger>
         <SelectContent className="font-BaiJamjuree text-brown">
-          <SelectItem value="Start Date">Sort by: Start date</SelectItem>
-          <SelectItem value="End Date">Sort by: End date</SelectItem>
+          <SelectItem value="Start Date ↑">Sort by: Start date ↑</SelectItem>
+          <SelectItem value="Start Date ↓">Sort by: Start date ↓</SelectItem>
+          <SelectItem value="End Date ↑">Sort by: End date ↑</SelectItem>
+          <SelectItem value="End Date ↓">Sort by: End date ↓</SelectItem>
           <SelectItem value="Highest">Sort by: Highest budget</SelectItem>
           <SelectItem value="Lowest">Sort by: Lowest budget</SelectItem>
         </SelectContent>

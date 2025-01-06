@@ -135,12 +135,47 @@ export const ProjectList_1 = () => {
     handleFilterAndSearch(dateRange, text);
   };
 
+  const sortByStartDate = async (projects: ProjectInterface[], inOrder: boolean) => {
+    const sorted = [...projects].sort((project1, project2) => {
+      if (project1.startDate === null) return 1; // If startDate is null, move to the end
+      if (project2.startDate === null) return -1;
+      return inOrder
+        ? new Date(project1.startDate).getTime() - new Date(project2.startDate).getTime()
+        : new Date(project2.startDate).getTime() - new Date(project1.startDate).getTime();
+    });
+    setQuery(sorted);
+  };
+
+  const sortByEndDate = async (projects: ProjectInterface[], inOrder: boolean) => {
+    const sorted = [...projects].sort((project1, project2) => {
+      if (project1.endDate === null) return 1; // If startDate is null, move to the end
+      if (project2.endDate === null) return -1;
+      return inOrder
+        ? new Date(project1.endDate).getTime() - new Date(project2.endDate).getTime()
+        : new Date(project2.endDate).getTime() - new Date(project1.endDate).getTime();
+    });
+    setQuery(sorted);
+  };
+
+  const handleSort = (value: string) => {
+    switch (value) {
+      case 'Start Date ↑':
+        return sortByStartDate(query, true);
+      case 'Start Date ↓':
+        return sortByStartDate(query, false);
+      case 'End Date ↑':
+        return sortByEndDate(query, true);
+      case 'End Date ↓':
+        return sortByEndDate(query, false);
+    }
+  };
+
   return (
     <>
       <div className="flex w-full justify-between flex-wrap gap-2">
         <Filter onDateChange={handleDateRangeChange} />
         <Searchbar onSearchChange={handleSearchInputChange} />
-        <SortButton />
+        <SortButton onSelectChange={handleSort} />
         <Createproject />
       </div>
       <div className="flex items-start content-start gap-[16px] flex-wrap ">
@@ -197,7 +232,10 @@ export const ProjectList_1 = () => {
                   <Calendar className="w-[24px] h-[24px] relative text-black" />
                   {item.startDate && item.endDate && (
                     <div className="text-[14px] font-BaiJamjuree flex  gap-1 items-center">
-                      <span>{formatDate(item.startDate, item.endDate)}</span>
+                      <span>
+                        {new Date(project.startDate).toLocaleDateString('en-GB')} -{' '}
+                        {new Date(project.endDate).toLocaleDateString('en-GB')}
+                      </span>
                     </div>
                   )}
                 </div>
