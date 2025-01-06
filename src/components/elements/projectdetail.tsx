@@ -311,9 +311,7 @@ export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
                             {getInitials(owner.name)}
                           </div>
                         </TooltipTrigger>
-                        <span className="text-black text-sm font-BaiJamjuree">
-                        {owner.name}
-                        </span>
+                        <span className="text-black text-sm font-BaiJamjuree">{owner.name}</span>
                         <TooltipContent>{owner.name}</TooltipContent>
                       </Tooltip>
                     ))}
