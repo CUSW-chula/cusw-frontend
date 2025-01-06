@@ -273,26 +273,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       }
     };
 
-    const handleSelectTasks = () => {
-      const expandItemsRecursively = (tasks: taskProps[]) => {
-        const expandTask = (task: taskProps) => {
-          setExpandedItems((prev) => {
-            const newSet = new Set(prev);
-            if (!newSet.has(task.id)) {
-              newSet.add(task.id);
-            }
-            return newSet;
-          });
-
-          if (task.subtasks?.length) {
-            expandItemsRecursively(task.subtasks);
-          }
-        };
-        tasks.forEach(expandTask);
-      };
-      setIsExportTasks(!isExportTasks);
-      if (!isExportTasks) expandItemsRecursively(showTasks);
-    };
     return (
       <div className="flex items-center justify-between w-full mb-3">
         {/* Filter Task */}
@@ -318,7 +298,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           <Button
             variant="outline"
             className="h-10 px-4 bg-white rounded-md border border-brown justify-center items-center flex text-brown text-base font-normal font-BaiJamjuree leading-normal hover:cursor-pointer"
-            onClick={handleSelectTasks}>
+            >
             Select tasks
           </Button>
           <Select onValueChange={(value) => handleSort(value)}>
