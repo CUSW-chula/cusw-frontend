@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getCookie } from 'cookies-next';
 import BASE_URL, { BASE_SOCKET, type TaskManageMentOverviewProp } from '@/lib/shared';
-import { Calendar, ChevronRight, ChevronsRight, User, SquareDashed } from 'lucide-react';
+import { Calendar, ChevronRight, ChevronsRight, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
@@ -56,6 +56,8 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   const [projectName, setProjectName] = useState<string>('');
   const [isExportTasks, setIsExportTasks] = useState<boolean>(false);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [visaulExportValue, setVisaulExportValue] = useState<Set<string>>(new Set());
+  const [exportValue, setExportValue] = useState<taskProps[]>([]);
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValues = useCallback((values: any[]): taskProps[] => {
@@ -293,6 +295,24 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       setIsExportTasks(!isExportTasks);
       if (!isExportTasks) expandItemsRecursively(showTasks);
     };
+
+    const jsonToCsv = (jsonData:taskProps[]) => {
+      console.log(jsonData)
+      // let csv = '';
+      
+      // // Extract headers
+      // const headers = Object.keys(jsonData[0]);
+      // csv += headers.join(',') + '\n';
+      
+      // // Extract values
+      // jsonData.forEach(obj => {
+      //     const values = headers.map(header => obj[header]);
+      //     csv += values.join(',') + '\n';
+      // });
+      
+      return jsonData;
+  }
+
     return (
       <div className="flex items-center justify-between w-full mb-3">
         {/* Filter Task */}
@@ -315,6 +335,14 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         </div>
         {/* Sort and New Task  */}
         <div className="flex items-center gap-4">
+          {isExportTasks && (
+            <Button
+              variant="outline"
+              className="h-10 px-4 bg-[#eefdf7] rounded-md border border-brown justify-center items-center flex text-green text-base font-semibold font-BaiJamjuree leading-normal hover:cursor-pointer"
+              onClick={() => jsonToCsv(exportValue)}>
+              Export
+            </Button>
+          )}
           <Button
             variant="outline"
             className="h-10 px-4 bg-white rounded-md border border-brown justify-center items-center flex text-brown text-base font-normal font-BaiJamjuree leading-normal hover:cursor-pointer"
@@ -414,16 +442,49 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         });
       };
 
-      const handleChecked = (task: taskProps) => {
-        if (task.subtasks && task.subtasks?.length !== 0) {
-          task.subtasks?.map((item) => {});
+      const handleChecked = async (task: taskProps) => {
+        if (!visaulExportValue.has(task.id)) {
+          recursiveCheck(task, true);
+          const newSet = [...exportValue, task];
+          setExportValue(newSet);
+          // setExportValue((prev) => {
+          //   const newSet = new Set(prev);
+          //   newSet.add(task);
+          //   return newSet;
+          // });
+        } else {
+          if (!visaulExportValue.has(task.parentTaskId)) recursiveCheck(task, false);
+          const newSet = exportValue.filter((item) => item !== task);
+          setExportValue(newSet);
+          // setExportValue((prev) => {
+          //   const newSet = new Set(prev);
+          //   newSet.delete(task);
+          //   return newSet;
+          // });
+        }
+      };
+
+      const recursiveCheck = (task: taskProps, goTo: boolean) => {
+        setVisaulExportValue((prev) => {
+          const newSet = new Set(prev);
+          goTo ? newSet.add(task.id) : newSet.delete(task.id);
+          return newSet;
+        });
+        if (task.subtasks && task.subtasks.length >= 0) {
+          task.subtasks.map((item) => {
+            recursiveCheck(item, goTo);
+          });
         }
       };
 
       return (
         <div>
           {isExportTasks ? (
-            <Checkbox className="mr-3" onCheckedChange={() => handleChecked(task)} />
+            <Checkbox
+              className="mr-3"
+              checked={visaulExportValue.has(task.id)}
+              onCheckedChange={() => handleChecked(task)}
+            />
           ) : (
             <button
               type="button"
@@ -500,7 +561,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
               </TooltipProvider>
 
               {item.startDate && item.endDate && (
-                <div className="inline-flex gap-1" title={formatDate(item.startDate, item.endDate)}>
+                <div className="inline-flex gap-1 min-w-60" title={formatDate(item.startDate, item.endDate)}>
                   <Calendar className="w-6 h-6 whitespace-nowrap" />
                   <span>{formatDate(item.startDate, item.endDate)}</span>
                 </div>
@@ -587,13 +648,13 @@ const GetTagList = ({ taskId, auth }: { taskId: string; auth: string }) => {
                     <Badge
                       key={tag.id}
                       variant="destructive"
-                      className="h-10 px-3 py-2 bg-[#eefdf7] rounded-3xl border border-green absolute self-center right-0 transition-transform"
+                      className="h-10 w-28 px-3 py-2 bg-[#eefdf7] rounded-3xl border border-green absolute self-center flex justify-center right-0 transition-transform"
                       style={
                         {
                           transform: `translateX(${index * -28}px)`, // Custom CSS property for group hover
                         } as React.CSSProperties
                       }>
-                      <span className="text-green text-base font-semibold font-BaiJamjuree leading-normal whitespace-nowrap">
+                      <span className="text-green text-base font-semibold font-BaiJamjuree leading-normal whitespace-nowrap overflow-hidden text-ellipsis">
                         {tag.name}
                       </span>
                     </Badge>
