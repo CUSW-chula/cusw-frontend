@@ -296,22 +296,22 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       if (!isExportTasks) expandItemsRecursively(showTasks);
     };
 
-    const jsonToCsv = (jsonData:taskProps[]) => {
-      console.log(jsonData)
+    const jsonToCsv = (jsonData: taskProps[]) => {
+      console.log(jsonData);
       // let csv = '';
-      
+
       // // Extract headers
       // const headers = Object.keys(jsonData[0]);
       // csv += headers.join(',') + '\n';
-      
+
       // // Extract values
       // jsonData.forEach(obj => {
       //     const values = headers.map(header => obj[header]);
       //     csv += values.join(',') + '\n';
       // });
-      
+
       return jsonData;
-  }
+    };
 
     return (
       <div className="flex items-center justify-between w-full mb-3">
@@ -561,7 +561,9 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
               </TooltipProvider>
 
               {item.startDate && item.endDate && (
-                <div className="inline-flex gap-1 min-w-60" title={formatDate(item.startDate, item.endDate)}>
+                <div
+                  className="inline-flex gap-1 min-w-60"
+                  title={formatDate(item.startDate, item.endDate)}>
                   <Calendar className="w-6 h-6 whitespace-nowrap" />
                   <span>{formatDate(item.startDate, item.endDate)}</span>
                 </div>
