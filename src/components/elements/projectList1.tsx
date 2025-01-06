@@ -45,22 +45,21 @@ export const ProjectList_1 = () => {
   const [projectList, setProjectList] = React.useState<ProjectInterface[]>([]);
   const [query, setQuery] = React.useState<ProjectInterface[]>([]);
 
-  const fetchAllProjects = async () => {
-    try {
-      const response = await fetch(`${BASE_URL}/projects`, {
-        headers: { Authorization: auth },
-      });
-      const data = await response.json();
-      setProjectList(data);
-      setQuery(data);
-      console.log('All projects fetched successfully:', data);
-    } catch (error) {
-      console.error('Error fetching projects:', error);
-    }
-  };
-
-  // ดึงข้อมูลโปรเจกต์เมื่อคอมโพเนนต์ถูกโหลด
   useEffect(() => {
+    const fetchAllProjects = async () => {
+      try {
+        const response = await fetch(`${BASE_URL}/projects`, {
+          headers: { Authorization: auth },
+        });
+        const data = await response.json();
+        setProjectList(data);
+        setQuery(data);
+        console.log('All projects fetched successfully:', data);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
+
     fetchAllProjects();
   }, [auth]);
 
@@ -92,44 +91,55 @@ export const ProjectList_1 = () => {
 
     return `${start}${start && end ? ' -> ' : ''}${end}`;
   };
+  const [dateRange, setDateRange] = React.useState<{ from: string; to: string } | undefined>();
+  const [searchText, setSearchText] = React.useState('');
 
-  /* filter by daterange zone */
+  /* filter and Search by daterange zone */
 
-  const handleFilterDateRangeChange = (dateRange: { from: string; to: string } | undefined) => {
-    console.log('Selected Date Range:', dateRange);
-    if (!dateRange || !dateRange.from || !dateRange.to) {
-      setQuery(projectList);
-      return;
-    }
-
-    const filteredProjects = projectList.filter((project) => {
-      const projectStartDate = new Date(project.startDate);
-      const projectEndDate = new Date(project.endDate);
+  const handleFilterAndSearch = (
+    dateRange: { from: string; to: string } | undefined,
+    searchText: string,
+  ) => {
+    let filteredProjects = [...projectList];
+    if (dateRange?.from && dateRange.to) {
       const fromDate = new Date(dateRange.from);
       const toDate = new Date(dateRange.to);
+      filteredProjects = filteredProjects.filter((project) => {
+        const projectStartDate = new Date(project.startDate);
+        const projectEndDate = new Date(project.endDate);
 
-      return (
-        (projectStartDate >= fromDate && projectStartDate <= toDate) ||
-        (projectEndDate >= fromDate && projectEndDate <= toDate) ||
-        (projectStartDate <= fromDate && projectEndDate >= toDate)
-      );
-    });
+        return (
+          (projectStartDate >= fromDate && projectStartDate <= toDate) ||
+          (projectEndDate >= fromDate && projectEndDate <= toDate) ||
+          (projectStartDate <= fromDate && projectEndDate >= toDate)
+        );
+      });
+    }
+
+    if (searchText.trim() !== '') {
+      filteredProjects = filteredProjects.filter((project) => {
+        const projectTitle = project.title.toLocaleLowerCase().trim();
+        return projectTitle.includes(searchText.toLocaleLowerCase().trim());
+      });
+    }
     setQuery(filteredProjects);
   };
 
-  /* search by project title zone */
-  const handleSearch = (text: string) => {
-    const filteredProjects = projectList.filter((project) => {
-      const projectTitle = project.title.toLocaleLowerCase().trim();
-      return projectTitle.includes(text.toLocaleLowerCase().trim());
-    });
-    setQuery(filteredProjects);
+  const handleDateRangeChange = (dateRange: { from: string; to: string } | undefined) => {
+    setDateRange(dateRange);
+    handleFilterAndSearch(dateRange, searchText);
   };
+
+  const handleSearchInputChange = (text: string) => {
+    setSearchText(text);
+    handleFilterAndSearch(dateRange, text);
+  };
+
   return (
     <>
       <div className="flex w-full justify-between flex-wrap gap-2">
-        <Filter onDateChange={handleFilterDateRangeChange} />
-        <Searchbar onSearchChange={handleSearch} />
+        <Filter onDateChange={handleDateRangeChange} />
+        <Searchbar onSearchChange={handleSearchInputChange} />
         <SortButton />
         <Createproject />
       </div>
