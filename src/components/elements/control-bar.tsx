@@ -114,8 +114,8 @@ export function SortButton({ onSelectChange }: SortProp) {
           <SelectItem value="Start Date ↓">Sort by: Start date ↓</SelectItem>
           <SelectItem value="End Date ↑">Sort by: End date ↑</SelectItem>
           <SelectItem value="End Date ↓">Sort by: End date ↓</SelectItem>
-          <SelectItem value="Highest">Sort by: Highest budget</SelectItem>
-          <SelectItem value="Lowest">Sort by: Lowest budget</SelectItem>
+          <SelectItem value="Highest">Sort by: Highest money</SelectItem>
+          <SelectItem value="Lowest">Sort by: Lowest money</SelectItem>
         </SelectContent>
       </Select>
     </div>

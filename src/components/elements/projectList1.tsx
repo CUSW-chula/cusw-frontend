@@ -157,6 +157,17 @@ export const ProjectList_1 = () => {
     setQuery(sorted);
   };
 
+  const sortByExpectedBudget = async (projects: ProjectInterface[], inOrder: boolean) => {
+    const sorted = [...projects].sort((project1, project2) => {
+      if (project1.expectedBudget === null) return 1; // If startDate is null, move to the end
+      if (project2.expectedBudget === null) return -1;
+      return inOrder
+        ? new Date(project1.expectedBudget).getTime() - new Date(project2.expectedBudget).getTime()
+        : new Date(project2.expectedBudget).getTime() - new Date(project1.expectedBudget).getTime();
+    });
+    setQuery(sorted);
+  };
+
   const handleSort = (value: string) => {
     switch (value) {
       case 'Start Date ↑':
@@ -167,6 +178,10 @@ export const ProjectList_1 = () => {
         return sortByEndDate(query, true);
       case 'End Date ↓':
         return sortByEndDate(query, false);
+      case 'Highest':
+        return sortByExpectedBudget(query, false);
+      case 'Lowest':
+        return sortByExpectedBudget(query, true);
     }
   };
 
@@ -196,13 +211,13 @@ export const ProjectList_1 = () => {
                 <div className="w-[24px] h-[24px] flex flex-row  ">
                   <img src="/asset/icon/budget-black.svg" alt="Budget Icon " />
                   <div className="font-BaiJamjuree text-[14px] font-medium flex text-center">
-                    1,500,000.00
+                    {project.expectedBudget}
                   </div>
                 </div>
                 <div className="w-[24px] h-[24px] flex flex-row  ">
                   <img src="/asset/icon/budget-red.svg" alt="Budget Icon " />
                   <div className="font-BaiJamjuree text-[14px] font-medium flex text-center text-[#EF4444]">
-                    1,245,145.14
+                    {project.realBudget}
                   </div>
                 </div>
                 <div className="flex-row flex">
@@ -214,7 +229,7 @@ export const ProjectList_1 = () => {
                           <TooltipTrigger>
                             <div className="flex items-center space-x-2">
                               <div className="w-[24px] h-[24px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown">
-                                <span className="text-brown text-sm font-BaiJamjuree">
+                                <span className="text-brown text-[12px] font-BaiJamjuree">
                                   {getInitials(user.userName)}
                                 </span>
                               </div>
