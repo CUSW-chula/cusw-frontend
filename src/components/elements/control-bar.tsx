@@ -22,6 +22,8 @@ import {
   CommandList,
   CommandSeparator,
 } from '@/components/ui/command';
+import { useRouter } from 'next/navigation';
+
 interface FilterDateRangeProps extends React.HTMLAttributes<HTMLDivElement> {
   onDateChange?: (dateRange: { from: string; to: string } | undefined) => void;
 }
@@ -296,15 +298,36 @@ export function Searchbar({ onSearchChange }: SearchProp) {
 
 /* new project zone */
 export function Createproject() {
+  const router = useRouter();
+  const handleCreateProject = async () => {
+    const url = `${BASE_URL}/projects`;
+    const options = {
+      method: 'POST',
+      headers: { Authorization: auth, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: '',
+        description: '',
+        startDate: '2025-01-07T19:35:14.482Z',
+        endDate: '2025-01-07T19:35:14.482Z',
+      }),
+    };
+
+    try {
+      const response = await fetch(url, options);
+      const data = await response.json();
+      console.log(data);
+      router.push(`/projects/${data.id}`);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
-    <div>
-      <a href="/projectdetail">
-        <Button
-          variant="outline"
-          className="flex items-center text-[#6b5c56] border-[#6b5c56] px-3 py-1 rounded-md font-BaiJamjuree">
-          + New Project
-        </Button>
-      </a>
-    </div>
+    <Button
+      variant="outline"
+      onClick={handleCreateProject}
+      className="flex items-center text-[#6b5c56] border-[#6b5c56] px-3 py-1 rounded-md font-BaiJamjuree">
+      + New Project
+    </Button>
   );
 }
