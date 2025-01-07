@@ -2,17 +2,27 @@
 
 import * as React from 'react';
 import { addDays, format } from 'date-fns';
-import { Calendar as CalendarIcon } from 'lucide-react';
+import { Calendar as CalendarIcon, CheckIcon, Search } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Search } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-
-/* filter zone */
-interface FilterProps extends React.HTMLAttributes<HTMLDivElement> {
+import { useEffect, useRef, useState } from 'react';
+import BASE_URL from '@/lib/shared';
+import { getCookie } from 'cookies-next';
+import { Separator } from '@/components/ui/separator';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from '@/components/ui/command';
+interface FilterDateRangeProps extends React.HTMLAttributes<HTMLDivElement> {
   onDateChange?: (dateRange: { from: string; to: string } | undefined) => void;
 }
 
@@ -23,8 +33,15 @@ interface SearchProp {
 interface SortProp {
   onSelectChange?: (value: string) => void;
 }
+interface FilterTagsProp {
+  onSelectTagChange?: (selectedValues: string[]) => void;
+}
 
-export function Filter({ className, onDateChange }: FilterProps) {
+const cookie = getCookie('auth');
+const auth = cookie?.toString() ?? '';
+
+/* filter zone */
+export function FilterByDateRange({ className, onDateChange }: FilterDateRangeProps) {
   const [date, setDate] = React.useState<DateRange | undefined>();
   const handleReset = () => {
     setDate(undefined);
@@ -93,6 +110,141 @@ export function Filter({ className, onDateChange }: FilterProps) {
         </PopoverContent>
       </Popover>
     </div>
+  );
+}
+
+const frameworksList = [
+  { value: 'มกราคม', label: 'มกราคม' },
+  { value: 'angular', label: 'Angular' },
+  { value: 'vue', label: 'Vue' },
+  { value: 'svelte', label: 'lte' },
+  { value: 'ember', label: 'Ember' },
+];
+
+export function FilterByTags({ onSelectTagChange }: FilterTagsProp) {
+  const [selectedValues, setSelectedValues] = React.useState<string[]>([]);
+  const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
+  const prevSelectedValues = useRef<string[]>([]);
+
+  useEffect(() => {
+    if (JSON.stringify(prevSelectedValues.current) !== JSON.stringify(selectedValues)) {
+      // Call onSelectTagChange only when selectedValues change
+      if (onSelectTagChange) {
+        onSelectTagChange(selectedValues);
+      }
+      prevSelectedValues.current = selectedValues; // Update ref with the new selectedValues
+    }
+  }, [selectedValues, onSelectTagChange]);
+  const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      setIsPopoverOpen(true);
+    } else if (event.key === 'Backspace' && !event.currentTarget.value) {
+      const newSelectedValues = [...selectedValues];
+      newSelectedValues.pop();
+      setSelectedValues(newSelectedValues);
+    }
+  };
+
+  const toggleOption = (option: string) => {
+    const newSelectedValues = selectedValues.includes(option)
+      ? selectedValues.filter((value) => value !== option)
+      : [...selectedValues, option];
+    setSelectedValues(newSelectedValues);
+  };
+
+  const handleClear = () => {
+    setSelectedValues([]);
+  };
+
+  const handleTogglePopover = () => {
+    setIsPopoverOpen((prev) => !prev);
+  };
+
+  const toggleAll = () => {
+    if (selectedValues.length === frameworksList.length) {
+      handleClear();
+    } else {
+      const allValues = frameworksList.map((option) => option.value);
+      setSelectedValues(allValues);
+    }
+  };
+  return (
+    <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          onClick={handleTogglePopover}
+          className={cn(
+            'flex p-4 rounded-[6px] border border-brown h-10 items-center justify-between bg-white hover:bg-neutral-100',
+          )}>
+          <span className="text-[14px] text-brown font-BaiJamjuree">Pick a tag</span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        className="w-auto p-0"
+        align="start"
+        onEscapeKeyDown={() => setIsPopoverOpen(false)}>
+        <Command>
+          <CommandInput placeholder="Search..." onKeyDown={handleInputKeyDown} />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup>
+              <CommandItem key="all" onSelect={toggleAll} className="cursor-pointer">
+                <div
+                  className={cn(
+                    'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
+                    selectedValues.length === frameworksList.length
+                      ? 'bg-primary text-primary-foreground'
+                      : 'opacity-50 [&_svg]:invisible',
+                  )}>
+                  <CheckIcon className="h-4 w-4" />
+                </div>
+                <span>(Select All)</span>
+              </CommandItem>
+              {frameworksList.map((option) => {
+                const isSelected = selectedValues.includes(option.value);
+                return (
+                  <CommandItem
+                    key={option.value}
+                    onSelect={() => toggleOption(option.value)}
+                    className="cursor-pointer">
+                    <div
+                      className={cn(
+                        'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
+                        isSelected
+                          ? 'bg-primary text-primary-foreground'
+                          : 'opacity-50 [&_svg]:invisible',
+                      )}>
+                      <CheckIcon className="h-4 w-4" />
+                    </div>
+                    <span>{option.label}</span>
+                  </CommandItem>
+                );
+              })}
+            </CommandGroup>
+            <CommandSeparator />
+            <CommandGroup>
+              <div className="flex items-center justify-between">
+                {selectedValues.length > 0 && (
+                  <>
+                    <CommandItem
+                      onSelect={handleClear}
+                      className="flex-1 justify-center cursor-pointer">
+                      Clear
+                    </CommandItem>
+                    <Separator orientation="vertical" className="flex min-h-6 h-full" />
+                  </>
+                )}
+                <CommandItem
+                  onSelect={() => setIsPopoverOpen(false)}
+                  className="flex-1 justify-center cursor-pointer max-w-full">
+                  Close
+                </CommandItem>
+              </div>
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 }
 

@@ -1,12 +1,17 @@
 'use client';
-import { PopoverContent } from '@radix-ui/react-popover';
 import { CommandGroup, CommandItem } from 'cmdk';
 import { Calendar, CrownIcon, Users } from 'lucide-react';
 import * as React from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { getCookie } from 'cookies-next';
 import BASE_URL from '@/lib/shared';
-import { Filter, Createproject, SortButton, Searchbar } from '@/components/elements/control-bar';
+import {
+  FilterByTags,
+  FilterByDateRange,
+  Createproject,
+  SortButton,
+  Searchbar,
+} from '@/components/elements/control-bar';
 import { useEffect } from 'react';
 interface ProjectInterface {
   id: string;
@@ -17,6 +22,7 @@ interface ProjectInterface {
   usedBudget: number;
   startDate: Date;
   endDate: Date;
+  tag: string[];
 }
 
 interface UsersInterfaces {
@@ -39,7 +45,7 @@ const users: UsersInterfaces[] = [
   { id: '2', userName: 'Dintada Ahuangminthada' },
 ];
 
-export const ProjectList_1 = () => {
+export const ProjectList = () => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [projectList, setProjectList] = React.useState<ProjectInterface[]>([]);
@@ -93,14 +99,21 @@ export const ProjectList_1 = () => {
   };
   const [dateRange, setDateRange] = React.useState<{ from: string; to: string } | undefined>();
   const [searchText, setSearchText] = React.useState('');
+  const [filterTag, setfilterTag] = React.useState<string[]>([]);
 
   /* filter and Search by daterange zone */
-
-  const handleFilterAndSearch = (
+  const handleFilterByDateRangeAndSearch = (
     dateRange: { from: string; to: string } | undefined,
     searchText: string,
+    filterTag: string[],
   ) => {
     let filteredProjects = [...projectList];
+    if (filterTag && filterTag.length > 0) {
+      filteredProjects = filteredProjects.filter((project) => {
+        const projectTags = project.tag;
+        return projectTags?.some((tag) => filterTag.includes(tag));
+      });
+    }
     if (dateRange?.from && dateRange.to) {
       const fromDate = new Date(dateRange.from);
       const toDate = new Date(dateRange.to);
@@ -127,12 +140,12 @@ export const ProjectList_1 = () => {
 
   const handleDateRangeChange = (dateRange: { from: string; to: string } | undefined) => {
     setDateRange(dateRange);
-    handleFilterAndSearch(dateRange, searchText);
+    handleFilterByDateRangeAndSearch(dateRange, searchText, filterTag);
   };
 
   const handleSearchInputChange = (text: string) => {
     setSearchText(text);
-    handleFilterAndSearch(dateRange, text);
+    handleFilterByDateRangeAndSearch(dateRange, text, filterTag);
   };
 
   const sortByStartDate = async (projects: ProjectInterface[], inOrder: boolean) => {
@@ -184,11 +197,16 @@ export const ProjectList_1 = () => {
         return sortByExpectedBudget(query, true);
     }
   };
+  const handleTagSelection = (selectedTags: string[]) => {
+    setfilterTag(selectedTags);
+    handleFilterByDateRangeAndSearch(dateRange, searchText, selectedTags);
+  };
 
   return (
     <>
       <div className="flex w-full justify-between flex-wrap gap-2">
-        <Filter onDateChange={handleDateRangeChange} />
+        <FilterByDateRange onDateChange={handleDateRangeChange} />
+        <FilterByTags onSelectTagChange={handleTagSelection} />
         <Searchbar onSearchChange={handleSearchInputChange} />
         <SortButton onSelectChange={handleSort} />
         <Createproject />
