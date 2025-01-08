@@ -54,8 +54,8 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   const [tasks, settasks] = useState<taskProps[]>([]);
   const [showTasks, setShowTasks] = useState<taskProps[]>([]);
   const [projectName, setProjectName] = useState<string>('');
-  const [isExportTasks, setIsExportTasks] = useState<boolean>(false);
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  // const [isExportTasks, setIsExportTasks] = useState<boolean>(false);
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set()); //the list of task which is expanded
   const [visaulExportValue, setVisaulExportValue] = useState<Set<string>>(new Set());
   const [exportValue, setExportValue] = useState<taskProps[]>([]);
 
@@ -139,6 +139,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       },
     ];
 
+    // get all tag
     useEffect(() => {
       const fetchTagData = async () => {
         const url = `${BASE_URL}/tags/`;
@@ -160,6 +161,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       fetchTagData();
     }, []);
 
+    // the main function of filter task
     const handleFilter = async (tag_id: string) => {
       //get task have this tag
       const fetchData = async (tag_id: string) => {
@@ -212,8 +214,30 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
 
       setTaskAssignedByTag(tasks, tasksHavetag);
     };
-
+    // the main function of sort task
     const handleSort = (value: string) => {
+      const sortByStartDate = async (tasks: taskProps[], inOrder: boolean) => {
+        const sorted = [...tasks].sort((task1, task2) => {
+          if (task1.startDate === null) return 1; // If startDate is null, move to the end
+          if (task2.startDate === null) return -1;
+          return inOrder
+            ? new Date(task1.startDate).getTime() - new Date(task2.startDate).getTime()
+            : new Date(task2.startDate).getTime() - new Date(task1.startDate).getTime();
+        });
+        setShowTasks(sorted);
+      };
+  
+      const sortByEndDate = async (tasks: taskProps[], inOrder: boolean) => {
+        const sorted = [...tasks].sort((task1, task2) => {
+          if (task1.endDate === null) return 1; // If startDate is null, move to the end
+          if (task2.endDate === null) return -1;
+          return inOrder
+            ? new Date(task1.endDate).getTime() - new Date(task2.endDate).getTime()
+            : new Date(task2.endDate).getTime() - new Date(task1.endDate).getTime();
+        });
+        setShowTasks(sorted);
+      };
+
       value === 'StartDate123'
         ? sortByStartDate(showTasks, true)
         : value === 'StartDate321'
@@ -223,28 +247,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
             : value === 'EndDate321'
               ? sortByEndDate(showTasks, false)
               : null;
-    };
-
-    const sortByStartDate = async (tasks: taskProps[], inOrder: boolean) => {
-      const sorted = [...tasks].sort((task1, task2) => {
-        if (task1.startDate === null) return 1; // If startDate is null, move to the end
-        if (task2.startDate === null) return -1;
-        return inOrder
-          ? new Date(task1.startDate).getTime() - new Date(task2.startDate).getTime()
-          : new Date(task2.startDate).getTime() - new Date(task1.startDate).getTime();
-      });
-      setShowTasks(sorted);
-    };
-
-    const sortByEndDate = async (tasks: taskProps[], inOrder: boolean) => {
-      const sorted = [...tasks].sort((task1, task2) => {
-        if (task1.endDate === null) return 1; // If startDate is null, move to the end
-        if (task2.endDate === null) return -1;
-        return inOrder
-          ? new Date(task1.endDate).getTime() - new Date(task2.endDate).getTime()
-          : new Date(task2.endDate).getTime() - new Date(task1.endDate).getTime();
-      });
-      setShowTasks(sorted);
     };
 
     const handleCreateTask = async () => {
@@ -297,13 +299,13 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         </div>
         {/* Sort and New Task  */}
         <div className="flex items-center gap-4">
-          {isExportTasks && (
+          {/* {isExportTasks && (
             <Button
               variant="outline"
               className="h-10 px-4 bg-[#eefdf7] rounded-md border border-brown justify-center items-center flex text-green text-base font-semibold font-BaiJamjuree leading-normal hover:cursor-pointer">
               Export
             </Button>
-          )}
+          )} */}
           <Button
             variant="outline"
             className="h-10 px-4 bg-white rounded-md border border-brown justify-center items-center flex text-brown text-base font-normal font-BaiJamjuree leading-normal hover:cursor-pointer">
@@ -402,34 +404,34 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         });
       };
 
-      const handleChecked = async (task: taskProps) => {
-        if (!visaulExportValue.has(task.id)) {
-          recursiveCheck(task, true);
-          const newSet = [...exportValue, task];
-          setExportValue(newSet);
-          // setExportValue((prev) => {
-          //   const newSet = new Set(prev);
-          //   newSet.add(task);
-          //   return newSet;
-          // });
-        } else {
-          if (!visaulExportValue.has(task.parentTaskId)) recursiveCheck(task, false);
-          const newSet = exportValue.filter((item) => item !== task);
-          setExportValue(newSet);
-          // setExportValue((prev) => {
-          //   const newSet = new Set(prev);
-          //   newSet.delete(task);
-          //   return newSet;
-          // });
-        }
-      };
+      // const handleChecked = async (task: taskProps) => {
+      //   if (!visaulExportValue.has(task.id)) {
+      //     recursiveCheck(task, true);
+      //     const newSet = [...exportValue, task];
+      //     setExportValue(newSet);
+      //     // setExportValue((prev) => {
+      //     //   const newSet = new Set(prev);
+      //     //   newSet.add(task);
+      //     //   return newSet;
+      //     // });
+      //   } else {
+      //     if (!visaulExportValue.has(task.parentTaskId)) recursiveCheck(task, false);
+      //     const newSet = exportValue.filter((item) => item !== task);
+      //     setExportValue(newSet);
+      //     // setExportValue((prev) => {
+      //     //   const newSet = new Set(prev);
+      //     //   newSet.delete(task);
+      //     //   return newSet;
+      //     // });
+      //   }
+      // };
 
       const recursiveCheck = (task: taskProps, goTo: boolean) => {
-        setVisaulExportValue((prev) => {
-          const newSet = new Set(prev);
-          goTo ? newSet.add(task.id) : newSet.delete(task.id);
-          return newSet;
-        });
+        // setVisaulExportValue((prev) => {
+        //   const newSet = new Set(prev);
+        //   goTo ? newSet.add(task.id) : newSet.delete(task.id);
+        //   return newSet;
+        // });
         if (task.subtasks && task.subtasks.length >= 0) {
           task.subtasks.map((item) => {
             recursiveCheck(item, goTo);
@@ -439,13 +441,13 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
 
       return (
         <div>
-          {isExportTasks ? (
+          {/* {isExportTasks ? (
             <Checkbox
               className="mr-3"
               checked={visaulExportValue.has(task.id)}
               onCheckedChange={() => handleChecked(task)}
             />
-          ) : (
+          ) : ( */}
             <button
               type="button"
               onClick={() => toggleExpand(item.id)}
@@ -462,7 +464,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
                 />
               )}
             </button>
-          )}
+          {/* )} */}
         </div>
       );
     };
@@ -576,6 +578,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   );
 };
 
+// show tag in task
 const GetTagList = ({ taskId, auth }: { taskId: string; auth: string }) => {
   const [tagList, setTagList] = useState<Array<{ id: string; name: string }>>([]);
 
@@ -645,6 +648,7 @@ const GetTagList = ({ taskId, auth }: { taskId: string; auth: string }) => {
   );
 };
 
+// show all assignmentlist
 const GetAssignPeopleList = ({
   taskId,
   auth,
