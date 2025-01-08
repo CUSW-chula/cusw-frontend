@@ -226,7 +226,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         });
         setShowTasks(sorted);
       };
-  
+
       const sortByEndDate = async (tasks: taskProps[], inOrder: boolean) => {
         const sorted = [...tasks].sort((task1, task2) => {
           if (task1.endDate === null) return 1; // If startDate is null, move to the end
@@ -448,22 +448,22 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
               onCheckedChange={() => handleChecked(task)}
             />
           ) : ( */}
-            <button
-              type="button"
-              onClick={() => toggleExpand(item.id)}
-              className={`w-6 h-6 mr-1 flex items-center justify-center rounded hover:bg-gray-200 ${
-                hasChildren ? 'visible' : 'invisible'
-              }`}>
-              {item.parentTaskId ? (
-                <ChevronRight
-                  className={`h-4 w-4 transition-transform${isExpanded ? 'transform rotate-90' : ''}`}
-                />
-              ) : (
-                <ChevronsRight
-                  className={`h-4 w-4 transition-transform${isExpanded ? 'transform rotate-90' : ''}`}
-                />
-              )}
-            </button>
+          <button
+            type="button"
+            onClick={() => toggleExpand(item.id)}
+            className={`w-6 h-6 mr-1 flex items-center justify-center rounded hover:bg-gray-200 ${
+              hasChildren ? 'visible' : 'invisible'
+            }`}>
+            {item.parentTaskId ? (
+              <ChevronRight
+                className={`h-4 w-4 transition-transform${isExpanded ? 'transform rotate-90' : ''}`}
+              />
+            ) : (
+              <ChevronsRight
+                className={`h-4 w-4 transition-transform${isExpanded ? 'transform rotate-90' : ''}`}
+              />
+            )}
+          </button>
           {/* )} */}
         </div>
       );
