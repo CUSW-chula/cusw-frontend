@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import BASE_URL from '@/lib/shared';
 import type { ProjectOverviewProps } from '@/lib/shared';
-import { Calendar, CrownIcon, Redo2, User, Users } from 'lucide-react';
+import { Calendar, CrownIcon, Redo2, Tag, User, Users } from 'lucide-react';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
 
 interface ProjectProps {
@@ -137,14 +137,11 @@ const SunMoney = ({ projectid }: { projectid: string }) => {
   );
 };
 
-export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
-  const [photo, setPhoto] = useState<string | null>(null);
-  const [projectName, setProjectName] = useState<string>('');
-  const [projectDescription, setProjectDescription] = useState<string>('');
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
+const MenuBar = ({ project_id }: ProjectOverviewProps) => {
   const [ProjectOwner, setProjectOwner] = useState<UsersProps[]>([]);
   const [member, setMember] = useState<UsersProps[]>([]);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const MAX_VISIBLE_MEMBERS = 3;
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
@@ -157,27 +154,6 @@ export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
       email: item.email,
     }));
   }, []);
-
-  // Fetch project data
-  useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        const res = await fetch(`${BASE_URL}/projects/${project_id}`, {
-          headers: {
-            Authorization: auth,
-          },
-        });
-        const data = await res.json();
-        setProjectName(data.title);
-        setProjectDescription(data.description);
-        setStartDate(new Date(data.startDate));
-        setEndDate(new Date(data.endDate));
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchProject();
-  }, [project_id, auth]);
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -231,22 +207,145 @@ export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
     return nameParts[0];
   };
 
-  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (reader.result) {
-          setPhoto(reader.result as string);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  return (
+    <div className="min-h-[350px] w-[395px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start gap-4 inline-flex">
+      <div aria-label="owner" className="h-10 justify-start items-center inline-flex">
+      <div className="w-24 justify-start items-center gap-2 flex">
+          <CrownIcon className="w-[24px] h-[24px] text-black" />
 
-  const handleClickPhoto = () => {
-    document.getElementById('photoInput')?.click(); // Trigger hidden file input
-  };
+          <div className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight">
+            Owner :{' '}
+          </div>
+        </div>
+        <TooltipProvider>
+          <div className="flex items-center space-x-2">
+            {ProjectOwner.map((owner) => (
+              <Tooltip key={owner.id}>
+                <TooltipTrigger>
+                  <div className="w-[24px] h-[24px] bg-gray-100 rounded-full border flex items-center justify-center border-brown text-brown text-sm font-BaiJamjuree">
+                    {getInitials(owner.name)}
+                  </div>
+                </TooltipTrigger>
+                <span className="text-black text-sm font-BaiJamjuree">{owner.name}</span>
+                <TooltipContent>{owner.name}</TooltipContent>
+              </Tooltip>
+            ))}
+          </div>
+        </TooltipProvider>
+      </div>
+      <div aria-label="member" className="h-10 justify-start items-center inline-flex">
+      <div className="w-24 justify-start items-center gap-2 flex">
+      <Users className="w-[24px] h-[24px] text-black" />
+
+          <div className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight">
+            Member :{' '}
+          </div>
+        </div>
+        <TooltipProvider>
+          <div className="flex items-center space-x-2">
+            {member.slice(0, MAX_VISIBLE_MEMBERS).map((user) => (
+              <Tooltip key={user.id}>
+                <TooltipTrigger>
+                  <div className="w-[24px] h-[24px] bg-gray-100 rounded-full border border-[#6b5c56] flex-col justify-center items-center gap-2.5 inline-flex text-center text-[#6b5c56] text-sm font-BaiJamjuree ">
+                    {getInitials(user.name)}
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>{user.name}</TooltipContent>
+              </Tooltip>
+            ))}
+            {member.length > MAX_VISIBLE_MEMBERS && (
+              <Tooltip>
+                <TooltipTrigger>
+                  <div className="w-[24px] h-[24px] bg-gray-100 rounded-xl border border-[#6b5c56] flex-col justify-center items-center gap-2.5 inline-flex text-center text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-3">
+                    +{member.length - MAX_VISIBLE_MEMBERS}
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {member.slice(MAX_VISIBLE_MEMBERS).map((user) => (
+                    <p key={user.id}>{user.name}</p>
+                  ))}
+                </TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+        </TooltipProvider>
+      </div>
+      <div aria-label="tag" className="justify-start items-center inline-flex flex-wrap w-full">
+        {/* Label Zone */}
+        <div className="w-24 justify-start items-center gap-2 flex self-start ">
+          {/* Icon */}
+          <Tag className="w-6 h-6 relative" />
+          {/* Description */}
+          <div className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight">
+            Tag :{' '}
+          </div>
+        </div>
+        <div className="flex w-[253.67px] ">{/* <ButtonAddTags task_id={project_id} /> */}</div>
+      </div>
+      <div aria-label="money" className="h-10 justify-start items-center inline-flex">
+        {/* Label Zone */}
+        <div className="w-24 justify-start items-center gap-2 flex">
+          {/* Icon */}
+          <div className="w-6 text-center text-black text-[30px] font-medium font-BaiJamjuree">
+            ฿
+          </div>
+
+          {/* Describtion */}
+          <div className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight">
+            Money :{' '}
+          </div>
+        </div>
+        <SunMoney projectid={project_id} />
+      </div>
+      <div aria-label="date" className="h-10 justify-start items-center inline-flex">
+        {/* Label Zone */}
+        <div className="w-24 justify-start items-center gap-2 flex">
+          {/* Icon */}
+          <Calendar className="w-6 h-6 relative" />
+          {/* Describtion */}
+          <div className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight">
+            Date :{' '}
+          </div>
+        </div>
+        {formatDate(startDate, endDate)}
+      </div>
+    </div>
+  );
+};
+
+export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
+  const [projectName, setProjectName] = useState<string>('');
+  const [projectDescription, setProjectDescription] = useState<string>('');
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
+
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  const parseJsonValue = useCallback((value: any[]) => {
+    return value.map((item) => ({
+      id: item.id,
+      name: item.name,
+      email: item.email,
+    }));
+  }, []);
+
+  // Fetch project data
+  useEffect(() => {
+    const fetchProject = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/projects/${project_id}`, {
+          headers: {
+            Authorization: auth,
+          },
+        });
+        const data = await res.json();
+        setProjectName(data.title);
+        setProjectDescription(data.description);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchProject();
+  }, [project_id, auth]);
 
   return (
     <div className="max-h-[414px] px-20 flex-col justify-start items-start gap-[18px] inline-flex max-w-1260px w-full ">
@@ -260,35 +359,6 @@ export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
         </div>
       </div>
       <div className="self-stretch justify-center items-start gap-7 inline-flex">
-        <div className="p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-center items-center inline-flex">
-          <div
-            className="w-[158px] h-[244px] bg-[#7d7d7d] rounded-[5px] flex-col justify-center items-center flex cursor-pointer"
-            onClick={handleClickPhoto}
-            onKeyUp={(e) => {
-              if (e.key === 'Enter') handleClickPhoto();
-            }}>
-            {photo ? (
-              <img
-                src={photo}
-                alt="Project Thumbnail"
-                className="w-full h-full object-cover rounded-[5px]"
-              />
-            ) : (
-              <Button
-                variant="outline"
-                className="px-4 py-2 bg-white border-[#6b5c56] justify-center items-center gap-2.5 flex">
-                Add Photo
-              </Button>
-            )}
-            <input
-              type="file"
-              id="photoInput"
-              className="hidden"
-              accept="image/*"
-              onChange={handlePhotoUpload}
-            />
-          </div>
-        </div>
         <div className="grow shrink basis-0 h-[348px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start inline-flex">
           <div className="self-stretch h-[82px] flex-col justify-start items-start gap-[18px] flex">
             <div className="resize-none border-none w-full outline-none placeholder-black font-semibold text-3xl font-Anuphan leading-[48px]">
@@ -299,60 +369,6 @@ export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
             </div>
           </div>
           <div className="self-stretch h-[120px] flex-col justify-center items-end gap-3 flex">
-            <div className="self-stretch h-[52px] flex-col justify-center items-start gap-3 flex">
-              <div className="justify-start items-center gap-3 inline-flex">
-                <CrownIcon className="w-[24px] h-[24px] text-black" />
-                <TooltipProvider>
-                  <div className="flex items-center space-x-2">
-                    {ProjectOwner.map((owner) => (
-                      <Tooltip key={owner.id}>
-                        <TooltipTrigger>
-                          <div className="w-[24px] h-[24px] bg-gray-100 rounded-full border flex items-center justify-center border-brown text-brown text-sm font-BaiJamjuree">
-                            {getInitials(owner.name)}
-                          </div>
-                        </TooltipTrigger>
-                        <span className="text-black text-sm font-BaiJamjuree">{owner.name}</span>
-                        <TooltipContent>{owner.name}</TooltipContent>
-                      </Tooltip>
-                    ))}
-                  </div>
-                </TooltipProvider>
-
-                <Users className="w-[24px] h-[24px] text-black" />
-                <TooltipProvider>
-                  <div className="flex items-center space-x-2">
-                    {member.slice(0, MAX_VISIBLE_MEMBERS).map((user) => (
-                      <Tooltip key={user.id}>
-                        <TooltipTrigger>
-                          <div className="w-[24px] h-[24px] bg-gray-100 rounded-full border border-[#6b5c56] flex-col justify-center items-center gap-2.5 inline-flex text-center text-[#6b5c56] text-sm font-BaiJamjuree ">
-                            {getInitials(user.name)}
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>{user.name}</TooltipContent>
-                      </Tooltip>
-                    ))}
-                    {member.length > MAX_VISIBLE_MEMBERS && (
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <div className="w-[24px] h-[24px] bg-gray-100 rounded-xl border border-[#6b5c56] flex-col justify-center items-center gap-2.5 inline-flex text-center text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-3">
-                            +{member.length - MAX_VISIBLE_MEMBERS}
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {member.slice(MAX_VISIBLE_MEMBERS).map((user) => (
-                            <p key={user.id}>{user.name}</p>
-                          ))}
-                        </TooltipContent>
-                      </Tooltip>
-                    )}
-                  </div>
-                </TooltipProvider>
-
-                <SunMoney projectid={project_id} />
-                <Calendar className="w-[24px] h-[24px] relative text-black" />
-                {formatDate(startDate, endDate)}
-              </div>
-            </div>
             <hr className="my-4 w-full border-t-1 border-gray-200" />
             <div className="justify-start items-start gap-1 inline-flex">
               <Button
@@ -363,6 +379,7 @@ export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
             </div>
           </div>
         </div>
+        <MenuBar project_id={project_id} />
       </div>
     </div>
   );
