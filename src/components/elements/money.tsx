@@ -74,7 +74,7 @@ const Money = () => {
         const types = [TypeMoney.budget, TypeMoney.ad, TypeMoney.exp];
         const index = data.findIndex((value: number) => value !== 0);
         setBudgetList({
-          type: types[index] || TypeMoney.budget,
+          type: types[index] || TypeMoney.null,
           money: data[index] || data[0],
         });
         if (!response.ok) return console.log('GET failed. Operation aborted.');
@@ -172,16 +172,18 @@ const Money = () => {
   };
 
   return (
-    <div className="h-10 justify-start items-center gap-[15px] inline-flex">
+    <div className="h-10 justify-start items-center gap-[15px] inline-flex ">
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogTrigger asChild>
           <div
-            className={`h-10 px-4 bg-white rounded-md border border-neutral-200 justify-center items-center flex min-w-32 font-BaiJamjuree hover:cursor-pointer ${
+            className={`h-10 px-4 bg-white rounded-md border justify-center items-center flex min-w-32 font-BaiJamjuree hover:cursor-pointer  border-brown text-brown${
               budgetList.type === TypeMoney.ad
                 ? 'text-green'
-                : budgetList.type === TypeMoney.exp
-                  ? 'text-red'
-                  : 'text-black'
+                : budgetList.type === TypeMoney.null
+                  ? 'text-brown'
+                  : budgetList.type === TypeMoney.exp
+                    ? 'text-red'
+                    : 'text-black'
             }`}>
             {budgetList.type === TypeMoney.null
               ? 'Add Money'
@@ -196,7 +198,7 @@ const Money = () => {
           {/* Content Zone */}
           <DialogDescription className="w-full flex flex-row self-stretch h-24 px-1.5 pt-9 justify-start gap-2">
             <Popover open={openType} onOpenChange={setOpenType}>
-              <PopoverTrigger className="w-32 h-10 px-3 rounded-md border border-gray-300 justify-between items-center inline-flex">
+              <PopoverTrigger className="w-32 h-10 px-3 rounded-md border border-gray-300 justify-between items-center inline-flex ">
                 {budgetList.type === TypeMoney.null ? (
                   <div>Select Type</div>
                 ) : budgetList.type === TypeMoney.budget ? (
@@ -256,7 +258,7 @@ const Money = () => {
                 }))
               }
               type="number"
-              className={`h-10 w-48 px-4 bg-white rounded-md border-t border-gray-300 font-BaiJamjuree ${
+              className={`h-10 w-48 px-4 bg-white rounded-md border-t border-gray-300 font-BaiJamjuree  ${
                 budgetList.type === TypeMoney.ad
                   ? 'text-green'
                   : budgetList.type === TypeMoney.exp
@@ -282,7 +284,7 @@ const Money = () => {
               </Button>
               <Button
                 onClick={() => handleSubmit(budgetList)}
-                className="h-10 bg-inherit rounded-[100px] flex-col justify-center items-center gap-2 inline-flex text-brown text-sm font-normal font-BaiJamjuree  hover:bg-gray-100"
+                className="h-10 bg-inherit rounded-[100px] flex-col justify-center items-center gap-2 inline-flex text-brown text-sm font-normal font-BaiJamjuree  hover:bg-gray-100 "
                 disabled={
                   budgetList.type === TypeMoney.null ||
                   Number.isNaN(budgetList.money) ||

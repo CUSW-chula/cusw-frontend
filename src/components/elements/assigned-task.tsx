@@ -125,19 +125,18 @@ export function AssignedTaskToMember({ task_id }: TaskManageMentProp) {
       <div className="flex flex-row gap-1 flex-wrap">
         <div className="flex items-center space-x-4">
           <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
+            <PopoverTrigger asChild className=" border-brown text-brown">
               <Button variant="outline">
                 {selectedUser.length > 0 ? (
                   // Display selected users as circles with initials
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-2 ">
                     {selectedUser.map((user) => (
                       <Profile key={user.id} userId={user.id} userName={user.name} />
                     ))}
                   </div>
                 ) : (
                   <>
-                    <CircleFadingPlus className="mr-2 h-4 w-4" />
-                    <p className="p-ui">Assigned</p>
+                    <p className="p-ui ">Assigned</p>
                   </>
                 )}
               </Button>
@@ -152,7 +151,7 @@ export function AssignedTaskToMember({ task_id }: TaskManageMentProp) {
                       <CommandItem key={user.id} value={user.name} onSelect={handleSelectUser}>
                         <Circle
                           className={cn(
-                            'mr-2 h-4 w-4 fill-greenLight text-greenLight',
+                            'mr-2 h-4 w-4 fill-greenLight text-greenLight ',
                             selectedUser?.length > 0 && selectedUser.some((u) => u.id === user.id)
                               ? 'opacity-100'
                               : 'opacity-40',
