@@ -22,7 +22,12 @@ interface ProjectInterface {
   usedBudget: number;
   startDate: Date;
   endDate: Date;
-  tag: string[];
+  tags: [];
+}
+
+interface Tags {
+  id: string;
+  name: string;
 }
 
 interface UsersInterfaces {
@@ -110,8 +115,7 @@ export const ProjectList = () => {
     let filteredProjects = [...projectList];
     if (filterTag && filterTag.length > 0) {
       filteredProjects = filteredProjects.filter((project) => {
-        const projectTags = project.tag;
-        return projectTags?.some((tag) => filterTag.includes(tag));
+        return (project.tags as Tags[]).some((tag) => filterTag.includes(tag.name));
       });
     }
     if (dateRange?.from && dateRange.to) {

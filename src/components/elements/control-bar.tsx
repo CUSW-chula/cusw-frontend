@@ -41,7 +41,10 @@ interface FilterTagsProp {
 
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
-
+interface Tags {
+  id: string;
+  name: string;
+}
 /* filter zone */
 export function FilterByDateRange({ className, onDateChange }: FilterDateRangeProps) {
   const [date, setDate] = React.useState<DateRange | undefined>();
@@ -81,7 +84,7 @@ export function FilterByDateRange({ className, onDateChange }: FilterDateRangePr
                 format(date.from, 'LLL dd, y')
               )
             ) : (
-              <span>Pick a date</span>
+              <span>Filter by date</span>
             )}
           </Button>
         </PopoverTrigger>
@@ -116,11 +119,11 @@ export function FilterByDateRange({ className, onDateChange }: FilterDateRangePr
 }
 
 const frameworksList = [
-  { value: 'มกราคม', label: 'มกราคม' },
-  { value: 'angular', label: 'Angular' },
-  { value: 'vue', label: 'Vue' },
-  { value: 'svelte', label: 'lte' },
-  { value: 'ember', label: 'Ember' },
+  { value: 'Promotion', label: 'Promotion' },
+  { value: 'ปี 2568', label: 'ปี 2568' },
+  { value: 'Mindtalk', label: 'Mindtalk' },
+  { value: 'Minespace', label: 'ไตรมาส3' },
+  { value: 'Prevention', label: 'Prevention' },
 ];
 
 export function FilterByTags({ onSelectTagChange }: FilterTagsProp) {
@@ -178,7 +181,7 @@ export function FilterByTags({ onSelectTagChange }: FilterTagsProp) {
           className={cn(
             'flex p-4 rounded-[6px] border border-brown h-10 items-center justify-between bg-white hover:bg-neutral-100',
           )}>
-          <span className="text-[14px] text-brown font-BaiJamjuree">Pick a tag</span>
+          <span className="text-[14px] text-brown font-BaiJamjuree">Filter by tag</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent
