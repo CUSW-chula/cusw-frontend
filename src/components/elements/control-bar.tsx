@@ -10,7 +10,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { useEffect, useRef, useState } from 'react';
-import BASE_URL from '@/lib/shared';
+import BASE_URL, { type ProjectTagProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -23,7 +23,8 @@ import {
   CommandSeparator,
 } from '@/components/ui/command';
 import { useRouter } from 'next/navigation';
-
+import { useAtom } from 'jotai';
+import { tagsListAtom } from '@/atom';
 interface FilterDateRangeProps extends React.HTMLAttributes<HTMLDivElement> {
   onDateChange?: (dateRange: { from: string; to: string } | undefined) => void;
 }
@@ -41,10 +42,7 @@ interface FilterTagsProp {
 
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
-interface Tags {
-  id: string;
-  name: string;
-}
+
 /* filter zone */
 export function FilterByDateRange({ className, onDateChange }: FilterDateRangeProps) {
   const [date, setDate] = React.useState<DateRange | undefined>();
@@ -118,19 +116,11 @@ export function FilterByDateRange({ className, onDateChange }: FilterDateRangePr
   );
 }
 
-const frameworksList = [
-  { value: 'Promotion', label: 'Promotion' },
-  { value: 'ปี 2568', label: 'ปี 2568' },
-  { value: 'Mindtalk', label: 'Mindtalk' },
-  { value: 'Minespace', label: 'ไตรมาส3' },
-  { value: 'Prevention', label: 'Prevention' },
-];
-
 export function FilterByTags({ onSelectTagChange }: FilterTagsProp) {
   const [selectedValues, setSelectedValues] = React.useState<string[]>([]);
   const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
+  const [tagsList] = useAtom<ProjectTagProp[]>(tagsListAtom);
   const prevSelectedValues = useRef<string[]>([]);
-
   useEffect(() => {
     if (JSON.stringify(prevSelectedValues.current) !== JSON.stringify(selectedValues)) {
       // Call onSelectTagChange only when selectedValues change
@@ -166,10 +156,10 @@ export function FilterByTags({ onSelectTagChange }: FilterTagsProp) {
   };
 
   const toggleAll = () => {
-    if (selectedValues.length === frameworksList.length) {
+    if (selectedValues.length === tagsList.length) {
       handleClear();
     } else {
-      const allValues = frameworksList.map((option) => option.value);
+      const allValues = tagsList.map((option) => option.value);
       setSelectedValues(allValues);
     }
   };
@@ -197,7 +187,7 @@ export function FilterByTags({ onSelectTagChange }: FilterTagsProp) {
                 <div
                   className={cn(
                     'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-                    selectedValues.length === frameworksList.length
+                    selectedValues.length === tagsList.length
                       ? 'bg-primary text-primary-foreground'
                       : 'opacity-50 [&_svg]:invisible',
                   )}>
@@ -205,7 +195,7 @@ export function FilterByTags({ onSelectTagChange }: FilterTagsProp) {
                 </div>
                 <span>(Select All)</span>
               </CommandItem>
-              {frameworksList.map((option) => {
+              {tagsList.map((option) => {
                 const isSelected = selectedValues.includes(option.value);
                 return (
                   <CommandItem

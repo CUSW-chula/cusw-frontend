@@ -14,6 +14,11 @@ export interface Status {
   icon: string;
 }
 
+export interface ProjectTagProp {
+  value: string;
+  label: string;
+}
+
 export interface TaskManageMentProp {
   task_id: string;
 }

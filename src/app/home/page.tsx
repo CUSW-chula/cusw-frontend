@@ -1,5 +1,5 @@
 'use client';
-import { ProjectList } from '@/components/elements/projectList1';
+import { ProjectList } from '@/components/elements/projectList';
 
 interface TaskManageMentProp {
   params: {

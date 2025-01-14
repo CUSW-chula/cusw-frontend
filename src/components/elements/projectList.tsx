@@ -4,7 +4,7 @@ import { Calendar, CrownIcon, Users } from 'lucide-react';
 import * as React from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { getCookie } from 'cookies-next';
-import BASE_URL from '@/lib/shared';
+import BASE_URL, { type ProjectTagProp } from '@/lib/shared';
 import {
   FilterByTags,
   FilterByDateRange,
@@ -13,22 +13,33 @@ import {
   Searchbar,
 } from '@/components/elements/control-bar';
 import { useEffect } from 'react';
-interface ProjectInterface {
+import { useAtom } from 'jotai';
+import { tagsListAtom } from '@/atom';
+export type Project = {
   id: string;
   title: string;
   description: string;
-  expectedBudget: number;
-  realBudget: number;
-  usedBudget: number;
+  budget: number;
+  advance: number;
+  expense: number;
   startDate: Date;
   endDate: Date;
-  tags: [];
-}
+  createdById: string;
+  owner: User[];
+  members: User[];
+  tags: Tag[];
+};
 
-interface Tags {
+export type Tag = {
   id: string;
   name: string;
-}
+};
+
+export type User = {
+  id: string;
+  email: string;
+  name: string;
+} | null;
 
 interface UsersInterfaces {
   id: string;
@@ -53,8 +64,8 @@ const users: UsersInterfaces[] = [
 export const ProjectList = () => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
-  const [projectList, setProjectList] = React.useState<ProjectInterface[]>([]);
-  const [query, setQuery] = React.useState<ProjectInterface[]>([]);
+  const [projectList, setProjectList] = React.useState<Project[]>([]);
+  const [query, setQuery] = React.useState<Project[]>([]);
 
   useEffect(() => {
     const fetchAllProjects = async () => {
@@ -115,7 +126,7 @@ export const ProjectList = () => {
     let filteredProjects = [...projectList];
     if (filterTag && filterTag.length > 0) {
       filteredProjects = filteredProjects.filter((project) => {
-        return (project.tags as Tags[]).some((tag) => filterTag.includes(tag.name));
+        return (project.tags as Tag[]).some((tag) => filterTag.includes(tag.name));
       });
     }
     if (dateRange?.from && dateRange.to) {
@@ -152,7 +163,7 @@ export const ProjectList = () => {
     handleFilterByDateRangeAndSearch(dateRange, text, filterTag);
   };
 
-  const sortByStartDate = async (projects: ProjectInterface[], inOrder: boolean) => {
+  const sortByStartDate = async (projects: Project[], inOrder: boolean) => {
     const sorted = [...projects].sort((project1, project2) => {
       if (project1.startDate === null) return 1; // If startDate is null, move to the end
       if (project2.startDate === null) return -1;
@@ -163,7 +174,7 @@ export const ProjectList = () => {
     setQuery(sorted);
   };
 
-  const sortByEndDate = async (projects: ProjectInterface[], inOrder: boolean) => {
+  const sortByEndDate = async (projects: Project[], inOrder: boolean) => {
     const sorted = [...projects].sort((project1, project2) => {
       if (project1.endDate === null) return 1; // If startDate is null, move to the end
       if (project2.endDate === null) return -1;
@@ -174,13 +185,13 @@ export const ProjectList = () => {
     setQuery(sorted);
   };
 
-  const sortByExpectedBudget = async (projects: ProjectInterface[], inOrder: boolean) => {
+  const sortByExpectedBudget = async (projects: Project[], inOrder: boolean) => {
     const sorted = [...projects].sort((project1, project2) => {
-      if (project1.expectedBudget === null) return 1; // If startDate is null, move to the end
-      if (project2.expectedBudget === null) return -1;
+      if (project1.expense === null) return 1; // If startDate is null, move to the end
+      if (project2.expense === null) return -1;
       return inOrder
-        ? new Date(project1.expectedBudget).getTime() - new Date(project2.expectedBudget).getTime()
-        : new Date(project2.expectedBudget).getTime() - new Date(project1.expectedBudget).getTime();
+        ? new Date(project1.expense).getTime() - new Date(project2.expense).getTime()
+        : new Date(project2.expense).getTime() - new Date(project1.expense).getTime();
     });
     setQuery(sorted);
   };
@@ -206,6 +217,22 @@ export const ProjectList = () => {
     handleFilterByDateRangeAndSearch(dateRange, searchText, selectedTags);
   };
 
+  const [, setTagsList] = useAtom<ProjectTagProp[]>(tagsListAtom);
+  function handleProjectTags() {
+    const tags: Tag[] = [];
+    projectList.map((project) =>
+      project.tags.map((tag) => tags.push({ id: tag.id, name: tag.name })),
+    );
+    const newFrameworksList = tags.map((tag) => ({
+      value: tag.name,
+      label: tag.name,
+    }));
+
+    setTagsList(newFrameworksList);
+  }
+  React.useEffect(() => {
+    handleProjectTags();
+  }, [projectList]);
   return (
     <>
       <div className="flex w-full justify-between flex-wrap gap-2">
@@ -233,13 +260,13 @@ export const ProjectList = () => {
                 <div className="w-[24px] h-[24px] flex flex-row  ">
                   <img src="/asset/icon/budget-black.svg" alt="Budget Icon " />
                   <div className="font-BaiJamjuree text-[14px] font-medium flex text-center">
-                    {project.expectedBudget}
+                    {project.budget}
                   </div>
                 </div>
                 <div className="w-[24px] h-[24px] flex flex-row  ">
                   <img src="/asset/icon/budget-red.svg" alt="Budget Icon " />
                   <div className="font-BaiJamjuree text-[14px] font-medium flex text-center text-[#EF4444]">
-                    {project.realBudget}
+                    {project.expense}
                   </div>
                 </div>
                 <div className="flex-row flex">
