@@ -27,6 +27,32 @@ export interface TaskManageMentOverviewProp {
   project_id: string;
 }
 
+export type Project = {
+  id: string;
+  title: string;
+  description: string;
+  budget: number;
+  advance: number;
+  expense: number;
+  startDate: Date;
+  endDate: Date;
+  createdById: string;
+  owner: User[];
+  members: User[];
+  tags: Tag[];
+};
+
+export type Tag = {
+  id: string;
+  name: string;
+};
+
+export type User = {
+  id: string;
+  email: string;
+  name: string;
+} | null;
+
 export const BASE_SOCKET =
   process.env.NODE_ENV === 'production'
     ? 'wss://cusw-workspace.sa.chula.ac.th/socket/'
@@ -35,6 +61,6 @@ export const BASE_SOCKET =
 const BASE_URL =
   process.env.NODE_ENV === 'production'
     ? 'https://cusw-workspace.sa.chula.ac.th/api'
-    : 'http://localhost:4000/api/v2';
+    : 'http://localhost:4000/api';
 
 export default BASE_URL;

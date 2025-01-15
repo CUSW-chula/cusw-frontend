@@ -1,15 +1,7 @@
 'use client';
 import { ProjectList } from '@/components/elements/projectList';
 
-interface TaskManageMentProp {
-  params: {
-    project_id: string;
-  };
-}
-
-export default function Home({ params }: TaskManageMentProp) {
-  const { project_id } = params;
-
+export default function ProjectLists() {
   return (
     <div className=" flex flex-wrap flex- w-full items-start gap-[16px]  ">
       <ProjectList />

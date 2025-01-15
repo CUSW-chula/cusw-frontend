@@ -4,7 +4,7 @@ import { Calendar, CrownIcon, Users } from 'lucide-react';
 import * as React from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { getCookie } from 'cookies-next';
-import BASE_URL, { type ProjectTagProp } from '@/lib/shared';
+import BASE_URL, { type ProjectTagProp, type Project, type Tag, type User } from '@/lib/shared';
 import {
   FilterByTags,
   FilterByDateRange,
@@ -15,32 +15,6 @@ import {
 import { useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { tagsListAtom } from '@/atom';
-export type Project = {
-  id: string;
-  title: string;
-  description: string;
-  budget: number;
-  advance: number;
-  expense: number;
-  startDate: Date;
-  endDate: Date;
-  createdById: string;
-  owner: User[];
-  members: User[];
-  tags: Tag[];
-};
-
-export type Tag = {
-  id: string;
-  name: string;
-};
-
-export type User = {
-  id: string;
-  email: string;
-  name: string;
-} | null;
-
 interface UsersInterfaces {
   id: string;
   userName: string;
@@ -70,7 +44,7 @@ export const ProjectList = () => {
   useEffect(() => {
     const fetchAllProjects = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/projects`, {
+        const response = await fetch(`${BASE_URL}/v2/projects`, {
           headers: { Authorization: auth },
         });
         const data = await response.json();

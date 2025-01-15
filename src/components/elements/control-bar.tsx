@@ -293,15 +293,15 @@ export function Searchbar({ onSearchChange }: SearchProp) {
 export function Createproject() {
   const router = useRouter();
   const handleCreateProject = async () => {
-    const url = `${BASE_URL}/projects`;
+    const url = `${BASE_URL}/v2/projects`;
     const options = {
       method: 'POST',
       headers: { Authorization: auth, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         title: '',
         description: '',
-        startDate: '2025-01-07T19:35:14.482Z',
-        endDate: '2025-01-07T19:35:14.482Z',
+        startDate: new Date().toISOString(),
+        endDate: new Date().toISOString(),
       }),
     };
 
