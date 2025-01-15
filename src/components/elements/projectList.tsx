@@ -1,9 +1,9 @@
 "use client";
 import { PopoverContent } from "@radix-ui/react-popover";
 import { CommandGroup, CommandItem } from "cmdk";
-import {  Calendar, CrownIcon,  Users } from "lucide-react";
+import { Calendar, CrownIcon, Users, Star } from "lucide-react";
 import * as React from "react";
-import { Badge } from '@/components/ui/badge';
+import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,
   TooltipContent,
@@ -12,8 +12,7 @@ import {
 } from "@/components/ui/tooltip";
 import { getCookie } from "cookies-next";
 import BASE_URL from "@/lib/shared";
-
-
+import { Button } from "../ui/button";
 
 export type User = {
   id: string;
@@ -76,8 +75,7 @@ export type Emoji = {
 
 // mock data (default users)
 
-
-export const ProjectList_2 = () => {
+export const ProjectList = () => {
   const cookie = getCookie("auth");
   const auth = cookie?.toString() ?? "";
   const [projectList, setProjectList] = React.useState<Prorject[]>([]);
@@ -98,7 +96,7 @@ export const ProjectList_2 = () => {
     fetchProjectTitle();
   }, [auth]);
   //owner
-  const getInitials = (name: string ) => {
+  const getInitials = (name: string) => {
     const nameParts = name.split(" ");
     return nameParts.map((part) => part[0]).join(""); // Take the first letter of each part
   };
@@ -125,7 +123,21 @@ export const ProjectList_2 = () => {
 
     return `${start}${start && end ? " -> " : ""}${end}`;
   };
-  
+
+  const [isActive, setIsActive] = React.useState(false);
+  const handlesetIsActive = () => {
+    setIsActive(!isActive);
+  };
+  const [starredProjects, setStarredProjects] = React.useState<
+    Record<string, boolean>
+  >({});
+  const toggleStar = (projectId: string) => {
+    setStarredProjects((prevState) => ({
+      ...prevState,
+      [projectId]: !prevState[projectId],
+    }));
+  };
+
   return (
     <>
       <div className="flex items-start content-start gap-[16px] flex-wrap  ">
@@ -133,71 +145,84 @@ export const ProjectList_2 = () => {
           projectList.map((project) => (
             <div
               key={project.id}
-              className="flex flex-start w-[308px] h-[308px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px] relative"
+              className="flex flex-start w-[308px] h-[284px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px] relative"
             >
               {/* <div className="flex flex-start gap-[10px] rounded-[6px] self-stretch">
               </div> */}
-              <div className="flex flex-col gap-y-[16px] ">
+              <div className="flex flex-col gap-y-[8px] ">
                 <div className="h-[56px] w-[204px] self-stretch">
                   <div className="font-BaiJamjuree text-[16px] text-base font-medium leading-[1.75] ">
                     {project.title}
                   </div>
                 </div>
-                <div className="absolute top-[60px] right-[20px] ">
-                <div className="flex flex-row flex-wrap items-center">
-                    {project.tags?.slice(0, 1).map((tag) => (
+
+                <div className="absolute top-[15px] right-[20px]">
+                  <button type="button" onClick={() => toggleStar(project.id)}>
+                    {starredProjects[project.id] ? (
+                      <Star className="text-brown h-[24px] w-[24px] fill-yellow" />
+                    ) : (
+                      <Star className="text-brown h-[24px] w-[24px]" />
+                    )}
+                  </button>
+                </div>
+
+                <div className="absolute top-[60px] right-[20px]  ">
+                  <div className="flex flex-col flex-wrap items-end">
+                    {project.tags?.slice(0, 4).map((tag) => (
                       <Badge
                         key={tag?.id}
                         variant="destructive"
                         className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mt-1 mb-1"
                       >
-                        <span className="text-base font-medium font-BaiJamjuree">{tag?.name}</span>
-                      </Badge>
-                    ))}
-                    {project.tags && project.tags.length > 1 && (
-                      <Badge
-                        variant="destructive"
-                        className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mt-1 mb-1"
-                      >
                         <span className="text-base font-medium font-BaiJamjuree">
-                          +{project.tags.length - 1}
+                          {tag?.name}
                         </span>
                       </Badge>
-                    )}</div>
-                    </div>
-
-
-
-               
-
-                <div className="w-[24px] h-[24px] flex flex-row  ">
-                  <img src="/asset/icon/budget-black.svg" alt="Budget Icon " />
-                  <div className="font-BaiJamjuree text-[14px] font-medium flex text-center">
-                    {project.budget}
+                    ))}
+                    {project.tags && project.tags.length > 4 && (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <Badge
+                              variant="destructive"
+                              className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mt-1 mb-1"
+                            >
+                              <div className="text-base font-medium font-BaiJamjuree">
+                                +{project.tags.length - 4}
+                              </div>
+                            </Badge>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <div className="flex flex-col flex-wrap items-start">
+                              {project.tags?.map((tag) => (
+                                <Badge
+                                  key={tag?.id}
+                                  variant="destructive"
+                                  className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mt-1 mb-1"
+                                >
+                                  <span className="text-base font-medium font-BaiJamjuree">
+                                    {tag?.name}
+                                  </span>
+                                </Badge>
+                              ))}
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
                   </div>
                 </div>
-                <div className="w-[24px] h-[24px] flex flex-row  ">
-                  <img src="/asset/icon/budget-red.svg" alt="Budget Icon " />
-                  <div className="font-BaiJamjuree text-[14px] font-medium flex text-center text-[#EF4444]">
-                    {project.expense}
-                  </div>
-                </div>
-                <div className="w-[24px] h-[24px] flex flex-row  ">
-                  <img src="/asset/icon/budget-green.svg" alt="Budget Icon " />
-                  <div className="font-BaiJamjuree text-[14px] font-medium flex text-center text-[#69BCA0]">
-                    {project.advance}
-                  </div>
-                </div>
+
                 <div className="flex-row flex">
-                  <CrownIcon className="w-[24px] h-[24px] relative text-black" />
+                  <CrownIcon className="w-[24px] h-[24px] relative text-black mr-1" />
                   <TooltipProvider>
-                    <div className="flex items-center space-x-[4px]">
+                    <div className="flex items-center space-x-[4px] gap-1">
                       {project.owner.map((user) => (
                         <Tooltip key={user?.id ?? user?.email}>
                           <TooltipTrigger>
                             <div className="flex items-center space-x-2">
                               <div className="w-[24px] h-[24px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown">
-                                <span className="text-brown text-sm font-BaiJamjuree">
+                                <span className="text-brown text-[12px] font-BaiJamjuree">
                                   {getInitials(user?.name || "")}
                                 </span>
                               </div>
@@ -212,7 +237,7 @@ export const ProjectList_2 = () => {
                   </TooltipProvider>
                 </div>
                 <div className="flex-row flex">
-                  <Users className="w-[24px] h-[24px] relative text-black" />
+                  <Users className="w-[24px] h-[24px] relative text-black mr-1" />
                   <TooltipProvider>
                     <div className="flex items-center space-x-[4px]">
                       {project.members.map((user) => (
@@ -220,7 +245,7 @@ export const ProjectList_2 = () => {
                           <TooltipTrigger>
                             <div className="flex items-center space-x-2">
                               <div className="w-[24px] h-[24px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown">
-                                <span className="text-brown text-sm font-BaiJamjuree">
+                                <span className="text-brown text-[12px] font-BaiJamjuree">
                                   {getInitials(user?.name || "")}
                                 </span>
                               </div>
@@ -235,17 +260,47 @@ export const ProjectList_2 = () => {
                   </TooltipProvider>
                 </div>
 
+                <div className="w-[24px] h-[24px] flex flex-row  ">
+                  <div className="flex items-center justify-center font-BaiJamjuree text-[24px] text-center h-full w-full font-semibold">
+                    ฿
+                  </div>
+
+                  {/* <img src="/asset/icon/budget-black.svg" alt="Budget Icon " /> */}
+                  <div className="font-BaiJamjuree text-[14px] font-medium flex text-center ml-1">
+                    {project.budget}
+                  </div>
+                </div>
+                <div className="w-[24px] h-[24px] flex flex-row  ">
+                  <div className="flex items-center justify-center font-BaiJamjuree text-[24px] text-center h-full w-full text-[#EF4444] font-semibold">
+                    ฿
+                  </div>
+
+                  {/* <img src="/asset/icon/budget-red.svg" alt="Budget Icon " /> */}
+                  <div className="font-BaiJamjuree text-[14px] font-medium flex text-center ml-1 text-[#EF4444]">
+                    {project.expense}
+                  </div>
+                </div>
+                <div className="w-[24px] h-[24px] flex flex-row  ">
+                  <div className="flex items-center justify-center font-BaiJamjuree text-[24px] text-center h-full w-full text-[#69BCA0] font-semibold">
+                    ฿
+                  </div>
+                  {/* <img src="/asset/icon/budget-green.svg" alt="Budget Icon " /> */}
+                  <div className="font-BaiJamjuree text-[14px] font-medium flex text-center ml-1 text-[#69BCA0]">
+                    {project.advance}
+                  </div>
+                </div>
+
                 <div className="flex flex-row">
-                  <Calendar className="w-[24px] h-[24px] relative text-black" />
+                  <Calendar className="w-[24px] h-[24px] relative text-black mr-1" />
                   {/* {item.startDate && item.endDate && ( */}
-                    <div className="text-[14px] font-BaiJamjuree flex  gap-1 items-center">
-                      <span>
-                        {formatDate(
-                          new Date(project.startDate),
-                          new Date(project.endDate)
-                        )}
-                      </span>
-                    </div>
+                  <div className="text-[14px] font-BaiJamjuree flex  gap-1 items-center">
+                    <span>
+                      {formatDate(
+                        new Date(project.startDate),
+                        new Date(project.endDate)
+                      )}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
