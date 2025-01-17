@@ -14,6 +14,11 @@ export interface Status {
   icon: string;
 }
 
+export interface ProjectTagProp {
+  value: string;
+  label: string;
+}
+
 export interface TaskManageMentProp {
   task_id: string;
 }
@@ -21,6 +26,32 @@ export interface TaskManageMentProp {
 export interface TaskManageMentOverviewProp {
   project_id: string;
 }
+
+export type Project = {
+  id: string;
+  title: string;
+  description: string;
+  budget: number;
+  advance: number;
+  expense: number;
+  startDate: Date;
+  endDate: Date;
+  createdById: string;
+  owner: User[];
+  members: User[];
+  tags: Tag[];
+};
+
+export type Tag = {
+  id: string;
+  name: string;
+};
+
+export type User = {
+  id: string;
+  email: string;
+  name: string;
+} | null;
 
 export const BASE_SOCKET =
   process.env.NODE_ENV === 'production'

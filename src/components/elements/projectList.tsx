@@ -6,7 +6,6 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/comp
 import { getCookie } from 'cookies-next';
 import BASE_URL from '@/lib/shared';
 
-
 export type User = {
   id: string;
   email: string;
