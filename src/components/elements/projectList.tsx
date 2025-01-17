@@ -1,13 +1,11 @@
 'use client';
-import { PopoverContent } from '@radix-ui/react-popover';
-import { CommandGroup, CommandItem } from 'cmdk';
 import { Calendar, CrownIcon, Users, Star } from 'lucide-react';
 import * as React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { getCookie } from 'cookies-next';
 import BASE_URL from '@/lib/shared';
-import { Button } from '../ui/button';
+
 
 export type User = {
   id: string;
@@ -74,14 +72,17 @@ export const ProjectList = () => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [projectList, setProjectList] = React.useState<Prorject[]>([]);
-
-  // ดึงข้อมูลโปรเจกต์เมื่อคอมโพเนนต์ถูกโหลด
+  //ดึงข้อมูลโปรเจกต์เมื่อคอมโพเนนต์ถูกโหลด
   React.useEffect(() => {
+    console.log('Fetching projects from:', `${BASE_URL}/v2/projects`);
     const fetchProjectTitle = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/projects`, {
+        const response = await fetch(`${BASE_URL}/v2/projects`, {
           headers: { Authorization: auth },
         });
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
         const data = await response.json();
         setProjectList(data);
       } catch (error) {
