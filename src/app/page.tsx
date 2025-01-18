@@ -12,14 +12,14 @@ const BASE_URL =
 const Home = () => {
   const router = useRouter();
   const handleSignIn = async () => {
-    const url = `${BASE_URL}/sign/cm4iswgmv0000vyjjf9asuuvc`;
+    const url = `${BASE_URL}/sign/cm4l9133n000giqjztqwecz5q`;
     const options = { method: 'GET' };
     try {
       const response = await fetch(url, options);
       const data = await response.text();
       const token = `Bearer ${data}`;
       setCookie('auth', token);
-      router.push('/projects/cm24w5yu000008tlglutu5czu');
+      router.push('/projects');
     } catch (error) {
       console.error(error);
     }
