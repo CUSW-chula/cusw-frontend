@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import { getCookie } from 'cookies-next';
-import BASE_URL, { BASE_SOCKET, type TaskManageMentOverviewProp } from '@/lib/shared';
+import BASE_URL, { type TaskManageMentOverviewProp } from '@/lib/shared';
 import { Calendar, ChevronRight, ChevronsRight, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
@@ -15,21 +15,25 @@ interface Tag {
   id: string;
   name: string;
 }
-interface taskProps {
+interface TaskProps {
   id: string;
   title: string;
   description: string;
+  status: 'Unassigned' | 'Assigned' | 'UnderReview' | 'InRecheck' | 'Done';
+  projectId: string;
+  parentTaskId: string;
+  statusBudget: string;
   budget: number;
   advance: number;
   expense: number;
-  status: 'Unassigned' | 'Assigned' | 'UnderReview' | 'InRecheck' | 'Done';
-  parentTaskId: string;
-  projectId: string;
-  createdById: string;
   startDate: Date;
   endDate: Date;
-  tags?: string[];
-  subtasks?: taskProps[];
+  createdById: string;
+  owner: { id: string; name: string; email: string };
+  members: { id: string; name: string; email: string }[];
+  tags?: Tag[];
+  subtasks?: TaskProps[];
+  emojis: string[];
 }
 
 // Paths for status icons
@@ -51,20 +55,23 @@ const auth = cookie?.toString() ?? '';
 
 export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   const router = useRouter();
-  const [tasks, settasks] = useState<taskProps[]>([]);
-  const [showTasks, setShowTasks] = useState<taskProps[]>([]);
+  const [tasks, settasks] = useState<TaskProps[]>([]);
+  const [showTasks, setShowTasks] = useState<TaskProps[]>([]);
   const [projectName, setProjectName] = useState<string>('');
   const [isExportTasks, setIsExportTasks] = useState<boolean>(false);
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
-  const [visaulExportValue, setVisaulExportValue] = useState<Set<string>>(new Set());
-  const [exportValue, setExportValue] = useState<taskProps[]>([]);
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set()); //set of expanding task
+  const [visaulExportValue, setVisaulExportValue] = useState<Set<string>>(new Set()); //for export value
+  const [exportValue, setExportValue] = useState<TaskProps[]>([]); //for visual export
+
+  const [allTags, setAllTags] = useState<Tag[]>([]);
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  const parseJsonValues = useCallback((values: any[]): taskProps[] => {
+  const parseJsonValues = useCallback((values: any[]): TaskProps[] => {
     return values.map((value) => ({
       id: value.id,
       title: value.title,
       description: value.description,
+      statusBudget: value.statusBudget,
       budget: value.budget,
       advance: value.advance,
       expense: value.expense,
@@ -74,14 +81,19 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       createdById: value.createdById,
       startDate: new Date(value.startDate),
       endDate: new Date(value.endDate),
-      subtasks: value.subTasks ? parseJsonValues(value.subTasks) : [],
+      owner: value.owner,
+      members: value.members,
+      tags: value.tags,
+      subtasks: value.subtasks ? parseJsonValues(value.subtasks) : [],
+      emojis: value.emojis,
     }));
   }, []);
 
   useEffect(() => {
+    //get all data of project from db
     const fetchData = async () => {
       try {
-        const data = await fetch(`${BASE_URL}/projects/${project_id}`, {
+        const data = await fetch(`${BASE_URL}/v2/projects/${project_id}`, {
           headers: {
             Authorization: auth,
           },
@@ -89,25 +101,8 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         if (data.ok) {
           const project = await data.json();
           setProjectName(project.title);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchData();
-  }, [project_id]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetch(`${BASE_URL}/tasks/project/${project_id}`, {
-          headers: {
-            Authorization: auth,
-          },
-        });
-        if (data.ok) {
-          const tasks = await data.json();
-          const parsedData = parseJsonValues(tasks);
+          const parsedData = parseJsonValues(project.tasks);
           settasks(parsedData);
           if (showTasks.length === 0) setShowTasks(parsedData);
         }
@@ -115,11 +110,30 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         console.error(error);
       }
     };
+    //get all tags of tasks from db
+    const fetchTagData = async () => {
+      const url = `${BASE_URL}/v2/tags/`;
+      const options = {
+        method: 'GET',
+        headers: {
+          Authorization: auth,
+        },
+      };
+
+      try {
+        const response = await fetch(url, options);
+        const data = (await response.json()) as Tag[];
+        setAllTags(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchTagData();
     fetchData();
-  }, [project_id, parseJsonValues, showTasks]);
+  }, []);
 
   const ProjectController = () => {
-    const [allTags, setAllTags] = useState<Tag[]>([]);
+    //sort pattern
     const sortItem = [
       {
         value: 'StartDate123',
@@ -139,112 +153,107 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       },
     ];
 
-    useEffect(() => {
-      const fetchTagData = async () => {
-        const url = `${BASE_URL}/tags/`;
-        const options = {
-          method: 'GET',
-          headers: {
-            Authorization: auth,
-          },
-        };
+    const handleFilter = async (tagID: string) => {
+      const filterByTag = async (tasks: TaskProps[], tag: Tag): Promise<TaskProps[]> => {
+        const filteredTasks: TaskProps[] = [];
 
-        try {
-          const response = await fetch(url, options);
-          const data = (await response.json()) as Tag[];
-          setAllTags(data);
-        } catch (error) {
-          console.error(error);
-        }
-      };
-      fetchTagData();
-    }, []);
-
-    const handleFilter = async (tag_id: string) => {
-      //get task have this tag
-      const fetchData = async (tag_id: string) => {
-        const url = `${BASE_URL}/tags/getassigntask/${tag_id}`;
-        const options = { method: 'GET', headers: { Authorization: auth } };
-        try {
-          const response = await fetch(url, options);
-          const data = await response.json();
-
-          // Map the data to extract the task ids as a string array
-          const tasksHavetag = data.map((task: { id: string }) => task.id);
-          // console.log('taskIds: ', taskIds);
-
-          // Return the task ids array
-          console.log(tasksHavetag);
-          return tasksHavetag;
-        } catch (error) {
-          console.error('Error fetching data:', error);
-          // You might want to return an empty array in case of error
-          return [];
-        }
-      };
-
-      const setTaskAssignedByTag = (tasks: taskProps[], taskIds: string[]): taskProps[] => {
-        let matchedTasks: taskProps[] = [];
-
+        // Iterate through all tasks
         for (const task of tasks) {
-          // Check if the current task's id matches the taskIds list
-          if (taskIds.includes(task.id)) {
-            matchedTasks.push(task);
+          // Check if the task itself has the matching tag
+          if (task.tags?.some((item) => item.id === tag.id)) {
+            filteredTasks.push(task);
           }
 
-          // If there are subtasks, call the function recursively on the subtasks
-          if (task.subtasks && task.subtasks.length > 0) {
-            matchedTasks = [
-              ...matchedTasks,
-              ...setTaskAssignedByTag(task.subtasks, taskIds), // Recursive call
-            ];
+          // If the task has subtasks, recursively filter them
+          else if (task.subtasks && task.subtasks?.length > 0) {
+            const subtaskResults = await filterByTag(task.subtasks, tag);
+            filteredTasks.push(...subtaskResults); // Append the results
           }
         }
-        setShowTasks(matchedTasks);
-        return matchedTasks;
+
+        return filteredTasks;
       };
 
-      if (tag_id === 'all') {
-        setShowTasks(tasks);
-        return;
-      }
-      const tasksHavetag = await fetchData(tag_id);
+      const tag = allTags.find((tag) => tag.id === tagID) || {
+        id: 'all',
+        name: 'Default',
+      };
 
-      setTaskAssignedByTag(tasks, tasksHavetag);
+      // Call the recursive function and update the state
+      const tasksWithTag = await filterByTag(tasks, tag);
+      setShowTasks(tasksWithTag);
     };
+
+    // const handleSort = (value: string) => {
+    //   const sortByStartDate = async (tasks: TaskProps[], inOrder: boolean) => {
+    //     const sorted = [...tasks].sort((task1, task2) => {
+    //       if (task1.startDate === null) return 1; // If startDate is null, move to the end
+    //       if (task2.startDate === null) return -1;
+    //       return inOrder
+    //         ? new Date(task1.startDate).getTime() - new Date(task2.startDate).getTime()
+    //         : new Date(task2.startDate).getTime() - new Date(task1.startDate).getTime();
+    //     });
+    //     setShowTasks(sorted);
+    //   };
+
+    //   const sortByEndDate = async (tasks: TaskProps[], inOrder: boolean) => {
+    //     const sorted = [...tasks].sort((task1, task2) => {
+    //       if (task1.endDate === null) return 1; // If startDate is null, move to the end
+    //       if (task2.endDate === null) return -1;
+    //       return inOrder
+    //         ? new Date(task1.endDate).getTime() - new Date(task2.endDate).getTime()
+    //         : new Date(task2.endDate).getTime() - new Date(task1.endDate).getTime();
+    //     });
+    //     setShowTasks(sorted);
+    //   };
+
+    //   value === 'StartDate123'
+    //     ? sortByStartDate(showTasks, true)
+    //     : value === 'StartDate321'
+    //       ? sortByStartDate(showTasks, false)
+    //       : value === 'EndDate123'
+    //         ? sortByEndDate(showTasks, true)
+    //         : value === 'EndDate321'
+    //           ? sortByEndDate(showTasks, false)
+    //           : null;
+    // };
 
     const handleSort = (value: string) => {
-      value === 'StartDate123'
-        ? sortByStartDate(showTasks, true)
-        : value === 'StartDate321'
-          ? sortByStartDate(showTasks, false)
-          : value === 'EndDate123'
-            ? sortByEndDate(showTasks, true)
-            : value === 'EndDate321'
-              ? sortByEndDate(showTasks, false)
-              : null;
-    };
+      const sortTasksByDate = (
+        tasks: TaskProps[],
+        dateType: 'startDate' | 'endDate',
+        inOrder: boolean,
+      ): TaskProps[] => {
+        return tasks
+          .filter((task) => task[dateType] !== null) // Filter out tasks with null dates
+          .sort((task1, task2) => {
+            const date1 = new Date(task1[dateType]).getTime();
+            const date2 = new Date(task2[dateType]).getTime();
+            return inOrder ? date1 - date2 : date2 - date1; // Sort in ascending or descending order
+          })
+          .concat(tasks.filter((task) => task[dateType] === null)); // Add tasks with null dates at the end
+      };
 
-    const sortByStartDate = async (tasks: taskProps[], inOrder: boolean) => {
-      const sorted = [...tasks].sort((task1, task2) => {
-        if (task1.startDate === null) return 1; // If startDate is null, move to the end
-        if (task2.startDate === null) return -1;
-        return inOrder
-          ? new Date(task1.startDate).getTime() - new Date(task2.startDate).getTime()
-          : new Date(task2.startDate).getTime() - new Date(task1.startDate).getTime();
-      });
-      setShowTasks(sorted);
-    };
+      let sortedTasks: TaskProps[];
 
-    const sortByEndDate = async (tasks: taskProps[], inOrder: boolean) => {
-      const sorted = [...tasks].sort((task1, task2) => {
-        if (task1.endDate === null) return 1; // If startDate is null, move to the end
-        if (task2.endDate === null) return -1;
-        return inOrder
-          ? new Date(task1.endDate).getTime() - new Date(task2.endDate).getTime()
-          : new Date(task2.endDate).getTime() - new Date(task1.endDate).getTime();
-      });
-      setShowTasks(sorted);
+      switch (value) {
+        case 'StartDate123':
+          sortedTasks = sortTasksByDate(showTasks, 'startDate', true);
+          break;
+        case 'StartDate321':
+          sortedTasks = sortTasksByDate(showTasks, 'startDate', false);
+          break;
+        case 'EndDate123':
+          sortedTasks = sortTasksByDate(showTasks, 'endDate', true);
+          break;
+        case 'EndDate321':
+          sortedTasks = sortTasksByDate(showTasks, 'endDate', false);
+          break;
+        default:
+          return; // Do nothing if the value is not recognized
+      }
+
+      setShowTasks(sortedTasks); // Update the state with sorted tasks
     };
 
     const handleCreateTask = async () => {
@@ -276,8 +285,8 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     };
 
     const handleSelectTasks = () => {
-      const expandItemsRecursively = (tasks: taskProps[]) => {
-        const expandTask = (task: taskProps) => {
+      const expandItemsRecursively = (tasks: TaskProps[]) => {
+        const expandTask = (task: TaskProps) => {
           setExpandedItems((prev) => {
             const newSet = new Set(prev);
             if (!newSet.has(task.id)) {
@@ -296,20 +305,8 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       if (!isExportTasks) expandItemsRecursively(showTasks);
     };
 
-    const jsonToCsv = (jsonData: taskProps[]) => {
+    const jsonToCsv = (jsonData: TaskProps[]) => {
       console.log(jsonData);
-      // let csv = '';
-
-      // // Extract headers
-      // const headers = Object.keys(jsonData[0]);
-      // csv += headers.join(',') + '\n';
-
-      // // Extract values
-      // jsonData.forEach(obj => {
-      //     const values = headers.map(header => obj[header]);
-      //     csv += values.join(',') + '\n';
-      // });
-
       return jsonData;
     };
 
@@ -317,10 +314,14 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       <div className="flex items-center justify-between w-full mb-3">
         {/* Filter Task */}
         <div className="flex items-center gap-4">
-          <Select onValueChange={(value) => handleFilter(value)}>
+          <Select
+            onValueChange={(value) => {
+              // handleFilter(value);
+            }}>
             <SelectTrigger className="w-[150px] border-brown">
               <SelectValue className="text-brown" placeholder="Filter by: Tag" />
             </SelectTrigger>
+
             <SelectContent>
               <SelectItem key="default" value="all" className="font-BaiJamjuree">
                 Default
@@ -333,6 +334,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
             </SelectContent>
           </Select>
         </div>
+
         {/* Sort and New Task  */}
         <div className="flex items-center gap-4">
           {isExportTasks && (
@@ -343,12 +345,14 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
               Export
             </Button>
           )}
+
           <Button
             variant="outline"
             className="h-10 px-4 bg-white rounded-md border border-brown justify-center items-center flex text-brown text-base font-normal font-BaiJamjuree leading-normal hover:cursor-pointer"
             onClick={handleSelectTasks}>
             Select tasks
           </Button>
+
           <Select onValueChange={(value) => handleSort(value)}>
             <SelectTrigger className="w-[150px] border-brown">
               <SelectValue className="text-brown" placeholder="Sort by: Start date" />
@@ -361,6 +365,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
               ))}
             </SelectContent>
           </Select>
+
           <Button
             variant="outline"
             onClick={handleCreateTask}
@@ -376,7 +381,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     item,
     depth = 0,
   }: {
-    item: taskProps;
+    item: TaskProps;
     depth?: number;
     statusIcon: string;
   }) => {
@@ -431,7 +436,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     const Chevron = ({
       task,
     }: {
-      task: taskProps;
+      task: TaskProps;
     }) => {
       //expand subtask
       const toggleExpand = (id: string) => {
@@ -442,7 +447,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         });
       };
 
-      const handleChecked = async (task: taskProps) => {
+      const handleChecked = async (task: TaskProps) => {
         if (!visaulExportValue.has(task.id)) {
           recursiveCheck(task, true);
           const newSet = [...exportValue, task];
@@ -464,7 +469,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         }
       };
 
-      const recursiveCheck = (task: taskProps, goTo: boolean) => {
+      const recursiveCheck = (task: TaskProps, goTo: boolean) => {
         setVisaulExportValue((prev) => {
           const newSet = new Set(prev);
           goTo ? newSet.add(task.id) : newSet.delete(task.id);
@@ -542,7 +547,51 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
             </div>
 
             <div className="w-5/12 flex gap-1 relative justify-end items-center">
-              <GetTagList taskId={item.id} auth={auth} />
+              {/* <GetTagList taskId={item.id} auth={auth} /> */}
+              <div>
+                <div className="relative flex">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild className="cursor-pointer flex max-w-32">
+                        <div>
+                          {item.tags?.length !== 0
+                            ? item.tags?.slice(0, 3).map((tag, index) => (
+                                <Badge
+                                  key={tag.id}
+                                  variant="destructive"
+                                  className="h-10 w-28 px-3 py-2 bg-[#eefdf7] rounded-3xl border border-green absolute self-center flex justify-center right-0 transition-transform"
+                                  style={
+                                    {
+                                      transform: `translateX(${index * -28}px)`, // Custom CSS property for group hover
+                                    } as React.CSSProperties
+                                  }>
+                                  <span className="text-green text-base font-semibold font-BaiJamjuree leading-normal whitespace-nowrap overflow-hidden text-ellipsis">
+                                    {tag.name}
+                                  </span>
+                                </Badge>
+                              ))
+                            : null}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent className="flex flex-col gap-1">
+                        {item.tags?.length !== 0
+                          ? item.tags?.map((tag) => (
+                              <div key={tag.id}>
+                                <Badge
+                                  variant="destructive"
+                                  className="h-10 px-3 py-2 bg-[#eefdf7] rounded-3xl border border-green ">
+                                  <span className="text-green text-base font-semibold font-BaiJamjuree leading-normal whitespace-nowrap">
+                                    {tag.name}
+                                  </span>
+                                </Badge>
+                              </div>
+                            ))
+                          : null}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </div>
               {(item.budget > 0 || item.advance > 0 || item.expense > 0) && (
                 <div>
                   {item.budget > 0 && displayValue('budget', item.budget)}
@@ -556,7 +605,18 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
                   <TooltipTrigger asChild>
                     <User className="h-8 w-8 p-1 text-brown border border-brown rounded-full hover:cursor-pointer" />
                   </TooltipTrigger>
-                  <GetAssignPeopleList taskId={item.id} auth={auth} />
+                  {/* <GetAssignPeopleList taskId={item.id} auth={auth} /> */}
+                  <TooltipContent>
+                    {item.members?.length !== 0 ? (
+                      item.members?.map((user) => (
+                        <div key={user.id} className="flex items-center gap-2">
+                          <span>{user.name}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <span>No one assigned</span>
+                    )}
+                  </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
 
@@ -613,123 +673,5 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         </div>
       ))}
     </div>
-  );
-};
-
-const GetTagList = ({ taskId, auth }: { taskId: string; auth: string }) => {
-  const [tagList, setTagList] = useState<Array<{ id: string; name: string }>>([]);
-
-  //What tags does this task have
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetch(`${BASE_URL}/tags/getassigntag/${taskId}`, {
-          headers: {
-            Authorization: auth,
-          },
-        });
-        if (data.ok) {
-          const tags = await data.json();
-          setTagList(tags);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchData();
-  }, [auth, taskId]);
-
-  return (
-    <div className="relative flex">
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild className="cursor-pointer flex max-w-32">
-            <div>
-              {tagList.length !== 0
-                ? tagList.slice(0, 3).map((tag, index) => (
-                    <Badge
-                      key={tag.id}
-                      variant="destructive"
-                      className="h-10 w-28 px-3 py-2 bg-[#eefdf7] rounded-3xl border border-green absolute self-center flex justify-center right-0 transition-transform"
-                      style={
-                        {
-                          transform: `translateX(${index * -28}px)`, // Custom CSS property for group hover
-                        } as React.CSSProperties
-                      }>
-                      <span className="text-green text-base font-semibold font-BaiJamjuree leading-normal whitespace-nowrap overflow-hidden text-ellipsis">
-                        {tag.name}
-                      </span>
-                    </Badge>
-                  ))
-                : null}
-            </div>
-          </TooltipTrigger>
-          <TooltipContent className="flex flex-col gap-1">
-            {tagList.length !== 0
-              ? tagList.map((tag) => (
-                  <div key={tag.id}>
-                    <Badge
-                      variant="destructive"
-                      className="h-10 px-3 py-2 bg-[#eefdf7] rounded-3xl border border-green ">
-                      <span className="text-green text-base font-semibold font-BaiJamjuree leading-normal whitespace-nowrap">
-                        {tag.name}
-                      </span>
-                    </Badge>
-                  </div>
-                ))
-              : null}
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    </div>
-  );
-};
-
-const GetAssignPeopleList = ({
-  taskId,
-  auth,
-}: {
-  taskId: string;
-  auth: string;
-}) => {
-  interface PeopleList {
-    id: string;
-    name: string;
-    email: string;
-  }
-
-  const [peopleList, setPeopleList] = useState<PeopleList[]>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetch(`${BASE_URL}/tasks/getassign/${taskId}`, {
-          headers: {
-            Authorization: auth,
-          },
-        });
-        if (data.ok) {
-          const users = await data.json();
-          setPeopleList(users);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchData();
-  }, [auth, taskId]);
-
-  return (
-    <TooltipContent>
-      {peopleList.length !== 0 ? (
-        peopleList.map((user) => (
-          <div key={user.id} className="flex items-center gap-2">
-            <span>{user.name}</span>
-          </div>
-        ))
-      ) : (
-        <span>No one assigned</span>
-      )}
-    </TooltipContent>
   );
 };
