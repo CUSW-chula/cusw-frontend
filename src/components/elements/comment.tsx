@@ -32,7 +32,7 @@ interface CommentBoxProp {
   id: string;
   content: string;
   taskId: string;
-  authorId: string;
+  name: string;
   createdAt: Date;
   isDelete: boolean;
   editTime: Date | null;
@@ -109,23 +109,6 @@ function EditBox({
   );
 }
 
-async function getName(authorId: string, auth: string) {
-  try {
-    const response = await fetch(`${BASE_URL}/users/${authorId}`, {
-      headers: {
-        Authorization: auth,
-      },
-    });
-    if (!response.ok) {
-      throw new Error(`Error: ${response.statusText}`);
-    }
-    const data = await response.json();
-    return data.name;
-  } catch (error) {
-    console.error('Failed to fetch user name:', error);
-    return 'Unknown'; // Handle error gracefully
-  }
-}
 
 function formatName(name: string) {
   const nameParts = (name ?? '').split(' ');
@@ -136,7 +119,7 @@ function CommentBox({
   id,
   content,
   taskId,
-  authorId,
+  name,
   createdAt,
   isDelete,
   editTime,
@@ -144,11 +127,8 @@ function CommentBox({
   const [isEditing, setIsEditing] = useState(false);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
-  const [name, setName] = useState<string | null>(null);
 
-  useEffect(() => {
-    getName(authorId, auth).then(setName);
-  }, [authorId, auth]);
+
 
   const deleteComment = async () => {
     try {
@@ -285,7 +265,7 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
       content: value.content,
       createdAt: new Date(value.createdAt),
       taskId: value.taskId,
-      authorId: value.authorId,
+      name: value.author.name,
       isDelete: value.isDelete,
       editTime: value.editTime,
     }));
@@ -298,7 +278,7 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
       content: value.content,
       createdAt: new Date(value.createdAt),
       taskId: value.taskId,
-      authorId: value.authorId,
+      name: value.author.name,
       isDelete: value.isDelete,
       editTime: value.editTime,
     }),
@@ -307,7 +287,7 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
 
   useEffect(() => {
     const fetchComment = async () => {
-      const commentData = await fetch(`${BASE_URL}/comments/${task_id}`, {
+      const commentData = await fetch(`${BASE_URL}/v2/comments/${task_id}`, {
         headers: {
           Authorization: auth,
         },
@@ -397,7 +377,7 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
                   id={item.id}
                   content={item.content}
                   taskId={item.taskId}
-                  authorId={item.authorId}
+                  name={item.name}
                   createdAt={item.createdAt}
                   isDelete={item.isDelete}
                   editTime={item.editTime}
