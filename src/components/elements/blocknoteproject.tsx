@@ -28,7 +28,7 @@ export default function Blocknotes({ project_id }: ProjectOverviewProps) {
   const docId = project_id;
   return (
     <YDocProvider docId={docId} authEndpoint="https://demos.y-sweet.dev/api/auth">
-      <Document task_id={project_id} />
+      <Document project_id={project_id} />
     </YDocProvider>
   );
 }
@@ -41,13 +41,13 @@ function getRandomLightColor(): string {
   return `#${r}${g}${b}`;
 }
 
-function Document({ task_id }: TaskManageMentProp) {
+function Document({ project_id }: ProjectOverviewProps) {
   const [Description, setDescription] = useState<string>('');
 
   useEffect(() => {
     const fetchDescription = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/tasks/description/${task_id}`, {
+        const response = await fetch(`${BASE_URL}/v2/projects/${project_id}`, {
           headers: {
             Authorization: auth,
           },
@@ -61,19 +61,17 @@ function Document({ task_id }: TaskManageMentProp) {
       }
     };
     fetchDescription();
-  }, [task_id]);
+  }, [project_id]);
 
   useEffect(() => {
     if (!Description) return;
 
     const timer = setTimeout(async () => {
-      const taskId = task_id;
-      const url = `${BASE_URL}/tasks/description`;
+      const url = `${BASE_URL}/v2/projects/${project_id}`;
       const options = {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
         body: JSON.stringify({
-          taskId,
           description: Description,
         }),
       };
@@ -90,7 +88,7 @@ function Document({ task_id }: TaskManageMentProp) {
 
     // Cleanup the timer if Description or task_id changes
     return () => clearTimeout(timer);
-  }, [Description, task_id]);
+  }, [Description, project_id]);
 
   const { audio, image, video, file, codeBlock, ...allowedBlockSpecs } = defaultBlockSpecs;
   const schema = BlockNoteSchema.create({

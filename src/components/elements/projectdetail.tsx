@@ -19,6 +19,7 @@ import {
   AlertDialogTrigger,
 } from '../ui/alert-dialog';
 import { useRouter } from 'next/navigation';
+import ProjectWorkspace from './project-workspace';
 
 interface projectProps {
   id: string;
@@ -349,29 +350,8 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
 };
 
 export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
-  const [projectName, setProjectName] = useState<string>('');
-  const [projectDescription, setProjectDescription] = useState<string>('');
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
-
-  // Fetch project data
-  useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        const res = await fetch(`${BASE_URL}/v2/projects/${project_id}`, {
-          headers: {
-            Authorization: auth,
-          },
-        });
-        const data = await res.json();
-        setProjectName(data.title);
-        setProjectDescription(data.description);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchProject();
-  }, [project_id, auth]);
 
   return (
     <div className="max-h-[414px] px-20 flex-col justify-start items-start gap-[18px] inline-flex w-full">
@@ -385,14 +365,9 @@ export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
         </div>
       </div>
       <div className="self-stretch justify-center items-start gap-7 inline-flex">
-        <div className="grow shrink basis-0 h-[348px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start inline-flex">
-          <div className="self-stretch h-[82px] flex-col justify-start items-start gap-[18px] flex">
-            <div className="resize-none border-none w-full outline-none placeholder-black font-semibold text-3xl font-Anuphan leading-[48px]">
-              {projectName}
-            </div>
-            <div className="resize-none border-none w-full outline-none text-black text-xl font-Anuphan leading-7">
-              {projectDescription}
-            </div>
+        <div className="grow shrink basis-0 min-h-[348px] h-auto p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start inline-flex">
+          <div className="self-stretch h-full flex-col justify-start items-start gap-[18px] flex">
+            <ProjectWorkspace project_id={project_id} />
           </div>
           <div className="self-stretch h-[120px] flex-col justify-center items-end gap-3 flex">
             <hr className="my-4 w-full border-t-1 border-gray-200" />
@@ -405,10 +380,10 @@ export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
             </div>
           </div>
         </div>
+        <div className='flex-col justify-between items-end gap-4 inline-flex'>
         <MenuBar project_id={project_id} />
-      </div>
-      <div className="h-10 w-full flex justify-end items-center">
         <DeleteProject project_id={project_id} />
+        </div>
       </div>
     </div>
   );
