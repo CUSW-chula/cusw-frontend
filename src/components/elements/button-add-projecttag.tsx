@@ -13,7 +13,7 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import BASE_URL, { BASE_SOCKET, type ProjectOverviewProps} from '@/lib/shared';
+import BASE_URL, { BASE_SOCKET, type ProjectOverviewProps } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { Badge } from '@/components/ui/badge';
 

@@ -7,7 +7,17 @@ import BASE_URL from '@/lib/shared';
 import type { ProjectOverviewProps } from '@/lib/shared';
 import { Calendar, CrownIcon, Redo2, Tag, Trash2, User, Users } from 'lucide-react';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '../ui/alert-dialog';
 import { useRouter } from 'next/navigation';
 
 interface projectProps {
@@ -120,7 +130,7 @@ const BackButton = () => {
       <Redo2 className="transform rotate-180 text-brown" /> Back
     </Button>
   );
-}
+};
 
 const formatDate = (startdate: Date | null, enddate: Date | null): string => {
   // Return an empty string if both dates are not provided
@@ -140,7 +150,11 @@ const formatDate = (startdate: Date | null, enddate: Date | null): string => {
   return `${start}${start && end ? ' -> ' : ''}${end}`;
 };
 
-const SunMoney = ({ budget, advance, expense }: { budget: number; advance: number; expense: number }) => {
+const SunMoney = ({
+  budget,
+  advance,
+  expense,
+}: { budget: number; advance: number; expense: number }) => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
 
@@ -360,43 +374,42 @@ export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
   }, [project_id, auth]);
 
   return (
-<div className="max-h-[414px] px-20 flex-col justify-start items-start gap-[18px] inline-flex w-full">
-  <div className="h-12 px-0.5 justify-between items-center inline-flex w-full">
-    <div className="text-black text-5xl font-semibold font-Anuphan leading-[48px]">Project</div>
-    <div className="justify-start items-center gap-2 inline-flex">
-      <div className="w-6 h-6 relative origin-top-left -rotate-180 overflow-hidden" />
-      <div className="text-[#6b5c56] text-base font-normal font-BaiJamjuree leading-normal">
-        <BackButton />
+    <div className="max-h-[414px] px-20 flex-col justify-start items-start gap-[18px] inline-flex w-full">
+      <div className="h-12 px-0.5 justify-between items-center inline-flex w-full">
+        <div className="text-black text-5xl font-semibold font-Anuphan leading-[48px]">Project</div>
+        <div className="justify-start items-center gap-2 inline-flex">
+          <div className="w-6 h-6 relative origin-top-left -rotate-180 overflow-hidden" />
+          <div className="text-[#6b5c56] text-base font-normal font-BaiJamjuree leading-normal">
+            <BackButton />
+          </div>
+        </div>
+      </div>
+      <div className="self-stretch justify-center items-start gap-7 inline-flex">
+        <div className="grow shrink basis-0 h-[348px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start inline-flex">
+          <div className="self-stretch h-[82px] flex-col justify-start items-start gap-[18px] flex">
+            <div className="resize-none border-none w-full outline-none placeholder-black font-semibold text-3xl font-Anuphan leading-[48px]">
+              {projectName}
+            </div>
+            <div className="resize-none border-none w-full outline-none text-black text-xl font-Anuphan leading-7">
+              {projectDescription}
+            </div>
+          </div>
+          <div className="self-stretch h-[120px] flex-col justify-center items-end gap-3 flex">
+            <hr className="my-4 w-full border-t-1 border-gray-200" />
+            <div className="justify-start items-start gap-1 inline-flex">
+              <Button
+                variant="destructive"
+                className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex">
+                Go to tasks
+              </Button>
+            </div>
+          </div>
+        </div>
+        <MenuBar project_id={project_id} />
+      </div>
+      <div className="h-10 w-full flex justify-end items-center">
+        <DeleteProject project_id={project_id} />
       </div>
     </div>
-  </div>
-  <div className="self-stretch justify-center items-start gap-7 inline-flex">
-    <div className="grow shrink basis-0 h-[348px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start inline-flex">
-      <div className="self-stretch h-[82px] flex-col justify-start items-start gap-[18px] flex">
-        <div className="resize-none border-none w-full outline-none placeholder-black font-semibold text-3xl font-Anuphan leading-[48px]">
-          {projectName}
-        </div>
-        <div className="resize-none border-none w-full outline-none text-black text-xl font-Anuphan leading-7">
-          {projectDescription}
-        </div>
-      </div>
-      <div className="self-stretch h-[120px] flex-col justify-center items-end gap-3 flex">
-        <hr className="my-4 w-full border-t-1 border-gray-200" />
-        <div className="justify-start items-start gap-1 inline-flex">
-          <Button
-            variant="destructive"
-            className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex">
-            Go to tasks
-          </Button>
-        </div>
-      </div>
-    </div>
-    <MenuBar project_id={project_id} />
-  </div>
-  <div className="h-10 w-full flex justify-end items-center">
-    <DeleteProject project_id={project_id} />
-  </div>
-</div>
-
   );
 };
