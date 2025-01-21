@@ -2,7 +2,7 @@ export interface CommentBoxProp {
   id: string;
   content: string;
   taskId: string;
-  authorId: string;
+  name: string;
   createdAt: Date;
   isDelete: boolean;
   editTime: Date | null;
