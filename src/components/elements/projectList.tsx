@@ -1,17 +1,12 @@
-"use client";
-import { PopoverContent } from "@radix-ui/react-popover";
-import { CommandGroup, CommandItem } from "cmdk";
-import { Calendar, CrownIcon, Users, Star } from "lucide-react";
-import * as React from "react";
-import { Badge } from "@/components/ui/badge";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider,
-} from "@/components/ui/tooltip";
-import { getCookie } from "cookies-next";
-import { Button } from "../ui/button";
+'use client';
+import { PopoverContent } from '@radix-ui/react-popover';
+import { CommandGroup, CommandItem } from 'cmdk';
+import { Calendar, CrownIcon, Users, Star } from 'lucide-react';
+import * as React from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
+import { getCookie } from 'cookies-next';
+import { Button } from '../ui/button';
 import BASE_URL, { type ProjectTagProp, type Project, type Tag, type User } from '@/lib/shared';
 import {
   FilterByTags,
@@ -71,19 +66,16 @@ export const ProjectList = () => {
     };
 
     // Format startdate and enddate if they are valid
-    const start = startdate ? format(startdate) : "";
-    const end = enddate ? format(enddate) : "";
-
-    return `${start}${start && end ? " -> " : ""}${end}`;
+    const start = startdate ? format(startdate) : '';
+    const end = enddate ? format(enddate) : '';
+    return `${start}${start && end ? ' -> ' : ''}${end}`;
   };
 
   const [isActive, setIsActive] = React.useState(false);
   const handlesetIsActive = () => {
     setIsActive(!isActive);
   };
-  const [starredProjects, setStarredProjects] = React.useState<
-    Record<string, boolean>
-  >({});
+  const [starredProjects, setStarredProjects] = React.useState<Record<string, boolean>>({});
   const toggleStar = (projectId: string) => {
     setStarredProjects((prevState) => ({
       ...prevState,
@@ -164,11 +156,11 @@ export const ProjectList = () => {
 
   const sortByExpectedBudget = async (projects: Project[], inOrder: boolean) => {
     const sorted = [...projects].sort((project1, project2) => {
-      if (project1.expense === null) return 1; // If startDate is null, move to the end
-      if (project2.expense === null) return -1;
+      if (project1.budget === null) return 1; // If startDate is null, move to the end
+      if (project2.budget === null) return -1;
       return inOrder
-        ? new Date(project1.expense).getTime() - new Date(project2.expense).getTime()
-        : new Date(project2.expense).getTime() - new Date(project1.expense).getTime();
+        ? new Date(project1.budget).getTime() - new Date(project2.budget).getTime()
+        : new Date(project2.budget).getTime() - new Date(project1.budget).getTime();
     });
     setQuery(sorted);
   };
@@ -210,7 +202,7 @@ export const ProjectList = () => {
   React.useEffect(() => {
     handleProjectTags();
   }, [projectList]);
-  
+
   return (
     <>
       <div className="flex w-full justify-between flex-wrap gap-2">
@@ -225,11 +217,7 @@ export const ProjectList = () => {
           query.map((project) => (
             <div
               key={project.id}
-              className="flex flex-start w-[308px] h-[284px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px] relative"
-              >
-              <div className="flex flex-start gap-[10px] rounded-[6px] self-stretch">
-                <img width={158} height={224} alt="img" src="/asset/Options.svg" />
-              </div>
+              className="flex flex-start w-[308px] h-[284px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px] relative">
               <div className="flex flex-col gap-y-[8px] ">
                 <div className="h-[56px] w-[204px] self-stretch">
                   <div className="font-BaiJamjuree text-[16px] text-base font-medium leading-[1.75] ">
@@ -253,11 +241,8 @@ export const ProjectList = () => {
                       <Badge
                         key={tag?.id}
                         variant="destructive"
-                        className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mt-1 mb-1"
-                      >
-                        <span className="text-base font-medium font-BaiJamjuree">
-                          {tag?.name}
-                        </span>
+                        className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mt-1 mb-1">
+                        <span className="text-base font-medium font-BaiJamjuree">{tag?.name}</span>
                       </Badge>
                     ))}
                     {project.tags && project.tags.length > 4 && (
@@ -266,8 +251,7 @@ export const ProjectList = () => {
                           <TooltipTrigger>
                             <Badge
                               variant="destructive"
-                              className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mt-1 mb-1"
-                            >
+                              className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mt-1 mb-1">
                               <div className="text-base font-medium font-BaiJamjuree">
                                 +{project.tags.length - 4}
                               </div>
@@ -279,8 +263,7 @@ export const ProjectList = () => {
                                 <Badge
                                   key={tag?.id}
                                   variant="destructive"
-                                  className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mt-1 mb-1"
-                                >
+                                  className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mt-1 mb-1">
                                   <span className="text-base font-medium font-BaiJamjuree">
                                     {tag?.name}
                                   </span>
@@ -304,7 +287,7 @@ export const ProjectList = () => {
                             <div className="flex items-center space-x-2">
                               <div className="w-[24px] h-[24px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown">
                                 <span className="text-brown text-[12px] font-BaiJamjuree">
-                                  {getInitials(user?.name || "")}
+                                  {getInitials(user?.name || '')}
                                 </span>
                               </div>
                             </div>
@@ -327,7 +310,7 @@ export const ProjectList = () => {
                             <div className="flex items-center space-x-2">
                               <div className="w-[24px] h-[24px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown">
                                 <span className="text-brown text-[12px] font-BaiJamjuree">
-                                  {getInitials(user?.name || "")}
+                                  {getInitials(user?.name || '')}
                                 </span>
                               </div>
                             </div>
@@ -376,10 +359,7 @@ export const ProjectList = () => {
                   {/* {item.startDate && item.endDate && ( */}
                   <div className="text-[14px] font-BaiJamjuree flex  gap-1 items-center">
                     <span>
-                      {formatDate(
-                        new Date(project.startDate),
-                        new Date(project.endDate)
-                      )}
+                      {formatDate(new Date(project.startDate), new Date(project.endDate))}
                     </span>
                   </div>
                 </div>
