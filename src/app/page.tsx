@@ -19,7 +19,7 @@ const Home = () => {
       const data = await response.text();
       const token = `Bearer ${data}`;
       setCookie('auth', token);
-      router.push('/projects/cm5v9rsg30000eix8bb9ap57b');
+      router.push('/projects');
     } catch (error) {
       console.error(error);
     }

@@ -11,108 +11,61 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import { getCookie } from "cookies-next";
-import BASE_URL from "@/lib/shared";
 import { Button } from "../ui/button";
-
-export type User = {
-  id: string;
-  email: string;
-  name: string;
-} | null;
-
-export type Tag = {
-  id: string;
-  name: string;
-} | null;
-
-export type Task = {
-  id: string;
-  title: string;
-  description: string;
-  parentTaskId: string | null;
-  projectId: string;
-  startDate: Date | null;
-  endDate: Date | null;
-  expense: number;
-  createdById: string | null;
-  owner: User | null;
-  members: User[];
-  tags: Tag[];
-  budget: number;
-  advance: number;
-  // status: $Enums.TaskStatus;
-  subtasks: Task[];
-  emojis: Emoji[];
-};
-
-export type Prorject = {
-  id: string;
-  title: string;
-  description: string;
-  budget: number;
-  advance: number;
-  expense: number;
-  startDate: Date;
-  endDate: Date;
-  createdById: string;
-  owner: User[];
-  members: User[];
-  tasks: Task[];
-  tags: Tag[];
-};
-
-export type TaskAssignment = {
-  user: User;
-  task: Task;
-};
-
-export type Emoji = {
-  id: string;
-  emoji: string;
-  taskId: string;
-  user: User;
-};
-
-// mock data (default users)
+import BASE_URL, { type ProjectTagProp, type Project, type Tag, type User } from '@/lib/shared';
+import {
+  FilterByTags,
+  FilterByDateRange,
+  Createproject,
+  SortButton,
+  Searchbar,
+} from '@/components/elements/control-bar';
+import { useEffect } from 'react';
+import { useAtom } from 'jotai';
+import { tagsListAtom } from '@/atom';
 
 export const ProjectList = () => {
-  const cookie = getCookie("auth");
-  const auth = cookie?.toString() ?? "";
-  const [projectList, setProjectList] = React.useState<Prorject[]>([]);
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
+  const [projectList, setProjectList] = React.useState<Project[]>([]);
+  const [query, setQuery] = React.useState<Project[]>([]);
 
-  // ดึงข้อมูลโปรเจกต์เมื่อคอมโพเนนต์ถูกโหลด
-  React.useEffect(() => {
-    const fetchProjectTitle = async () => {
+  useEffect(() => {
+    const fetchAllProjects = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/projects`, {
+        const response = await fetch(`${BASE_URL}/v2/projects`, {
           headers: { Authorization: auth },
         });
         const data = await response.json();
         setProjectList(data);
+        setQuery(data);
+        console.log('All projects fetched successfully:', data);
       } catch (error) {
-        console.error("Error fetching projects:", error);
+        console.error('Error fetching projects:', error);
       }
     };
-    fetchProjectTitle();
+
+    fetchAllProjects();
   }, [auth]);
+
   //owner
   const getInitials = (name: string) => {
-    const nameParts = name.split(" ");
-    return nameParts.map((part) => part[0]).join(""); // Take the first letter of each part
+    const nameParts = name.split(' ');
+    return nameParts.map((part) => part[0]).join(''); // Take the first letter of each part
   };
 
   const getFirstName = (name: string) => {
-    const nameParts = name.split(" ");
+    const nameParts = name.split(' ');
     return nameParts[0];
   };
 
   const formatDate = (startdate: Date | null, enddate: Date | null): string => {
     // Return an empty string if both dates are not provided
-    if (!startdate || !enddate) return "";
+    if (!startdate || !enddate) return '';
 
     const format = (date: Date): string => {
-      const day = String(date.getDate()).padStart(2, "0");
-      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
       const year = date.getFullYear();
       return `${day}/${month}/${year}`;
     };
@@ -137,18 +90,146 @@ export const ProjectList = () => {
       [projectId]: !prevState[projectId],
     }));
   };
+  const [dateRange, setDateRange] = React.useState<{ from: string; to: string } | undefined>();
+  const [searchText, setSearchText] = React.useState('');
+  const [filterTag, setfilterTag] = React.useState<string[]>([]);
 
+  /* filter and Search by daterange zone */
+  const handleFilterByDateRangeAndSearch = (
+    dateRange: { from: string; to: string } | undefined,
+    searchText: string,
+    filterTag: string[],
+  ) => {
+    let filteredProjects = [...projectList];
+    if (filterTag && filterTag.length > 0) {
+      filteredProjects = filteredProjects.filter((project) => {
+        return (project.tags as Tag[]).some((tag) => filterTag.includes(tag.name));
+      });
+    }
+    if (dateRange?.from && dateRange.to) {
+      const fromDate = new Date(dateRange.from);
+      const toDate = new Date(dateRange.to);
+      filteredProjects = filteredProjects.filter((project) => {
+        const projectStartDate = new Date(project.startDate);
+        const projectEndDate = new Date(project.endDate);
+
+        return (
+          (projectStartDate >= fromDate && projectStartDate <= toDate) ||
+          (projectEndDate >= fromDate && projectEndDate <= toDate) ||
+          (projectStartDate <= fromDate && projectEndDate >= toDate)
+        );
+      });
+    }
+
+    if (searchText.trim() !== '') {
+      filteredProjects = filteredProjects.filter((project) => {
+        const projectTitle = project.title.toLocaleLowerCase().trim();
+        return projectTitle.includes(searchText.toLocaleLowerCase().trim());
+      });
+    }
+    setQuery(filteredProjects);
+  };
+
+  const handleDateRangeChange = (dateRange: { from: string; to: string } | undefined) => {
+    setDateRange(dateRange);
+    handleFilterByDateRangeAndSearch(dateRange, searchText, filterTag);
+  };
+
+  const handleSearchInputChange = (text: string) => {
+    setSearchText(text);
+    handleFilterByDateRangeAndSearch(dateRange, text, filterTag);
+  };
+
+  const sortByStartDate = async (projects: Project[], inOrder: boolean) => {
+    const sorted = [...projects].sort((project1, project2) => {
+      if (project1.startDate === null) return 1; // If startDate is null, move to the end
+      if (project2.startDate === null) return -1;
+      return inOrder
+        ? new Date(project1.startDate).getTime() - new Date(project2.startDate).getTime()
+        : new Date(project2.startDate).getTime() - new Date(project1.startDate).getTime();
+    });
+    setQuery(sorted);
+  };
+
+  const sortByEndDate = async (projects: Project[], inOrder: boolean) => {
+    const sorted = [...projects].sort((project1, project2) => {
+      if (project1.endDate === null) return 1; // If startDate is null, move to the end
+      if (project2.endDate === null) return -1;
+      return inOrder
+        ? new Date(project1.endDate).getTime() - new Date(project2.endDate).getTime()
+        : new Date(project2.endDate).getTime() - new Date(project1.endDate).getTime();
+    });
+    setQuery(sorted);
+  };
+
+  const sortByExpectedBudget = async (projects: Project[], inOrder: boolean) => {
+    const sorted = [...projects].sort((project1, project2) => {
+      if (project1.expense === null) return 1; // If startDate is null, move to the end
+      if (project2.expense === null) return -1;
+      return inOrder
+        ? new Date(project1.expense).getTime() - new Date(project2.expense).getTime()
+        : new Date(project2.expense).getTime() - new Date(project1.expense).getTime();
+    });
+    setQuery(sorted);
+  };
+
+  const handleSort = (value: string) => {
+    switch (value) {
+      case 'Start Date ↑':
+        return sortByStartDate(query, true);
+      case 'Start Date ↓':
+        return sortByStartDate(query, false);
+      case 'End Date ↑':
+        return sortByEndDate(query, true);
+      case 'End Date ↓':
+        return sortByEndDate(query, false);
+      case 'Highest':
+        return sortByExpectedBudget(query, false);
+      case 'Lowest':
+        return sortByExpectedBudget(query, true);
+    }
+  };
+  const handleTagSelection = (selectedTags: string[]) => {
+    setfilterTag(selectedTags);
+    handleFilterByDateRangeAndSearch(dateRange, searchText, selectedTags);
+  };
+
+  const [, setTagsList] = useAtom<ProjectTagProp[]>(tagsListAtom);
+  function handleProjectTags() {
+    const tags: Tag[] = [];
+    projectList.map((project) =>
+      project.tags.map((tag) => tags.push({ id: tag.id, name: tag.name })),
+    );
+    const newFrameworksList = tags.map((tag) => ({
+      value: tag.name,
+      label: tag.name,
+    }));
+
+    setTagsList(newFrameworksList);
+  }
+  React.useEffect(() => {
+    handleProjectTags();
+  }, [projectList]);
+  
   return (
     <>
-      <div className="flex items-start content-start gap-[16px] flex-wrap  ">
-        {projectList.length > 0 ? (
-          projectList.map((project) => (
+      <div className="flex w-full justify-between flex-wrap gap-2">
+        <FilterByDateRange onDateChange={handleDateRangeChange} />
+        <FilterByTags onSelectTagChange={handleTagSelection} />
+        <Searchbar onSearchChange={handleSearchInputChange} />
+        <SortButton onSelectChange={handleSort} />
+        <Createproject />
+      </div>
+      <div className="flex items-start content-start gap-[16px] flex-wrap ">
+        {query.length > 0 ? (
+          query.map((project) => (
             <div
               key={project.id}
               className="flex flex-start w-[308px] h-[284px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px] relative"
-            >
-              {/* <div className="flex flex-start gap-[10px] rounded-[6px] self-stretch">
-              </div> */}
+              >
+              <div className="flex flex-start gap-[10px] rounded-[6px] self-stretch">
+                <img width={158} height={224} alt="img" src="/asset/Options.svg" />
+              </div>
               <div className="flex flex-col gap-y-[8px] ">
                 <div className="h-[56px] w-[204px] self-stretch">
                   <div className="font-BaiJamjuree text-[16px] text-base font-medium leading-[1.75] ">
