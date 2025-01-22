@@ -134,7 +134,7 @@ export const ProjectList = () => {
 
   const sortByStartDate = async (projects: Project[], inOrder: boolean) => {
     const sorted = [...projects].sort((project1, project2) => {
-      if (project1.startDate === null) return 1; // If startDate is null, move to the end
+      if (project1.startDate === null) return 1;
       if (project2.startDate === null) return -1;
       return inOrder
         ? new Date(project1.startDate).getTime() - new Date(project2.startDate).getTime()
@@ -145,7 +145,7 @@ export const ProjectList = () => {
 
   const sortByEndDate = async (projects: Project[], inOrder: boolean) => {
     const sorted = [...projects].sort((project1, project2) => {
-      if (project1.endDate === null) return 1; // If startDate is null, move to the end
+      if (project1.endDate === null) return 1;
       if (project2.endDate === null) return -1;
       return inOrder
         ? new Date(project1.endDate).getTime() - new Date(project2.endDate).getTime()
@@ -156,7 +156,7 @@ export const ProjectList = () => {
 
   const sortByExpectedBudget = async (projects: Project[], inOrder: boolean) => {
     const sorted = [...projects].sort((project1, project2) => {
-      if (project1.budget === null) return 1; // If startDate is null, move to the end
+      if (project1.budget === null) return 1;
       if (project2.budget === null) return -1;
       return inOrder
         ? new Date(project1.budget).getTime() - new Date(project2.budget).getTime()
