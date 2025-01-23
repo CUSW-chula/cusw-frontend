@@ -153,57 +153,59 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
 
   return (
     <>
-      <div className="flex flex-row flex-wrap items-center gap-0.5 overflow-hidden ">
-        {Array.isArray(selectedTags) && selectedTags.length > 0 ? (
-          selectedTags.map((tag) => (
-            <Badge
-              key={tag.id}
-              variant="destructive"
-              className="h-7 min-w-fit px-2 py-2 flex items-center gap-1 justify-center bg-emerald-300  text-black ">
-              <span className="text-base font-medium font-BaiJamjuree">{tag.name}</span>
-              <button
-                type="button"
-                onClick={() => handleDeleteTag(tag.id)}
-                className="text-red-500 ml-1 max-w-20">
-                <XCircle className="h-4 w-4" />
-              </button>
-            </Badge>
-          ))
-        ) : (
-          <div />
-        )}
+      <div className="">
+        <div className="flex flex-row flex-wrap items-center   overflow-hidden  ">
+          {Array.isArray(selectedTags) && selectedTags.length > 0 ? (
+            selectedTags.map((tag) => (
+              <Badge
+                key={tag.id}
+                variant="destructive"
+                className="h-10 min-w-fit flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mb-1">
+                <span className="text-base font-medium font-BaiJamjuree">{tag.name}</span>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteTag(tag.id)}
+                  className="text-red-500 ml-1 max-w-20">
+                  <XCircle className="h-4 w-4" />
+                </button>
+              </Badge>
+            ))
+          ) : (
+            <div />
+          )}
 
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button variant="outline">
-              <CircleFadingPlus className="mr-2 h-4 w-4" /> <p className="p-ui">Add Tag</p>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="p-0" side="right" align="start">
-            <Command>
-              <CommandInput placeholder="Add Tag ..." />
-              <CommandList>
-                <CommandEmpty>No results found.</CommandEmpty>
-                <CommandGroup>
-                  {statuses.map((status) => (
-                    <CommandItem key={status.id} value={status.name} onSelect={handleSelectTag}>
-                      <Circle
-                        className={cn(
-                          'mr-2 h-4 w-4 fill-greenLight text-greenLight',
-                          Array.isArray(selectedTags) &&
-                            selectedTags.some((tag) => tag.id === status.id)
-                            ? 'opacity-100'
-                            : 'opacity-40',
-                        )}
-                      />
-                      <span>{status.name}</span>
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild className=" border-brown text-brown ">
+              <Button variant="outline">
+                <p className="p-ui">Add Tag</p>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-0" side="right" align="start">
+              <Command>
+                <CommandInput placeholder="Add Tag ..." />
+                <CommandList>
+                  <CommandEmpty>No results found.</CommandEmpty>
+                  <CommandGroup>
+                    {statuses.map((status) => (
+                      <CommandItem key={status.id} value={status.name} onSelect={handleSelectTag}>
+                        <Circle
+                          className={cn(
+                            'mr-2 h-4 w-4 fill-greenLight text-greenLight',
+                            Array.isArray(selectedTags) &&
+                              selectedTags.some((tag) => tag.id === status.id)
+                              ? 'opacity-100'
+                              : 'opacity-40',
+                          )}
+                        />
+                        <span>{status.name}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
     </>
   );
