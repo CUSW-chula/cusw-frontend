@@ -5,89 +5,45 @@ import dynamic from 'next/dynamic';
 import { SmilePlus } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import type { EmojiClickData } from 'emoji-picker-react';
-import type { TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
-import BASE_URL, { BASE_SOCKET } from '@/lib/shared';
-
+import BASE_URL, { BASE_SOCKET, type Emojis, type User } from '@/lib/shared';
+import { jwtDecode, type JwtPayload } from 'jwt-decode';
 const Picker = dynamic(
   () => {
     return import('emoji-picker-react');
   },
   { ssr: true },
 );
-
-interface EmojiTaskUser {
+interface CustomJwtPayload extends JwtPayload {
   id: string;
-  emoji: string;
-  userId: string;
-  taskId: string;
 }
-async function getName(authorId: string, auth: string) {
-  try {
-    const response = await fetch(`${BASE_URL}/users/${authorId}`, {
-      headers: {
-        Authorization: auth,
-      },
-    });
-    if (!response.ok) {
-      throw new Error(`Error: ${response.statusText}`);
-    }
-    const data = await response.json();
-    return data.name;
-  } catch (error) {
-    console.error('Failed to fetch user name:', error);
-    return 'Unknown'; // Handle error gracefully
-  }
+interface taskEmoji {
+  emoji: {
+    id: string;
+    emoji: Emojis[];
+  };
 }
-function EmojiUser({ emoji, id, userId }: EmojiTaskUser) {
-  const [name, setName] = useState('');
-  const cookie = getCookie('auth');
-  const auth = cookie?.toString() ?? '';
-  useEffect(() => {
-    getName(userId, auth).then(setName);
-  }, [userId, auth]);
-  return (
-    <div key={id} className="flex py-1 justify-between">
-      <p className="body self-center">{name}</p>
-      <p className="text-[24px]">{emoji}</p>
-    </div>
-  );
-}
-const Emoji = ({ task_id }: TaskManageMentProp) => {
-  const [emojis, setEmojis] = React.useState<EmojiTaskUser[]>([]);
-  const cookie = getCookie('auth');
-  const auth = cookie?.toString() ?? '';
 
-  const pareJsonValue = React.useCallback((values: EmojiTaskUser) => {
+const Emoji = ({ emoji }: taskEmoji) => {
+  const [emojis, setEmojis] = useState<Emojis[]>([]);
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
+  const task_id = emoji.id;
+
+  useEffect(() => {
+    setEmojis(Array.isArray(emoji.emoji) ? emoji.emoji : []);
+  }, [emoji.emoji]);
+
+  const pareJsonValue = React.useCallback((values: Emojis) => {
     return {
       id: values.id,
       emoji: values.emoji,
-      userId: values.userId,
+      user: values.user,
       taskId: values.taskId,
     };
   }, []);
 
-  React.useEffect(() => {
-    const getEmoji = async () => {
-      const url = `${BASE_URL}/tasks/emoji/${task_id}`;
-      const options = {
-        method: 'GET',
-        headers: {
-          Authorization: auth,
-        },
-      };
-      try {
-        const response = await fetch(url, options);
-        const data = await response.json();
-        setEmojis(Array.isArray(data) ? data : []);
-      } catch (error) {
-        console.error(error);
-        setEmojis([]); // Ensure emojis is empty on error
-      }
-    };
-
-    getEmoji();
-
+  useEffect(() => {
     const ws = new WebSocket(BASE_SOCKET);
 
     ws.onopen = () => {
@@ -122,14 +78,18 @@ const Emoji = ({ task_id }: TaskManageMentProp) => {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue, auth, task_id]);
+  }, [pareJsonValue]);
 
   const handleEmojiActions = async (emojiData: EmojiClickData) => {
     const emoji = emojiData.emoji;
     const taskId = task_id;
-    const userId = 'cm0siagz300003mbv5bsz6wty';
-    const url = `${BASE_URL}/tasks/emoji`;
-    const checkResponse = await fetch(`${url}/${taskId}/${userId}`, {
+    const getUserDataFromCookie = () => {
+      const decoded = jwtDecode<CustomJwtPayload>(auth);
+      return decoded;
+    };
+    const userData = getUserDataFromCookie();
+    const url = `${BASE_URL}/v1/tasks/emoji`;
+    const checkResponse = await fetch(`${url}/${taskId}/${userData.id}`, {
       headers: {
         Authorization: auth,
       },
@@ -140,7 +100,7 @@ const Emoji = ({ task_id }: TaskManageMentProp) => {
       headers: { 'Content-Type': 'application/json', Authorization: auth },
       body: JSON.stringify({
         taskId: taskId,
-        userId: userId,
+        userId: userData.id,
         emoji: emoji,
       }),
     };
@@ -163,7 +123,7 @@ const Emoji = ({ task_id }: TaskManageMentProp) => {
     <div className="flex texts-center justify-center">
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="rounded-full p-2 border-brown border-none">
+          <Button variant="outline" className="rounded-full p-2 border-none">
             <SmilePlus className="text-brown" />
           </Button>
         </PopoverTrigger>
@@ -176,7 +136,7 @@ const Emoji = ({ task_id }: TaskManageMentProp) => {
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="rounded-full min-w-[20px] w-fit h-[32px] border-brown border-none">
+              className="rounded-full min-w-[20px] w-fit h-[32px] border-none">
               <ul>
                 {sortedEmojis.slice(0, 8).map((emojiData) => (
                   <span key={emojiData.id} className="text-[16px]">
@@ -189,13 +149,10 @@ const Emoji = ({ task_id }: TaskManageMentProp) => {
           <PopoverContent className="min-w-[240px] w-fit max-h-80 overflow-y-scroll">
             <ul>
               {sortedEmojis.map((emojiData) => (
-                <EmojiUser
-                  emoji={emojiData.emoji}
-                  id={emojiData.id}
-                  userId={emojiData.userId}
-                  taskId={emojiData.taskId}
-                  key={emojiData.id}
-                />
+                <div key={emojiData.id} className="flex py-1 justify-between">
+                  <p className="body self-center">{emojiData.user?.name}</p>
+                  <p className="text-[24px]">{emojiData.emoji}</p>
+                </div>
               ))}
             </ul>
           </PopoverContent>

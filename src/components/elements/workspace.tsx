@@ -15,12 +15,22 @@ interface Files {
   uploadedBy: string;
   createdAt: Date;
 }
+interface Title {
+  title: {
+    id: string;
+    title: string;
+  };
+}
 
-const Workspace = ({ task_id }: TaskManageMentProp) => {
+const Workspace = ({ title }: Title) => {
   const [Title, setTitle] = useState<string>('');
   const [fileList, setFileList] = useState<Files[]>([]);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
+  const task_id = title.id;
+  useEffect(() => {
+    setTitle(title.title);
+  }, [title.title]);
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const pareJsonValue = useCallback((values: any) => {
@@ -46,24 +56,6 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
     };
     return newValue;
   }, []);
-
-  useEffect(() => {
-    const fetchTitle = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/tasks/title/${task_id}`, {
-          headers: {
-            Authorization: auth,
-          },
-        });
-        const data = await response.json();
-        setTitle(data.title);
-      } catch (error) {
-        console.error('Error fetching Title:', error);
-      }
-    };
-
-    fetchTitle();
-  }, [task_id, auth]);
 
   useEffect(() => {
     const fetchFile = async () => {
@@ -117,7 +109,7 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
     if (!Title) return;
     const updateTitle = async () => {
       const taskId = task_id;
-      const url = `${BASE_URL}/tasks/title`;
+      const url = `${BASE_URL}/v1/tasks/title`;
       const options = {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
@@ -129,7 +121,12 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
 
       try {
         const response = await fetch(url, options);
-        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+        if (!response.ok) {
+          const errorDetails = await response.json();
+          throw new Error(
+            `Error: ${response.status} - ${response.statusText}, Details: ${JSON.stringify(errorDetails)}`,
+          );
+        }
         const data = await response.json();
         console.log('Title updated successfully:', data);
       } catch (error) {
@@ -139,6 +136,7 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
 
     updateTitle();
   }, [Title, task_id, auth]);
+
   return (
     <div>
       <input
@@ -149,12 +147,7 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
           setTitle(e.target.value);
         }}
       />
-      <Blocknotes task_id={task_id} />
       <Displayfile fileList={fileList} setFileList={setFileList} />
-      <div className="flex justify-between">
-        <Emoji task_id={task_id} />
-        <Uploadfile task_id={task_id} />
-      </div>
     </div>
   );
 };
