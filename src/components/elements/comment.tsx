@@ -109,15 +109,26 @@ function EditBox({
   );
 }
 
+
 function formatName(name: string) {
   const nameParts = (name ?? '').split(' ');
   return nameParts[0];
 }
 
-function CommentBox({ id, content, taskId, name, createdAt, isDelete, editTime }: CommentBoxProp) {
+function CommentBox({
+  id,
+  content,
+  taskId,
+  name,
+  createdAt,
+  isDelete,
+  editTime,
+}: CommentBoxProp) {
   const [isEditing, setIsEditing] = useState(false);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
+
+
 
   const deleteComment = async () => {
     try {
