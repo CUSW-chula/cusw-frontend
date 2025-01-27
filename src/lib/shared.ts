@@ -27,6 +27,10 @@ export interface TaskManageMentOverviewProp {
   project_id: string;
 }
 
+export interface ProjectOverviewProps {
+  project_id: string;
+}
+
 export type Project = {
   id: string;
   title: string;
