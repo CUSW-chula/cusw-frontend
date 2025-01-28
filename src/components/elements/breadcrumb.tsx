@@ -34,7 +34,7 @@ export function BreadcrumbComponent({ task_id }: BreadcrumbProps) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/tasks/parent-recursive/${task_id}`, {
+        const response = await fetch(`${BASE_URL}/v2/tasks/parent-recursive/${task_id}`, {
           headers: {
             Authorization: auth,
           },
@@ -47,7 +47,7 @@ export function BreadcrumbComponent({ task_id }: BreadcrumbProps) {
 
         if (data.length > 0) {
           const projectId = data[0].projectId;
-          const projectResponse = await fetch(`${BASE_URL}/projects/${projectId}`, {
+          const projectResponse = await fetch(`${BASE_URL}/v2/projects/${projectId}`, {
             headers: {
               Authorization: auth,
             },
