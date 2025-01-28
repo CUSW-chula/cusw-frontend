@@ -215,7 +215,7 @@ export const ProjectList = () => {
       <div className="flex items-start content-start gap-[16px] flex-wrap ">
         {query.length > 0 ? (
           query.map((project) => (
-            <a key={project.id} href={`/projects/${project.id}`}>
+            <a key={project.id} href={`/projects/detail/${project.id}`}>
               <div
                 key={project.id}
                 className="flex flex-start w-[308px] h-[284px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px] relative">

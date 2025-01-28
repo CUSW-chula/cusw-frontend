@@ -123,12 +123,16 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
   );
 };
 
+
 const BackButton = () => {
+  const router = useRouter();
+
   return (
     <Button
       variant="link"
       size="sm"
-      className="font-BaiJamjuree bg-white border-2 border-brown text-brown text-sm">
+      className="font-BaiJamjuree bg-white border-2 border-brown text-brown text-sm"
+      onClick={() => router.push("/projects")}>
       <Redo2 className="transform rotate-180 text-brown" /> Back
     </Button>
   );
@@ -317,7 +321,9 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
             Tag :{' '}
           </div>
         </div>
-        <div className="flex w-[253.67px] "><ButtonAddTags project_id={project_id}/></div>
+        <div className="flex w-[253.67px] ">
+          <ButtonAddTags project_id={project_id} />
+        </div>
       </div>
       <div aria-label="money" className="h-10 justify-start items-center inline-flex">
         {/* Label Zone */}
