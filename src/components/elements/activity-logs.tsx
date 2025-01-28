@@ -16,7 +16,7 @@ interface ActivityLogItemProps {
 
 async function getName(authorId: string, auth: string) {
   try {
-    const response = await fetch(`${BASE_URL}/users/${authorId}`, {
+    const response = await fetch(`${BASE_URL}/v2/users/${authorId}`, {
       headers: {
         Authorization: auth,
       },
@@ -94,12 +94,12 @@ function ActivityLogItem({ userId, action, detail, createdAt }: ActivityLogItemP
   if (!name) return null;
 
   return (
-    <div className="flex items-center space-x-2 text-base text-gray-800 font-BaiJamjuree gap-[8px]">
+    <div className="flex items-center text-black font-BaiJamjuree gap-2">
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger>
-            <div className="w-[24px] h-[24px]  bg-gray-100 rounded-full text-center flex items-center justify-center border-[1px] border-brown">
-              <span className="text-brown ">{getInitials(name)}</span>
+            <div className="w-[24px] h-[24px] bg-gray-100 rounded-full text-center flex items-center justify-center border-[1px] border-brown">
+              <span className="text-brown text-[12px]">{getInitials(name)}</span>
             </div>
           </TooltipTrigger>
           <TooltipContent>
@@ -134,7 +134,7 @@ const ActivityLogs = ({ task_id }: TaskManageMentProp) => {
 
   React.useEffect(() => {
     const fetchData = async () => {
-      const url = `${BASE_URL}/activities/${task_id}`;
+      const url = `${BASE_URL}/v2/activities/${task_id}`;
       const options = {
         method: 'GET',
         headers: {
@@ -190,10 +190,10 @@ const ActivityLogs = ({ task_id }: TaskManageMentProp) => {
   }, [parseJsonValue, task_id, auth]);
 
   return (
-    <div className="bg-white space-y-2">
-      <h3 className="text-2xl font-semibold text-gray-900 mb-4 font-Anuphan">Activity</h3>
+    <div>
+      <h3 className="text-2xl font-semibold text-gray-900 mb-2 font-Anuphan">Activity</h3>
       <div className="max-h-48 overflow-y-auto">
-        <ul>
+        <ul className="flex flex-col gap-2">
           {Array.isArray(activityLogs) && activityLogs.length > 0 ? (
             activityLogs
               .slice()

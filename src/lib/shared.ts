@@ -2,7 +2,7 @@ export interface CommentBoxProp {
   id: string;
   content: string;
   taskId: string;
-  authorId: string;
+  name: string;
   createdAt: Date;
   isDelete: boolean;
   editTime: Date | null;
@@ -12,6 +12,11 @@ export interface Status {
   value: string;
   label: string;
   icon: string;
+}
+
+export interface ProjectTagProp {
+  value: string;
+  label: string;
 }
 
 export interface TaskManageMentProp {
@@ -25,6 +30,32 @@ export interface TaskManageMentOverviewProp {
 export interface ProjectOverviewProps {
   project_id: string;
 }
+
+export type Project = {
+  id: string;
+  title: string;
+  description: string;
+  budget: number;
+  advance: number;
+  expense: number;
+  startDate: Date;
+  endDate: Date;
+  createdById: string;
+  owner: User[];
+  members: User[];
+  tags: Tag[];
+};
+
+export type Tag = {
+  id: string;
+  name: string;
+};
+
+export type User = {
+  id: string;
+  email: string;
+  name: string;
+} | null;
 
 export const BASE_SOCKET =
   process.env.NODE_ENV === 'production'

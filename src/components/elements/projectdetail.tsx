@@ -20,6 +20,7 @@ import {
 } from '../ui/alert-dialog';
 import { useRouter } from 'next/navigation';
 import ProjectWorkspace from './project-workspace';
+import { ButtonAddTags } from './button-add-projecttag';
 
 interface projectProps {
   id: string;
@@ -254,7 +255,7 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
           </div>
         </div>
         <TooltipProvider>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 rounded-md border border-brown h-10 px-4">
             {ProjectOwner.map((owner) => (
               <Tooltip key={owner.id}>
                 <TooltipTrigger>
@@ -278,7 +279,7 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
           </div>
         </div>
         <TooltipProvider>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 rounded-md border border-brown h-10 px-4">
             {member.slice(0, MAX_VISIBLE_MEMBERS).map((user) => (
               <Tooltip key={user.id}>
                 <TooltipTrigger>
@@ -316,7 +317,7 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
             Tag :{' '}
           </div>
         </div>
-        <div className="flex w-[253.67px] ">{/* <ButtonAddTags task_id={project_id} /> */}</div>
+        <div className="flex w-[253.67px] "><ButtonAddTags project_id={project_id}/></div>
       </div>
       <div aria-label="money" className="h-10 justify-start items-center inline-flex">
         {/* Label Zone */}
@@ -380,9 +381,9 @@ export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
             </div>
           </div>
         </div>
-        <div className='flex-col justify-between items-end gap-4 inline-flex'>
-        <MenuBar project_id={project_id} />
-        <DeleteProject project_id={project_id} />
+        <div className="flex-col justify-between items-end gap-4 inline-flex">
+          <MenuBar project_id={project_id} />
+          <DeleteProject project_id={project_id} />
         </div>
       </div>
     </div>
