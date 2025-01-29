@@ -16,7 +16,7 @@ interface ActivityLogItemProps {
 
 async function getName(authorId: string, auth: string) {
   try {
-    const response = await fetch(`${BASE_URL}/users/${authorId}`, {
+    const response = await fetch(`${BASE_URL}/v2/users/${authorId}`, {
       headers: {
         Authorization: auth,
       },
@@ -134,7 +134,7 @@ const ActivityLogs = ({ task_id }: TaskManageMentProp) => {
 
   React.useEffect(() => {
     const fetchData = async () => {
-      const url = `${BASE_URL}/activities/${task_id}`;
+      const url = `${BASE_URL}/v2/activities/${task_id}`;
       const options = {
         method: 'GET',
         headers: {

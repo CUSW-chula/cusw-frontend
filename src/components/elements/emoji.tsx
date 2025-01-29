@@ -43,6 +43,39 @@ const Emoji = ({ emoji }: taskEmoji) => {
     };
   }, []);
 
+  async function getName(authorId: string, auth: string) {
+    try {
+      const response = await fetch(`${BASE_URL}/v1/users/${authorId}`, {
+        headers: {
+          Authorization: auth,
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+      const data = await response.json();
+      return data.name;
+    } catch (error) {
+      console.error('Failed to fetch user name:', error);
+      return 'Unknown'; // Handle error gracefully
+    }
+  }
+
+  function EmojiUser({ emoji, id, user }: Emojis) {
+    const [name, setName] = useState('');
+    const cookie = getCookie('auth');
+    const auth = cookie?.toString() ?? '';
+    useEffect(() => {
+      getName(user.id, auth).then(setName);
+    }, [user.id, auth]);
+    return (
+      <div key={id} className="flex py-1 justify-between">
+        <p className="body self-center">{name}</p>
+        <p className="text-[24px]">{emoji}</p>
+      </div>
+    );
+  }
+
   useEffect(() => {
     const ws = new WebSocket(BASE_SOCKET);
 
@@ -149,10 +182,13 @@ const Emoji = ({ emoji }: taskEmoji) => {
           <PopoverContent className="min-w-[240px] w-fit max-h-80 overflow-y-scroll">
             <ul>
               {sortedEmojis.map((emojiData) => (
-                <div key={emojiData.id} className="flex py-1 justify-between">
-                  <p className="body self-center">{emojiData.user?.name}</p>
-                  <p className="text-[24px]">{emojiData.emoji}</p>
-                </div>
+                <EmojiUser
+                  emoji={emojiData.emoji}
+                  id={emojiData.id}
+                  user={emojiData.user}
+                  taskId={emojiData.taskId}
+                  key={emojiData.id}
+                />
               ))}
             </ul>
           </PopoverContent>

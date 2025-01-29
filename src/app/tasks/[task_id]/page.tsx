@@ -66,15 +66,15 @@ export default async function TasksManageMentPage({ params }: TaskManageMentProp
   };
 
   return (
-    <div className="flex flex-col items-start justify-center gap-1 ">
+    <div className="min-w-full min-h-screen flex-col items-start justify-center gap-8 ">
       {/* page nav */}
-      <div className="flex flex-row w-full py-4 items-center justify-between">
+      <div className="flex flex-row py-4 items-center justify-between">
         <BreadcrumbComponent task_id={task_id} />
         <BackButton task_id={task_id} />
       </div>
 
       {/* page content */}
-      <div className="flex flex-row w-full gap-[28px] ">
+      <div className="flex-row flex w-full gap-[28px] ">
         {/* Left Section */}
         <div className="w-full rounded-[6px] p-5 border-brown border-[1px] bg-white">
           <Title title={title} />
