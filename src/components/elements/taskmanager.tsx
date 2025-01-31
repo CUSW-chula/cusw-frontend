@@ -1,40 +1,17 @@
 'use client';
-import { useCallback, useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { getCookie } from 'cookies-next';
 import BASE_URL, { type TaskManageMentOverviewProp } from '@/lib/shared';
-import { Calendar, ChevronRight, ChevronsRight, User } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { Checkbox } from '../ui/checkbox';
 import { useRouter } from 'next/navigation';
 
-interface Tag {
-  id: string;
-  name: string;
-}
-interface TaskProps {
-  id: string;
-  title: string;
-  description: string;
-  status: 'Unassigned' | 'Assigned' | 'UnderReview' | 'InRecheck' | 'Done';
-  projectId: string;
-  parentTaskId: string;
-  statusBudget: string;
-  budget: number;
-  advance: number;
-  expense: number;
-  startDate: Date;
-  endDate: Date;
-  createdById: string;
-  owner: { id: string; name: string; email: string };
-  members: { id: string; name: string; email: string }[];
-  tags?: Tag[];
-  subtasks?: TaskProps[];
-  emojis: string[];
-}
+import type { TaskProps, TagProps } from '@/app/types/types';
+import { Money } from '@/components/elements/taskManagement/money';
+import { Tag } from '@/components/elements/taskManagement/tag';
+import { Assigned } from '@/components/elements/taskManagement/assigned';
+import { TaskDate } from '@/components/elements/taskManagement/taskDate';
+import { TaskTitle } from '@/components/elements/taskManagement/taskTitle';
 
 // Predefined icon paths
 const ICONS = {
@@ -62,12 +39,11 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   const [showTasks, setShowTasks] = useState<TaskProps[]>([]);
   const [projectName, setProjectName] = useState<string>('');
   const [isTaskSelectionActive, setIsTaskSelectionActive] = useState<boolean>(false); // the status "Select Task" button has been pressed or not
-  const [exportType, setExportType] = useState(''); //type saveFile or saveTemplate
   const [expandedTaskIds, setExpandedTaskIds] = useState<Set<string>>(new Set()); //Set of taskID that have been expanded
   const [visibleExportTasks, setVisibleExportTasks] = useState<Set<string>>(new Set()); //Tracks taskID visible for export
   const [exportedTasks, setExportedTasks] = useState<TaskProps[]>([]); //Stores the list of tasks selected for export
 
-  const [allTags, setAllTags] = useState<Tag[]>([]);
+  const [allTags, setAllTags] = useState<TagProps[]>([]);
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValues = useCallback((values: any[]): TaskProps[] => {
@@ -126,7 +102,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
 
       try {
         const response = await fetch(url, options);
-        const data = (await response.json()) as Tag[];
+        const data = (await response.json()) as TagProps[];
         setAllTags(data);
       } catch (error) {
         console.error(error);
@@ -137,43 +113,9 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   }, [parseJsonValues, project_id]);
 
   const ProjectController = () => {
-    // const handleSort = (value: string) => {
-    //   const sortByStartDate = async (tasks: TaskProps[], inOrder: boolean) => {
-    //     const sorted = [...tasks].sort((task1, task2) => {
-    //       if (task1.startDate === null) return 1; // If startDate is null, move to the end
-    //       if (task2.startDate === null) return -1;
-    //       return inOrder
-    //         ? new Date(task1.startDate).getTime() - new Date(task2.startDate).getTime()
-    //         : new Date(task2.startDate).getTime() - new Date(task1.startDate).getTime();
-    //     });
-    //     setShowTasks(sorted);
-    //   };
-
-    //   const sortByEndDate = async (tasks: TaskProps[], inOrder: boolean) => {
-    //     const sorted = [...tasks].sort((task1, task2) => {
-    //       if (task1.endDate === null) return 1; // If startDate is null, move to the end
-    //       if (task2.endDate === null) return -1;
-    //       return inOrder
-    //         ? new Date(task1.endDate).getTime() - new Date(task2.endDate).getTime()
-    //         : new Date(task2.endDate).getTime() - new Date(task1.endDate).getTime();
-    //     });
-    //     setShowTasks(sorted);
-    //   };
-
-    //   value === 'StartDate123'
-    //     ? sortByStartDate(showTasks, true)
-    //     : value === 'StartDate321'
-    //       ? sortByStartDate(showTasks, false)
-    //       : value === 'EndDate123'
-    //         ? sortByEndDate(showTasks, true)
-    //         : value === 'EndDate321'
-    //           ? sortByEndDate(showTasks, false)
-    //           : null;
-    // };
-
     const Filter = () => {
       const handleFilter = async (tagID: string) => {
-        const filterByTag = async (tasks: TaskProps[], tag: Tag): Promise<TaskProps[]> => {
+        const filterByTag = async (tasks: TaskProps[], tag: TagProps): Promise<TaskProps[]> => {
           const filteredTasks: TaskProps[] = [];
 
           // Iterate through all tasks
@@ -215,7 +157,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
             <SelectItem key="default" value="all" className="font-BaiJamjuree">
               Default
             </SelectItem>
-            {allTags.map((tag: Tag) => (
+            {allTags.map((tag: TagProps) => (
               <SelectItem key={tag.id} value={tag.id} className="font-BaiJamjuree">
                 {tag.name}
               </SelectItem>
@@ -226,7 +168,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     };
 
     const Export = () => {
-      const handleSelectTasks = (value: string) => {
+      const handleSaveAs = () => {
         const expandItemsRecursively = (tasks: TaskProps[]) => {
           const expandTask = (task: TaskProps) => {
             setExpandedTaskIds((prev) => {
@@ -243,75 +185,62 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           };
           tasks.forEach(expandTask);
         };
-        setExportType(value);
-
         setIsTaskSelectionActive(!isTaskSelectionActive);
         if (!isTaskSelectionActive) expandItemsRecursively(showTasks);
       };
+      const handleSelectTasks = (value: string) => {};
 
-      const exportAsFile = (jsonData: TaskProps[]) => {
-        const saveFile = async (blob: Blob) => {
-          const a = document.createElement('a');
-          a.download = 'tasks.txt';
-          a.href = URL.createObjectURL(blob);
-          a.addEventListener('click', () => {
-            setTimeout(() => URL.revokeObjectURL(a.href), 30 * 1000);
-          });
-          a.click();
-        };
-
-        const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
-        saveFile(blob);
+      const handleCancle = () => {
+        setIsTaskSelectionActive(!isTaskSelectionActive);
+        setExportedTasks([]);
+        setVisibleExportTasks(new Set());
       };
 
-      const exportAsTemplate = (jsonData: TaskProps[]) => {
-        const saveTemplate = async () => {
-          // export เป็น template ยังไม่ทำ
-        };
-        saveTemplate();
+      const exportAsFile = (tasks: TaskProps[]) => {
+        const blob = new Blob([JSON.stringify(tasks, null, 2)], { type: 'application/json' });
+      };
+
+      const exportAsTemplate = (tasks: TaskProps[]) => {
+        const blob = new Blob([JSON.stringify(tasks, null, 2)], { type: 'application/json' });
       };
       return (
         <>
           {isTaskSelectionActive && (
             <>
+              <Select onValueChange={() => handleCancle()}>
+                <SelectTrigger className="w-36 border-brown bg-[#eefdf7]">
+                  <SelectValue className="text-brown" placeholder="Save as" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem
+                    key="saveFile"
+                    value="saveFile"
+                    onClick={() => exportAsFile(exportedTasks)}>
+                    .CSV
+                  </SelectItem>
+                  <SelectItem
+                    key="saveTemplate"
+                    value="saveTemplate"
+                    onClick={() => exportAsTemplate(exportedTasks)}>
+                    Template
+                  </SelectItem>
+                </SelectContent>
+              </Select>
               <Button
                 variant="outline"
                 className="h-10 px-4 bg-rose-200 rounded-md border border-brown justify-center items-center flex text-red text-base font-semibold font-BaiJamjuree leading-normal hover:cursor-pointer"
-                onClick={() => setIsTaskSelectionActive(!isTaskSelectionActive)}>
+                onClick={() => handleCancle()}>
                 Cancel
               </Button>
-              {exportType === 'saveFile' && (
-                <Button
-                  variant="outline"
-                  className="h-10 px-4 bg-[#eefdf7] rounded-md border border-brown justify-center items-center flex text-green text-base font-semibold font-BaiJamjuree leading-normal hover:cursor-pointer"
-                  onClick={() => exportAsFile(exportedTasks)}>
-                  Save File
-                </Button>
-              )}
-              {exportType === 'saveTemplate' && (
-                <Button
-                  variant="outline"
-                  className="h-10 px-4 bg-[#eefdf7] rounded-md border border-brown justify-center items-center flex text-green text-base font-semibold font-BaiJamjuree leading-normal hover:cursor-pointer"
-                  onClick={() => exportAsFile(exportedTasks)}>
-                  Save Template
-                </Button>
-              )}
             </>
           )}
-
-          <Select onValueChange={(value) => handleSelectTasks(value)}>
-            <SelectTrigger className="w-[150px] border-brown">
-              <SelectValue className="text-brown" placeholder="Select tasks" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem key="saveFile" value="saveFile">
-                Save as File
-              </SelectItem>
-              <SelectItem key="saveTemplate" value="saveTemplate">
-                Save as Template
-              </SelectItem>
-            </SelectContent>
-          </Select>
+          {!isTaskSelectionActive && (
+            <Button
+              onClick={() => handleSaveAs()}
+              className="text-brown border-brown px-3 py-1 rounded-md bg-white border hover:bg-slate-100">
+              Select tasks
+            </Button>
+          )}
         </>
       );
     };
@@ -428,10 +357,12 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
 
     return (
       <div className="flex items-center justify-between w-full mb-3">
-        <Filter />
+        <div className="flex items-center gap-4">
+          <Filter />
+          <Export />
+        </div>
 
         <div className="flex items-center gap-4">
-          <Export />
           <Sort />
           <CreateTask />
         </div>
@@ -445,276 +376,25 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   }: {
     item: TaskProps;
     depth?: number;
-    statusIcon: string;
   }) => {
     const hasChildren = item.subtasks && item.subtasks.length > 0;
     const isExpanded = expandedTaskIds.has(item.id);
-
-    //display task status
-    const getStatusIcon = (status: string) => {
-      const section = statusSections.find((section) => section.status === status);
-      return section ? section.icon : ICONS.Unassigned; // Fallback icon if status not found
-    };
-
-    const Title = ({
-      item,
-    }: {
-      item: TaskProps;
-    }) => {
-      const Chevron = ({
-        task,
-      }: {
-        task: TaskProps;
-      }) => {
-        //expand subtask
-        const toggleExpand = (id: string) => {
-          setExpandedTaskIds((prev) => {
-            const newSet = new Set(prev);
-            newSet.has(id) ? newSet.delete(id) : newSet.add(id);
-            return newSet;
-          });
-        };
-
-        const handleChecked = async (task: TaskProps) => {
-          if (!visibleExportTasks.has(task.id)) {
-            recursiveCheck(task, true);
-            const newSet = [...exportedTasks, task];
-            setExportedTasks(newSet);
-          } else {
-            if (!visibleExportTasks.has(task.parentTaskId)) recursiveCheck(task, false);
-            const newSet = exportedTasks.filter((item) => item !== task);
-            setExportedTasks(newSet);
-          }
-        };
-
-        const recursiveCheck = (task: TaskProps, goTo: boolean) => {
-          setVisibleExportTasks((prev) => {
-            const newSet = new Set(prev);
-            goTo ? newSet.add(task.id) : newSet.delete(task.id);
-            return newSet;
-          });
-          if (task.subtasks && task.subtasks.length >= 0) {
-            task.subtasks.map((item) => {
-              recursiveCheck(item, goTo);
-            });
-          }
-        };
-
-        return (
-          <div>
-            {isTaskSelectionActive ? (
-              <Checkbox
-                className="mr-3"
-                checked={visibleExportTasks.has(task.id)}
-                onCheckedChange={() => handleChecked(task)}
-              />
-            ) : (
-              <button
-                type="button"
-                onClick={() => toggleExpand(item.id)}
-                className={`w-6 h-6 mr-1 flex items-center justify-center rounded hover:bg-gray-200 ${
-                  hasChildren ? 'visible' : 'invisible'
-                }`}>
-                {item.parentTaskId ? (
-                  <ChevronRight
-                    className={`h-4 w-4 transition-transform${isExpanded ? 'transform rotate-90' : ''}`}
-                  />
-                ) : (
-                  <ChevronsRight
-                    className={`h-4 w-4 transition-transform${isExpanded ? 'transform rotate-90' : ''}`}
-                  />
-                )}
-              </button>
-            )}
-          </div>
-        );
-      };
-      return (
-        <div className="inline-flex w-7/12 items-center">
-          <Chevron task={item} />
-
-          <img
-            src={getStatusIcon(item.status)}
-            alt={`${item.status} Icon`}
-            className="w-6 h-6 mr-2"
-          />
-          <div
-            onClick={() => router.push(`/tasks/${item.id}`)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault(); // Prevent default scroll behavior for space key
-                router.push(`/tasks/${item.id}`);
-              }
-            }}
-            className="cursor-pointer w-full">
-            <span className="flex text-black text-base font-normal font-BaiJamjuree w-11/12">
-              {item.title}
-            </span>
-          </div>
-        </div>
-      );
-    };
-
-    const Money = ({
-      item,
-    }: {
-      item: TaskProps;
-    }) => {
-      //display Money
-      const displayValue = (type: string, value: number) => {
-        if (value <= 0) return null;
-        const color =
-          type === 'budget'
-            ? 'text-black'
-            : type === 'advance'
-              ? 'text-green'
-              : type === 'expense'
-                ? 'text-red'
-                : null;
-        const textBaseClass = `font-BaiJamjuree leading-normal ${color}`;
-        return (
-          <div className="h-10 px-3 py-2 bg-white rounded-md border border-brown justify-start items-center gap-2 inline-flex">
-            <div className={`text-2xl font-semibold ${textBaseClass}`}>฿</div>
-            <div className={`text-base font-medium ${textBaseClass}`}>{value.toLocaleString()}</div>
-          </div>
-        );
-      };
-      return (
-        <>
-          {(item.budget > 0 || item.advance > 0 || item.expense > 0) && (
-            <div>
-              {item.budget > 0 && displayValue('budget', item.budget)}
-              {item.advance > 0 && displayValue('advance', item.advance)}
-              {item.expense > 0 && displayValue('expense', item.expense)}
-            </div>
-          )}
-        </>
-      );
-    };
-
-    const Tag = ({
-      item,
-    }: {
-      item: TaskProps;
-    }) => {
-      return (
-        <div className="relative flex">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild className="cursor-pointer flex max-w-32">
-                <div>
-                  {item.tags?.length !== 0
-                    ? item.tags?.slice(0, 3).map((tag, index) => (
-                        <Badge
-                          key={tag.id}
-                          variant="destructive"
-                          className="h-10 w-28 px-3 py-2 bg-[#eefdf7] rounded-3xl border border-green absolute self-center flex justify-center right-0 transition-transform"
-                          style={
-                            {
-                              transform: `translateX(${index * -28}px)`, // Custom CSS property for group hover
-                            } as React.CSSProperties
-                          }>
-                          <span className="text-green text-base font-semibold font-BaiJamjuree leading-normal whitespace-nowrap overflow-hidden text-ellipsis">
-                            {tag.name}
-                          </span>
-                        </Badge>
-                      ))
-                    : null}
-                </div>
-              </TooltipTrigger>
-              <TooltipContent className="flex flex-col gap-1">
-                {item.tags?.length !== 0
-                  ? item.tags?.map((tag) => (
-                      <div key={tag.id}>
-                        <Badge
-                          variant="destructive"
-                          className="h-10 px-3 py-2 bg-[#eefdf7] rounded-3xl border border-green ">
-                          <span className="text-green text-base font-semibold font-BaiJamjuree leading-normal whitespace-nowrap">
-                            {tag.name}
-                          </span>
-                        </Badge>
-                      </div>
-                    ))
-                  : null}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-      );
-    };
-
-    const Assigned = ({
-      item,
-    }: {
-      item: TaskProps;
-    }) => {
-      return (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <User className="h-8 w-8 p-1 text-brown border border-brown rounded-full hover:cursor-pointer" />
-            </TooltipTrigger>
-            <TooltipContent>
-              {item.members?.length !== 0 ? (
-                item.members?.map((user) => (
-                  <div key={user.id} className="flex items-center gap-2">
-                    <span>{user.name}</span>
-                  </div>
-                ))
-              ) : (
-                <span>No one assigned</span>
-              )}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      );
-    };
-
-    const TaskDate = ({
-      item,
-    }: {
-      item: TaskProps;
-    }) => {
-      //format Date display
-      const formatDate = (startdate: Date | null, enddate: Date | null): string => {
-        // Return an empty string if both dates are not provided
-        if (!startdate || !enddate) return '';
-
-        const format = (date: Date): string => {
-          const day = String(date.getDate()).padStart(2, '0');
-          const month = String(date.getMonth() + 1).padStart(2, '0');
-          const year = date.getFullYear();
-          return `${day}/${month}/${year}`;
-        };
-
-        // Format startdate and enddate if they are valid
-        const start = startdate ? format(startdate) : '';
-        const end = enddate ? format(enddate) : '';
-
-        return `${start}${start && end ? ' -> ' : ''}${end}`;
-      };
-
-      return (
-        <>
-          {item.startDate && item.endDate && (
-            <div
-              className="inline-flex gap-1 min-w-60"
-              title={formatDate(item.startDate, item.endDate)}>
-              <Calendar className="w-6 h-6 whitespace-nowrap" />
-              <span>{formatDate(item.startDate, item.endDate)}</span>
-            </div>
-          )}
-        </>
-      );
-    };
-    //for subTask
     return (
       <>
         <div className="flex items-center hover:bg-gray-50">
           <div
             className="flex items-center w-full h-fit my-1.5"
             style={{ marginLeft: `${depth * 24 + 24}px` }}>
-            <Title item={item} />
+            <TaskTitle 
+              item={item} 
+              expandedTaskIds={expandedTaskIds}
+              setExpandedTaskIds={setExpandedTaskIds}
+              isTaskSelectionActive={isTaskSelectionActive}
+              visibleExportTasks={visibleExportTasks}
+              setVisibleExportTasks={setVisibleExportTasks}
+              exportedTasks={exportedTasks}
+              setExportedTasks={setExportedTasks}
+            />
 
             <div className="w-5/12 flex gap-1 relative justify-end items-center">
               <Tag item={item} />
@@ -732,7 +412,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
                 key={child.id}
                 item={child}
                 depth={depth + 1} // Increase depth for child tasks
-                statusIcon={getStatusIcon(child.status)}
+                // statusIcon={getStatusIcon(child.status)}
               />
             ))}
           </div>
@@ -761,7 +441,8 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
             {showTasks
               .filter((item) => item.status === status) // Match with the status property
               .map((item) => (
-                <Task key={item.id} item={item} statusIcon={icon} />
+                <Task key={item.id} item={item} 
+                />
               ))}
           </div>
         </div>
@@ -769,3 +450,263 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     </div>
   );
 };
+
+//display task status
+    // const getStatusIcon = (status: string) => {
+    //   const section = statusSections.find((section) => section.status === status);
+    //   return section ? section.icon : ICONS.Unassigned; // Fallback icon if status not found
+    // };
+    // const Chevron = ({
+    //   task,
+    // }: {
+    //   task: TaskProps;
+    // }) => {
+    //   //expand subtask
+    //   const toggleExpand = (id: string) => {
+    //     setExpandedTaskIds((prev) => {
+    //       const newSet = new Set(prev);
+    //       newSet.has(id) ? newSet.delete(id) : newSet.add(id);
+    //       return newSet;
+    //     });
+    //   };
+
+    //   const handleChecked = async (task: TaskProps) => {
+    //     if (!visibleExportTasks.has(task.id)) {
+    //       recursiveCheck(task, true);
+    //       const newSet = [...exportedTasks, task];
+    //       setExportedTasks(newSet);
+    //     } else {
+    //       if (!visibleExportTasks.has(task.parentTaskId)) recursiveCheck(task, false);
+    //       const newSet = exportedTasks.filter((item) => item !== task);
+    //       setExportedTasks(newSet);
+    //     }
+    //   };
+
+    //   const recursiveCheck = (task: TaskProps, goTo: boolean) => {
+    //     setVisibleExportTasks((prev) => {
+    //       const newSet = new Set(prev);
+    //       goTo ? newSet.add(task.id) : newSet.delete(task.id);
+    //       return newSet;
+    //     });
+    //     if (task.subtasks && task.subtasks.length >= 0) {
+    //       task.subtasks.map((item) => {
+    //         recursiveCheck(item, goTo);
+    //       });
+    //     }
+    //   };
+
+    //   return (
+    //     <div>
+    //       {isTaskSelectionActive ? (
+    //         <Checkbox
+    //           className="mr-3"
+    //           checked={visibleExportTasks.has(task.id)}
+    //           onCheckedChange={() => handleChecked(task)}
+    //         />
+    //       ) : (
+    //         <button
+    //           type="button"
+    //           onClick={() => toggleExpand(item.id)}
+    //           className={`w-6 h-6 mr-1 flex items-center justify-center rounded hover:bg-gray-200 ${
+    //             hasChildren ? 'visible' : 'invisible'
+    //           }`}>
+    //           {item.parentTaskId ? (
+    //             <ChevronRight
+    //               className={`h-4 w-4 transition-transform${isExpanded ? 'transform rotate-90' : ''}`}
+    //             />
+    //           ) : (
+    //             <ChevronsRight
+    //               className={`h-4 w-4 transition-transform${isExpanded ? 'transform rotate-90' : ''}`}
+    //             />
+    //           )}
+    //         </button>
+    //       )}
+    //     </div>
+    //   );
+    // };
+
+    // const TaskTitle = ({
+    //   item,
+    // }: {
+    //   item: TaskProps;
+    // }) => {
+    //   return (
+    //     <div className="inline-flex w-7/12 items-center">
+    //       <Chevron task={item} />
+
+    //       <img
+    //         src={getStatusIcon(item.status)}
+    //         alt={`${item.status} Icon`}
+    //         className="w-6 h-6 mr-2"
+    //       />
+    //       <div
+    //         onClick={() => router.push(`/tasks/${item.id}`)}
+    //         onKeyDown={(e) => {
+    //           if (e.key === 'Enter' || e.key === ' ') {
+    //             e.preventDefault(); // Prevent default scroll behavior for space key
+    //             router.push(`/tasks/${item.id}`);
+    //           }
+    //         }}
+    //         className="cursor-pointer w-full">
+    //         <span className="flex text-black text-base font-normal font-BaiJamjuree w-11/12">
+    //           {item.title}
+    //         </span>
+    //       </div>
+    //     </div>
+    //   );
+    // };
+
+    // const Money = ({
+    //   item,
+    // }: {
+    //   item: TaskProps;
+    // }) => {
+    //   //display Money
+    //   const displayValue = (type: string, value: number) => {
+    //     if (value <= 0) return null;
+    //     const color =
+    //       type === 'budget'
+    //         ? 'text-black'
+    //         : type === 'advance'
+    //           ? 'text-green'
+    //           : type === 'expense'
+    //             ? 'text-red'
+    //             : null;
+    //     const textBaseClass = `font-BaiJamjuree leading-normal ${color}`;
+    //     return (
+    //       <div className="h-10 px-3 py-2 bg-white rounded-md border border-brown justify-start items-center gap-2 inline-flex">
+    //         <div className={`text-2xl font-semibold ${textBaseClass}`}>฿</div>
+    //         <div className={`text-base font-medium ${textBaseClass}`}>{value.toLocaleString()}</div>
+    //       </div>
+    //     );
+    //   };
+    //   return (
+    //     <>
+    //       {(item.budget > 0 || item.advance > 0 || item.expense > 0) && (
+    //         <div>
+    //           {item.budget > 0 && displayValue('budget', item.budget)}
+    //           {item.advance > 0 && displayValue('advance', item.advance)}
+    //           {item.expense > 0 && displayValue('expense', item.expense)}
+    //         </div>
+    //       )}
+    //     </>
+    //   );
+    // };
+
+    // const Tag = ({
+    //   item,
+    // }: {
+    //   item: TaskProps;
+    // }) => {
+    //   return (
+    //     <div className="relative flex">
+    //       <TooltipProvider>
+    //         <Tooltip>
+    //           <TooltipTrigger asChild className="cursor-pointer flex max-w-32">
+    //             <div>
+    //               {item.tags?.length !== 0
+    //                 ? item.tags?.slice(0, 3).map((tag, index) => (
+    //                     <Badge
+    //                       key={tag.id}
+    //                       variant="destructive"
+    //                       className="h-10 w-28 px-3 py-2 bg-[#eefdf7] rounded-3xl border border-green absolute self-center flex justify-center right-0 transition-transform"
+    //                       style={
+    //                         {
+    //                           transform: `translateX(${index * -28}px)`, // Custom CSS property for group hover
+    //                         } as React.CSSProperties
+    //                       }>
+    //                       <span className="text-green text-base font-semibold font-BaiJamjuree leading-normal whitespace-nowrap overflow-hidden text-ellipsis">
+    //                         {tag.name}
+    //                       </span>
+    //                     </Badge>
+    //                   ))
+    //                 : null}
+    //             </div>
+    //           </TooltipTrigger>
+    //           <TooltipContent className="flex flex-col gap-1">
+    //             {item.tags?.length !== 0
+    //               ? item.tags?.map((tag) => (
+    //                   <div key={tag.id}>
+    //                     <Badge
+    //                       variant="destructive"
+    //                       className="h-10 px-3 py-2 bg-[#eefdf7] rounded-3xl border border-green ">
+    //                       <span className="text-green text-base font-semibold font-BaiJamjuree leading-normal whitespace-nowrap">
+    //                         {tag.name}
+    //                       </span>
+    //                     </Badge>
+    //                   </div>
+    //                 ))
+    //               : null}
+    //           </TooltipContent>
+    //         </Tooltip>
+    //       </TooltipProvider>
+    //     </div>
+    //   );
+    // };
+
+    // const Assigned = ({
+    //   item,
+    // }: {
+    //   item: TaskProps;
+    // }) => {
+    //   return (
+    //     <TooltipProvider>
+    //       <Tooltip>
+    //         <TooltipTrigger asChild>
+    //           <User className="h-8 w-8 p-1 text-brown border border-brown rounded-full hover:cursor-pointer" />
+    //         </TooltipTrigger>
+    //         <TooltipContent>
+    //           {item.members?.length !== 0 ? (
+    //             item.members?.map((user) => (
+    //               <div key={user.id} className="flex items-center gap-2">
+    //                 <span>{user.name}</span>
+    //               </div>
+    //             ))
+    //           ) : (
+    //             <span>No one assigned</span>
+    //           )}
+    //         </TooltipContent>
+    //       </Tooltip>
+    //     </TooltipProvider>
+    //   );
+    // };
+
+    // const TaskDate = ({
+    //   item,
+    // }: {
+    //   item: TaskProps;
+    // }) => {
+    //   //format Date display
+    //   const formatDate = (startdate: Date | null, enddate: Date | null): string => {
+    //     // Return an empty string if both dates are not provided
+    //     if (!startdate || !enddate) return '';
+
+    //     const format = (date: Date): string => {
+    //       const day = String(date.getDate()).padStart(2, '0');
+    //       const month = String(date.getMonth() + 1).padStart(2, '0');
+    //       const year = date.getFullYear();
+    //       return `${day}/${month}/${year}`;
+    //     };
+
+    //     // Format startdate and enddate if they are valid
+    //     const start = startdate ? format(startdate) : '';
+    //     const end = enddate ? format(enddate) : '';
+
+    //     return `${start}${start && end ? ' -> ' : ''}${end}`;
+    //   };
+
+    //   return (
+    //     <>
+    //       {item.startDate && item.endDate && (
+    //         <div
+    //           className="inline-flex gap-1 min-w-60"
+    //           title={formatDate(item.startDate, item.endDate)}>
+    //           <Calendar className="w-6 h-6 whitespace-nowrap" />
+    //           <span>{formatDate(item.startDate, item.endDate)}</span>
+    //         </div>
+    //       )}
+    //     </>
+    //   );
+    // };
+    //for subTask
+    
