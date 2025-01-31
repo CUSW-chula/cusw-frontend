@@ -82,7 +82,7 @@ const Uploadfile = ({ task_id }: TaskManageMentProp) => {
     formData.append('taskId', task_id);
     formData.append('projectId', 'cm24w5yu000008tlglutu5czu');
     formData.append('file', file);
-    const url = `${BASE_URL}/file/`;
+    const url = `${BASE_URL}/v1/file/`;
     const options = {
       method: 'POST',
       body: formData,
@@ -112,7 +112,7 @@ interface DisplayfileProps {
 }
 
 const handleDelete = async (id: string, auth: string) => {
-  const url = `${BASE_URL}/file/`;
+  const url = `${BASE_URL}/v1/file/`;
   const options = {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json', Authorization: auth },
@@ -130,7 +130,7 @@ const handleDelete = async (id: string, auth: string) => {
 
 async function getName(authorId: string, auth: string) {
   try {
-    const response = await fetch(`${BASE_URL}/users/${authorId}`, {
+    const response = await fetch(`${BASE_URL}/v1/users/${authorId}`, {
       headers: {
         Authorization: auth,
       },

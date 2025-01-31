@@ -8,22 +8,17 @@ import Subtask from '@/components/elements/subtask';
 import { DeleteTask } from '@/components/elements/deleteTask';
 import BASE_URL, { type Task, type Emojis } from '@/lib/shared';
 import { cookies } from 'next/headers';
-import { Displayfile, Uploadfile } from '@/components/elements/uploadfile';
+import { Uploadfile } from '@/components/elements/uploadfile';
 import Emoji from '@/components/elements/emoji';
-import Title from '@/components/elements/workspace';
 
 interface TaskManageMentProp {
   params: {
     task_id: string;
   };
 }
-interface taskTitle {
+interface Workspace {
   id: string;
   title: string;
-}
-
-interface taskDescription {
-  id: string;
   description: string;
 }
 
@@ -33,7 +28,7 @@ interface taskEmoji {
 }
 
 export default async function TasksManageMentPage({ params }: TaskManageMentProp) {
-  const Description = dynamic(() => import('../../../components/elements/blocknote'), {
+  const Workspace = dynamic(() => import('../../../components/elements/workspace'), {
     ssr: true,
   });
 
@@ -50,13 +45,9 @@ export default async function TasksManageMentPage({ params }: TaskManageMentProp
 
   const task: Task = await response.json();
 
-  const title: taskTitle = {
+  const workspace: Workspace = {
     id: task.id,
     title: task.title,
-  };
-
-  const description: taskDescription = {
-    id: task.id,
     description: task.description,
   };
 
@@ -77,8 +68,7 @@ export default async function TasksManageMentPage({ params }: TaskManageMentProp
       <div className="flex-row flex w-full gap-[28px] ">
         {/* Left Section */}
         <div className="w-full rounded-[6px] p-5 border-brown border-[1px] bg-white">
-          <Title title={title} />
-          <Description description={description} />
+          <Workspace workspace={workspace} />
           <div className="flex justify-between">
             <Emoji emoji={emoji} />
             <Uploadfile task_id={task_id} />

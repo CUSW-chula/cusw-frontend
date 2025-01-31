@@ -1,8 +1,7 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
-import { Displayfile, Uploadfile } from './uploadfile';
-import Emoji from './emoji';
-import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
+import { Displayfile } from './uploadfile';
+import BASE_URL, { BASE_SOCKET } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import Blocknotes from './blocknote';
 interface Files {
@@ -15,22 +14,28 @@ interface Files {
   uploadedBy: string;
   createdAt: Date;
 }
-interface Title {
-  title: {
+interface Workspace {
+  workspace: {
     id: string;
     title: string;
+    description: string;
   };
 }
 
-const Workspace = ({ title }: Title) => {
+interface Description {
+  id: string;
+  description: string;
+}
+
+const Workspace = ({ workspace }: Workspace) => {
   const [Title, setTitle] = useState<string>('');
   const [fileList, setFileList] = useState<Files[]>([]);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
-  const task_id = title.id;
+  const task_id = workspace.id;
   useEffect(() => {
-    setTitle(title.title);
-  }, [title.title]);
+    setTitle(workspace.title);
+  }, [workspace.title]);
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const pareJsonValue = useCallback((values: any) => {
@@ -137,6 +142,10 @@ const Workspace = ({ title }: Title) => {
     updateTitle();
   }, [Title, task_id, auth]);
 
+  const description: Description = {
+    id: workspace.id,
+    description: workspace.description,
+  };
   return (
     <div>
       <input
@@ -147,6 +156,7 @@ const Workspace = ({ title }: Title) => {
           setTitle(e.target.value);
         }}
       />
+      <Blocknotes description={description} />
       <Displayfile fileList={fileList} setFileList={setFileList} />
     </div>
   );
