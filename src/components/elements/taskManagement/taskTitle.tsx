@@ -2,7 +2,6 @@ import type { TaskProps } from '@/app/types/types';
 import { ChevronRight, ChevronsRight } from 'lucide-react';
 import { Checkbox } from '../../ui/checkbox';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 
 const ICONS = {
   Unassigned: '/asset/icon/unassigned.svg',
@@ -31,19 +30,17 @@ interface TaskTitleProps {
 }
 
 export const TaskTitle = ({
-    item,
-    expandedTaskIds,
-    setExpandedTaskIds,
-    isTaskSelectionActive,
-    visibleExportTasks,
-    setExportedTasks,
-    exportedTasks,
-    setVisibleExportTasks,
+  item,
+  expandedTaskIds,
+  setExpandedTaskIds,
+  isTaskSelectionActive,
+  visibleExportTasks,
+  setExportedTasks,
+  exportedTasks,
+  setVisibleExportTasks,
 }: TaskTitleProps) => {
   const router = useRouter();
-  const Chevron = ({
-    task
-  }: {task:TaskProps}) => {
+  const Chevron = ({ task }: { task: TaskProps }) => {
     const hasChildren = task.subtasks && task.subtasks.length > 0;
     const isExpanded = expandedTaskIds.has(task.id);
     //expand subtask
@@ -54,7 +51,7 @@ export const TaskTitle = ({
         return newSet;
       });
     };
-  
+
     const handleChecked = async (task: TaskProps) => {
       if (!visibleExportTasks.has(task.id)) {
         recursiveCheck(task, true);
@@ -66,7 +63,7 @@ export const TaskTitle = ({
         setExportedTasks(newSet);
       }
     };
-  
+
     const recursiveCheck = (task: TaskProps, goTo: boolean) => {
       setVisibleExportTasks((prev) => {
         const newSet = new Set(prev);
@@ -79,7 +76,7 @@ export const TaskTitle = ({
         });
       }
     };
-  
+
     return (
       <div>
         {isTaskSelectionActive ? (
