@@ -62,13 +62,13 @@ export function StatusButton({ task_id }: TaskManageMentProp) {
 
   useEffect(() => {
     const fetchStatus = async (taskId: string) => {
-      const url = `${BASE_URL}/v1/tasks/status/${taskId}`;
+      const url = `${BASE_URL}/v2/tasks/${taskId}`;
       const options = { method: 'GET', headers: { Authorization: auth } };
 
       try {
         const response = await fetch(url, options);
         const data = await response.json();
-        const selected = statuses.find((s) => s.value === data);
+        const selected = statuses.find((s) => s.value === data.status);
         if (selected) setSelectedStatus(selected);
       } catch (error) {
         console.error(error);
@@ -90,6 +90,7 @@ export function StatusButton({ task_id }: TaskManageMentProp) {
         const data = parseJsonValue(socketEvent.data);
 
         if (eventName === 'status-changed') {
+          console.log('status-change ->', data);
           setSelectedStatus(data);
         }
       } catch (error) {
@@ -107,7 +108,7 @@ export function StatusButton({ task_id }: TaskManageMentProp) {
   const handleSelectStatus = async (status: Status) => {
     setSelectedStatus(status);
     setOpen(false);
-    const url = `${BASE_URL}/v1/tasks/status`;
+    const url = `${BASE_URL}/v2/tasks/status`;
     const options = {
       method: 'PATCH',
       headers: { Authorization: auth, 'Content-Type': 'application/json' },
