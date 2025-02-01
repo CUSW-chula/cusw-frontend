@@ -200,7 +200,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         if (value === 'saveFile') {
           exportAsFile(exportedTasks);
         } else if (value === 'saveTemplate') {
-          exportAsTemplate(exportedTasks, visibleExportTasks);
+          exportAsTemplate(tasks, visibleExportTasks);
         }
         setIsSelectTaskClicked(!isSelectTaskClicked);
         setExportedTasks([]);
@@ -227,15 +227,15 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
             </div>
           )}
           {isSelectTaskClicked && (
-            <div>
+            <div className="flex gap-4">
               <Button
                 onClick={() => handleSaveAs(exportType)}
-                className="text-brown border-brown px-3 py-1 rounded-md bg-white border hover:bg-slate-100">
+                className="text-green font-bold border-green px-3 py-1 rounded-md bg-[#eefdf7] border hover:bg-slate-100 w-20">
                 Save
               </Button>
               <Button
                 onClick={() => handleSaveAs('cancel')}
-                className="text-brown border-brown px-3 py-1 rounded-md bg-white border hover:bg-slate-100">
+                className="text-red font-bold border-red px-3 py-1 rounded-md bg-[#fde8e8] border hover:bg-slate-100 w-20">
                 Cancel
               </Button>
             </div>

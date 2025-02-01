@@ -57,18 +57,6 @@ export const TaskTitle = ({
       });
     };
 
-    // const handleChecked = async (task: TaskProps) => {
-    //   if (!visibleExportTasks.has(task.id)) {
-    //     recursiveCheck(task, true);
-    //     const newSet = [...exportedTasks, task];
-    //     setExportedTasks(newSet);
-    //   } else {
-    //     if (!visibleExportTasks.has(task.parentTaskId)) recursiveCheck(task, false);
-    //     const newSet = exportedTasks.filter((item) => item !== task);
-    //     setExportedTasks(newSet);
-    //   }
-    // };
-
     const recursiveCheck = (task: TaskProps, goTo: boolean) => {
       setVisibleExportTasks((prev) => {
         const newSet = new Set(prev);

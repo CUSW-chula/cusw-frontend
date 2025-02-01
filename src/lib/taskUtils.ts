@@ -1,23 +1,4 @@
 import type { TaskProps } from '@/app/types/types';
-import { useState } from 'react';
-
-export const useTaskState = () => {
-  const [isSelectTaskClicked, setIsSelectTaskClicked] = useState<boolean>(false);
-  const [expandedTaskIds, setExpandedTaskIds] = useState<Set<string>>(new Set());
-  const [visibleExportTasks, setVisibleExportTasks] = useState<Set<string>>(new Set());
-  const [exportedTasks, setExportedTasks] = useState<TaskProps[]>([]);
-
-  return {
-    isSelectTaskClicked,
-    setIsSelectTaskClicked,
-    expandedTaskIds,
-    setExpandedTaskIds,
-    visibleExportTasks,
-    setVisibleExportTasks,
-    exportedTasks,
-    setExportedTasks,
-  };
-};
 
 export const exportAsFile = (tasks: TaskProps[]) => {
   const sumBudget = (task: TaskProps): { budget: number; expense: number } => {
@@ -71,30 +52,39 @@ export const exportAsFile = (tasks: TaskProps[]) => {
 };
 
 export const exportAsTemplate = (tasks: TaskProps[], ids: Set<string>) => {
-  console.log('task');
-  console.log(tasks.map((task) => task.title));
-  console.log('ids');
-  console.log(ids);
-  const filterTreeByIds = (task: TaskProps, ids: Set<string>): TaskProps | null => {
-    if (!ids.has(task.id)) {
-      const filteredSubtasks = (task.subtasks || [])
-        .map((subtask) => filterTreeByIds(subtask, ids))
-        .filter(Boolean) as TaskProps[];
+  const filterTasksByIds = (tasks: TaskProps[], ids: Set<string>): TaskProps[] => {
+    const result: TaskProps[] = [];
 
-      if (filteredSubtasks.length > 0) {
-        return { ...task, subtasks: filteredSubtasks };
+    const traverse = (task: TaskProps) => {
+      if (ids.has(task.id)) {
+        result.push(task);
       }
-      return null;
-    }
-    return {
-      ...task,
-      subtasks: (task.subtasks || [])
-        .map((subtask) => filterTreeByIds(subtask, ids))
-        .filter(Boolean) as TaskProps[],
+      task.subtasks?.forEach(traverse);
     };
+
+    tasks.forEach(traverse);
+    return result;
   };
-  const filteredTasks = tasks
-    .map((task) => filterTreeByIds(task, ids))
-    .filter(Boolean) as TaskProps[];
-  console.log('filteredTasks', filteredTasks);
+  const buildTaskTree = (tasks: TaskProps[]): TaskProps[] => {
+    const taskMap = new Map<string, TaskProps>();
+    const rootTasks: TaskProps[] = [];
+
+    for (const task of tasks) {
+      taskMap.set(task.id, { ...task, subtasks: [] });
+    }
+
+    for (const task of tasks) {
+      const taskEntry = taskMap.get(task.id);
+      if (!taskEntry) continue;
+      if (task.parentTaskId && taskMap.has(task.parentTaskId)) {
+        const parentTask = taskMap.get(task.parentTaskId);
+        if (parentTask) parentTask.subtasks?.push(taskEntry);
+      } else rootTasks.push(taskEntry);
+    }
+
+    return rootTasks;
+  };
+  const filteredTasks = filterTasksByIds(tasks, ids);
+  const taskTree = buildTaskTree(filteredTasks);
+  console.log('taskTree', taskTree);
 };
