@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, createContext } from 'react';
 import { getCookie } from 'cookies-next';
 import BASE_URL, { type TaskManageMentOverviewProp } from '@/lib/shared';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
@@ -12,6 +12,7 @@ import { Tag } from '@/components/elements/taskManagement/tag';
 import { Assigned } from '@/components/elements/taskManagement/assigned';
 import { TaskDate } from '@/components/elements/taskManagement/taskDate';
 import { TaskTitle } from '@/components/elements/taskManagement/taskTitle';
+import { exportAsFile, exportAsTemplate } from '@/lib/taskUtils';
 
 // Predefined icon paths
 const ICONS = {
@@ -38,7 +39,8 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   const [tasks, settasks] = useState<TaskProps[]>([]);
   const [showTasks, setShowTasks] = useState<TaskProps[]>([]);
   const [projectName, setProjectName] = useState<string>('');
-  const [isTaskSelectionActive, setIsTaskSelectionActive] = useState<boolean>(false); // the status "Select Task" button has been pressed or not
+  const [isSelectTaskClicked, setIsSelectTaskClicked] = useState<boolean>(false); // the status "Select Task" button has been pressed or not
+  const [exportType, setExportType] = useState<string>(''); // the type of export
   const [expandedTaskIds, setExpandedTaskIds] = useState<Set<string>>(new Set()); //Set of taskID that have been expanded
   const [visibleExportTasks, setVisibleExportTasks] = useState<Set<string>>(new Set()); //Tracks taskID visible for export
   const [exportedTasks, setExportedTasks] = useState<TaskProps[]>([]); //Stores the list of tasks selected for export
@@ -140,6 +142,10 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           name: 'Default',
         };
 
+        if (tag.id === 'all') {
+          setShowTasks(tasks);
+          return;
+        }
         // Call the recursive function and update the state
         const tasksWithTag = await filterByTag(tasks, tag);
         setShowTasks(tasksWithTag);
@@ -168,7 +174,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     };
 
     const Export = () => {
-      const handleSaveAs = () => {
+      const handleSelectTasks = (value: string) => {
         const expandItemsRecursively = (tasks: TaskProps[]) => {
           const expandTask = (task: TaskProps) => {
             setExpandedTaskIds((prev) => {
@@ -185,63 +191,56 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           };
           tasks.forEach(expandTask);
         };
-        setIsTaskSelectionActive(!isTaskSelectionActive);
-        if (!isTaskSelectionActive) expandItemsRecursively(showTasks);
+        setIsSelectTaskClicked(!isSelectTaskClicked);
+        setExportType(value);
+        if (!isSelectTaskClicked) expandItemsRecursively(showTasks);
       };
-      const handleSelectTasks = (value: string) => {};
 
-      const handleCancle = () => {
-        setIsTaskSelectionActive(!isTaskSelectionActive);
+      const handleSaveAs = (value: string) => {
+        if (value === 'saveFile') {
+          exportAsFile(exportedTasks);
+        } else if (value === 'saveTemplate') {
+          exportAsTemplate(exportedTasks, visibleExportTasks);
+        }
+        setIsSelectTaskClicked(!isSelectTaskClicked);
         setExportedTasks([]);
         setVisibleExportTasks(new Set());
       };
 
-      const exportAsFile = (tasks: TaskProps[]) => {
-        const blob = new Blob([JSON.stringify(tasks, null, 2)], { type: 'application/json' });
-      };
-
-      const exportAsTemplate = (tasks: TaskProps[]) => {
-        const blob = new Blob([JSON.stringify(tasks, null, 2)], { type: 'application/json' });
-      };
       return (
-        <>
-          {isTaskSelectionActive && (
-            <>
-              <Select onValueChange={() => handleCancle()}>
-                <SelectTrigger className="w-36 border-brown bg-[#eefdf7]">
-                  <SelectValue className="text-brown" placeholder="Save as" />
+        <div>
+          {!isSelectTaskClicked && (
+            <div>
+              <Select onValueChange={(value) => handleSelectTasks(value)}>
+                <SelectTrigger className="w-36 border-brown">
+                  <SelectValue className="text-brown" placeholder="Select export type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem
-                    key="saveFile"
-                    value="saveFile"
-                    onClick={() => exportAsFile(exportedTasks)}>
+                  <SelectItem key="saveFile" value="saveFile">
                     .CSV
                   </SelectItem>
-                  <SelectItem
-                    key="saveTemplate"
-                    value="saveTemplate"
-                    onClick={() => exportAsTemplate(exportedTasks)}>
+                  <SelectItem key="saveTemplate" value="saveTemplate">
                     Template
                   </SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+          )}
+          {isSelectTaskClicked && (
+            <div>
               <Button
-                variant="outline"
-                className="h-10 px-4 bg-rose-200 rounded-md border border-brown justify-center items-center flex text-red text-base font-semibold font-BaiJamjuree leading-normal hover:cursor-pointer"
-                onClick={() => handleCancle()}>
+                onClick={() => handleSaveAs(exportType)}
+                className="text-brown border-brown px-3 py-1 rounded-md bg-white border hover:bg-slate-100">
+                Save
+              </Button>
+              <Button
+                onClick={() => handleSaveAs('cancel')}
+                className="text-brown border-brown px-3 py-1 rounded-md bg-white border hover:bg-slate-100">
                 Cancel
               </Button>
-            </>
+            </div>
           )}
-          {!isTaskSelectionActive && (
-            <Button
-              onClick={() => handleSaveAs()}
-              className="text-brown border-brown px-3 py-1 rounded-md bg-white border hover:bg-slate-100">
-              Select tasks
-            </Button>
-          )}
-        </>
+        </div>
       );
     };
 
@@ -329,7 +328,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
             expectedBudget: 0,
             realBudget: 0,
             parentTaskId: '',
-            usedBudget: 1,
+            usedBudget: 0,
             status: 'Unassigned',
             projectId: project_id,
             startDate: new Date(),
@@ -389,11 +388,13 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
               item={item}
               expandedTaskIds={expandedTaskIds}
               setExpandedTaskIds={setExpandedTaskIds}
-              isTaskSelectionActive={isTaskSelectionActive}
+              isSelectTaskClicked={isSelectTaskClicked}
               visibleExportTasks={visibleExportTasks}
               setVisibleExportTasks={setVisibleExportTasks}
               exportedTasks={exportedTasks}
               setExportedTasks={setExportedTasks}
+              exportType={exportType}
+              setExportType={setExportType}
             />
 
             <div className="w-5/12 flex gap-1 relative justify-end items-center">
@@ -412,7 +413,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
                 key={child.id}
                 item={child}
                 depth={depth + 1} // Increase depth for child tasks
-                // statusIcon={getStatusIcon(child.status)}
               />
             ))}
           </div>

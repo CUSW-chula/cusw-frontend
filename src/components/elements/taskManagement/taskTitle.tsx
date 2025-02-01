@@ -20,26 +20,31 @@ const statusSections = [
 
 interface TaskTitleProps {
   item: TaskProps;
+  isSelectTaskClicked: boolean;
   expandedTaskIds: Set<string>;
   setExpandedTaskIds: (prev: (set: Set<string>) => Set<string>) => void;
-  isTaskSelectionActive: boolean;
-  visibleExportTasks: Set<string>;
-  setExportedTasks: (prev: TaskProps[]) => void;
   exportedTasks: TaskProps[];
+  setExportedTasks: (prev: TaskProps[]) => void;
+  visibleExportTasks: Set<string>;
   setVisibleExportTasks: (prev: (set: Set<string>) => Set<string>) => void;
+  exportType: string;
+  setExportType: (prev: (type: string) => string) => void;
 }
 
 export const TaskTitle = ({
   item,
+  isSelectTaskClicked,
   expandedTaskIds,
   setExpandedTaskIds,
-  isTaskSelectionActive,
-  visibleExportTasks,
-  setExportedTasks,
   exportedTasks,
+  setExportedTasks,
+  visibleExportTasks,
   setVisibleExportTasks,
+  exportType,
+  setExportType,
 }: TaskTitleProps) => {
   const router = useRouter();
+
   const Chevron = ({ task }: { task: TaskProps }) => {
     const hasChildren = task.subtasks && task.subtasks.length > 0;
     const isExpanded = expandedTaskIds.has(task.id);
@@ -52,17 +57,17 @@ export const TaskTitle = ({
       });
     };
 
-    const handleChecked = async (task: TaskProps) => {
-      if (!visibleExportTasks.has(task.id)) {
-        recursiveCheck(task, true);
-        const newSet = [...exportedTasks, task];
-        setExportedTasks(newSet);
-      } else {
-        if (!visibleExportTasks.has(task.parentTaskId)) recursiveCheck(task, false);
-        const newSet = exportedTasks.filter((item) => item !== task);
-        setExportedTasks(newSet);
-      }
-    };
+    // const handleChecked = async (task: TaskProps) => {
+    //   if (!visibleExportTasks.has(task.id)) {
+    //     recursiveCheck(task, true);
+    //     const newSet = [...exportedTasks, task];
+    //     setExportedTasks(newSet);
+    //   } else {
+    //     if (!visibleExportTasks.has(task.parentTaskId)) recursiveCheck(task, false);
+    //     const newSet = exportedTasks.filter((item) => item !== task);
+    //     setExportedTasks(newSet);
+    //   }
+    // };
 
     const recursiveCheck = (task: TaskProps, goTo: boolean) => {
       setVisibleExportTasks((prev) => {
@@ -77,15 +82,34 @@ export const TaskTitle = ({
       }
     };
 
+    const handleChecked = async (task: TaskProps) => {
+      if (!visibleExportTasks.has(task.id)) {
+        const newSet = [...exportedTasks, task];
+        console.log('newSet');
+        console.log(newSet);
+        setExportedTasks(newSet);
+        recursiveCheck(task, true);
+      } else {
+        const newSet = exportedTasks.filter((item) => item !== task);
+        setExportedTasks(newSet);
+        setVisibleExportTasks((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(task.id);
+          return newSet;
+        });
+      }
+    };
+
     return (
       <div>
-        {isTaskSelectionActive ? (
+        {isSelectTaskClicked && (
           <Checkbox
-            className="mr-3"
+            className={`mr-3 ${!task.parentTaskId || exportType !== 'saveFile' ? 'visible' : 'invisible'}`}
             checked={visibleExportTasks.has(task.id)}
             onCheckedChange={() => handleChecked(task)}
           />
-        ) : (
+        )}
+        {!isSelectTaskClicked && (
           <button
             type="button"
             onClick={() => toggleExpand(task.id)}
