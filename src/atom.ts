@@ -13,7 +13,11 @@ const selectedStatusAtom = atom<Status>({
 });
 
 const tagsListAtom = atom<ProjectTagProp[]>([]);
+const moneyAtom = atom<number[]>([0, 0, 0]);
 
+export { moneyAtom };
 export { commentlist };
 export { selectedStatusAtom };
 export { tagsListAtom };
+
+

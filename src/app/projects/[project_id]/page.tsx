@@ -1,18 +1,15 @@
-import React from 'react';
 import { TaskManager } from '@/components/elements/taskmanager';
-import { CreateProject } from '@/components/elements/create-project';
 
-interface TaskManageMentProp {
-  params: {
-    project_id: string;
-  };
-}
-
-export default async function Page({ params }: TaskManageMentProp) {
-  const { project_id } = params;
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ project_id: string }>
+}) {
+  const projectId = (await params).project_id; // Extract projectId from the params
+  console.log('projectId', projectId);
   return (
     <div className="min-w-full min-h-screen flex flex-col lg:flex-row items-start justify-center mt-10 gap-8">
-      <TaskManager project_id={project_id} />
+      <TaskManager project_id={projectId} />
     </div>
   );
 }

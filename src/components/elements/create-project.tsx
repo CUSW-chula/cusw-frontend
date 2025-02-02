@@ -16,6 +16,11 @@ import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@radix
 import { formatDate } from 'date-fns';
 import { CrownIcon, Users, Tag, Calendar } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+// import { title } from 'process';
+import { de } from 'date-fns/locale';
+import { useAtom, useAtomValue } from 'jotai';
+import { moneyAtom } from '@/atom'; // Adjust the import path as necessary
+import { ButtonAddTags } from './button-add-tag';
 
 interface projectProps {
   id: string;
@@ -57,63 +62,43 @@ interface taskProps {
   subtasks?: taskProps[];
 }
 
-const CancelButton = () => {
+const CancelButton = ({ project_id, auth }: { project_id: string; auth: string }) => {
+  const router = useRouter();
+
+  const handleCancelClick = () => {
+    handleDeleteProject(project_id, auth);
+    router.push('/projects');
+  };
+
   return (
-    <div className="px-4 py-2 bg-white rounded-md border border-[#6b5c56] justify-center items-center gap-2.5 flex">
-      <div className="text-black text-sm font-medium font-['Inter'] leading-normal">Cancel</div>
+    <div className="px-4 py-2 bg-white rounded-md border border-[#6b5c56] justify-center items-center gap-2.5 flex cursor-pointer">
+      <Button onClick={handleCancelClick} className="text-black text-sm font-medium leading-normal">Cancel</Button>
     </div>
   );
 };
 
-const SunMoney = ({
-  budget,
-  advance,
-  expense,
-}: { budget: number; advance: number; expense: number }) => {
-  const cookie = getCookie('auth');
-  const auth = cookie?.toString() ?? '';
+const handleDeleteProject = async (project_id: string, auth: string) => {
+  const url = `${BASE_URL}/v2/projects/${project_id}`;
+  const options = {
+    method: 'DELETE',
+    headers: { Authorization: auth },
+  };
 
-  const total = budget - expense;
-
-  return (
-    <div className="h-5 flex items-center justify-start">
-      <div className="px-3 py-2 rounded-md border border-[#6b5c56] flex items-center gap-2">
-        <div className="flex items-center">
-          <span className="text-black text-2xl font-semibold font-BaiJamjuree">฿</span>
-        </div>
-        <div className="flex items-center">
-          <span className="text-black text-base font-medium font-BaiJamjuree">
-            {budget.toLocaleString()}
-          </span>
-        </div>
-        <div className="flex items-center">
-          <span
-            className={`text-2xl font-semibold font-BaiJamjuree ${
-              total < 0 ? 'text-red' : 'text-green'
-            }`}>
-            ฿
-          </span>
-        </div>
-        <div className="flex items-center">
-          <span
-            className={`text-base font-medium font-BaiJamjuree ${
-              total < 0 ? 'text-red' : 'text-green'
-            }`}>
-            {Math.abs(total).toLocaleString()}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-};
+  try {
+    const res = await fetch(url, options);
+    if (!res.ok) {
+      throw new Error('Failed to delete project');
+    }
+    console.info('Deleted project:', project_id);
+  } catch (error) {
+    console.error('Error deleting project:', error);
+  }
+}
 
 const MenuBar = ({ project_id }: ProjectOverviewProps) => {
   const [ProjectOwner, setProjectOwner] = useState<UsersProps[]>([]);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
-  const [budget, setBudget] = useState<number>(0);
-  const [advance, setAdvance] = useState<number>(0);
-  const [expense, setExpense] = useState<number>(0);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
 
@@ -133,15 +118,12 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
         setProjectOwner(data.owner);
         setStartDate(new Date(data.startDate));
         setEndDate(new Date(data.endDate));
-        setBudget(data.budget);
-        setAdvance(data.advance);
-        setExpense(data.expense);
       } catch (error) {
         console.error('Error fetching project data:', error);
       }
     };
     fetchProject();
-  });
+  }, [project_id, auth]);
 
   const getInitials = (name: string) => {
     if (typeof name !== 'string') return ''; // Handle non-string input
@@ -156,7 +138,7 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
   };
 
   return (
-    <div className="min-h-[350px] w-[395px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start gap-4 inline-flex">
+    <div className="min-h-[350px] w-[395px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-start items-start gap-4 inline-flex">
       <div aria-label="owner" className="h-10 justify-start items-center inline-flex">
         <div className="w-24 justify-start items-center gap-2 flex">
           <CrownIcon className="w-[24px] h-[24px] text-black" />
@@ -165,6 +147,7 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
             Owner :{' '}
           </div>
         </div>
+        {/* get Owner name from API */}
         <TooltipProvider>
           <div className="flex items-center space-x-2">
             {ProjectOwner.map((owner) => (
@@ -180,6 +163,7 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
             ))}
           </div>
         </TooltipProvider>
+
       </div>
       <div aria-label="tag" className="justify-start items-center inline-flex flex-wrap w-full">
         {/* Label Zone */}
@@ -191,22 +175,7 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
             Tag :{' '}
           </div>
         </div>
-        <div className="flex w-[253.67px] ">{/* <ButtonAddTags task_id={project_id} /> */}</div>
-      </div>
-      <div aria-label="money" className="h-10 justify-start items-center inline-flex">
-        {/* Label Zone */}
-        <div className="w-24 justify-start items-center gap-2 flex">
-          {/* Icon */}
-          <div className="w-6 text-center text-black text-[30px] font-medium font-BaiJamjuree">
-            ฿
-          </div>
-
-          {/* Describtion */}
-          <div className="text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-tight">
-            Money :{' '}
-          </div>
-        </div>
-        <SunMoney budget={budget} advance={advance} expense={expense} />
+        <div className="flex w-[253.67px] ">{/*<ButtonAddTags task_id={project_id} />*/}</div>
       </div>
       <div aria-label="date" className="h-10 justify-start items-center inline-flex">
         {/* Label Zone */}
@@ -218,9 +187,9 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
             Date :{' '}
           </div>
         </div>
-        {startDate && endDate
+        {/* {startDate && endDate
           ? formatDate(startDate.toISOString(), endDate.toISOString())
-          : 'Invalid date'}
+          : 'Invalid date'} */}
       </div>
     </div>
   );
@@ -229,8 +198,13 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
 export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
   const token = getCookie('token');
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [title, setTitle] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
   const router = useRouter();
+  const money = useAtomValue(moneyAtom);
   const id = project_id;
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -253,10 +227,46 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
     }
   };
 
+  const handleAddTask = async (project_id: string, auth: string) => {
+    if (title === '') {
+      alert('Title is required');
+      return;
+    }
+    console.log('auth', auth);
+    const url = `${BASE_URL}/v2/tasks/`;
+    const options = {
+      method: 'POST',
+      headers: { Authorization: auth, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: title,
+        description: description,
+        budget: money[0],
+        advance: money[1],
+        expense: money[2],
+        status: 'Unassigned',
+        parentTaskId: '',
+        projectId: project_id,
+        startDate: new Date(),
+        endDate: new Date(),
+      }),
+    };
+
+    try {
+      const res = await fetch(url, options);
+      if (!res.ok) {
+        throw new Error('Failed to add task');
+      }
+      router.push(`/projects/${project_id}`);
+    } catch (error) {
+      console.error('Error adding task:', error);
+    }
+    console.info('Adding task to project:', project_id);
+  }
+
   return (
     <div className="h-[414px] px-20 flex-col justify-start items-start gap-[18px] inline-flex w-full">
       <div className="self-stretch text-black text-5xl font-semibold font-Anuphan leading-[48px]">
-        Project {id}
+        Project {project_id}
       </div>
       <div className="self-stretch justify-center items-start gap-7 inline-flex">
         <div className="grow shrink basis-0 h-[348px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start inline-flex">
@@ -274,11 +284,7 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
             <div className="self-stretch h-[52px] flex-col justify-center items-start gap-3 flex">
             </div>
             <div className="justify-start items-start gap-3 inline-flex">
-              <Button
-                variant="outline"
-                className="px-4 py-2 bg-white border-[#6b5c56] justify-center items-center gap-2.5 flex">
-                Cancel
-              </Button>
+              <CancelButton project_id={project_id} auth={auth} />
               <Dialog>
                 <DialogTrigger asChild>
                   <Button
@@ -299,10 +305,12 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
                           <Input
                             className="resize-none border-none w-full outline-none placeholder-black font-semibold text-3xl font-Anuphan leading-[48px]"
                             placeholder="add task title"
+                            onChange={(e) => setTitle(e.target.value)}
                           />
                           <Textarea
                             className="resize-none border-none w-full outline-none text-black text-xl font-Anuphan leading-7"
                             placeholder="add description"
+                            onChange={(e) => setDescription(e.target.value)}
                           />
                         </div>
                         <div className="self-stretch h-[104px] flex-col justify-center items-end gap-3 flex">
@@ -320,11 +328,13 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
                                 Cancel
                               </Button>
                             </DialogTrigger>
-                            <Button
-                              variant="destructive"
-                              className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex">
-                              Add Task
-                            </Button>
+                          <Button
+                            variant="destructive"
+                            className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex"
+                            onClick={() => handleAddTask(id, auth)}
+                          >
+                            Add Task
+                          </Button>
                           </div>
                         </div>
                       </div>
