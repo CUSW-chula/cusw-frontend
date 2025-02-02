@@ -14,7 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { TaskProps } from '@/app/types/types';
+import type { TaskProps } from '@/app/types/types';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
 import { exportAsFile, exportAsTemplate, statusSections } from '@/lib/taskUtils';
@@ -142,7 +142,9 @@ export const ExportDialog = ({ tasks }: { tasks: TaskProps[] }) => {
   };
   return (
     <Dialog>
-      <DialogTrigger className='border p-2 text-sm rounded-md border-brown h-10'>Export tasks</DialogTrigger>
+      <DialogTrigger className="border p-2 text-sm rounded-md border-brown h-10">
+        Export tasks
+      </DialogTrigger>
       <DialogContent className="w-max max-w-3xl h-5/6 gap-1 flex-col">
         <DialogTitle>Export tasks</DialogTitle>
         <DialogDescription> กรุณาเลือกรูปแบบการส่งออกเอกสาร</DialogDescription>
@@ -150,7 +152,7 @@ export const ExportDialog = ({ tasks }: { tasks: TaskProps[] }) => {
           <nav className="inline-flex gap-2 mb-3 justify-between w-full">
             <SelectType />
             {exportType !== '' && (
-              <div className='gap-2 inline-flex'>
+              <div className="gap-2 inline-flex">
                 <Button
                   onClick={() => handleSaveAs(exportType)}
                   className="text-green font-bold border-green px-3 py-1 rounded-md bg-[#eefdf7] border hover:bg-slate-100 w-20">

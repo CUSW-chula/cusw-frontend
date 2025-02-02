@@ -1,5 +1,5 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
-import { TaskProps } from '@/app/types/types';
+import type { TaskProps } from '@/app/types/types';
 
 interface SortProps {
   showTasks: TaskProps[];

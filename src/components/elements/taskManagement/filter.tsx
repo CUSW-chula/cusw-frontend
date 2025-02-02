@@ -1,5 +1,5 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
-import { TaskProps, TagProps } from '@/app/types/types';
+import type { TaskProps, TagProps } from '@/app/types/types';
 
 interface FilterProps {
   tasks: TaskProps[];

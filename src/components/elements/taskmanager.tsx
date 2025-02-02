@@ -67,7 +67,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     };
     fetchTagData();
     fetchData();
-  }, [parseJsonValues, project_id]);
+  }, [project_id]);
 
   const ProjectController = () => {
     return (
