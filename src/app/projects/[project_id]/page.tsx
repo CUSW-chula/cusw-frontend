@@ -11,7 +11,7 @@ interface TaskManageMentProp {
 export default async function Page({ params }: TaskManageMentProp) {
   const { project_id } = params;
   return (
-    <div className="min-w-full min-h-screen flex-col items-start justify-center gap-8">
+    <div className="min-w-full flex-col items-start justify-center gap-8">
       <div className="flex pb-4 items-center justify-end">
         <BackButton task_id={project_id} />
       </div>

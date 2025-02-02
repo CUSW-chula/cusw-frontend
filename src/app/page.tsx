@@ -7,7 +7,7 @@ import { setCookie } from 'cookies-next';
 const BASE_URL =
   process.env.NODE_ENV === 'production'
     ? 'https://cusw-workspace.sa.chula.ac.th'
-    : 'http://localhost:3000';
+    : 'http://localhost:4000';
 
 const Home = () => {
   const router = useRouter();
@@ -25,10 +25,8 @@ const Home = () => {
     }
   };
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <Button onClick={handleSignIn} className="flex items-center gap-2">
-        Sign in with Google
-      </Button>
+    <div className="fixed inset-0 flex items-center justify-center">
+      <Button onClick={handleSignIn}>Sign in with Google</Button>
     </div>
   );
 };

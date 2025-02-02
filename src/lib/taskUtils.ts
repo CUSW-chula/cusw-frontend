@@ -1,5 +1,4 @@
 import type { TaskProps } from '@/app/types/types';
-
 export const exportAsFile = (tasks: TaskProps[]) => {
   const sumBudget = (task: TaskProps): { budget: number; expense: number } => {
     let budget = task.budget;
@@ -88,3 +87,48 @@ export const exportAsTemplate = (tasks: TaskProps[], ids: Set<string>) => {
   const taskTree = buildTaskTree(filteredTasks);
   console.log('taskTree', taskTree);
 };
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+export const parseJsonValues = (values: any[]): TaskProps[] => {
+  return values.map((value) => ({
+    id: value.id,
+    title: value.title,
+    description: value.description,
+    statusBudget: value.statusBudget,
+    budget: value.budget,
+    advance: value.advance,
+    expense: value.expense,
+    status: value.status,
+    parentTaskId: value.parentTaskId,
+    projectId: value.projectId,
+    createdById: value.createdById,
+    startDate: new Date(value.startDate),
+    endDate: new Date(value.endDate),
+    owner: value.owner,
+    members: value.members,
+    tags: value.tags,
+    subtasks: value.subtasks ? parseJsonValues(value.subtasks) : [],
+    emojis: value.emojis,
+  }));
+};
+
+// Predefined icon paths
+const ICONS = {
+  Unassigned: '/asset/icon/unassigned.svg',
+  Assigned: '/asset/icon/assigned.svg',
+  InRecheck: '/asset/icon/inrecheck.svg',
+  UnderReview: '/asset/icon/underreview.svg',
+  Done: '/asset/icon/done.svg',
+};
+
+export const statusSections = [
+  { status: 'Unassigned', displayName: 'Unassigned', icon: ICONS.Unassigned },
+  { status: 'Assigned', displayName: 'Assigned', icon: ICONS.Assigned },
+  { status: 'InRecheck', displayName: 'In Recheck', icon: ICONS.InRecheck },
+  {
+    status: 'UnderReview',
+    displayName: 'Under Review',
+    icon: ICONS.UnderReview,
+  },
+  { status: 'Done', displayName: 'Done', icon: ICONS.Done },
+];

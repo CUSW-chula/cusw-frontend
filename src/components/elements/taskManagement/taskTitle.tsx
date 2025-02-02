@@ -1,50 +1,18 @@
 import type { TaskProps } from '@/app/types/types';
 import { ChevronRight, ChevronsRight } from 'lucide-react';
-import { Checkbox } from '../../ui/checkbox';
+import { statusSections } from '@/lib/taskUtils';
 import { useRouter } from 'next/navigation';
-
-const ICONS = {
-  Unassigned: '/asset/icon/unassigned.svg',
-  Assigned: '/asset/icon/assigned.svg',
-  InRecheck: '/asset/icon/inrecheck.svg',
-  UnderReview: '/asset/icon/underreview.svg',
-  Done: '/asset/icon/done.svg',
-};
-const statusSections = [
-  { status: 'Unassigned', displayName: 'Unassigned', icon: ICONS.Unassigned },
-  { status: 'Assigned', displayName: 'Assigned', icon: ICONS.Assigned },
-  { status: 'InRecheck', displayName: 'In Recheck', icon: ICONS.InRecheck },
-  { status: 'UnderReview', displayName: 'Under Review', icon: ICONS.UnderReview },
-  { status: 'Done', displayName: 'Done', icon: ICONS.Done },
-];
-
-interface TaskTitleProps {
-  item: TaskProps;
-  isSelectTaskClicked: boolean;
-  expandedTaskIds: Set<string>;
-  setExpandedTaskIds: (prev: (set: Set<string>) => Set<string>) => void;
-  exportedTasks: TaskProps[];
-  setExportedTasks: (prev: TaskProps[]) => void;
-  visibleExportTasks: Set<string>;
-  setVisibleExportTasks: (prev: (set: Set<string>) => Set<string>) => void;
-  exportType: string;
-  setExportType: (prev: (type: string) => string) => void;
-}
 
 export const TaskTitle = ({
   item,
-  isSelectTaskClicked,
   expandedTaskIds,
   setExpandedTaskIds,
-  exportedTasks,
-  setExportedTasks,
-  visibleExportTasks,
-  setVisibleExportTasks,
-  exportType,
-  setExportType,
-}: TaskTitleProps) => {
+}: {
+  item: TaskProps;
+  expandedTaskIds: Set<string>;
+  setExpandedTaskIds: React.Dispatch<React.SetStateAction<Set<string>>>;
+}) => {
   const router = useRouter();
-
   const Chevron = ({ task }: { task: TaskProps }) => {
     const hasChildren = task.subtasks && task.subtasks.length > 0;
     const isExpanded = expandedTaskIds.has(task.id);
@@ -57,71 +25,29 @@ export const TaskTitle = ({
       });
     };
 
-    const recursiveCheck = (task: TaskProps, goTo: boolean) => {
-      setVisibleExportTasks((prev) => {
-        const newSet = new Set(prev);
-        goTo ? newSet.add(task.id) : newSet.delete(task.id);
-        return newSet;
-      });
-      if (task.subtasks && task.subtasks.length >= 0) {
-        task.subtasks.map((item) => {
-          recursiveCheck(item, goTo);
-        });
-      }
-    };
-
-    const handleChecked = async (task: TaskProps) => {
-      if (!visibleExportTasks.has(task.id)) {
-        const newSet = [...exportedTasks, task];
-        console.log('newSet');
-        console.log(newSet);
-        setExportedTasks(newSet);
-        recursiveCheck(task, true);
-      } else {
-        const newSet = exportedTasks.filter((item) => item !== task);
-        setExportedTasks(newSet);
-        setVisibleExportTasks((prev) => {
-          const newSet = new Set(prev);
-          newSet.delete(task.id);
-          return newSet;
-        });
-      }
-    };
-
     return (
-      <div>
-        {isSelectTaskClicked && (
-          <Checkbox
-            className={`mr-3 ${!task.parentTaskId || exportType !== 'saveFile' ? 'visible' : 'invisible'}`}
-            checked={visibleExportTasks.has(task.id)}
-            onCheckedChange={() => handleChecked(task)}
+      <button
+        type="button"
+        onClick={() => toggleExpand(task.id)}
+        className={`w-6 h-6 mr-1 flex items-center justify-center rounded hover:bg-gray-200 ${
+          hasChildren ? 'visible' : 'invisible'
+        }`}>
+        {task.parentTaskId ? (
+          <ChevronRight
+            className={`h-4 w-4 transition-transform${isExpanded ? 'transform rotate-90' : ''}`}
+          />
+        ) : (
+          <ChevronsRight
+            className={`h-4 w-4 transition-transform${isExpanded ? 'transform rotate-90' : ''}`}
           />
         )}
-        {!isSelectTaskClicked && (
-          <button
-            type="button"
-            onClick={() => toggleExpand(task.id)}
-            className={`w-6 h-6 mr-1 flex items-center justify-center rounded hover:bg-gray-200 ${
-              hasChildren ? 'visible' : 'invisible'
-            }`}>
-            {task.parentTaskId ? (
-              <ChevronRight
-                className={`h-4 w-4 transition-transform${isExpanded ? 'transform rotate-90' : ''}`}
-              />
-            ) : (
-              <ChevronsRight
-                className={`h-4 w-4 transition-transform${isExpanded ? 'transform rotate-90' : ''}`}
-              />
-            )}
-          </button>
-        )}
-      </div>
+      </button>
     );
   };
 
   const getStatusIcon = (status: string) => {
     const section = statusSections.find((section) => section.status === status);
-    return section ? section.icon : ICONS.Unassigned; // Fallback icon if status not found
+    return section ? section.icon : '/asset/icon/unassigned.svg'; // Fallback icon if status not found
   };
   return (
     <div className="inline-flex w-7/12 items-center">
