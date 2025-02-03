@@ -4,7 +4,7 @@ import { ProjectDetail } from '@/components/elements/projectdetail';
 export default async function Page({
   params,
 }: {
-  params: Promise<{ project_id: string }>
+  params: Promise<{ project_id: string }>;
 }) {
   const projectId = (await params).project_id; // Extract projectId from the params
 

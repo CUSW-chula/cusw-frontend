@@ -32,13 +32,11 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const pareJsonValue = React.useCallback((values: any) => {
-    const newValue: Tags = {
-      id: values.id,
-      name: values.name,
-    };
+    const newValue: Tags[] = values.tags
     return newValue;
   }, []);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
     const fetchTags = async () => {
       const url = `${BASE_URL}/v2/tags/`;
@@ -70,6 +68,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
       try {
         const response = await fetch(url, options);
         const data = await response.json();
+        console.log('data:', data.tags);
         setSelectedTags(data.tags);
       } catch (error) {
         console.error(error);
@@ -93,12 +92,9 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
         const eventName = socketEvent.eventName;
         const data = pareJsonValue(socketEvent.data);
 
-        if (eventName === 'assigned-tags') {
+        if (eventName === 'assigned-tags-project') {
           // Update selected tags with new tag added
-          setSelectedTags((prev) => [data, ...prev]);
-        } else if (eventName === 'unassigned-tag') {
-          // Remove tag from selected tags
-          setSelectedTags((prev) => prev.filter((t) => t.id !== data.id));
+          setSelectedTags(data);
         }
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
@@ -111,8 +107,9 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
 
     return () => {
       ws.close();
+
     };
-  }, [pareJsonValue, project_id, auth]);
+  }, [ auth, project_id, pareJsonValue, setSelectedTags]);
 
   const handleSelectTag = async (value: string) => {
     const selected = statuses.find((status) => status.name === value);

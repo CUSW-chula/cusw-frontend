@@ -233,7 +233,7 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
       }
     };
     fetchProject();
-  });
+  }, [project_id, auth]);
 
   const getInitials = (name: string) => {
     if (typeof name !== 'string') return ''; // Handle non-string input
