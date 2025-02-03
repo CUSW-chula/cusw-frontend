@@ -21,14 +21,20 @@ import { jwtDecode, type JwtPayload } from 'jwt-decode';
 
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
+
 interface CustomJwtPayload extends JwtPayload {
   id: string;
 }
-export default function Blocknotes({ task_id }: TaskManageMentProp) {
-  const docId = task_id;
+
+interface Description {
+  description: { id: string; description: string };
+}
+
+export default function Blocknotes({ description }: Description) {
+  const docId = description.id;
   return (
     <YDocProvider docId={docId} authEndpoint="https://demos.y-sweet.dev/api/auth">
-      <Document task_id={task_id} />
+      <Document description={description} />
     </YDocProvider>
   );
 }
@@ -41,34 +47,19 @@ function getRandomLightColor(): string {
   return `#${r}${g}${b}`;
 }
 
-function Document({ task_id }: TaskManageMentProp) {
+function Document({ description }: Description) {
   const [Description, setDescription] = useState<string>('');
+  const task_id = description.id;
 
   useEffect(() => {
-    const fetchDescription = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/tasks/description/${task_id}`, {
-          headers: {
-            Authorization: auth,
-          },
-        });
-        const data = await response.json();
-        setDescription(data.description);
-        const blocks = await editor.tryParseHTMLToBlocks(data.description);
-        editor.replaceBlocks(editor.document, blocks);
-      } catch (error) {
-        console.error('Error fetching Description:', error);
-      }
-    };
-    fetchDescription();
-  }, [task_id]);
+    setDescription(description.description);
+  }, [description.description]);
 
   useEffect(() => {
     if (!Description) return;
-
     const timer = setTimeout(async () => {
       const taskId = task_id;
-      const url = `${BASE_URL}/tasks/description`;
+      const url = `${BASE_URL}/v1/tasks/description`;
       const options = {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
@@ -113,6 +104,7 @@ function Document({ task_id }: TaskManageMentProp) {
       provider,
       fragment: doc.getXmlFragment('blocknote'),
       user: { color: getRandomLightColor(), name: userData.id },
+      showCursorLabels: 'always',
     },
   });
 
