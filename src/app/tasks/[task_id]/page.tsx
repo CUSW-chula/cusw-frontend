@@ -16,6 +16,7 @@ interface TaskManageMentProp {
 export default async function TasksManageMentPage({ params }: TaskManageMentProp) {
   const Workspace = dynamic(() => import('../../../components/elements/workspace'), { ssr: true });
   const { task_id } = await params;
+
   return (
     <div className="flex flex-col items-start justify-center gap-1 ">
       {/* page nav */}

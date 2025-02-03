@@ -1,15 +1,20 @@
 import { TaskManager } from '@/components/elements/taskmanager';
+import { BackButton } from '@/components/elements/backButton';
 
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ project_id: string }>;
-}) {
-  const projectId = (await params).project_id; // Extract projectId from the params
-  console.log('projectId', projectId);
+interface TaskManageMentProp {
+  params: {
+    project_id: string;
+  };
+}
+
+export default async function Page({ params }: TaskManageMentProp) {
+  const { project_id } = params;
   return (
-    <div className="min-w-full min-h-screen flex flex-col lg:flex-row items-start justify-center mt-10 gap-8">
-      <TaskManager project_id={projectId} />
+    <div className="min-w-full flex-col items-start justify-center gap-8">
+      <div className="flex pb-4 items-center justify-end">
+        <BackButton task_id={project_id} />
+      </div>
+      <TaskManager project_id={project_id} />
     </div>
   );
 }
