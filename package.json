@@ -39,7 +39,7 @@
     "emoji-picker-react": "^4.12.0",
     "jotai": "^2.10.1",
     "lucide-react": "^0.453.0",
-    "next": "15.0.2",
+    "next": "15.1.2",
     "quill": "^2.0.2",
     "react": "19.0.0-rc-02c0e824-20241028",
     "react-color-palette": "^7.3.0",
