@@ -205,6 +205,7 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
 export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [title, setTitle] = useState<string>('');
+  const [pTitle, setPTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const router = useRouter();
   const money = useAtomValue(moneyAtom);
@@ -256,11 +257,23 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
         endDate: new Date(),
       }),
     };
+    const url2 = `${BASE_URL}/v2/projects/${project_id}`;
+    const options2 = {
+      method: 'PATCH',
+      headers: { Authorization: auth, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: pTitle
+      }),
+    };
 
     try {
       const res = await fetch(url, options);
+      const res2 = await fetch(url2, options2);
       if (!res.ok) {
         throw new Error('Failed to add task');
+      }
+      if (!res2.ok) {
+        throw new Error('Failed to add project title');
       }
       router.push(`/projects/${project_id}`);
     } catch (error) {
@@ -280,7 +293,7 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
             <Input
               className="resize-none border-none w-full outline-none placeholder-black font-semibold text-3xl font-Anuphan leading-[48px]"
               placeholder="Project title"
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => setPTitle(e.target.value)}
             />
             <Textarea
               className="resize-none border-none w-full outline-none text-black text-xl font-Anuphan leading-7"
@@ -296,6 +309,7 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
                   <DialogTrigger asChild>
                     <Button
                       variant="destructive"
+                      disabled={pTitle === ''}
                       className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex">
                       Select Project Template
                     </Button>
