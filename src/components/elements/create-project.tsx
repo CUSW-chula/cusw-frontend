@@ -283,7 +283,7 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
             />
           </form>
           <div className="self-stretch h-[104px] flex-col justify-center items-end gap-3 flex">
-            <div className="self-stretch h-[52px] flex-col justify-center items-start gap-3 flex"></div>
+            <div className="self-stretch h-[52px] flex-col justify-center items-start gap-3 flex" />
             <div className="justify-start items-start gap-3 inline-flex">
               <CancelButton project_id={project_id} auth={auth} />
               <Dialog>
