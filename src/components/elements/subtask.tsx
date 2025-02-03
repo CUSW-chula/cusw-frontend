@@ -53,7 +53,7 @@ const GetTagList = ({ taskId, auth }: { taskId: string; auth: string }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await fetch(`${BASE_URL}/tags/getassigntag/${taskId}`, {
+        const data = await fetch(`${BASE_URL}/v2/tags/getassigntag/${taskId}`, {
           headers: {
             Authorization: auth,
           },
@@ -250,7 +250,7 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
 
     const fetchData = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/tasks/child/${task_id}`, {
+        const response = await fetch(`${BASE_URL}/v2/tasks/child/${task_id}`, {
           headers: {
             Authorization: auth,
           },
@@ -336,7 +336,7 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
 
   const handleCreateSubtask = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/tasks/`, {
+      const response = await fetch(`${BASE_URL}/v2/tasks/`, {
         method: 'POST',
         headers: {
           Authorization: auth,
@@ -374,7 +374,7 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
   const handleDeleteSubtask = async () => {
     try {
       const latestSubtask = subtasks[subtasks.length - 1];
-      const response = await fetch(`${BASE_URL}/tasks/${latestSubtask.id}`, {
+      const response = await fetch(`${BASE_URL}/v2/tasks/${latestSubtask.id}`, {
         method: 'DELETE',
         headers: {
           Authorization: auth,
@@ -403,7 +403,7 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
 
     try {
       const latestSubtask = subtasks[subtasks.length - 1]; // Get the latest created subtask
-      const response = await fetch(`${BASE_URL}/tasks/`, {
+      const response = await fetch(`${BASE_URL}/v2/tasks/`, {
         method: 'PATCH',
         headers: {
           Authorization: auth,

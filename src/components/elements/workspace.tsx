@@ -50,7 +50,7 @@ const Workspace = ({ task_id }: TaskManageMentProp) => {
   useEffect(() => {
     const fetchTitle = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/tasks/title/${task_id}`, {
+        const response = await fetch(`${BASE_URL}/v1/tasks/title/${task_id}`, {
           headers: {
             Authorization: auth,
           },

@@ -62,13 +62,13 @@ export function StatusButton({ task_id }: TaskManageMentProp) {
 
   useEffect(() => {
     const fetchStatus = async (taskId: string) => {
-      const url = `${BASE_URL}/tasks/status/${taskId}`;
+      const url = `${BASE_URL}/v2/tasks/${taskId}`;
       const options = { method: 'GET', headers: { Authorization: auth } };
 
       try {
         const response = await fetch(url, options);
         const data = await response.json();
-        const selected = statuses.find((s) => s.value === data);
+        const selected = statuses.find((s) => s.value === data.status);
         if (selected) setSelectedStatus(selected);
       } catch (error) {
         console.error(error);
@@ -90,6 +90,7 @@ export function StatusButton({ task_id }: TaskManageMentProp) {
         const data = parseJsonValue(socketEvent.data);
 
         if (eventName === 'status-changed') {
+          console.log('status-change ->', data);
           setSelectedStatus(data);
         }
       } catch (error) {
@@ -107,7 +108,7 @@ export function StatusButton({ task_id }: TaskManageMentProp) {
   const handleSelectStatus = async (status: Status) => {
     setSelectedStatus(status);
     setOpen(false);
-    const url = `${BASE_URL}/tasks/status`;
+    const url = `${BASE_URL}/v2/tasks/status`;
     const options = {
       method: 'PATCH',
       headers: { Authorization: auth, 'Content-Type': 'application/json' },
@@ -131,6 +132,7 @@ export function StatusButton({ task_id }: TaskManageMentProp) {
         <Button
           variant="outline"
           size="sm"
+          disabled={selectedStatus.value === 'Unassigned'}
           className="h-[40px] px-[16px] justify-start font-BaiJamjuree text-base">
           {selectedStatus ? (
             <>
@@ -156,6 +158,15 @@ export function StatusButton({ task_id }: TaskManageMentProp) {
                 <CommandItem
                   key={status.value}
                   value={status.value}
+                  disabled={
+                    (selectedStatus.value === 'Assigned' && status.value !== 'UnderReview') ||
+                    (selectedStatus.value === 'UnderReview' &&
+                      (status.value === 'Unassigned' ||
+                        status.value === 'Assigned' ||
+                        status.value === 'UnderReview')) ||
+                    (selectedStatus.value === 'InRecheck' && status.value !== 'UnderReview') ||
+                    (selectedStatus.value === 'Done' && status.value !== 'InRecheck')
+                  }
                   className="pl-[32px] font-BaiJamjuree text-base"
                   onSelect={() => {
                     handleSelectStatus(status);
