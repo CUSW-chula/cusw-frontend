@@ -202,7 +202,7 @@ export const ProjectList = () => {
   // biome-ignore lint/correctness/useExhaustiveDependencies(a): < Must have >
   useEffect(() => {
     handleProjectTags();
-  }, [projectList]);
+  }, []);
 
   return (
     <>
