@@ -201,7 +201,7 @@ export const ProjectList = () => {
   }
   React.useEffect(() => {
     handleProjectTags();
-  }, [projectList]);
+  }, []);
 
   return (
     <>
