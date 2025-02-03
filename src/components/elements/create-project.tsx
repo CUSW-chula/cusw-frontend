@@ -282,118 +282,118 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
           </div>
           <div className="self-stretch h-[104px] flex-col justify-center items-end gap-3 flex">
             <div className="self-stretch h-[52px] flex-col justify-center items-start gap-3 flex">
-            <div className="justify-start items-start gap-3 inline-flex">
-              <CancelButton project_id={project_id} auth={auth} />
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button
-                    variant="destructive"
-                    className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex">
-                    Select Project Template
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-[920px] max-h-[400px] h-full w-full p-6 bg-white rounded-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.09)] border border-[#6b5c56] flex-col justify-between items-center inline-flex">
-                  <Tabs className="w-full max-w-[654px]">
-                    <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="New Task">New Task</TabsTrigger>
-                      <TabsTrigger value="Select Template">Select Template</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="New Task">
-                      <div className="flex flex-col justify-between items-start space-y-6 max-h-[400px]">
-                        <div className="w-full space-y-4">
-                          <Input
-                            className="resize-none border-none w-full outline-none placeholder-black font-semibold text-3xl font-Anuphan leading-[48px]"
-                            placeholder="add task title"
-                            onChange={(e) => setTitle(e.target.value)}
-                          />
-                          <Textarea
-                            className="resize-none border-none w-full outline-none text-black text-xl font-Anuphan leading-7"
-                            placeholder="add description"
-                            onChange={(e) => setDescription(e.target.value)}
-                          />
-                        </div>
-                        <div className="self-stretch h-[104px] flex-col justify-center items-end gap-3 flex">
-                          <div className="self-stretch h-[52px] flex-col justify-center items-start gap-3 flex">
-                            <div className="justify-start items-center gap-3 inline-flex">
-                              <AssignedTaskToMember task_id={''} />
-                              <Money />
-                            </div>
+              <div className="justify-start items-start gap-3 inline-flex">
+                <CancelButton project_id={project_id} auth={auth} />
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="destructive"
+                      className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex">
+                      Select Project Template
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-[920px] max-h-[400px] h-full w-full p-6 bg-white rounded-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.09)] border border-[#6b5c56] flex-col justify-between items-center inline-flex">
+                    <Tabs className="w-full max-w-[654px]">
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="New Task">New Task</TabsTrigger>
+                        <TabsTrigger value="Select Template">Select Template</TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="New Task">
+                        <div className="flex flex-col justify-between items-start space-y-6 max-h-[400px]">
+                          <div className="w-full space-y-4">
+                            <Input
+                              className="resize-none border-none w-full outline-none placeholder-black font-semibold text-3xl font-Anuphan leading-[48px]"
+                              placeholder="add task title"
+                              onChange={(e) => setTitle(e.target.value)}
+                            />
+                            <Textarea
+                              className="resize-none border-none w-full outline-none text-black text-xl font-Anuphan leading-7"
+                              placeholder="add description"
+                              onChange={(e) => setDescription(e.target.value)}
+                            />
                           </div>
-                          <div className="justify-start items-start gap-3 inline-flex">
-                            <DialogTrigger asChild>
-                              <Button
-                                variant="outline"
-                                className="px-4 py-2 bg-white border-[#6b5c56] justify-center items-center gap-2.5 flex">
-                                Cancel
-                              </Button>
-                            </DialogTrigger>
-                            <Button
-                              variant="destructive"
-                              className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex"
-                              onClick={() => handleAddTask(id, auth)}>
-                              Add Task
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </TabsContent>
-                    <TabsContent value="Select Template">
-                      <div className="flex flex-col justify-between items-start space-y-6">
-                        <div className="grid grid-cols-3 gap-4 p-4 w-full overflow-auto">
-                          {[
-                            { name: 'หน้าเปล่า', icon: '📄' },
-                            { name: 'Hotline', icon: '📞' },
-                            { name: 'Workshop', icon: '📋' },
-                            { name: 'จ้างเหมา', icon: '🛠️' },
-                            { name: 'Sup Hotline', icon: '📱' },
-                            { name: 'จ้างงานในเวลา', icon: '⏱️' },
-                            { name: 'Mind Talk', icon: '🧠' },
-                            { name: 'จ้างงานนอกเวลา', icon: '🌙' },
-                          ].map((template) => (
-                            // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
-                            <div
-                              key={template.name}
-                              className="p-4 bg-white border rounded-md hover:shadow-md"
-                              onClick={() => handleTemplateSelect(template.name)} // Set template on click
-                            >
-                              <div className="flex items-center gap-3">
-                                <span className="text-2xl">{template.icon}</span>
-                                <span className="text-sm font-medium text-gray-700">
-                                  {template.name}
-                                </span>
+                          <div className="self-stretch h-[104px] flex-col justify-center items-end gap-3 flex">
+                            <div className="self-stretch h-[52px] flex-col justify-center items-start gap-3 flex">
+                              <div className="justify-start items-center gap-3 inline-flex">
+                                <AssignedTaskToMember task_id={''} />
+                                <Money />
                               </div>
                             </div>
-                          ))}
-                        </div>
-                        <div className="self-stretch flex-col justify-center items-end flex">
-                          <div className="justify-start items-start gap-3 inline-flex">
-                            <DialogTrigger asChild>
+                            <div className="justify-start items-start gap-3 inline-flex">
+                              <DialogTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  className="px-4 py-2 bg-white border-[#6b5c56] justify-center items-center gap-2.5 flex">
+                                  Cancel
+                                </Button>
+                              </DialogTrigger>
                               <Button
-                                variant="outline"
-                                className="px-4 py-2 bg-white border-[#6b5c56] justify-center items-center gap-2.5 flex">
-                                Cancel
+                                variant="destructive"
+                                className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex"
+                                onClick={() => handleAddTask(id, auth)}>
+                                Add Task
                               </Button>
-                            </DialogTrigger>
-                            <Button
-                              variant="destructive"
-                              className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex"
-                              onClick={handleNavigateToTemplatePage} // Handle navigation after selecting a template
-                            >
-                              Select Template
-                            </Button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </TabsContent>
-                  </Tabs>
-                </DialogContent>
-              </Dialog>
+                      </TabsContent>
+                      <TabsContent value="Select Template">
+                        <div className="flex flex-col justify-between items-start space-y-6">
+                          <div className="grid grid-cols-3 gap-4 p-4 w-full overflow-auto">
+                            {[
+                              { name: 'หน้าเปล่า', icon: '📄' },
+                              { name: 'Hotline', icon: '📞' },
+                              { name: 'Workshop', icon: '📋' },
+                              { name: 'จ้างเหมา', icon: '🛠️' },
+                              { name: 'Sup Hotline', icon: '📱' },
+                              { name: 'จ้างงานในเวลา', icon: '⏱️' },
+                              { name: 'Mind Talk', icon: '🧠' },
+                              { name: 'จ้างงานนอกเวลา', icon: '🌙' },
+                            ].map((template) => (
+                              // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
+                              <div
+                                key={template.name}
+                                className="p-4 bg-white border rounded-md hover:shadow-md"
+                                onClick={() => handleTemplateSelect(template.name)} // Set template on click
+                              >
+                                <div className="flex items-center gap-3">
+                                  <span className="text-2xl">{template.icon}</span>
+                                  <span className="text-sm font-medium text-gray-700">
+                                    {template.name}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="self-stretch flex-col justify-center items-end flex">
+                            <div className="justify-start items-start gap-3 inline-flex">
+                              <DialogTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  className="px-4 py-2 bg-white border-[#6b5c56] justify-center items-center gap-2.5 flex">
+                                  Cancel
+                                </Button>
+                              </DialogTrigger>
+                              <Button
+                                variant="destructive"
+                                className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex"
+                                onClick={handleNavigateToTemplatePage} // Handle navigation after selecting a template
+                              >
+                                Select Template
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </div>
           </div>
+          <MenuBar project_id={project_id} />
         </div>
-        <MenuBar project_id={project_id} />
       </div>
     </div>
-  </div>
   );
 };
