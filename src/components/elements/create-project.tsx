@@ -262,7 +262,7 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
       method: 'PATCH',
       headers: { Authorization: auth, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        title: pTitle
+        title: pTitle,
       }),
     };
 
