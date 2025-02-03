@@ -3,17 +3,19 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import dynamic from 'next/dynamic';
 import { SmilePlus } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import type { EmojiClickData } from 'emoji-picker-react';
 import { getCookie } from 'cookies-next';
 import BASE_URL, { BASE_SOCKET, type Emojis, type User } from '@/lib/shared';
 import { jwtDecode, type JwtPayload } from 'jwt-decode';
+
 const Picker = dynamic(
   () => {
     return import('emoji-picker-react');
   },
   { ssr: true },
 );
+
 interface CustomJwtPayload extends JwtPayload {
   id: string;
 }
@@ -23,27 +25,42 @@ interface taskEmoji {
     emoji: Emojis[];
   };
 }
+interface EmojiTaskUser {
+  id: string;
+  emoji: string;
+  userId: string;
+  taskId: string;
+}
 
 const Emoji = ({ emoji }: taskEmoji) => {
-  const [emojis, setEmojis] = useState<Emojis[]>([]);
+  const [emojis, setEmojis] = useState<EmojiTaskUser[]>([]);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const task_id = emoji.id;
 
   useEffect(() => {
-    setEmojis(Array.isArray(emoji.emoji) ? emoji.emoji : []);
+    const transformedEmojis = Array.isArray(emoji.emoji)
+      ? emoji.emoji.map((e) => ({
+          id: e.id,
+          emoji: e.emoji,
+          taskId: e.taskId,
+          userId: e.user.id, // Extract user ID
+        }))
+      : [];
+
+    setEmojis(transformedEmojis);
   }, [emoji.emoji]);
 
-  const pareJsonValue = React.useCallback((values: Emojis) => {
+  const pareJsonValue = useCallback((values: EmojiTaskUser) => {
     return {
       id: values.id,
       emoji: values.emoji,
-      user: values.user,
+      userId: values.userId,
       taskId: values.taskId,
     };
   }, []);
 
-  async function getName(authorId: string, auth: string) {
+  async function getName(authorId: string) {
     try {
       const response = await fetch(`${BASE_URL}/v1/users/${authorId}`, {
         headers: {
@@ -57,42 +74,42 @@ const Emoji = ({ emoji }: taskEmoji) => {
       return data.name;
     } catch (error) {
       console.error('Failed to fetch user name:', error);
-      return 'Unknown'; // Handle error gracefully
+      return 'Unknown';
     }
   }
 
-  function EmojiUser({ emoji, id, user }: Emojis) {
-    const [name, setName] = useState('');
-    const cookie = getCookie('auth');
-    const auth = cookie?.toString() ?? '';
+  const EmojiUser = ({ emoji, id, userId }: EmojiTaskUser) => {
+    const [userName, setUserName] = useState<string>('Loading...');
+
     useEffect(() => {
-      getName(user.id, auth).then(setName);
-    }, [user.id, auth]);
+      const fetchUserName = async () => {
+        const name = await getName(userId);
+        setUserName(name);
+      };
+
+      fetchUserName();
+    }, [userId]);
+
     return (
       <div key={id} className="flex py-1 justify-between">
-        <p className="body self-center">{name}</p>
+        <p className="body self-center">{userName}</p>
         <p className="text-[24px]">{emoji}</p>
       </div>
     );
-  }
+  };
 
   useEffect(() => {
     const ws = new WebSocket(BASE_SOCKET);
-
     ws.onopen = () => {
       console.log('Connected to WebSocket');
     };
-
     ws.onmessage = (event) => {
       console.log('Message received:', event.data);
-
       try {
         const socketEvent = JSON.parse(event.data);
-        const eventName = socketEvent.eventName;
         const newEmoji = pareJsonValue(socketEvent.data);
-
         setEmojis((prevEmojis) => {
-          if (eventName === 'addEmoji') {
+          if (socketEvent.eventName === 'addEmoji') {
             return [newEmoji, ...prevEmojis];
           }
           return prevEmojis.map((prevEmoji) =>
@@ -103,11 +120,9 @@ const Emoji = ({ emoji }: taskEmoji) => {
         console.error('Error parsing WebSocket message:', error);
       }
     };
-
     ws.onclose = () => {
       console.log('WebSocket connection closed');
     };
-
     return () => {
       ws.close();
     };
@@ -122,7 +137,7 @@ const Emoji = ({ emoji }: taskEmoji) => {
     };
     const userData = getUserDataFromCookie();
     const url = `${BASE_URL}/v1/tasks/emoji`;
-    const checkResponse = await fetch(`${url}/${taskId}/${userData.id}`, {
+    const checkResponse = await fetch(`${BASE_URL}/v1/tasks/emoji/${taskId}/${userData.id}`, {
       headers: {
         Authorization: auth,
       },
@@ -185,7 +200,7 @@ const Emoji = ({ emoji }: taskEmoji) => {
                 <EmojiUser
                   emoji={emojiData.emoji}
                   id={emojiData.id}
-                  user={emojiData.user}
+                  userId={emojiData.userId}
                   taskId={emojiData.taskId}
                   key={emojiData.id}
                 />

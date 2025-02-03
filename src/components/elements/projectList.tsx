@@ -199,8 +199,7 @@ export const ProjectList = () => {
 
     setTagsList(newFrameworksList);
   }
-  // biome-ignore lint/correctness/useExhaustiveDependencies(a): < Must have >
-  useEffect(() => {
+  React.useEffect(() => {
     handleProjectTags();
   }, []);
 
