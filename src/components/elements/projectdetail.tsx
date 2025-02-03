@@ -123,7 +123,6 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
   );
 };
 
-
 const BackButton = () => {
   const router = useRouter();
 
@@ -132,7 +131,7 @@ const BackButton = () => {
       variant="link"
       size="sm"
       className="font-BaiJamjuree bg-white border-2 border-brown text-brown text-sm"
-      onClick={() => router.push("/projects")}>
+      onClick={() => router.push('/projects')}>
       <Redo2 className="transform rotate-180 text-brown" /> Back
     </Button>
   );
@@ -359,6 +358,12 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
 export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
+  const Router = useRouter();
+
+  const handleClick = () => {
+    const url = `/projects/${project_id}`;
+    Router.push(url);
+  };
 
   return (
     <div className="max-h-[414px] px-20 flex-col justify-start items-start gap-[18px] inline-flex w-full">
@@ -381,7 +386,8 @@ export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
             <div className="justify-start items-start gap-1 inline-flex">
               <Button
                 variant="destructive"
-                className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex">
+                className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex"
+                onClick={handleClick}>
                 Go to tasks
               </Button>
             </div>
