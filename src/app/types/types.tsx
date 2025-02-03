@@ -22,3 +22,9 @@ export interface TaskProps {
   subtasks?: TaskProps[];
   emojis: string[];
 }
+
+export interface FilterTasks {
+  searchTerm: string;
+  category: TagProps[];
+  sort: 'stDate_asc' | 'stDate_desc' | 'endDate_asc' | 'endDate_desc';
+}

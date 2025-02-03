@@ -16,8 +16,9 @@ export const exportAsFile = (tasks: TaskProps[]) => {
   const toCSV = (
     tasks: { title: string; budget: number; expense: number; remaining: number }[],
   ) => {
-    const header = ['Task Title', 'Budget', 'Expense', 'Remaining'];
-    const rows = tasks.map((task) => [
+    const header = ['ลำดับที่', 'รายการ', 'งบประมาณที่ได้รับอนุมัติ ', 'เบิกจ่ายจริง', 'คงเหลือ'];
+    const rows = tasks.map((task, index) => [
+      index + 1,
       task.title,
       task.budget,
       task.expense,
@@ -28,7 +29,7 @@ export const exportAsFile = (tasks: TaskProps[]) => {
   };
 
   const downloadBudgetReport = (filename: string, text: string) => {
-    const blob = new Blob([text], { type: 'text/csv' });
+    const blob = new Blob([text], { type: 'text/csv;charset=UTF-8' });
     const a = document.createElement('a');
     a.download = `${filename}.csv`;
     const url = URL.createObjectURL(blob);
