@@ -33,7 +33,7 @@ const Money = () => {
   const [openType, setOpenType] = useState(false); //Manage Popover state Money type
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
-  const setMoney = useSetAtom(moneyAtom)
+  const setMoney = useSetAtom(moneyAtom);
   const [budgetList, setBudgetList] = useState<Budget>({
     type: TypeMoney.null,
     money: 0,
@@ -129,7 +129,7 @@ const Money = () => {
     setMoney([budget, advance, expense]);
     setOpenDialog(false);
     console.log('MoneyAtom in money: ', moneyAtom);
-  }
+  };
 
   //clear budget
   const handleClear = async () => {
@@ -295,7 +295,9 @@ const Money = () => {
                 Cancel
               </Button>
               <Button
-                onClick={() => taskID ? handleSubmit(budgetList) : handleSubmitWhenNoTaskID(budgetList)}
+                onClick={() =>
+                  taskID ? handleSubmit(budgetList) : handleSubmitWhenNoTaskID(budgetList)
+                }
                 className="h-10 bg-inherit rounded-[100px] flex-col justify-center items-center gap-2 inline-flex text-brown text-sm font-normal font-BaiJamjuree  hover:bg-gray-100 "
                 disabled={
                   budgetList.type === TypeMoney.null ||

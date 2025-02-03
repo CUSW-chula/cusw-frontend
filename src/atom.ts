@@ -19,5 +19,3 @@ export { moneyAtom };
 export { commentlist };
 export { selectedStatusAtom };
 export { tagsListAtom };
-
-
