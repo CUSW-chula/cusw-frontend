@@ -14,6 +14,8 @@ import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import BASE_URL from '@/lib/shared';
 import { getCookie } from 'cookies-next';
+import { atom, useAtom, useSetAtom } from 'jotai';
+import { moneyAtom } from '@/atom';
 interface Budget {
   type: string;
   money: number;
@@ -31,6 +33,7 @@ const Money = () => {
   const [openType, setOpenType] = useState(false); //Manage Popover state Money type
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
+  const setMoney = useSetAtom(moneyAtom);
   const [budgetList, setBudgetList] = useState<Budget>({
     type: TypeMoney.null,
     money: 0,
@@ -41,7 +44,7 @@ const Money = () => {
   });
   const url = typeof window !== 'undefined' ? window.location.pathname : '';
   const path = url.split('/');
-  const taskID = path[path.length - 1];
+  const taskID = path[path.length - 2] === 'tasks' ? path[path.length - 1] : null;
 
   const pareJsonValue = React.useCallback(
     (budgetList: { budget: number; advance: number; expense: number }) => {
@@ -117,6 +120,15 @@ const Money = () => {
       setOpenDialog(false);
       // sentLog();
     }
+  };
+
+  const handleSubmitWhenNoTaskID = async (budgetList: Budget) => {
+    const budget = budgetList.type === TypeMoney.budget ? budgetList.money : 0;
+    const advance = budgetList.type === TypeMoney.ad ? budgetList.money : 0;
+    const expense = budgetList.type === TypeMoney.exp ? budgetList.money : 0;
+    setMoney([budget, advance, expense]);
+    setOpenDialog(false);
+    console.log('MoneyAtom in money: ', moneyAtom);
   };
 
   //clear budget
@@ -283,7 +295,9 @@ const Money = () => {
                 Cancel
               </Button>
               <Button
-                onClick={() => handleSubmit(budgetList)}
+                onClick={() =>
+                  taskID ? handleSubmit(budgetList) : handleSubmitWhenNoTaskID(budgetList)
+                }
                 className="h-10 bg-inherit rounded-[100px] flex-col justify-center items-center gap-2 inline-flex text-brown text-sm font-normal font-BaiJamjuree  hover:bg-gray-100 "
                 disabled={
                   budgetList.type === TypeMoney.null ||

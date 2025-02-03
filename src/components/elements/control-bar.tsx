@@ -300,8 +300,8 @@ export function Createproject() {
       body: JSON.stringify({
         title: '',
         description: '',
-        startDate: new Date().toISOString(),
-        endDate: new Date().toISOString(),
+        startDate: new Date(),
+        endDate: new Date(),
       }),
     };
 
@@ -309,7 +309,11 @@ export function Createproject() {
       const response = await fetch(url, options);
       const data = await response.json();
       console.log(data);
-      router.push(`/projects/${data.id}`);
+      if (data?.id) {
+        router.push(`/projects/create/${data.id}`);
+      } else {
+        console.error('Project ID not found', data);
+      }
     } catch (error) {
       console.error(error);
     }
