@@ -44,11 +44,29 @@ const statuses: Status[] = [
   },
 ];
 
+interface SubtaskProps {
+  id: string;
+  title: string;
+  description: string;
+  budget: number;
+  advance: number;
+  expense: number;
+  status: 'Unassigned' | 'Assigned' | 'UnderReview' | 'InRecheck' | 'Done';
+  parentTaskId: string;
+  projectId: string;
+  createdById: string;
+  startDate: Date;
+  endDate: Date;
+  tags?: string[];
+  subtasks?: SubtaskProps[];
+}
+
 export function StatusButton({ task_id }: TaskManageMentProp) {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [open, setOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useAtom<Status>(selectedStatusAtom);
+  const [isAllSubTaskDone, setIsAllSubTaskDone] = useState(true);
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValue = useCallback((values: any) => {
@@ -58,6 +76,25 @@ export function StatusButton({ task_id }: TaskManageMentProp) {
       icon: `/asset/icon/${values.status.toLowerCase()}.svg`,
     };
     return newValue;
+  }, []);
+
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  const parseJsonValues = useCallback((values: any[]): SubtaskProps[] => {
+    return values.map((value) => ({
+      id: value.id,
+      title: value.title,
+      description: value.description,
+      budget: value.budget,
+      advance: value.advance,
+      expense: value.expense,
+      status: value.status,
+      parentTaskId: value.parentTaskId,
+      projectId: value.projectId,
+      createdById: value.createdById,
+      startDate: new Date(value.startDate),
+      endDate: new Date(value.endDate),
+      subtasks: value.subTasks ? parseJsonValues(value.subTasks) : [],
+    }));
   }, []);
 
   useEffect(() => {
@@ -76,6 +113,22 @@ export function StatusButton({ task_id }: TaskManageMentProp) {
     };
 
     fetchStatus(task_id);
+
+    const fetchSubStatus = async (taskID: string) => {
+      const url = `${BASE_URL}/v2/tasks/child/${taskID}`;
+      const options = { method: 'GET', headers: { Authorization: auth } };
+
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        const subTasks = parseJsonValues(data);
+        setIsAllSubTaskDone(subTasks.every((subtask) => subtask.status === 'Done'));
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchSubStatus(task_id);
 
     const ws = new WebSocket(BASE_SOCKET);
 
@@ -163,7 +216,8 @@ export function StatusButton({ task_id }: TaskManageMentProp) {
                     (selectedStatus.value === 'UnderReview' &&
                       (status.value === 'Unassigned' ||
                         status.value === 'Assigned' ||
-                        status.value === 'UnderReview')) ||
+                        status.value === 'UnderReview' ||
+                        (status.value === 'Done' && !isAllSubTaskDone))) ||
                     (selectedStatus.value === 'InRecheck' && status.value !== 'UnderReview') ||
                     (selectedStatus.value === 'Done' && status.value !== 'InRecheck')
                   }
