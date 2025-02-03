@@ -12,21 +12,16 @@ interface BackButtonProps {
 }
 
 export const BackButton: React.FC<BackButtonProps> = ({ task_id }) => {
-  const cookie = getCookie('auth');
   const router = useRouter();
+  const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const handleBack = async () => {
-    const url = `${BASE_URL}/v2/tasks/parent/${task_id}`;
+    const url = `${BASE_URL}/tasks/parent/${task_id}`;
     const options = { method: 'GET', headers: { Authorization: auth } };
     try {
       const response = await fetch(url, options);
-      if (!response.headers.get('content-type')?.includes('application/json')) {
-        const stringdata = await response.text();
-        router.push(`/projects/${stringdata}`);
-      } else {
-        const data = await response.json();
-        router.push(`/tasks/${data.id}`);
-      }
+      const data = await response.json();
+      router.push(`/tasks/${data.id}`);
     } catch (error) {
       console.error(error);
     }
@@ -42,20 +37,3 @@ export const BackButton: React.FC<BackButtonProps> = ({ task_id }) => {
     </Button>
   );
 };
-
-export const ProjectBackButton: React.FC = () => {
-  const router = useRouter();
-
-  const handleBackProject = async () => {
-    router.push('/projects');
-  }
-  return (
-    <Button
-      variant="link"
-      size="sm"
-      onClick={handleBackProject}
-      className="font-BaiJamjuree bg-white border-x border-y border-brown text-brown text-md">
-      <Redo2 className="transform rotate-180 text-brown" /> Back
-    </Button>
-  );
-}
