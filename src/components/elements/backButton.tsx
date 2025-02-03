@@ -47,7 +47,7 @@ export const ProjectBackButton: React.FC = () => {
   const router = useRouter();
   const handleBackProject = async () => {
     router.push('/projects');
-  }
+  };
   return (
     <Button
       variant="link"
@@ -57,4 +57,4 @@ export const ProjectBackButton: React.FC = () => {
       <Redo2 className="transform rotate-180 text-brown" /> Back
     </Button>
   );
-}
+};

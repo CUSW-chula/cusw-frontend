@@ -71,7 +71,11 @@ const CancelButton = ({ project_id, auth }: { project_id: string; auth: string }
 
   return (
     <div className="bg-white rounded-md border border-[#6b5c56] cursor-pointer">
-      <Button onClick={handleCancelClick} className="text-black text-sm font-medium leading-normal bg-white hover:bg-white">Cancel</Button>
+      <Button
+        onClick={handleCancelClick}
+        className="text-black text-sm font-medium leading-normal bg-white hover:bg-white">
+        Cancel
+      </Button>
     </div>
   );
 };
@@ -92,7 +96,7 @@ const handleDeleteProject = async (project_id: string, auth: string) => {
   } catch (error) {
     console.error('Error deleting project:', error);
   }
-}
+};
 
 const MenuBar = ({ project_id }: ProjectOverviewProps) => {
   const [ProjectOwner, setProjectOwner] = useState<UsersProps[]>([]);
@@ -100,7 +104,6 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
   const [endDate, setEndDate] = useState<Date | null>(null);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
-
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -162,7 +165,6 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
             ))}
           </div>
         </TooltipProvider>
-
       </div>
       <div aria-label="tag" className="justify-start items-center inline-flex flex-wrap w-full">
         {/* Label Zone */}
@@ -259,7 +261,7 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
       console.error('Error adding task:', error);
     }
     console.info('Adding task to project:', project_id);
-  }
+  };
 
   return (
     <div className="h-[414px] px-20 flex-col justify-start items-start gap-[18px] inline-flex w-full">
@@ -268,7 +270,7 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
       </div>
       <div className="self-stretch justify-center items-start gap-7 inline-flex">
         <div className="grow shrink basis-0 h-[348px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start inline-flex">
-            <form className="self-stretch h-[82px] flex-col justify-start items-start gap-[18px] flex">
+          <form className="self-stretch h-[82px] flex-col justify-start items-start gap-[18px] flex">
             <Input
               className="resize-none border-none w-full outline-none placeholder-black font-semibold text-3xl font-Anuphan leading-[48px]"
               placeholder="Project title"
@@ -279,10 +281,9 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
               placeholder="Project description"
               onChange={(e) => setDescription(e.target.value)}
             />
-            </form>
+          </form>
           <div className="self-stretch h-[104px] flex-col justify-center items-end gap-3 flex">
             <div className="self-stretch h-[52px] flex-col justify-center items-start gap-3 flex">
-            </div>
             <div className="justify-start items-start gap-3 inline-flex">
               <CancelButton project_id={project_id} auth={auth} />
               <Dialog>
@@ -328,13 +329,12 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
                                 Cancel
                               </Button>
                             </DialogTrigger>
-                          <Button
-                            variant="destructive"
-                            className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex"
-                            onClick={() => handleAddTask(id, auth)}
-                          >
-                            Add Task
-                          </Button>
+                            <Button
+                              variant="destructive"
+                              className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex"
+                              onClick={() => handleAddTask(id, auth)}>
+                              Add Task
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -353,7 +353,7 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
                             { name: 'จ้างงานนอกเวลา', icon: '🌙' },
                           ].map((template) => (
                             // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
-<div
+                            <div
                               key={template.name}
                               className="p-4 bg-white border rounded-md hover:shadow-md"
                               onClick={() => handleTemplateSelect(template.name)} // Set template on click
