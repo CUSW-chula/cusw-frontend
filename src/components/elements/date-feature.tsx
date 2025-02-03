@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
-import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
+import BASE_URL, { BASE_SOCKET, type Task, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 
 interface DateInterface {
@@ -18,7 +18,7 @@ interface DateInterface {
   endDate: Date | null;
 }
 
-function DatePickerWithRange({ task_id }: TaskManageMentProp) {
+function DatePickerWithRange({ task }: { task: Task }) {
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: new Date(),
     to: new Date(),
@@ -43,19 +43,23 @@ function DatePickerWithRange({ task_id }: TaskManageMentProp) {
 
   React.useEffect(() => {
     // Fetch Data
-    const fetchDate = async () => {
-      const curDate = await fetch(`${BASE_URL}/tasks/date/${task_id}`, {
-        headers: {
-          Authorization: auth,
-        },
-      });
-      const initDate = await curDate.json();
-      const from = initDate[0];
-      const to = initDate[1];
-      setDate({ from, to });
-    };
+    // const fetchDate = async () => {
+    //   const curDate = await fetch(`${BASE_URL}/tasks/date/${task_id}`, {
+    //     headers: {
+    //       Authorization: auth,
+    //     },
+    //   });
+    //   const initDate = await curDate.json();
+    //   const from = initDate[0];
+    //   const to = initDate[1];
+    //   setDate({ from, to });
+    // };
 
-    fetchDate();
+    // fetchDate();
+
+    const from = task.startDate;
+    const to = task.endDate;
+    setDate({ from, to });
 
     const ws = new WebSocket(BASE_SOCKET);
 
@@ -92,7 +96,7 @@ function DatePickerWithRange({ task_id }: TaskManageMentProp) {
     return () => {
       ws.close();
     };
-  }, [parseJsonValue, task_id, auth]);
+  }, [parseJsonValue, task]);
 
   // useEffect to handle inputValue when date change
   React.useEffect(() => {
@@ -138,7 +142,7 @@ function DatePickerWithRange({ task_id }: TaskManageMentProp) {
       headers: { 'Content-Type': 'application/json', Authorization: auth },
       // body: `{"taskID":"${task_id}", "startDate":"${range?.from}", "endDate":"${range?.to}"}`
       body: JSON.stringify({
-        taskID: task_id,
+        taskID: task.id,
         startDate: from ? from : null,
         endDate: to ? to : null,
       }),
@@ -167,7 +171,7 @@ function DatePickerWithRange({ task_id }: TaskManageMentProp) {
       headers: { 'Content-Type': 'application/json', Authorization: auth },
       // body: `{"taskID":"${task_id}", "startDate":"${range?.from}", "endDate":"${range?.to}"}`
       body: JSON.stringify({
-        taskID: task_id,
+        taskID: task.id,
         startDate: range?.from ? range.from : null,
         endDate: range?.to ? range.to : null,
       }),

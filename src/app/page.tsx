@@ -12,23 +12,21 @@ const BASE_URL =
 const Home = () => {
   const router = useRouter();
   const handleSignIn = async () => {
-    const url = `${BASE_URL}/sign/cm0siagz300003mbv5bsz6wty`;
+    const url = `${BASE_URL}/sign/cm5uysrcm0006lri8brf9812i`;
     const options = { method: 'GET' };
     try {
       const response = await fetch(url, options);
       const data = await response.text();
       const token = `Bearer ${data}`;
       setCookie('auth', token);
-      router.push('/projects/cm24w5yu000008tlglutu5czu');
+      router.push('/projects');
     } catch (error) {
       console.error(error);
     }
   };
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <Button onClick={handleSignIn} className="flex items-center gap-2">
-        Sign in with Google
-      </Button>
+    <div className="fixed inset-0 flex items-center justify-center">
+      <Button onClick={handleSignIn}>Sign in with Google</Button>
     </div>
   );
 };

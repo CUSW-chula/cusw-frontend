@@ -13,7 +13,7 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
+import BASE_URL, { BASE_SOCKET, type Task, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { Badge } from '@/components/ui/badge';
 
@@ -23,7 +23,7 @@ interface Tags {
 }
 
 // Mock data
-export function ButtonAddTags({ task_id }: TaskManageMentProp) {
+export function ButtonAddTags({ task }: { task: Task }) {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [open, setOpen] = React.useState(false);
@@ -58,26 +58,28 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
       }
     };
 
-    const fetchSelectedTags = async () => {
-      const url = `${BASE_URL}/tags/getassigntag/${task_id}`;
-      const options = {
-        method: 'GET',
-        headers: {
-          Authorization: auth,
-        },
-      };
+    // const fetchSelectedTags = async () => {
+    //   const url = `${BASE_URL}/tags/getassigntag/${task_id}`;
+    //   const options = {
+    //     method: 'GET',
+    //     headers: {
+    //       Authorization: auth,
+    //     },
+    //   };
 
-      try {
-        const response = await fetch(url, options);
-        const data = await response.json();
-        setSelectedTags(data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
+    //   try {
+    //     const response = await fetch(url, options);
+    //     const data = await response.json();
+    //     setSelectedTags(data);
+    //   } catch (error) {
+    //     console.error(error);
+    //   }
+    // };
+
+    setSelectedTags(task.tags);
 
     fetchTags();
-    fetchSelectedTags();
+    //fetchSelectedTags();
 
     const ws = new WebSocket(BASE_SOCKET);
 
@@ -112,7 +114,7 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue, task_id, auth]);
+  }, [pareJsonValue, task, auth]);
 
   const handleSelectTag = async (value: string) => {
     const selected = statuses.find((status) => status.name === value);
@@ -121,7 +123,7 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
       const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: JSON.stringify({ taskId: task_id, tagId: selected.id }),
+        body: JSON.stringify({ taskId: task.id, tagId: selected.id }),
       };
 
       try {
@@ -139,7 +141,7 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
     const options = {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json', Authorization: auth },
-      body: JSON.stringify({ taskId: task_id, tagId: value }),
+      body: JSON.stringify({ taskId: task.id, tagId: value }),
     };
 
     try {
@@ -160,7 +162,7 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
               <Badge
                 key={tag.id}
                 variant="destructive"
-                className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0]  mr-1 mt-1 mb-1">
+                className="h-10 min-w-fit flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mb-1">
                 <span className="text-base font-medium font-BaiJamjuree">{tag.name}</span>
                 <button
                   type="button"

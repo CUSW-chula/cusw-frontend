@@ -442,7 +442,7 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
 
   return (
     <div>
-      <div className="flex items-center border-l-4 border-blue-200 pl-2 py-1">
+      <div className="flex items-center py-1">
         <div className="flex items-center gap-2">
           <button
             type="button"

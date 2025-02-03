@@ -2,16 +2,21 @@ export interface CommentBoxProp {
   id: string;
   content: string;
   taskId: string;
-  authorId: string;
+  name: string;
   createdAt: Date;
   isDelete: boolean;
   editTime: Date | null;
 }
 
 export interface Status {
+  status: string;
+  displayName: string;
+  icon: string;
+}
+
+export interface ProjectTagProp {
   value: string;
   label: string;
-  icon: string;
 }
 
 export interface TaskManageMentProp {
@@ -21,6 +26,63 @@ export interface TaskManageMentProp {
 export interface TaskManageMentOverviewProp {
   project_id: string;
 }
+
+export interface ProjectOverviewProps {
+  project_id: string;
+}
+
+export type Project = {
+  id: string;
+  title: string;
+  description: string;
+  budget: number;
+  advance: number;
+  expense: number;
+  startDate: Date;
+  endDate: Date;
+  createdById: string;
+  owner: User[];
+  members: User[];
+  tags: Tag[];
+};
+
+export type Task = {
+  id: string;
+  title: string;
+  description: string;
+  status: Status;
+  projectId: string;
+  parentTaskId: string | null;
+  createdById: string | null;
+  creator: User | null;
+  members: User[];
+  tags: Tag[];
+  budget: number;
+  advance: number;
+  expense: number;
+  startDate: Date | undefined;
+  endDate: Date | undefined;
+  subtasks: Task[];
+  emojis: Emojis[];
+};
+
+export type Emojis = {
+  id: string;
+  emoji: string;
+  taskId: string;
+  user: User;
+};
+
+export type Tag = {
+  id: string;
+  name: string;
+};
+
+export type User = {
+  id: string;
+  email: string;
+  name: string;
+};
 
 export const BASE_SOCKET =
   process.env.NODE_ENV === 'production'

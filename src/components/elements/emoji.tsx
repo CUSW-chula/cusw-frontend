@@ -3,11 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import dynamic from 'next/dynamic';
 import { SmilePlus } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import type { EmojiClickData } from 'emoji-picker-react';
-import type { TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
-import BASE_URL, { BASE_SOCKET } from '@/lib/shared';
+import BASE_URL, { BASE_SOCKET, type Emojis, type User } from '@/lib/shared';
+import { jwtDecode, type JwtPayload } from 'jwt-decode';
 
 const Picker = dynamic(
   () => {
@@ -16,49 +16,42 @@ const Picker = dynamic(
   { ssr: true },
 );
 
+interface CustomJwtPayload extends JwtPayload {
+  id: string;
+}
+interface taskEmoji {
+  emoji: {
+    id: string;
+    emoji: Emojis[];
+  };
+}
 interface EmojiTaskUser {
   id: string;
   emoji: string;
   userId: string;
   taskId: string;
 }
-async function getName(authorId: string, auth: string) {
-  try {
-    const response = await fetch(`${BASE_URL}/users/${authorId}`, {
-      headers: {
-        Authorization: auth,
-      },
-    });
-    if (!response.ok) {
-      throw new Error(`Error: ${response.statusText}`);
-    }
-    const data = await response.json();
-    return data.name;
-  } catch (error) {
-    console.error('Failed to fetch user name:', error);
-    return 'Unknown'; // Handle error gracefully
-  }
-}
-function EmojiUser({ emoji, id, userId }: EmojiTaskUser) {
-  const [name, setName] = useState('');
-  const cookie = getCookie('auth');
-  const auth = cookie?.toString() ?? '';
-  useEffect(() => {
-    getName(userId, auth).then(setName);
-  }, [userId, auth]);
-  return (
-    <div key={id} className="flex py-1 justify-between">
-      <p className="body self-center">{name}</p>
-      <p className="text-[24px]">{emoji}</p>
-    </div>
-  );
-}
-const Emoji = ({ task_id }: TaskManageMentProp) => {
-  const [emojis, setEmojis] = React.useState<EmojiTaskUser[]>([]);
-  const cookie = getCookie('auth');
-  const auth = cookie?.toString() ?? '';
 
-  const pareJsonValue = React.useCallback((values: EmojiTaskUser) => {
+const Emoji = ({ emoji }: taskEmoji) => {
+  const [emojis, setEmojis] = useState<EmojiTaskUser[]>([]);
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
+  const task_id = emoji.id;
+
+  useEffect(() => {
+    const transformedEmojis = Array.isArray(emoji.emoji)
+      ? emoji.emoji.map((e) => ({
+          id: e.id,
+          emoji: e.emoji,
+          taskId: e.taskId,
+          userId: e.user.id, // Extract user ID
+        }))
+      : [];
+
+    setEmojis(transformedEmojis);
+  }, [emoji.emoji]);
+
+  const pareJsonValue = useCallback((values: EmojiTaskUser) => {
     return {
       id: values.id,
       emoji: values.emoji,
@@ -67,43 +60,56 @@ const Emoji = ({ task_id }: TaskManageMentProp) => {
     };
   }, []);
 
-  React.useEffect(() => {
-    const getEmoji = async () => {
-      const url = `${BASE_URL}/tasks/emoji/${task_id}`;
-      const options = {
-        method: 'GET',
+  async function getName(authorId: string) {
+    try {
+      const response = await fetch(`${BASE_URL}/v1/users/${authorId}`, {
         headers: {
           Authorization: auth,
         },
-      };
-      try {
-        const response = await fetch(url, options);
-        const data = await response.json();
-        setEmojis(Array.isArray(data) ? data : []);
-      } catch (error) {
-        console.error(error);
-        setEmojis([]); // Ensure emojis is empty on error
+      });
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
       }
-    };
+      const data = await response.json();
+      return data.name;
+    } catch (error) {
+      console.error('Failed to fetch user name:', error);
+      return 'Unknown';
+    }
+  }
 
-    getEmoji();
+  const EmojiUser = ({ emoji, id, userId }: EmojiTaskUser) => {
+    const [userName, setUserName] = useState<string>('Loading...');
 
+    useEffect(() => {
+      const fetchUserName = async () => {
+        const name = await getName(userId);
+        setUserName(name);
+      };
+
+      fetchUserName();
+    }, [userId]);
+
+    return (
+      <div key={id} className="flex py-1 justify-between">
+        <p className="body self-center">{userName}</p>
+        <p className="text-[24px]">{emoji}</p>
+      </div>
+    );
+  };
+
+  useEffect(() => {
     const ws = new WebSocket(BASE_SOCKET);
-
     ws.onopen = () => {
       console.log('Connected to WebSocket');
     };
-
     ws.onmessage = (event) => {
       console.log('Message received:', event.data);
-
       try {
         const socketEvent = JSON.parse(event.data);
-        const eventName = socketEvent.eventName;
         const newEmoji = pareJsonValue(socketEvent.data);
-
         setEmojis((prevEmojis) => {
-          if (eventName === 'addEmoji') {
+          if (socketEvent.eventName === 'addEmoji') {
             return [newEmoji, ...prevEmojis];
           }
           return prevEmojis.map((prevEmoji) =>
@@ -114,22 +120,24 @@ const Emoji = ({ task_id }: TaskManageMentProp) => {
         console.error('Error parsing WebSocket message:', error);
       }
     };
-
     ws.onclose = () => {
       console.log('WebSocket connection closed');
     };
-
     return () => {
       ws.close();
     };
-  }, [pareJsonValue, auth, task_id]);
+  }, [pareJsonValue]);
 
   const handleEmojiActions = async (emojiData: EmojiClickData) => {
     const emoji = emojiData.emoji;
     const taskId = task_id;
-    const userId = 'cm0siagz300003mbv5bsz6wty';
-    const url = `${BASE_URL}/tasks/emoji`;
-    const checkResponse = await fetch(`${url}/${taskId}/${userId}`, {
+    const getUserDataFromCookie = () => {
+      const decoded = jwtDecode<CustomJwtPayload>(auth);
+      return decoded;
+    };
+    const userData = getUserDataFromCookie();
+    const url = `${BASE_URL}/v1/tasks/emoji`;
+    const checkResponse = await fetch(`${BASE_URL}/v1/tasks/emoji/${taskId}/${userData.id}`, {
       headers: {
         Authorization: auth,
       },
@@ -140,7 +148,7 @@ const Emoji = ({ task_id }: TaskManageMentProp) => {
       headers: { 'Content-Type': 'application/json', Authorization: auth },
       body: JSON.stringify({
         taskId: taskId,
-        userId: userId,
+        userId: userData.id,
         emoji: emoji,
       }),
     };
@@ -163,7 +171,7 @@ const Emoji = ({ task_id }: TaskManageMentProp) => {
     <div className="flex texts-center justify-center">
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="rounded-full p-2 border-brown border-none">
+          <Button variant="outline" className="rounded-full p-2 border-none">
             <SmilePlus className="text-brown" />
           </Button>
         </PopoverTrigger>
@@ -176,7 +184,7 @@ const Emoji = ({ task_id }: TaskManageMentProp) => {
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="rounded-full min-w-[20px] w-fit h-[32px] border-brown border-none">
+              className="rounded-full min-w-[20px] w-fit h-[32px] border-none">
               <ul>
                 {sortedEmojis.slice(0, 8).map((emojiData) => (
                   <span key={emojiData.id} className="text-[16px]">

@@ -1,16 +1,20 @@
 'use client';
 
 import { Money } from './money';
-import { CrownIcon, Users, Tag, Calendar, Trash2, DollarSign } from 'lucide-react';
+import { CrownIcon, Users, Tag, Calendar, Trash2, DollarSign, Weight } from 'lucide-react';
 import StatusButton from './status-botton';
 import StatusLabel from './status-label';
 import { ProjectOwner } from './project-owner';
 import { AssignedTaskToMember } from './assigned-task';
 import { ButtonAddTags } from './button-add-tag';
-import type { TaskManageMentProp } from '@/lib/shared';
+import type { Task } from '@/lib/shared';
 import { DatePickerWithRange } from './date-feature';
 
-const MenuBar = ({ task_id }: TaskManageMentProp) => {
+interface MenubarProps {
+  task: Task;
+}
+
+const MenuBar = ({ task }: MenubarProps) => {
   return (
     <div className="min-h-[400px] w-[360px] p-[20px] bg-white rounded-md border border-[#6b5c56] flex-col justify-center items-start gap-4 inline-flex">
       <div aria-label="status" className="h-10 justify-start items-center inline-flex">
@@ -22,7 +26,7 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
           </div>
         </div>
         {/* Content */}
-        <StatusButton task_id={task_id} />
+        <StatusButton task={task} />
       </div>
 
       <div aria-label="owner" className="h-10 justify-start items-center inline-flex">
@@ -44,25 +48,28 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
           {/* Icon */}
           <Users className="w-6 h-6 relative text-brown" />
           {/* Describtion */}
-          <div className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight">
+          <div className="text-brown text-xs font-medium font-['Bai Jamjuree'] leading-tight">
             Member :{' '}
           </div>
         </div>
-        <AssignedTaskToMember task_id={task_id} />
+        <AssignedTaskToMember task={task} />
       </div>
 
-      <div aria-label="tag" className="justify-start items-center inline-flex flex-wrap w-full">
+      <div aria-label="tag" className="inline-flex justify-start items-start w-full">
         {/* Label Zone */}
-        <div className="w-24 justify-start items-center gap-2 flex self-start ">
-          {/* Icon */}
-          <Tag className="w-6 h-6 relative text-brown" />
-          {/* Description */}
-          <div className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight text-center ">
-            Tag :{' '}
+        <div>
+          <div className="flex w-24 h-10 items-center gap-2">
+            {/* Icon & text */}
+            <Tag className="w-6 h-6 relative text-brown" />
+            <p className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight">
+              Tag :
+            </p>
           </div>
         </div>
-        <div>
-          <ButtonAddTags task_id={task_id} />
+        {/* Description */}
+        <div className="flex flex-wrap w-full">
+          {' '}
+          <ButtonAddTags task={task} />
         </div>
       </div>
 
@@ -91,7 +98,7 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
             Date :{' '}
           </div>
         </div>
-        <DatePickerWithRange task_id={task_id} />
+        <DatePickerWithRange task={task} />
       </div>
     </div>
   );
