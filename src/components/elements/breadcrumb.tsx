@@ -11,22 +11,14 @@ import BASE_URL from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import React from 'react';
 import { useEffect, useState } from 'react';
+import type { TaskProps } from '@/app/types/types';
 
-interface BreadcrumbProps {
-  task_id: string;
-}
-
-export function BreadcrumbComponent({ task_id }: BreadcrumbProps) {
-  interface Task {
-    id: string;
-    title: string;
-    project_id: string;
-  }
+export function BreadcrumbComponent({ task }: { task: TaskProps }) {
   interface Project {
     id: string;
     title: string;
   }
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasks, setTasks] = useState<TaskProps[]>([]);
   const [project, setProject] = useState<Project | null>(null);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
@@ -34,7 +26,7 @@ export function BreadcrumbComponent({ task_id }: BreadcrumbProps) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/v2/tasks/parent-recursive/${task_id}`, {
+        const response = await fetch(`${BASE_URL}/v2/tasks/parent-recursive/${task.id}`, {
           headers: {
             Authorization: auth,
           },
@@ -63,7 +55,7 @@ export function BreadcrumbComponent({ task_id }: BreadcrumbProps) {
       }
     };
     fetchData();
-  }, [task_id, auth]);
+  }, [task.id, auth]);
 
   return (
     <div>

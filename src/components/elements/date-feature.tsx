@@ -11,6 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Input } from '@/components/ui/input';
 import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
+import type { TaskProps } from '@/app/types/types';
 
 interface DateInterface {
   id: string;
@@ -18,7 +19,7 @@ interface DateInterface {
   endDate: Date | null;
 }
 
-function DatePickerWithRange({ task_id }: TaskManageMentProp) {
+function DatePickerWithRange({ task }: { task: TaskProps }) {
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: new Date(),
     to: new Date(),
@@ -44,7 +45,7 @@ function DatePickerWithRange({ task_id }: TaskManageMentProp) {
   React.useEffect(() => {
     // Fetch Data
     const fetchDate = async () => {
-      const curDate = await fetch(`${BASE_URL}/tasks/date/${task_id}`, {
+      const curDate = await fetch(`${BASE_URL}/v1/tasks/date/${task.id}`, {
         headers: {
           Authorization: auth,
         },
@@ -92,7 +93,7 @@ function DatePickerWithRange({ task_id }: TaskManageMentProp) {
     return () => {
       ws.close();
     };
-  }, [parseJsonValue, task_id, auth]);
+  }, [parseJsonValue, task.id, auth]);
 
   // useEffect to handle inputValue when date change
   React.useEffect(() => {
@@ -138,7 +139,7 @@ function DatePickerWithRange({ task_id }: TaskManageMentProp) {
       headers: { 'Content-Type': 'application/json', Authorization: auth },
       // body: `{"taskID":"${task_id}", "startDate":"${range?.from}", "endDate":"${range?.to}"}`
       body: JSON.stringify({
-        taskID: task_id,
+        taskID: task.id,
         startDate: from ? from : null,
         endDate: to ? to : null,
       }),
@@ -167,7 +168,7 @@ function DatePickerWithRange({ task_id }: TaskManageMentProp) {
       headers: { 'Content-Type': 'application/json', Authorization: auth },
       // body: `{"taskID":"${task_id}", "startDate":"${range?.from}", "endDate":"${range?.to}"}`
       body: JSON.stringify({
-        taskID: task_id,
+        taskID: task.id,
         startDate: range?.from ? range.from : null,
         endDate: range?.to ? range.to : null,
       }),

@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import BASE_URL, { type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
+import type { TaskProps } from '@/app/types/types';
 
 interface Files {
   id: string;
@@ -74,12 +75,12 @@ function formatDate(_date: Date): string {
   return `${day}/${month}/${year}, ${hours}:${minutes}`;
 }
 
-const Uploadfile = ({ task_id }: TaskManageMentProp) => {
+const Uploadfile = ({ task }: { task: TaskProps }) => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const handleFile = async (file: File) => {
     const formData = new FormData();
-    formData.append('taskId', task_id);
+    formData.append('taskId', task.id);
     formData.append('file', file);
     const url = `${BASE_URL}/v2/file/`;
     const options = {

@@ -3,17 +3,7 @@ import { useEffect, useState } from 'react';
 import { getCookie } from 'cookies-next';
 import BASE_URL, { type TaskManageMentOverviewProp } from '@/lib/shared';
 import type { TaskProps, TagProps } from '@/app/types/types';
-import {
-  Money,
-  Tag,
-  Assigned,
-  TaskDate,
-  ExportDialog,
-  TaskTitle,
-  Filter,
-  Sort,
-  CreateTask,
-} from './taskManagement';
+import { Task, ExportDialog, Filter, Sort, CreateTask } from './taskManagement';
 import { parseJsonValues, statusSections } from '@/lib/taskUtils';
 
 const cookie = getCookie('auth');
@@ -23,7 +13,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   const [tasks, setTasks] = useState<TaskProps[]>([]);
   const [showTasks, setShowTasks] = useState<TaskProps[]>([]);
   const [projectName, setProjectName] = useState<string>('');
-  const [expandedTaskIds, setExpandedTaskIds] = useState<Set<string>>(new Set()); //Set of taskID that have been expanded
   const [allTags, setAllTags] = useState<TagProps[]>([]);
 
   useEffect(() => {
@@ -84,44 +73,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     );
   };
 
-  const Task = ({ item, depth = 0 }: { item: TaskProps; depth?: number }) => {
-    const hasChildren = item.subtasks && item.subtasks.length > 0;
-    return (
-      <>
-        <div className="flex items-center hover:bg-gray-50">
-          <div
-            className="flex items-center w-full h-fit my-1.5"
-            style={{ marginLeft: `${depth * 24 + 24}px` }}>
-            <TaskTitle
-              item={item}
-              expandedTaskIds={expandedTaskIds}
-              setExpandedTaskIds={setExpandedTaskIds}
-            />
-
-            <div className="w-5/12 flex gap-1 relative justify-end items-center">
-              <Tag item={item} />
-              <Money item={item} />
-              <Assigned item={item} />
-              <TaskDate item={item} />
-            </div>
-          </div>
-        </div>
-
-        {hasChildren && expandedTaskIds.has(item.id) && (
-          <div>
-            {item.subtasks?.map((child) => (
-              <Task
-                key={child.id}
-                item={child}
-                depth={depth + 1} // Increase depth for child tasks
-              />
-            ))}
-          </div>
-        )}
-      </>
-    );
-  };
-
   return (
     <div className="h-auto w-full p-11 font-BaiJamjuree bg-white rounded-md border border-brown flex flex-col">
       <header className="h-9 text-black text-3xl font-semibold leading-9 mb-6">
@@ -140,7 +91,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
             {showTasks
               .filter((item) => item.status === status) // Match with the status property
               .map((item) => (
-                <Task key={item.id} item={item} />
+                <Task key={item.id} item={item} hiddenDate={false} />
               ))}
           </div>
         </div>
