@@ -10,7 +10,7 @@ export default function NavBar() {
     <>
       {url !== '/' && (
         <div className="flex flex-row min-w-full h-[84px] justify-between items-center">
-          <a href="/projects/">
+          <a href="/projects">
             <img src="/asset/logo/Logo_s2.svg" alt="CUSW" />
           </a>
           <div className="flex flex-row px-5">

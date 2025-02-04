@@ -102,8 +102,8 @@ export function AssignedTaskToMember({ task_id }: TaskManageMentProp) {
       const isAlreadySelected = selectedUser.some((user) => user.id === selected.id);
 
       const url = isAlreadySelected
-        ? `${BASE_URL}/v1/tasks/unassigned` // Unassign user
-        : `${BASE_URL}/v1/tasks/assign`; // Assign user
+        ? `${BASE_URL}/v2/tasks/unassigned` // Unassign user
+        : `${BASE_URL}/v2/tasks/assign`; // Assign user
 
       const options = {
         method: isAlreadySelected ? 'DELETE' : 'POST',
