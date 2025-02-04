@@ -1,22 +1,17 @@
 import dynamic from 'next/dynamic';
-import ActivityLogs from '@/components/elements/activity-logs';
-import Comment from '@/components/elements/comment';
-import { MenuBar } from '@/components/elements/menu-bar';
+import { MenuBar } from '@/app/tasks/_components/menu-bar';
 import { BreadcrumbComponent } from '@/components/elements/breadcrumb';
 import { BackButton } from '@/components/elements/backButton';
 import Subtask from '@/components/elements/subtask';
-import { DeleteTask } from '@/components/elements/deleteTask';
-import BASE_URL, { type Task, type Emojis } from '@/lib/shared';
+import BASE_URL, { type Emojis } from '@/lib/shared';
 import { cookies } from 'next/headers';
-import { Uploadfile } from '@/components/elements/uploadfile';
-import Emoji from '@/components/elements/emoji';
 import type { TaskProps } from '@/app/types/types';
+import { Uploadfile } from '@/components/elements/uploadfile';
+import { Comment } from '@/components/elements/comment';
+import ActivityLogs from '@/app/tasks/_components/activity-logs';
+import { DeleteTask } from '@/app/tasks/_components/deleteTask';
+import Emoji from '@/components/elements/emoji';
 
-interface TaskManageMentProp {
-  params: {
-    task_id: string;
-  };
-}
 interface Workspace {
   id: string;
   title: string;
@@ -28,7 +23,11 @@ interface taskEmoji {
   emoji: Emojis[];
 }
 
-export default async function TasksManageMentPage({ params }: TaskManageMentProp) {
+export default async function TasksManageMentPage({
+  params,
+}: {
+  params: Promise<{ task_id: string }>;
+}) {
   const Workspace = dynamic(() => import('../../../components/elements/workspace'), {
     ssr: true,
   });
@@ -52,17 +51,12 @@ export default async function TasksManageMentPage({ params }: TaskManageMentProp
     description: task.description,
   };
 
-  // const emoji: taskEmoji = {
-  //   id: task.id,
-  //   emoji: task.emojis,
-  // };
-
   return (
     <div className="min-w-full min-h-screen flex-col items-start justify-center gap-8 ">
       {/* page nav */}
       <div className="flex flex-row py-4 items-center justify-between">
-        <BreadcrumbComponent task_id={task_id} />
-        <BackButton task_id={task_id} />
+        <BreadcrumbComponent task={task} />
+        <BackButton task={task} />
       </div>
 
       {/* page content */}
@@ -71,20 +65,23 @@ export default async function TasksManageMentPage({ params }: TaskManageMentProp
         <div className="w-full rounded-[6px] p-5 border-brown border-[1px] bg-white">
           <Workspace workspace={workspace} />
           <div className="flex justify-between">
-            {/* <Emoji emoji={emoji} />
-            <Uploadfile task_id={task_id} /> */}
+            {/* <Emoji task={task} /> */}
+            <Uploadfile task={task} />
           </div>
           <div className="flex flex-col gap-4 mt-4">
             <Subtask task={task} />
-            {/* <ActivityLogs task_id={task_id} />
-            <Comment task_id={task_id} /> */}
+            <ActivityLogs task={task} />
+            <Comment task={task} />
           </div>
         </div>
 
         {/* Right Section */}
         <div className="flex flex-col w-fit gap-4">
           <MenuBar task={task} />
-          <div className="inline-flex justify-end">{/* <DeleteTask task={task} /> */}</div>
+          <div className="inline-flex justify-end">
+            {' '}
+            <DeleteTask task={task} />
+          </div>
         </div>
       </div>
     </div>

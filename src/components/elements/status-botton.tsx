@@ -9,6 +9,7 @@ import { selectedStatusAtom } from '@/atom';
 import BASE_URL, { BASE_SOCKET, type Status, type TaskManageMentProp } from '@/lib/shared';
 import React from 'react';
 import { getCookie } from 'cookies-next';
+import type { TaskProps } from '@/app/types/types';
 
 const Unassigned = '/asset/icon/unassigned.svg';
 const Assigned = '/asset/icon/assigned.svg';
@@ -44,65 +45,65 @@ const statuses: Status[] = [
   },
 ];
 
-export function StatusButton({ task_id }: TaskManageMentProp) {
+export function StatusButton({ task }: { task: TaskProps }) {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [open, setOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useAtom<Status>(selectedStatusAtom);
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  const parseJsonValue = useCallback((values: any) => {
-    const newValue: Status = {
-      value: values.status,
-      label: values.status,
-      icon: `/asset/icon/${values.status.toLowerCase()}.svg`,
-    };
-    return newValue;
-  }, []);
+  // const parseJsonValue = useCallback((values: any) => {
+  //   const newValue: Status = {
+  //     value: values.status,
+  //     label: values.status,
+  //     icon: `/asset/icon/${values.status.toLowerCase()}.svg`,
+  //   };
+  //   return newValue;
+  // }, []);
 
-  useEffect(() => {
-    const fetchStatus = async (taskId: string) => {
-      const url = `${BASE_URL}/tasks/status/${taskId}`;
-      const options = { method: 'GET', headers: { Authorization: auth } };
+  // useEffect(() => {
+  //   const fetchStatus = async (taskId: string) => {
+  //     const url = `${BASE_URL}/tasks/status/${taskId}`;
+  //     const options = { method: 'GET', headers: { Authorization: auth } };
 
-      try {
-        const response = await fetch(url, options);
-        const data = await response.json();
-        const selected = statuses.find((s) => s.value === data);
-        if (selected) setSelectedStatus(selected);
-      } catch (error) {
-        console.error(error);
-      }
-    };
+  //     try {
+  //       const response = await fetch(url, options);
+  //       const data = await response.json();
+  //       const selected = statuses.find((s) => s.value === data);
+  //       if (selected) setSelectedStatus(selected);
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
 
-    fetchStatus(task_id);
+  //   fetchStatus(task_id);
 
-    const ws = new WebSocket(BASE_SOCKET);
+  //   const ws = new WebSocket(BASE_SOCKET);
 
-    ws.onopen = () => console.log('Connected to WebSocket');
+  //   ws.onopen = () => console.log('Connected to WebSocket');
 
-    ws.onmessage = (event) => {
-      console.log('Message received:', event.data);
+  //   ws.onmessage = (event) => {
+  //     console.log('Message received:', event.data);
 
-      try {
-        const socketEvent = JSON.parse(event.data);
-        const eventName = socketEvent.eventName;
-        const data = parseJsonValue(socketEvent.data);
+  //     try {
+  //       const socketEvent = JSON.parse(event.data);
+  //       const eventName = socketEvent.eventName;
+  //       const data = parseJsonValue(socketEvent.data);
 
-        if (eventName === 'status-changed') {
-          setSelectedStatus(data);
-        }
-      } catch (error) {
-        console.error('error parsing websocket message: ', error);
-      }
-    };
+  //       if (eventName === 'status-changed') {
+  //         setSelectedStatus(data);
+  //       }
+  //     } catch (error) {
+  //       console.error('error parsing websocket message: ', error);
+  //     }
+  //   };
 
-    ws.onclose = () => {
-      console.log('websocket connection closed');
-    };
+  //   ws.onclose = () => {
+  //     console.log('websocket connection closed');
+  //   };
 
-    return () => ws.close();
-  }, [setSelectedStatus, auth, parseJsonValue, task_id]);
+  //   return () => ws.close();
+  // }, [setSelectedStatus, auth, parseJsonValue, task_id]);
 
   const handleSelectStatus = async (status: Status) => {
     setSelectedStatus(status);
@@ -112,7 +113,7 @@ export function StatusButton({ task_id }: TaskManageMentProp) {
       method: 'PATCH',
       headers: { Authorization: auth, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        taskId: task_id,
+        taskId: task.id,
         newTaskStatus: status.value,
       }),
     };

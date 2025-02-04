@@ -11,21 +11,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '../ui/alert-dialog';
+} from '@/components/ui/alert-dialog';
 import { getCookie } from 'cookies-next';
 import { useRouter } from 'next/navigation';
 import BASE_URL from '@/lib/shared';
+import type { TaskProps } from '@/app/types/types';
 
 interface DeleteTaskProps {
   task_id: string;
 }
 
-export const DeleteTask: React.FC<DeleteTaskProps> = ({ task_id }) => {
+export const DeleteTask = ({ task }: { task: TaskProps }) => {
   const router = useRouter();
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const handleDeleteTask = async () => {
-    const url = `${BASE_URL}/tasks/${task_id}`;
+    const url = `${BASE_URL}/tasks/${task.id}`;
     const options = { method: 'DELETE', headers: { Authorization: auth } };
 
     try {

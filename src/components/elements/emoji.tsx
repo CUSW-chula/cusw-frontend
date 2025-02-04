@@ -8,6 +8,7 @@ import type { EmojiClickData } from 'emoji-picker-react';
 import { getCookie } from 'cookies-next';
 import BASE_URL, { BASE_SOCKET, type Emojis, type User } from '@/lib/shared';
 import { jwtDecode, type JwtPayload } from 'jwt-decode';
+import type { TaskProps } from '@/app/types/types';
 
 const Picker = dynamic(
   () => {
@@ -19,12 +20,12 @@ const Picker = dynamic(
 interface CustomJwtPayload extends JwtPayload {
   id: string;
 }
-interface taskEmoji {
-  emoji: {
-    id: string;
-    emoji: Emojis[];
-  };
-}
+// interface taskEmoji {
+//   emoji: {
+//     id: string;
+//     emoji: Emojis[];
+//   };
+// }
 interface EmojiTaskUser {
   id: string;
   emoji: string;
@@ -32,24 +33,26 @@ interface EmojiTaskUser {
   taskId: string;
 }
 
-const Emoji = ({ emoji }: taskEmoji) => {
-  const [emojis, setEmojis] = useState<EmojiTaskUser[]>([]);
+// const Emoji = ({ emoji }: taskEmoji) => {
+const Emoji = ({ task }: { task: TaskProps }) => {
+  const [emojis, setEmojis] = useState<Emojis[]>([]);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
-  const task_id = emoji.id;
+  const task_id = task.id;
 
-  useEffect(() => {
-    const transformedEmojis = Array.isArray(emoji.emoji)
-      ? emoji.emoji.map((e) => ({
-          id: e.id,
-          emoji: e.emoji,
-          taskId: e.taskId,
-          userId: e.user.id, // Extract user ID
-        }))
-      : [];
+  // useEffect(() => {
+  //   const transformedEmojis = Array.isArray(emoji.emoji)
+  //     ? emoji.emoji.map((e) => ({
+  //         id: e.id,
+  //         emoji: e.emoji,
+  //         taskId: e.taskId,
+  //         userId: e.user.id, // Extract user ID
+  //       }))
+  //     : [];
 
-    setEmojis(transformedEmojis);
-  }, [emoji.emoji]);
+  //   setEmojis(transformedEmojis);
+  // }, [emoji.emoji]);
+  setEmojis(task.emojis);
 
   const pareJsonValue = useCallback((values: EmojiTaskUser) => {
     return {
@@ -108,14 +111,14 @@ const Emoji = ({ emoji }: taskEmoji) => {
       try {
         const socketEvent = JSON.parse(event.data);
         const newEmoji = pareJsonValue(socketEvent.data);
-        setEmojis((prevEmojis) => {
-          if (socketEvent.eventName === 'addEmoji') {
-            return [newEmoji, ...prevEmojis];
-          }
-          return prevEmojis.map((prevEmoji) =>
-            prevEmoji.id === newEmoji.id ? newEmoji : prevEmoji,
-          );
-        });
+        // setEmojis((prevEmojis) => {
+        //   if (socketEvent.eventName === 'addEmoji') {
+        //     return [newEmoji, ...prevEmojis];
+        //   }
+        //   return prevEmojis.map((prevEmoji) =>
+        //     prevEmoji.id === newEmoji.id ? newEmoji : prevEmoji,
+        //   );
+        // });
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
       }
@@ -127,6 +130,7 @@ const Emoji = ({ emoji }: taskEmoji) => {
       ws.close();
     };
   }, [pareJsonValue]);
+  setEmojis(task.emojis);
 
   const handleEmojiActions = async (emojiData: EmojiClickData) => {
     const emoji = emojiData.emoji;
@@ -200,7 +204,7 @@ const Emoji = ({ emoji }: taskEmoji) => {
                 <EmojiUser
                   emoji={emojiData.emoji}
                   id={emojiData.id}
-                  userId={emojiData.userId}
+                  userId={emojiData.user.id}
                   taskId={emojiData.taskId}
                   key={emojiData.id}
                 />

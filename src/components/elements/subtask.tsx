@@ -98,7 +98,7 @@ const Subtask = ({ task }: { task: TaskProps }) => {
 
   const handleCreateSubtask = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/tasks/`, {
+      const response = await fetch(`${BASE_URL}/v2/tasks/`, {
         method: 'POST',
         headers: {
           Authorization: auth,
@@ -270,11 +270,11 @@ const Subtask = ({ task }: { task: TaskProps }) => {
           </div>
           <div className="self-stretch h-[92px] flex-col justify-start items-start gap-3 flex">
             <div className="justify-start items-center gap-2 inline-flex">
-              {subtasks.length > 0 && (
+              {subtasks && subtasks.length > 0 && (
                 <>
-                  <StatusButton task_id={subtasks[subtasks.length - 1].id} />
-                  <AssignedTaskToMember task_id={subtasks[subtasks.length - 1].id} />
-                  <ButtonAddTags task_id={subtasks[subtasks.length - 1].id} />
+                  <StatusButton task={subtasks[subtasks.length - 1]} />
+                  <AssignedTaskToMember task={subtasks[subtasks.length - 1]} />
+                  <ButtonAddTags task={subtasks[subtasks.length - 1]} />
                 </>
               )}
             </div>

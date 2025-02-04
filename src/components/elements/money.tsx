@@ -16,12 +16,13 @@ import BASE_URL from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { atom, useAtom, useSetAtom } from 'jotai';
 import { moneyAtom } from '@/atom';
+import type { TaskProps } from '@/app/types/types';
 interface Budget {
   type: string;
   money: number;
 }
 
-const Money = () => {
+const Money = ({ task }: { task: TaskProps }) => {
   enum TypeMoney {
     null = '',
     budget = 'budget',
@@ -42,9 +43,9 @@ const Money = () => {
     type: TypeMoney.null,
     money: budgetList.money,
   });
-  const url = typeof window !== 'undefined' ? window.location.pathname : '';
-  const path = url.split('/');
-  const taskID = path[path.length - 2] === 'tasks' ? path[path.length - 1] : null;
+  // const url = typeof window !== 'undefined' ? window.location.pathname : '';
+  // const path = url.split('/');
+  const taskID = task.id;
 
   const pareJsonValue = React.useCallback(
     (budgetList: { budget: number; advance: number; expense: number }) => {
@@ -63,7 +64,7 @@ const Money = () => {
   useEffect(() => {
     //sent GET method
     const fetchDataGet = async () => {
-      const url = `${BASE_URL}/tasks/money/${taskID}`;
+      const url = `${BASE_URL}/v1/tasks/money/${taskID}`;
       const options = {
         method: 'GET',
         headers: {

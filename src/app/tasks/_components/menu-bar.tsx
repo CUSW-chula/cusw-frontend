@@ -1,14 +1,14 @@
 'use client';
 
-import { Money } from './money';
+import { Money } from '@/components/elements/money';
 import { CrownIcon, Users, Tag, Calendar, Trash2, DollarSign, Weight } from 'lucide-react';
-import StatusButton from './status-botton';
+import StatusButton from '@/components/elements/status-botton';
 import StatusLabel from './status-label';
-import { ProjectOwner } from './project-owner';
-import { AssignedTaskToMember } from './assigned-task';
-import { ButtonAddTags } from './button-add-tag';
+import { ProjectOwner } from '@/components/elements/project-owner';
+import { AssignedTaskToMember } from '@/components/elements/assigned-task';
+import { ButtonAddTags } from '@/components/elements/button-add-tag';
 import type { TaskManageMentProp } from '@/lib/shared';
-import { DatePickerWithRange } from './date-feature';
+import { DatePickerWithRange } from '@/components/elements/date-feature';
 import type { TaskProps } from '@/app/types/types';
 
 const MenuBar = ({ task }: { task: TaskProps }) => {
@@ -23,7 +23,7 @@ const MenuBar = ({ task }: { task: TaskProps }) => {
           </div>
         </div>
         {/* Content */}
-        {/* <StatusButton task_id={task_id} /> */}
+        <StatusButton task={task} />
       </div>
 
       <div aria-label="owner" className="h-10 justify-start items-center inline-flex">
@@ -36,7 +36,7 @@ const MenuBar = ({ task }: { task: TaskProps }) => {
             Owner :{' '}
           </div>
         </div>
-        <ProjectOwner />
+        <ProjectOwner task={task} />
       </div>
 
       <div aria-label="member" className="h-10 justify-start items-center inline-flex">
@@ -49,7 +49,7 @@ const MenuBar = ({ task }: { task: TaskProps }) => {
             Member :{' '}
           </div>
         </div>
-        {/* <AssignedTaskToMember task_id={task_id} /> */}
+        <AssignedTaskToMember task={task} />
       </div>
 
       <div aria-label="tag" className="inline-flex justify-start items-start w-full">
@@ -64,7 +64,10 @@ const MenuBar = ({ task }: { task: TaskProps }) => {
           </div>
         </div>
         {/* Description */}
-        <div className="flex flex-wrap w-full"> {/* <ButtonAddTags task_id={task_id} /> */}</div>
+        <div className="flex flex-wrap w-full">
+          {' '}
+          <ButtonAddTags task={task} />
+        </div>
       </div>
 
       <div aria-label="money" className="h-10 justify-start items-center inline-flex">
@@ -79,7 +82,7 @@ const MenuBar = ({ task }: { task: TaskProps }) => {
             Money :{' '}
           </div>
         </div>
-        {/* <Money /> */}
+        <Money task={task} />
       </div>
 
       <div aria-label="date" className="h-10 justify-start items-center inline-flex">
@@ -92,7 +95,7 @@ const MenuBar = ({ task }: { task: TaskProps }) => {
             Date :{' '}
           </div>
         </div>
-        {/* <DatePickerWithRange task_id={task_id} /> */}
+        <DatePickerWithRange task={task} />
       </div>
     </div>
   );

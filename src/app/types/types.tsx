@@ -17,7 +17,7 @@ export interface TaskProps {
   startDate: Date;
   endDate: Date;
   createdById: string;
-  owner: { id: string; name: string; email: string };
+  owner: { id: string; name: string; email: string }[];
   members: { id: string; name: string; email: string }[];
   tags?: TagProps[];
   subtasks?: TaskProps[];
