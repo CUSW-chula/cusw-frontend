@@ -80,9 +80,8 @@ const Uploadfile = ({ task_id }: TaskManageMentProp) => {
   const handleFile = async (file: File) => {
     const formData = new FormData();
     formData.append('taskId', task_id);
-    formData.append('projectId', 'cm24w5yu000008tlglutu5czu');
     formData.append('file', file);
-    const url = `${BASE_URL}/v1/file/`;
+    const url = `${BASE_URL}/v2/file/`;
     const options = {
       method: 'POST',
       body: formData,
@@ -112,7 +111,7 @@ interface DisplayfileProps {
 }
 
 const handleDelete = async (id: string, auth: string) => {
-  const url = `${BASE_URL}/v1/file/`;
+  const url = `${BASE_URL}/v2/file/`;
   const options = {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json', Authorization: auth },
@@ -190,7 +189,7 @@ const FileItem = ({ id, fileName, uploadedBy, filePath, fileSize, createdAt }: F
           <div>
             <p>{fileName}</p>
           </div>
-          <div className="flex gap-4 items-center">
+          <div className="flex justify-between gap-4 items-center">
             <p className="flex">Uploaded by {name || 'Loading...'}</p>
             <Circle className="fill-black size-2 mx-1" />
             <p className="flex">{formatDate(createdAt)}</p>

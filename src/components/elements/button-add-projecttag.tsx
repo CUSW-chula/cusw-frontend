@@ -32,7 +32,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const pareJsonValue = React.useCallback((values: any) => {
-    const newValue: Tags[] = values.tags
+    const newValue: Tags[] = values.tags;
     return newValue;
   }, []);
 
@@ -107,9 +107,8 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
 
     return () => {
       ws.close();
-
     };
-  }, [ auth, project_id, pareJsonValue, setSelectedTags]);
+  }, [auth, project_id, pareJsonValue, setSelectedTags]);
 
   const handleSelectTag = async (value: string) => {
     const selected = statuses.find((status) => status.name === value);

@@ -221,6 +221,7 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
           throw new Error('Failed to fetch project data');
         }
         const data = await res.json();
+        console.log("Data", data);
         setProjectOwner(data.owner);
         setMember(data.members);
         setStartDate(new Date(data.startDate));

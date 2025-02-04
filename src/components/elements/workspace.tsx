@@ -65,7 +65,7 @@ const Workspace = ({ workspace }: Workspace) => {
   useEffect(() => {
     const fetchFile = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/file/${task_id}`, {
+        const response = await fetch(`${BASE_URL}/v1/file/${task_id}`, {
           headers: {
             Authorization: auth,
           },
