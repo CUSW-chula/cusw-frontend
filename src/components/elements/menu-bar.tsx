@@ -7,10 +7,34 @@ import StatusLabel from './status-label';
 import { ProjectOwner } from './project-owner';
 import { AssignedTaskToMember } from './assigned-task';
 import { ButtonAddTags } from './button-add-tag';
-import type { TaskManageMentProp } from '@/lib/shared';
 import { DatePickerWithRange } from './date-feature';
+import type { User } from '@/lib/shared';
 
-const MenuBar = ({ task_id }: TaskManageMentProp) => {
+interface menuBar {
+  menuBar: {
+    id: string;
+    startDate: Date | null;
+    endDate: Date | null;
+    expense: number;
+    owner: User | null;
+    members: User[];
+    budget: number;
+    advance: number;
+  };
+}
+
+interface date {
+  id: string;
+  startDate: Date | null;
+  endDate: Date | null;
+}
+
+const MenuBar = ({ menuBar }: menuBar) => {
+  const date: date = {
+    id: menuBar.id,
+    startDate: menuBar.startDate,
+    endDate: menuBar.endDate,
+  };
   return (
     <div className="min-h-[400px] w-[360px] p-[20px] bg-white rounded-md border border-[#6b5c56] flex-col justify-center items-start gap-4 inline-flex">
       <div aria-label="status" className="h-10 justify-start items-center inline-flex">
@@ -22,7 +46,7 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
           </div>
         </div>
         {/* Content */}
-        <StatusButton task_id={task_id} />
+        <StatusButton task_id={menuBar.id} />
       </div>
 
       <div aria-label="owner" className="h-10 justify-start items-center inline-flex">
@@ -48,7 +72,7 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
             Member :{' '}
           </div>
         </div>
-        <AssignedTaskToMember task_id={task_id} />
+        <AssignedTaskToMember task_id={menuBar.id} />
       </div>
 
       <div aria-label="tag" className="inline-flex justify-start items-start w-full">
@@ -65,7 +89,7 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
         {/* Description */}
         <div className="flex flex-wrap w-full">
           {' '}
-          <ButtonAddTags task_id={task_id} />
+          <ButtonAddTags task_id={menuBar.id} />
         </div>
       </div>
 
@@ -94,7 +118,7 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
             Date :{' '}
           </div>
         </div>
-        <DatePickerWithRange task_id={task_id} />
+        <DatePickerWithRange dates={date} />
       </div>
     </div>
   );

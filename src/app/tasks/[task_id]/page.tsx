@@ -6,7 +6,7 @@ import { BreadcrumbComponent } from '@/components/elements/breadcrumb';
 import { BackButton } from '@/components/elements/backButton';
 import Subtask from '@/components/elements/subtask';
 import { DeleteTask } from '@/components/elements/deleteTask';
-import BASE_URL, { type Task, type Emojis } from '@/lib/shared';
+import BASE_URL, { type Task, type Emojis, type User, Tag, Status } from '@/lib/shared';
 import { cookies } from 'next/headers';
 import { Uploadfile } from '@/components/elements/uploadfile';
 import Emoji from '@/components/elements/emoji';
@@ -25,6 +25,17 @@ interface Workspace {
 interface taskEmoji {
   id: string;
   emoji: Emojis[];
+}
+
+interface menuBar {
+  id: string;
+  startDate: Date | null;
+  endDate: Date | null;
+  expense: number;
+  owner: User | null;
+  members: User[];
+  budget: number;
+  advance: number;
 }
 
 export default async function TasksManageMentPage({ params }: TaskManageMentProp) {
@@ -56,6 +67,17 @@ export default async function TasksManageMentPage({ params }: TaskManageMentProp
     emoji: task.emojis,
   };
 
+  const menuBar: menuBar = {
+    id: task.id,
+    startDate: task.startDate,
+    endDate: task.endDate,
+    expense: task.expense,
+    owner: task.creator,
+    members: task.members,
+    budget: task.budget,
+    advance: task.advance,
+  };
+
   return (
     <div className="min-w-full min-h-screen flex-col items-start justify-center gap-8 ">
       {/* page nav */}
@@ -82,7 +104,7 @@ export default async function TasksManageMentPage({ params }: TaskManageMentProp
 
         {/* Right Section */}
         <div className="flex flex-col w-fit gap-4">
-          <MenuBar task_id={task_id} />
+          <MenuBar menuBar={menuBar} />
           <div className="inline-flex justify-end">
             <DeleteTask task_id={task_id} />
           </div>
