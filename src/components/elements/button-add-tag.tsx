@@ -16,23 +16,19 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { Badge } from '@/components/ui/badge';
-
-interface Tags {
-  id: string;
-  name: string;
-}
+import type { TaskProps, TagProps } from '@/app/types/types';
 
 // Mock data
-export function ButtonAddTags({ task_id }: TaskManageMentProp) {
+export function ButtonAddTags({ task }: { task: TaskProps }) {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [open, setOpen] = React.useState(false);
-  const [statuses, setStatuses] = React.useState<Tags[]>([]);
-  const [selectedTags, setSelectedTags] = React.useState<Tags[]>([]);
+  const [statuses, setStatuses] = React.useState<TagProps[]>([]);
+  const [selectedTags, setSelectedTags] = React.useState<TagProps[]>([]);
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const pareJsonValue = React.useCallback((values: any) => {
-    const newValue: Tags = {
+    const newValue: TagProps = {
       id: values.id,
       name: values.name,
     };
@@ -41,7 +37,7 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
 
   React.useEffect(() => {
     const fetchTags = async () => {
-      const url = `${BASE_URL}/tags/`;
+      const url = `${BASE_URL}/v2/tags/`;
       const options = {
         method: 'GET',
         headers: {
@@ -58,26 +54,27 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
       }
     };
 
-    const fetchSelectedTags = async () => {
-      const url = `${BASE_URL}/tags/getassigntag/${task_id}`;
-      const options = {
-        method: 'GET',
-        headers: {
-          Authorization: auth,
-        },
-      };
+    // const fetchSelectedTags = async () => {
+    //   const url = `${BASE_URL}/tags/getassigntag/${task.id}`;
+    //   const options = {
+    //     method: 'GET',
+    //     headers: {
+    //       Authorization: auth,
+    //     },
+    //   };
 
-      try {
-        const response = await fetch(url, options);
-        const data = await response.json();
-        setSelectedTags(data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
+    //   try {
+    //     const response = await fetch(url, options);
+    //     const data = await response.json();
+    //     setSelectedTags(data);
+    //   } catch (error) {
+    //     console.error(error);
+    //   }
+    // };
 
     fetchTags();
-    fetchSelectedTags();
+    setSelectedTags(task.tags ?? []);
+    // fetchSelectedTags();
 
     const ws = new WebSocket(BASE_SOCKET);
 
@@ -112,7 +109,7 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue, task_id, auth]);
+  }, [pareJsonValue, task.id, auth]);
 
   const handleSelectTag = async (value: string) => {
     const selected = statuses.find((status) => status.name === value);
@@ -121,7 +118,7 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
       const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: JSON.stringify({ taskId: task_id, tagId: selected.id }),
+        body: JSON.stringify({ taskId: task.id, tagId: selected.id }),
       };
 
       try {
@@ -139,7 +136,7 @@ export function ButtonAddTags({ task_id }: TaskManageMentProp) {
     const options = {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json', Authorization: auth },
-      body: JSON.stringify({ taskId: task_id, tagId: value }),
+      body: JSON.stringify({ taskId: task.id, tagId: value }),
     };
 
     try {

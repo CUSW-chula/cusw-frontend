@@ -7,3 +7,4 @@ export { Sort } from './sort';
 export { CreateTask } from './createTask';
 export { TaskTitle } from './taskTitle';
 export { ExportDialog } from './exportDialog';
+export { Task } from './task';

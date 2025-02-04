@@ -18,6 +18,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProv
 import { Profile } from './profile';
 import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
+import type { TaskProps } from '@/app/types/types';
 
 interface UsersInterfaces {
   id: string;
@@ -25,7 +26,7 @@ interface UsersInterfaces {
   email: string;
 }
 
-export function AssignedTaskToMember({ task_id }: TaskManageMentProp) {
+export function AssignedTaskToMember({ task }: { task: TaskProps }) {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [open, setOpen] = React.useState(false);
@@ -52,7 +53,7 @@ export function AssignedTaskToMember({ task_id }: TaskManageMentProp) {
       const userList = await usersData.json();
       setUsersList(userList);
 
-      const assignData = await fetch(`${BASE_URL}/v1/tasks/getassign/${task_id}`, {
+      const assignData = await fetch(`${BASE_URL}/v1/tasks/getassign/${task.id}`, {
         headers: {
           Authorization: auth,
         },
@@ -93,7 +94,7 @@ export function AssignedTaskToMember({ task_id }: TaskManageMentProp) {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue, task_id, auth]);
+  }, [pareJsonValue, task.id, auth]);
 
   // Handle user selection and unselection
   const handleSelectUser = async (value: string) => {
@@ -108,7 +109,7 @@ export function AssignedTaskToMember({ task_id }: TaskManageMentProp) {
       const options = {
         method: isAlreadySelected ? 'DELETE' : 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: JSON.stringify({ taskId: task_id, userId: selected.id }),
+        body: JSON.stringify({ taskId: task.id, userId: selected.id }),
       };
 
       try {

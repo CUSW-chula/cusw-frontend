@@ -1,5 +1,6 @@
 'use client';
 
+import type { TaskProps } from '@/app/types/types';
 import { Button } from '@/components/ui/button';
 import BASE_URL from '@/lib/shared';
 import { getCookie } from 'cookies-next';
@@ -7,16 +8,12 @@ import { Redo2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type React from 'react';
 
-interface BackButtonProps {
-  task_id: string;
-}
-
-export const BackButton: React.FC<BackButtonProps> = ({ task_id }) => {
+export const BackButton = ({ task }: { task: TaskProps }) => {
   const router = useRouter();
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const handleBack = async () => {
-    const url = `${BASE_URL}/v2/tasks/parent/${task_id}`;
+    const url = `${BASE_URL}/v2/tasks/parent/${task.id}`;
     const options = { method: 'GET', headers: { Authorization: auth } };
     try {
       const response = await fetch(url, options);

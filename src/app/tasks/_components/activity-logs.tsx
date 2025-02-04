@@ -1,5 +1,6 @@
 'use client';
 
+import type { TaskProps } from '@/app/types/types';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
@@ -114,7 +115,7 @@ function ActivityLogItem({ userId, action, detail, createdAt }: ActivityLogItemP
   );
 }
 
-const ActivityLogs = ({ task_id }: TaskManageMentProp) => {
+const ActivityLogs = ({ task }: { task: TaskProps }) => {
   const [activityLogs, setActivityLogs] = useState<ActivityLogItemProps[]>([]);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
@@ -134,7 +135,7 @@ const ActivityLogs = ({ task_id }: TaskManageMentProp) => {
 
   React.useEffect(() => {
     const fetchData = async () => {
-      const url = `${BASE_URL}/v2/activities/${task_id}`;
+      const url = `${BASE_URL}/v2/activities/${task.id}`;
       const options = {
         method: 'GET',
         headers: {
@@ -187,7 +188,7 @@ const ActivityLogs = ({ task_id }: TaskManageMentProp) => {
     return () => {
       ws.close();
     };
-  }, [parseJsonValue, task_id, auth]);
+  }, [parseJsonValue, task.id, auth]);
 
   return (
     <div>
