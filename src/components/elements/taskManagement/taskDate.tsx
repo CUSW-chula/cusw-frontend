@@ -3,8 +3,10 @@ import { Calendar } from 'lucide-react';
 
 export const TaskDate = ({
   item,
+  hiddenDate,
 }: {
   item: TaskProps;
+  hiddenDate: boolean;
 }) => {
   //format Date display
   const formatDate = (startdate: Date | null, enddate: Date | null): string => {
@@ -29,10 +31,12 @@ export const TaskDate = ({
     <>
       {item.startDate && item.endDate && (
         <div
-          className="inline-flex gap-1 min-w-60"
+          className={`${hiddenDate ? '' : 'lg:min-w-60'} inline-flex gap-1`}
           title={formatDate(item.startDate, item.endDate)}>
-          <Calendar className="w-6 h-6 whitespace-nowrap" />
-          <span>{formatDate(item.startDate, item.endDate)}</span>
+          <Calendar className="w-6 h-6" />
+          <span className={`${hiddenDate ? 'hidden' : 'inline'} whitespace-nowrap`}>
+            {formatDate(item.startDate, item.endDate)}
+          </span>
         </div>
       )}
     </>

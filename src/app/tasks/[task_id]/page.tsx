@@ -10,6 +10,7 @@ import BASE_URL, { type Task, type Emojis } from '@/lib/shared';
 import { cookies } from 'next/headers';
 import { Uploadfile } from '@/components/elements/uploadfile';
 import Emoji from '@/components/elements/emoji';
+import type { TaskProps } from '@/app/types/types';
 
 interface TaskManageMentProp {
   params: {
@@ -43,7 +44,7 @@ export default async function TasksManageMentPage({ params }: TaskManageMentProp
     throw new Error(`Failed to fetch task data: ${response.statusText}`);
   }
 
-  const task: Task = await response.json();
+  const task: TaskProps = await response.json();
 
   const workspace: Workspace = {
     id: task.id,
@@ -51,10 +52,10 @@ export default async function TasksManageMentPage({ params }: TaskManageMentProp
     description: task.description,
   };
 
-  const emoji: taskEmoji = {
-    id: task.id,
-    emoji: task.emojis,
-  };
+  // const emoji: taskEmoji = {
+  //   id: task.id,
+  //   emoji: task.emojis,
+  // };
 
   return (
     <div className="min-w-full min-h-screen flex-col items-start justify-center gap-8 ">
@@ -70,22 +71,20 @@ export default async function TasksManageMentPage({ params }: TaskManageMentProp
         <div className="w-full rounded-[6px] p-5 border-brown border-[1px] bg-white">
           <Workspace workspace={workspace} />
           <div className="flex justify-between">
-            <Emoji emoji={emoji} />
-            <Uploadfile task_id={task_id} />
+            {/* <Emoji emoji={emoji} />
+            <Uploadfile task_id={task_id} /> */}
           </div>
           <div className="flex flex-col gap-4 mt-4">
-            <Subtask task_id={task_id} />
-            <ActivityLogs task_id={task_id} />
-            <Comment task_id={task_id} />
+            <Subtask task={task} />
+            {/* <ActivityLogs task_id={task_id} />
+            <Comment task_id={task_id} /> */}
           </div>
         </div>
 
         {/* Right Section */}
         <div className="flex flex-col w-fit gap-4">
-          <MenuBar task_id={task_id} />
-          <div className="inline-flex justify-end">
-            <DeleteTask task_id={task_id} />
-          </div>
+          <MenuBar task={task} />
+          <div className="inline-flex justify-end">{/* <DeleteTask task={task} /> */}</div>
         </div>
       </div>
     </div>

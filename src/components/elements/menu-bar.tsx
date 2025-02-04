@@ -9,8 +9,9 @@ import { AssignedTaskToMember } from './assigned-task';
 import { ButtonAddTags } from './button-add-tag';
 import type { TaskManageMentProp } from '@/lib/shared';
 import { DatePickerWithRange } from './date-feature';
+import type { TaskProps } from '@/app/types/types';
 
-const MenuBar = ({ task_id }: TaskManageMentProp) => {
+const MenuBar = ({ task }: { task: TaskProps }) => {
   return (
     <div className="min-h-[400px] w-[360px] p-[20px] bg-white rounded-md border border-[#6b5c56] flex-col justify-center items-start gap-4 inline-flex">
       <div aria-label="status" className="h-10 justify-start items-center inline-flex">
@@ -22,7 +23,7 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
           </div>
         </div>
         {/* Content */}
-        <StatusButton task_id={task_id} />
+        {/* <StatusButton task_id={task_id} /> */}
       </div>
 
       <div aria-label="owner" className="h-10 justify-start items-center inline-flex">
@@ -48,7 +49,7 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
             Member :{' '}
           </div>
         </div>
-        <AssignedTaskToMember task_id={task_id} />
+        {/* <AssignedTaskToMember task_id={task_id} /> */}
       </div>
 
       <div aria-label="tag" className="inline-flex justify-start items-start w-full">
@@ -63,10 +64,7 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
           </div>
         </div>
         {/* Description */}
-        <div className="flex flex-wrap w-full">
-          {' '}
-          <ButtonAddTags task_id={task_id} />
-        </div>
+        <div className="flex flex-wrap w-full"> {/* <ButtonAddTags task_id={task_id} /> */}</div>
       </div>
 
       <div aria-label="money" className="h-10 justify-start items-center inline-flex">
@@ -81,7 +79,7 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
             Money :{' '}
           </div>
         </div>
-        <Money />
+        {/* <Money /> */}
       </div>
 
       <div aria-label="date" className="h-10 justify-start items-center inline-flex">
@@ -94,7 +92,7 @@ const MenuBar = ({ task_id }: TaskManageMentProp) => {
             Date :{' '}
           </div>
         </div>
-        <DatePickerWithRange task_id={task_id} />
+        {/* <DatePickerWithRange task_id={task_id} /> */}
       </div>
     </div>
   );

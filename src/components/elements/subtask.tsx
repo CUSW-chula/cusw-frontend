@@ -1,12 +1,10 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
-import { Calendar, ChevronRight, CircleUserRound } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
 import StatusButton from './status-botton';
 import { AssignedTaskToMember } from './assigned-task';
 import { ButtonAddTags } from './button-add-tag';
-import { Money } from './money';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { BlockNoteView } from '@blocknote/shadcn';
@@ -22,85 +20,9 @@ import * as Tabs from '@/components/ui/tabs';
 import * as Toggle from '@/components/ui/toggle';
 import * as Tooltip from '@/components/ui/tooltip';
 import { getCookie } from 'cookies-next';
-import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
-
-interface SubtaskProps {
-  id: string;
-  title: string;
-  description: string;
-  budget: number;
-  advance: number;
-  expense: number;
-  status: 'Unassigned' | 'Assigned' | 'UnderReview' | 'InRecheck' | 'Done';
-  parentTaskId: string;
-  projectId: string;
-  createdById: string;
-  startDate: Date;
-  endDate: Date;
-  tags?: string[];
-  subtasks?: SubtaskProps[];
-}
-
-const unassigned = '/asset/icon/unassigned.svg';
-const assigned = '/asset/icon/assigned.svg';
-const inrecheck = '/asset/icon/inrecheck.svg';
-const underreview = '/asset/icon/underreview.svg';
-const done = '/asset/icon/done.svg';
-
-const GetTagList = ({ taskId, auth }: { taskId: string; auth: string }) => {
-  const [tagList, setTagList] = useState<Array<{ id: string; name: string }>>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetch(`${BASE_URL}/tags/getassigntag/${taskId}`, {
-          headers: {
-            Authorization: auth,
-          },
-        });
-        if (data.ok) {
-          const tags = await data.json();
-          setTagList(tags);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchData();
-  }, [auth, taskId]);
-  return (
-    <div className="flex flex-wrap gap-2">
-      {tagList.length !== 0
-        ? tagList.map((tag) => (
-            <Badge
-              key={tag.id}
-              variant="destructive"
-              className="h-7 min-w-fit px-2 py-2 flex items-center gap-1 justify-center bg-emerald-300 font-BaiJamjuree text-black ">
-              <span className="text-sm">{tag.name}</span>
-            </Badge>
-          ))
-        : null}
-    </div>
-  );
-};
-
-function formatDate(date?: Date | string): string {
-  if (!date) return ''; // Return an empty string if no date is provided
-
-  // Ensure the input is a Date object
-  const validDate = typeof date === 'string' ? new Date(date) : date;
-
-  if (Number.isNaN(validDate.getTime())) {
-    console.error('Invalid date:', date);
-    return 'Invalid date';
-  }
-
-  const day = String(validDate.getDate()).padStart(2, '0');
-  const month = String(validDate.getMonth() + 1).padStart(2, '0');
-  const year = validDate.getFullYear();
-
-  return `${day}/${month}/${year}`;
-}
+import BASE_URL, { BASE_SOCKET } from '@/lib/shared';
+import { Task } from './taskManagement';
+import type { TaskProps } from '@/app/types/types';
 
 function TitleInput({ content, onChange }: { content: string; onChange: (value: string) => void }) {
   const [editedContent, setEditedContent] = useState(content);
@@ -121,186 +43,26 @@ function TitleInput({ content, onChange }: { content: string; onChange: (value: 
   );
 }
 
-const Subtask = ({ task_id }: TaskManageMentProp) => {
+const Subtask = ({ task }: { task: TaskProps }) => {
   const [isSubtaskSectionVisible, setIsSubtaskSectionVisible] = useState(false);
   const [isSubtaskVisible, setIsSubtaskVisible] = useState(false);
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [subtaskTitle, setSubtaskTitle] = useState('');
-  const [subtasks, setSubtasks] = useState<SubtaskProps[]>([]);
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [subtasks, setSubtasks] = useState<TaskProps[]>([]);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
 
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  const parseJsonValues = useCallback((values: any[]): SubtaskProps[] => {
-    console.log('VALVAL', values);
-    return values.map((value) => ({
-      id: value.id,
-      title: value.title,
-      description: value.description,
-      budget: value.budget,
-      advance: value.advance,
-      expense: value.expense,
-      status: value.status,
-      parentTaskId: value.parentTaskId,
-      projectId: value.projectId,
-      createdById: value.createdById,
-      startDate: new Date(value.startDate),
-      endDate: new Date(value.endDate),
-      subtasks: value.subTasks ? parseJsonValues(value.subTasks) : [],
-    }));
-  }, []);
-
-  const toggleExpand = (id: string) => {
-    setExpandedItems((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      return newSet;
-    });
-  };
-
-  const SubtaskItem = ({ item, depth = 0 }: { item: SubtaskProps; depth?: number }) => {
-    const hasChildren = item.subtasks && item.subtasks.length > 0;
-    const isExpanded = expandedItems.has(item.id);
-
-    const displayValue = (type: string, value: number) => {
-      if (value <= 0) return null;
-      const color =
-        type === 'budget' ? 'text-black' : type === 'advance' ? 'text-[#69bca0]' : 'text-[#c30010]';
-      return (
-        <div className="h-10 px-3 py-2 flex items-center justify-center gap-2">
-          <div className={`text-base font-medium font-BaiJamjuree leading-normal ${color}`}>
-            ฿ {value.toLocaleString()}
-          </div>
-        </div>
-      );
-    };
-
-    const statusSections = [
-      { status: 'Unassigned', icon: unassigned },
-      { status: 'Assigned', icon: assigned },
-      { status: 'InRecheck', icon: inrecheck },
-      { status: 'UnderReview', icon: underreview },
-      { status: 'Done', icon: done },
-    ];
-
-    const getStatusIcon = (status: string) => {
-      const section = statusSections.find((section) => section.status === status);
-      return section ? section.icon : unassigned; // Fallback icon if status not found
-    };
-
-    return (
-      <div className="w-full">
-        <div
-          className={cn(
-            'flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg',
-            depth > 0 && 'ml-8',
-          )}>
-          <button
-            type="button"
-            onClick={() => toggleExpand(item.id)}
-            className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200">
-            <ChevronRight
-              className={cn('h-4 w-4 transition-transform', isExpanded && 'transform rotate-90')}
-            />
-          </button>
-          {/* Status icon */}
-          <img src={getStatusIcon(item.status)} alt={`${item.status} Icon`} className="w-5 h-5" />
-          <a href={`/tasks/${item.id}`}>
-            <span className="text-sm font-BaiJamjuree">{item.title}</span>
-          </a>
-          <div className="flex-1" />
-          <div className="flex items-center gap-2">
-            <GetTagList taskId={item.id} auth={auth} />
-
-            {(item.budget > 0 || item.advance > 0 || item.expense > 0) && (
-              <div className="h-10 bg-white rounded-md border border-[#6b5c56] justify-start items-center gap-2 inline-flex">
-                {item.budget > 0 && displayValue('budget', item.budget)}
-                {item.advance > 0 && displayValue('advance', item.advance)}
-                {item.expense > 0 && displayValue('expense', item.expense)}
-              </div>
-            )}
-
-            {/* Date range display */}
-            {item.startDate && item.endDate && (
-              <>
-                <Calendar className="w-6 h-6" />
-                <span>{formatDate(item.startDate)}</span>
-              </>
-            )}
-          </div>
-        </div>
-        {hasChildren && isExpanded && (
-          <div className="mt-1">
-            {item.subtasks?.map((child) => (
-              <SubtaskItem key={child.id} item={child} depth={depth + 1} />
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
-
   useEffect(() => {
-    const ws = new WebSocket(BASE_SOCKET);
-
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/tasks/child/${task_id}`, {
-          headers: {
-            Authorization: auth,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-
-        const data = await response.json();
-        const parsedData = parseJsonValues(data);
-        setSubtasks(parsedData);
-      } catch (error) {
-        console.error('Error fetching tasks:', error);
-      }
-    };
-
-    fetchData();
-
-    ws.onopen = () => {
-      console.log('Connected to WebSocket');
-    };
-
-    ws.onmessage = (event) => {
-      console.log('Message received:', event.data);
-
-      try {
-        const socketEvent = JSON.parse(event.data);
-        const eventName = socketEvent.eventName;
-        const data = parseJsonValues(socketEvent.data);
-        if (eventName === 'taskid edited') {
-          console.log('SOCKET', data);
-          setSubtasks((prevList) => [...prevList, ...data]);
-        }
-      } catch (error) {
-        console.error('Error parsing WebSocket message:', error);
-      }
-    };
-
-    ws.onclose = () => {
-      console.log('WebSocket connection closed');
-    };
-
-    return () => {
-      ws.close();
-      ws.onopen = null;
-      ws.onmessage = null;
-      ws.onclose = null;
-    };
-  }, [auth, parseJsonValues, task_id]);
+    try {
+      setSubtasks(task.subtasks ?? []);
+      console.log(task.subtasks);
+      task.subtasks?.map((item) => {
+        console.log(item.endDate);
+      });
+    } catch (error) {
+      console.log('Error');
+    }
+  }, []);
 
   const handleToggleSubtaskSection = () => {
     setIsSubtaskSectionVisible(!isSubtaskSectionVisible);
@@ -349,7 +111,7 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
           realBudget: 0,
           usedBudget: 0,
           status: 'Unassigned',
-          parentTaskId: task_id,
+          parentTaskId: task.id,
           projectId: 'cm24w5yu000008tlglutu5czu',
           startDate: new Date(),
           endDate: new Date(),
@@ -540,7 +302,7 @@ const Subtask = ({ task_id }: TaskManageMentProp) => {
       {isSubtaskVisible && (
         <div className="w-full space-y-1">
           {subtasks.map((item) => (
-            <SubtaskItem key={item.id} item={item} />
+            <Task item={item} key={item.id} hiddenDate={true} />
           ))}
         </div>
       )}
