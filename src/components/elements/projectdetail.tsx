@@ -155,7 +155,7 @@ const formatDate = (startdate: Date | null, enddate: Date | null): string => {
   return `${start}${start && end ? ' -> ' : ''}${end}`;
 };
 
-const SunMoney = ({
+const SumMoney = ({
   budget,
   advance,
   expense,
@@ -338,7 +338,7 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
             Money :{' '}
           </div>
         </div>
-        <SunMoney budget={budget} advance={advance} expense={expense} />
+        <SumMoney budget={budget} advance={advance} expense={expense} />
       </div>
       <div aria-label="date" className="h-10 justify-start items-center inline-flex">
         {/* Label Zone */}
