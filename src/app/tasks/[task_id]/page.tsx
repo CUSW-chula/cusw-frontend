@@ -11,11 +11,6 @@ import { cookies } from 'next/headers';
 import { Uploadfile } from '@/components/elements/uploadfile';
 import Emoji from '@/components/elements/emoji';
 
-interface TaskManageMentProp {
-  params: {
-    task_id: string;
-  };
-}
 interface Workspace {
   id: string;
   title: string;
@@ -27,7 +22,11 @@ interface taskEmoji {
   emoji: Emojis[];
 }
 
-export default async function TasksManageMentPage({ params }: TaskManageMentProp) {
+export default async function TasksManageMentPage({
+  params,
+}: {
+  params: Promise<{ task_id: string }>;
+}) {
   const Workspace = dynamic(() => import('../../../components/elements/workspace'), {
     ssr: true,
   });
