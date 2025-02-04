@@ -19,7 +19,7 @@ import { useRouter } from 'next/navigation';
 import { de } from 'date-fns/locale';
 import { useAtom, useAtomValue } from 'jotai';
 import { moneyAtom } from '@/atom'; // Adjust the import path as necessary
-import { ButtonAddTags } from './button-add-tag';
+import { ButtonAddTags } from './button-add-projecttag';
 
 interface projectProps {
   id: string;
@@ -182,21 +182,9 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
             Tag :{' '}
           </div>
         </div>
-        <div className="flex w-[253.67px] ">{/*<ButtonAddTags task_id={project_id} />*/}</div>
-      </div>
-      <div aria-label="date" className="h-10 justify-start items-center inline-flex">
-        {/* Label Zone */}
-        <div className="w-24 justify-start items-center gap-2 flex">
-          {/* Icon */}
-          <Calendar className="w-6 h-6 relative" />
-          {/* Describtion */}
-          <div className="text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-tight">
-            Date :{' '}
-          </div>
+        <div className="flex w-[253.67px] ">
+          <ButtonAddTags project_id={project_id} />
         </div>
-        {/* {startDate && endDate
-          ? formatDate(startDate.toISOString(), endDate.toISOString())
-          : 'Invalid date'} */}
       </div>
     </div>
   );
