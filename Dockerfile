@@ -1,10 +1,10 @@
-# Use the official Bun image as the base
+# Base Stage: Install dependencies and build the project
 FROM oven/bun:1 AS base
 
 # Set the working directory
 WORKDIR /app
 
-# Copy the package.json and bun.lockb files
+# Copy package.json and bun.lockb
 COPY package.json bun.lockb ./
 
 # Install dependencies using Bun
@@ -16,26 +16,23 @@ COPY . .
 # Build the Next.js project with standalone output
 RUN bun next build
 
-# Production stage
+# Production Stage: Serve the app
 FROM oven/bun:1 AS production
 
-# Set the working directory
 WORKDIR /app
 
-# Copy the standalone server files
+# Copy the standalone server output
 COPY --from=base /app/.next/standalone ./
 
-# Copy the public folder
+# Copy public assets and static files
 COPY --from=base /app/public ./public
-
-# Copy the static files for Next.js
 COPY --from=base /app/.next/static ./.next/static
 
-# Copy package.json for runtime (if needed for runtime dependencies)
+# Copy package.json for runtime dependencies (optional)
 COPY --from=base /app/package.json ./
 
-# Expose the Next.js default port
+# Expose the default Next.js port
 EXPOSE 3000
 
-# Start the application using Bun
-CMD ["bun", ".next/standalone/server.js"]
+# Start the standalone server
+CMD ["bun", "server.js"]
