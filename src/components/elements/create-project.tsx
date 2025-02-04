@@ -182,7 +182,9 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
             Tag :{' '}
           </div>
         </div>
-        <div className="flex w-[253.67px] "><ButtonAddTags project_id={project_id} /></div>
+        <div className="flex w-[253.67px] ">
+          <ButtonAddTags project_id={project_id} />
+        </div>
       </div>
     </div>
   );
