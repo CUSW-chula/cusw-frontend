@@ -33,6 +33,6 @@ COPY --from=base /app/package.json ./
 
 # Expose the default Next.js port
 EXPOSE 3000
-
 # Start the standalone server
+ENV HOSTNAME="0.0.0.0"
 CMD ["bun", "server.js"]
