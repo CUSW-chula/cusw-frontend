@@ -1,4 +1,6 @@
 import type { TaskProps } from '@/app/types/types';
+import { getCookie } from 'cookies-next';
+import BASE_URL from './shared';
 export const exportAsFile = (tasks: TaskProps[]) => {
   const sumBudget = (task: TaskProps): { budget: number; expense: number } => {
     let budget = task.budget;
@@ -52,6 +54,8 @@ export const exportAsFile = (tasks: TaskProps[]) => {
 };
 
 export const exportAsTemplate = (tasks: TaskProps[], ids: Set<string>) => {
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
   const filterTasksByIds = (tasks: TaskProps[], ids: Set<string>): TaskProps[] => {
     const result: TaskProps[] = [];
 
@@ -84,9 +88,32 @@ export const exportAsTemplate = (tasks: TaskProps[], ids: Set<string>) => {
 
     return rootTasks;
   };
+  const uploadTemplate = async (jsonFile: File) => {
+    const url = `${BASE_URL}/v2/template`;
+    const formData = new FormData();
+    formData.append('file', jsonFile);
+    const options = {
+      method: 'POST',
+      body: formData,
+      headers: {
+        Authorization: auth,
+      },
+    };
+    try {
+      const response = await fetch(url, options);
+      await response.json();
+      console.log('Save Template success');
+    } catch (error) {
+      console.error('Error saving template:', error);
+    }
+  };
+
   const filteredTasks = filterTasksByIds(tasks, ids);
   const taskTree = buildTaskTree(filteredTasks);
-  console.log('taskTree', taskTree);
+  const jsonData = JSON.stringify(taskTree, null, 2);
+  const blob = new Blob([jsonData], { type: 'application/json' });
+  const jsonFile = new File([blob], 'templateName.json', { type: 'application/json' });
+  uploadTemplate(jsonFile);
 };
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
