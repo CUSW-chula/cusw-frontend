@@ -6,76 +6,41 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useCallback, useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { selectedStatusAtom } from '@/atom';
-import BASE_URL, { BASE_SOCKET, type Status, type TaskManageMentProp } from '@/lib/shared';
+import BASE_URL, { BASE_SOCKET, Task, type Status, type TaskManageMentProp } from '@/lib/shared';
 import React from 'react';
 import { getCookie } from 'cookies-next';
+import { statusSections } from '@/lib/taskUtils';
+import type { TaskProps } from '@/app/types/types';
 
-const Unassigned = '/asset/icon/unassigned.svg';
-const Assigned = '/asset/icon/assigned.svg';
-const UnderReview = '/asset/icon/underreview.svg';
-const InRecheck = '/asset/icon/inrecheck.svg';
-const Done = '/asset/icon/done.svg';
+const statuses: Status[] = statusSections;
 
-const statuses: Status[] = [
-  {
-    value: 'Unassigned',
-    label: 'Unassigned',
-    icon: Unassigned,
-  },
-  {
-    value: 'Assigned',
-    label: 'Assigned',
-    icon: Assigned,
-  },
-  {
-    value: 'UnderReview',
-    label: 'UnderReview',
-    icon: UnderReview,
-  },
-  {
-    value: 'InRecheck',
-    label: 'InRecheck',
-    icon: InRecheck,
-  },
-  {
-    value: 'Done',
-    label: 'Done',
-    icon: Done,
-  },
-];
-
-export function StatusButton({ task_id }: TaskManageMentProp) {
+export function StatusButton({ task }: { task: TaskProps }) {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [open, setOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useAtom<Status>(selectedStatusAtom);
+  const [isAllSubTaskDone, setIsAllSubTaskDone] = useState(true);
+
+  const getStatus = (value: string) => {
+    const status = statusSections.find((section) => section.status === value);
+    return status
+      ? status
+      : { status: 'Unassigned', displayName: 'Unassigned', icon: '/asset/icon/unassigned.svg' }; // Fallback icon if status not found
+  };
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValue = useCallback((values: any) => {
-    const newValue: Status = {
-      value: values.status,
-      label: values.status,
-      icon: `/asset/icon/${values.status.toLowerCase()}.svg`,
-    };
-    return newValue;
+    const newValue = statuses.find((s) => s.status === values.status);
+    return newValue
+      ? newValue
+      : { status: 'Unassigned', displayName: 'Unassigned', icon: '/asset/icon/unassigned.svg' };
   }, []);
 
   useEffect(() => {
-    const fetchStatus = async (taskId: string) => {
-      const url = `${BASE_URL}/tasks/status/${taskId}`;
-      const options = { method: 'GET', headers: { Authorization: auth } };
-
-      try {
-        const response = await fetch(url, options);
-        const data = await response.json();
-        const selected = statuses.find((s) => s.value === data);
-        if (selected) setSelectedStatus(selected);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchStatus(task_id);
+    setSelectedStatus(getStatus(task.status));
+    task.subtasks
+      ? setIsAllSubTaskDone(task.subtasks.every((subtask) => subtask.status === 'Done'))
+      : setIsAllSubTaskDone(true);
 
     const ws = new WebSocket(BASE_SOCKET);
 
@@ -102,18 +67,18 @@ export function StatusButton({ task_id }: TaskManageMentProp) {
     };
 
     return () => ws.close();
-  }, [setSelectedStatus, auth, parseJsonValue, task_id]);
+  }, [setSelectedStatus, parseJsonValue, task]);
 
   const handleSelectStatus = async (status: Status) => {
-    setSelectedStatus(status);
+    setSelectedStatus(getStatus(task.status));
     setOpen(false);
-    const url = `${BASE_URL}/tasks/status`;
+    const url = `${BASE_URL}/v2/tasks/status`;
     const options = {
       method: 'PATCH',
       headers: { Authorization: auth, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        taskId: task_id,
-        newTaskStatus: status.value,
+        taskId: task.id,
+        newTaskStatus: status.status,
       }),
     };
 
@@ -131,16 +96,17 @@ export function StatusButton({ task_id }: TaskManageMentProp) {
         <Button
           variant="outline"
           size="sm"
+          disabled={selectedStatus.status === 'Unassigned'}
           className="h-[40px] px-[16px] justify-start font-BaiJamjuree text-base">
           {selectedStatus ? (
             <>
               <div className="flex items-center gap-[8px]">
                 <img
                   src={selectedStatus.icon}
+                  alt={`${selectedStatus.status} Icon`}
                   className="h-6 w-6 shrink-0"
-                  alt={selectedStatus.label}
                 />
-                {selectedStatus.label}
+                {selectedStatus.displayName}
               </div>
             </>
           ) : (
@@ -154,14 +120,28 @@ export function StatusButton({ task_id }: TaskManageMentProp) {
             <CommandGroup>
               {statuses.map((status) => (
                 <CommandItem
-                  key={status.value}
-                  value={status.value}
+                  key={status.status}
+                  value={status.status}
+                  disabled={
+                    (selectedStatus.status === 'Assigned' && status.status !== 'UnderReview') ||
+                    (selectedStatus.status === 'UnderReview' &&
+                      (status.status === 'Unassigned' ||
+                        status.status === 'Assigned' ||
+                        status.status === 'UnderReview' ||
+                        (status.status === 'Done' && !isAllSubTaskDone))) ||
+                    (selectedStatus.status === 'InRecheck' && status.status !== 'UnderReview') ||
+                    (selectedStatus.status === 'Done' && status.status !== 'InRecheck')
+                  }
                   className="pl-[32px] font-BaiJamjuree text-base"
                   onSelect={() => {
                     handleSelectStatus(status);
                   }}>
-                  <img src={status.icon} className="mr-2 h-4 w-4 shrink-0" alt={status.label} />
-                  <span>{status.label}</span>
+                  <img
+                    src={status.icon}
+                    className="mr-2 h-4 w-4 shrink-0"
+                    alt={status.displayName}
+                  />
+                  <span>{status.displayName}</span>
                 </CommandItem>
               ))}
             </CommandGroup>

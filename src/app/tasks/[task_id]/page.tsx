@@ -10,6 +10,7 @@ import BASE_URL, { type Task, type Emojis } from '@/lib/shared';
 import { cookies } from 'next/headers';
 import { Uploadfile } from '@/components/elements/uploadfile';
 import Emoji from '@/components/elements/emoji';
+import type { TaskProps } from '@/app/types/types';
 
 interface TaskManageMentProp {
   params: {
@@ -43,7 +44,7 @@ export default async function TasksManageMentPage({ params }: TaskManageMentProp
     throw new Error(`Failed to fetch task data: ${response.statusText}`);
   }
 
-  const task: Task = await response.json();
+  const task: TaskProps = await response.json();
 
   const workspace: Workspace = {
     id: task.id,
@@ -82,7 +83,7 @@ export default async function TasksManageMentPage({ params }: TaskManageMentProp
 
         {/* Right Section */}
         <div className="flex flex-col w-fit gap-4">
-          <MenuBar task_id={task_id} />
+          <MenuBar task={task} />
           <div className="inline-flex justify-end">
             <DeleteTask task_id={task_id} />
           </div>
