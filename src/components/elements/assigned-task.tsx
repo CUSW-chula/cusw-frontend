@@ -16,7 +16,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
 import { Profile } from './profile';
-import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
+import BASE_URL, { BASE_SOCKET, Task, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import type { TaskProps } from '@/app/types/types';
 
@@ -45,24 +45,18 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
 
   React.useEffect(() => {
     const fetchAssignAndUsers = async () => {
-      const usersData = await fetch(`${BASE_URL}/v1/users`, {
+      const usersData = await fetch(`${BASE_URL}/v2/users`, {
         headers: {
           Authorization: auth,
         },
       });
       const userList = await usersData.json();
       setUsersList(userList);
-
-      const assignData = await fetch(`${BASE_URL}/v1/tasks/getassign/${task.id}`, {
-        headers: {
-          Authorization: auth,
-        },
-      });
-      const assignList = await assignData.json();
-      setSelectedUser(Array.isArray(assignList) ? assignList : []); // Ensure array format
     };
 
     fetchAssignAndUsers();
+
+    setSelectedUser(task.members);
 
     const ws = new WebSocket(BASE_SOCKET);
 
@@ -94,7 +88,7 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue, task.id, auth]);
+  }, [pareJsonValue, task, auth]);
 
   // Handle user selection and unselection
   const handleSelectUser = async (value: string) => {
