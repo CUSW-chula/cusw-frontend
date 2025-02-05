@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -55,17 +56,23 @@ export const ExportDialog = ({ tasks }: { tasks: TaskProps[] }) => {
     };
     return (
       <div>
-        <Select onValueChange={(value) => handleSelectTasks(value)}>
+        <Select
+          onValueChange={(value) => {
+            handleSelectTasks(value);
+          }}
+          value={exportType}>
           <SelectTrigger className="w-36 border-brown focus:ring-transparent">
             <SelectValue className="text-brown" placeholder="Select export type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem key="saveFile" value="saveFile">
-              .CSV
-            </SelectItem>
-            <SelectItem key="saveTemplate" value="saveTemplate">
-              Template
-            </SelectItem>
+            <SelectGroup>
+              <SelectItem key="saveFile" value="saveFile">
+                .CSV
+              </SelectItem>
+              <SelectItem key="saveTemplate" value="saveTemplate">
+                Template
+              </SelectItem>
+            </SelectGroup>
           </SelectContent>
         </Select>
       </div>

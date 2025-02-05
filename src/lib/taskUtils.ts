@@ -1,55 +1,122 @@
-import type { TaskProps } from '@/app/types/types';
+import type { TagProps, TaskProps } from '@/app/types/types';
 import { getCookie } from 'cookies-next';
 import BASE_URL from './shared';
+
+type csvDataType = {
+  title: string;
+  month: string;
+  budget: string;
+  expense: string;
+  remaining: string;
+};
 export const exportAsFile = (tasks: TaskProps[]) => {
-  const sumBudget = (task: TaskProps): { budget: number; expense: number } => {
-    let budget = task.budget;
-    let expense = task.expense;
-    if (task.subtasks && task.subtasks.length > 0) {
-      for (const subtask of task.subtasks) {
-        const { budget: subBudget, expense: subExpense } = sumBudget(subtask);
-        budget += subBudget;
-        expense += subExpense;
-      }
-    }
-    return { budget, expense };
+  const moneyToString = (money: number): string => {
+    return money === 0 ? '-' : money.toString();
   };
 
-  const toCSV = (
-    tasks: { title: string; budget: number; expense: number; remaining: number }[],
-  ) => {
-    const header = ['ลำดับที่', 'รายการ', 'งบประมาณที่ได้รับอนุมัติ ', 'เบิกจ่ายจริง', 'คงเหลือ'];
-    const rows = tasks.map((task, index) => [
+  // Converts CSV data array to a CSV string format
+  const convertToCSV = (item: csvDataType[]) => {
+    const header = ['ลำดับที่', 'รายการ', 'เดือน', 'งบประมาณที่ได้รับอนุมัติ ', 'เบิกจ่ายจริง', 'คงเหลือ'];
+    const rows = item.map((item, index) => [
       index + 1,
-      task.title,
-      task.budget,
-      task.expense,
-      task.budget - task.expense,
+      item.title,
+      item.month,
+      item.budget,
+      item.expense,
+      item.remaining,
     ]);
-    const csv = [header, ...rows].map((row) => row.join(',')).join('\n');
-    return csv;
+    return [header, ...rows].map((row) => row.join(',')).join('\n');
   };
 
-  const downloadBudgetReport = (filename: string, text: string) => {
-    const blob = new Blob([text], { type: 'text/csv;charset=UTF-8' });
+  // Triggers a CSV file download
+  const downloadCSV = (filename: string, text: string) => {
+    const BOM = '\uFEFF'; // UTF-8 BOM
+    const blob = new Blob([BOM + text], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
     const a = document.createElement('a');
     a.download = `${filename}.csv`;
-    const url = URL.createObjectURL(blob);
     a.href = url;
+
     const TIMEOUT_DURATION = 30 * 1000;
     a.addEventListener('click', () => {
       setTimeout(() => URL.revokeObjectURL(url), TIMEOUT_DURATION);
     });
+
     a.click();
   };
 
-  const data: { title: string; budget: number; expense: number; remaining: number }[] = [];
+  // Recursively generates CSV data from task subtasks
+  const recursiveGenerateCSVData = (task: TaskProps, remainingBudget: number): csvDataType[] => {
+    // Base case: If there are no subtasks, return an empty array
+    if (!task.subtasks || task.subtasks.length === 0) return [];
+
+    let updatedRemaining = remainingBudget;
+    let csvData: csvDataType[] = [];
+
+    for (const subtask of task.subtasks) {
+      updatedRemaining -= subtask.expense;
+      const assignedMonth = subtask.tags ? getTag(subtask.tags) : '-';
+
+      // Push the current subtask's formatted data into the CSV array
+
+      csvData.push({
+        title: subtask.title,
+        month: assignedMonth,
+        budget: '-',
+        expense: moneyToString(subtask.expense),
+        remaining: updatedRemaining.toString(),
+      });
+      // Recursively process subtasks and append results
+
+      csvData = csvData.concat(recursiveGenerateCSVData(subtask, updatedRemaining));
+    }
+
+    return csvData;
+  };
+
+  // Extracts the first matching month tag from a list of tags
+  const getTag = (tags: TagProps[]) => {
+    const months = new Set([
+      'มกราคม',
+      'กุมภาพันธ์',
+      'มีนาคม',
+      'เมษายน',
+      'พฤษภาคม',
+      'มิถุนายน',
+      'กรกฎาคม',
+      'สิงหาคม',
+      'กันยายน',
+      'ตุลาคม',
+      'พฤศจิกายน',
+      'ธันวาคม',
+    ]);
+
+    const foundTag = tags.find((tag) => months.has(tag.name));
+    return foundTag ? foundTag.name : '-';
+  };
+
+  let csvData: csvDataType[] = [];
+  let totalRemainingBudget = 0;
+
   for (const task of tasks) {
-    const { budget, expense } = sumBudget(task);
-    data.push({ title: task.title, budget: budget, expense: expense, remaining: budget - expense });
+    const assignedMonth = task.tags ? getTag(task.tags) : '-';
+    totalRemainingBudget += task.budget;
+    totalRemainingBudget -= task.expense;
+    
+    csvData.push({
+      title: task.title,
+      month: assignedMonth,
+      budget: moneyToString(task.budget),
+      expense: moneyToString(task.expense),
+      remaining: moneyToString((totalRemainingBudget)),
+    });
+
+    const result = task.budget !== 0 ? [] : recursiveGenerateCSVData(task, totalRemainingBudget);
+    csvData = csvData.concat(result);
   }
-  const csv = toCSV(data);
-  downloadBudgetReport('budgetReport', csv);
+  const csv = convertToCSV(csvData);
+  downloadCSV('budgetReport', csv);
   return csv;
 };
 
