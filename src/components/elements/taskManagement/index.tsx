@@ -6,5 +6,5 @@ export { Filter } from './filter';
 export { Sort } from './sort';
 export { CreateTask } from './createTask';
 export { TaskTitle } from './taskTitle';
-export { ExportDialog } from './exportDialog';
+export { ExportDialog } from './ExportDialog';
 export { Task } from './task';
