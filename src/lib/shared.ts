@@ -9,8 +9,8 @@ export interface CommentBoxProp {
 }
 
 export interface Status {
-  value: string;
-  label: string;
+  status: string;
+  displayName: string;
   icon: string;
 }
 
@@ -50,6 +50,7 @@ export type Task = {
   id: string;
   title: string;
   description: string;
+  status: Status;
   parentTaskId: string | null;
   projectId: string;
   startDate: Date | null;
