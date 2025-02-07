@@ -44,39 +44,33 @@ export const exportAsFile = (tasks: TaskProps[]) => {
   };
 
   // Recursively generates CSV data from task subtasks
-  const recursiveGenerateCSVData = (
-    task: TaskProps,
-    remainingBudget: number,
-    indexData: string,
-  ): csvDataType[] => {
+  const recursiveGenerateCSVData = (task: TaskProps, indexData: string): csvDataType[] => {
     // Base case: If there are no subtasks, return an empty array
     if (!task.subtasks || task.subtasks.length === 0) return [];
 
-    let updatedRemaining = remainingBudget;
     let csvData: csvDataType[] = [];
-
     for (const subtask of task.subtasks) {
-      updatedRemaining -= subtask.expense;
+      totalRemainingBudget -= subtask.expense;
       const assignedMonth = subtask.tags ? getTag(subtask.tags) : '-';
 
-      let index = `${indexData}.${task.subtasks.indexOf(subtask)+1}`;
+      let index = `${indexData}.${task.subtasks.indexOf(subtask) + 1}`;
       const level = indexData.split('.');
       if (level.length >= 2) {
         index = '-';
       }
-      // Push the current subtask's formatted data into the CSV array
 
+      // Push the current subtask's formatted data into the CSV array
       csvData.push({
         index: index,
         title: subtask.title,
         month: assignedMonth,
         budget: '-',
         expense: moneyToString(subtask.expense),
-        remaining: updatedRemaining.toString(),
+        remaining: totalRemainingBudget.toString(),
       });
       // Recursively process subtasks and append results
 
-      csvData = csvData.concat(recursiveGenerateCSVData(subtask, updatedRemaining, index));
+      csvData = csvData.concat(recursiveGenerateCSVData(subtask, index));
     }
 
     return csvData;
@@ -122,10 +116,7 @@ export const exportAsFile = (tasks: TaskProps[]) => {
       remaining: moneyToString(totalRemainingBudget),
     });
 
-    const result =
-      task.budget !== 0
-        ? []
-        : recursiveGenerateCSVData(task, totalRemainingBudget, indexData.toString());
+    const result = task.budget !== 0 ? [] : recursiveGenerateCSVData(task, indexData.toString());
     csvData = csvData.concat(result);
   }
   const csv = convertToCSV(csvData);
