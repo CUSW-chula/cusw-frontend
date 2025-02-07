@@ -119,15 +119,15 @@ export const exportAsTemplate = (tasks: TaskProps[], ids: Set<string>) => {
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export const parseJsonValues = (values: any[]): any[] => {
   return values.map((value) => ({
-    id: "",
+    id: '',
     title: value.title,
     description: value.description,
-    statusBudget: "Initial",
+    statusBudget: 'Initial',
     budget: 0,
     advance: 0,
     expense: 0,
-    status: "Unassigned",
-    parentTaskId: "",
+    status: 'Unassigned',
+    parentTaskId: '',
     projectId: value.projectId,
     createdById: null,
     startDate: new Date(),

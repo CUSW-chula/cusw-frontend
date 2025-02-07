@@ -40,7 +40,7 @@ export const ExportDialog = ({ tasks }: { tasks: TaskProps[] }) => {
     if (value === 'saveFile') {
       exportAsFile(exportedTasks);
     } else if (value === 'saveTemplate') {
-      console.info("Exporting as template", tasks);
+      console.info('Exporting as template', tasks);
       exportAsTemplate(parseJsonValues(tasks), visibleExportTasks);
     }
     setExportType('');
