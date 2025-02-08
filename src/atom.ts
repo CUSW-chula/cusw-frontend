@@ -7,8 +7,8 @@ const Unassigned = '/asset/icon/unassigned.svg';
 const commentlist = atom<CommentBoxProp[]>([]);
 
 const selectedStatusAtom = atom<Status>({
-  value: 'Unassigned',
-  label: 'unassigned',
+  status: 'Unassigned',
+  displayName: 'Unassigned',
   icon: Unassigned,
 });
 
