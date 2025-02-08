@@ -28,9 +28,9 @@ export default async function TasksManageMentPage({
 }: {
   params: Promise<{ task_id: string }>;
 }) {
-  const Workspace = dynamic(() => import('../../../components/elements/workspace'), {
-    ssr: true,
-  });
+  // const Workspace = dynamic(() => import('../../../components/elements/workspace'), {
+  //   ssr: true,
+  // });
 
   const cookieStore = (await cookies()).get('auth')?.value;
   const auth: string = cookieStore?.toString() ?? '';
@@ -52,7 +52,7 @@ export default async function TasksManageMentPage({
   };
 
   return (
-    <div className="min-w-full min-h-screen flex-col items-start justify-center gap-8 ">
+    <div className="min-w-full flex-col items-start justify-center gap-8 ">
       {/* page nav */}
       <div className="flex flex-row py-4 items-center justify-between">
         <BreadcrumbComponent task={task} />
@@ -63,7 +63,7 @@ export default async function TasksManageMentPage({
       <div className="flex-row flex w-full gap-[28px] ">
         {/* Left Section */}
         <div className="w-full rounded-[6px] p-5 border-brown border-[1px] bg-white">
-          <Workspace workspace={workspace} />
+          {/* <Workspace workspace={workspace} /> */}
           <div className="flex justify-between">
             {/* <Emoji task={task} /> */}
             <Uploadfile task={task} />
