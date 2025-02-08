@@ -56,38 +56,21 @@ const Money = ({ task }: { task: TaskProps }) => {
         : 'text-black';
   };
 
-  //get budget
   useEffect(() => {
-    //sent GET method
-    const fetchDataGet = async () => {
-      const url = `${BASE_URL}/v1/tasks/money/${task.id}`;
-      const options = {
-        method: 'GET',
-        headers: {
-          Authorization: auth,
-        },
-      };
-
-      try {
-        const response = await fetch(url, options);
-        const data = await response.json();
-        const types = [TypeMoney.budget, TypeMoney.ad, TypeMoney.exp];
-        const index = data.findIndex((value: number) => value !== 0);
-        setBudgetList({
-          type: types[index] || TypeMoney.null,
-          money: data[index] || data[0],
-        });
-        prevBudgetList.current = {
-          type: types[index] || TypeMoney.null,
-          money: data[index] || data[0],
-        };
-        if (!response.ok) return console.log('GET failed. Operation aborted.');
-      } catch (error) {
-        console.error(error);
-      }
+    const data = [task.budget, task.advance, task.expense].find((item) => item !== 0);
+    const types = [TypeMoney.budget, TypeMoney.ad, TypeMoney.exp];
+    const index = [task.budget, task.advance, task.expense].findIndex((item) => item !== 0);
+    setBudgetList({
+      type: index === -1 ? TypeMoney.null : types[index],
+      money: data ?? 0,
+    });
+    prevBudgetList.current = {
+      type: types[index] || TypeMoney.null,
+      money:
+        [task.budget, task.advance, task.expense][index] ||
+        [task.budget, task.advance, task.expense][0],
     };
-    fetchDataGet();
-  }, [task.id, auth]);
+  }, []);
 
   //submit input budget
   const handleSubmit = async (budget: Budget) => {
