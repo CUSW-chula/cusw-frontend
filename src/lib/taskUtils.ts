@@ -117,26 +117,25 @@ export const exportAsTemplate = (tasks: TaskProps[], ids: Set<string>) => {
 };
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-export const parseJsonValues = (values: any[]): TaskProps[] => {
+export const parseJsonValues = (values: any[]): any[] => {
   return values.map((value) => ({
-    id: value.id,
+    id: '',
     title: value.title,
     description: value.description,
-    statusBudget: value.statusBudget,
-    budget: value.budget,
-    advance: value.advance,
-    expense: value.expense,
-    status: value.status,
-    parentTaskId: value.parentTaskId,
+    statusBudget: 'Initial',
+    budget: 0,
+    advance: 0,
+    expense: 0,
+    status: 'Unassigned',
+    parentTaskId: '',
     projectId: value.projectId,
-    createdById: value.createdById,
-    startDate: new Date(value.startDate),
-    endDate: new Date(value.endDate),
-    owner: value.owner,
-    members: value.members,
+    createdById: null,
+    startDate: new Date(),
+    endDate: new Date(),
+    members: [],
     tags: value.tags,
     subtasks: value.subtasks ? parseJsonValues(value.subtasks) : [],
-    emojis: value.emojis,
+    emojis: [],
   }));
 };
 
