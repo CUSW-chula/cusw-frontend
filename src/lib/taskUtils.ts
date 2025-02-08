@@ -55,7 +55,8 @@ export const exportAsFile = (tasks: TaskProps[]) => {
 
       let index = `${indexData}.${task.subtasks.indexOf(subtask) + 1}`;
       const level = indexData.split('.');
-      if (level.length >= 2) {
+      if (level.length >= 2 || indexData === '-') {
+        // check is level deta more than 2
         index = '-';
       }
 
