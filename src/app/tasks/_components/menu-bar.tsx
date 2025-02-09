@@ -49,7 +49,7 @@ const MenuBar = ({ task }: { task: TaskProps }) => {
             Member :{' '}
           </div>
         </div>
-        {/* <AssignedTaskToMember task={task} /> */}
+        <AssignedTaskToMember task={task} />
       </div>
 
       <div aria-label="tag" className="inline-flex justify-start items-start w-full">

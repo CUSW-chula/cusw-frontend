@@ -326,7 +326,7 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
                             <div className="self-stretch h-[52px] flex-col justify-center items-start gap-3 flex">
                               <div className="justify-start items-center gap-3 inline-flex">
                                 {/* <AssignedTaskToMember task_id={''} /> */}
-                                <Money task={null}/>
+                                <Money task={null} />
                               </div>
                             </div>
                             <div className="justify-start items-start gap-3 inline-flex">
