@@ -109,7 +109,7 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue, task.id, auth]);
+  }, [pareJsonValue, auth]);
 
   const handleSelectTag = async (value: string) => {
     const selected = statuses.find((status) => status.name === value);

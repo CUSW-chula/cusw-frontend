@@ -36,7 +36,7 @@ const MenuBar = ({ task }: { task: TaskProps }) => {
             Owner :{' '}
           </div>
         </div>
-        <ProjectOwner task={task} />
+        {/* <ProjectOwner task={task} /> */}
       </div>
 
       <div aria-label="member" className="h-10 justify-start items-center inline-flex">
