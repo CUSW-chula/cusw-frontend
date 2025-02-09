@@ -27,7 +27,7 @@ interface Budget {
   money: number;
 }
 
-const Money = ({ task }: { task: TaskProps }) => {
+const Money = ({ task }: { task: TaskProps | null }) => {
   enum TypeMoney {
     null = '',
     budget = 'budget',
@@ -56,20 +56,23 @@ const Money = ({ task }: { task: TaskProps }) => {
         : 'text-black';
   };
 
+  //get budget
   useEffect(() => {
-    const data = [task.budget, task.advance, task.expense].find((item) => item !== 0);
-    const types = [TypeMoney.budget, TypeMoney.ad, TypeMoney.exp];
-    const index = [task.budget, task.advance, task.expense].findIndex((item) => item !== 0);
-    setBudgetList({
-      type: index === -1 ? TypeMoney.null : types[index],
-      money: data ?? 0,
-    });
-    prevBudgetList.current = {
-      type: types[index] || TypeMoney.null,
-      money:
-        [task.budget, task.advance, task.expense][index] ||
-        [task.budget, task.advance, task.expense][0],
-    };
+    if (task) {
+      const data = [task.budget, task.advance, task.expense].find((item) => item !== 0);
+      const types = [TypeMoney.budget, TypeMoney.ad, TypeMoney.exp];
+      const index = [task.budget, task.advance, task.expense].findIndex((item) => item !== 0);
+      setBudgetList({
+        type: index === -1 ? TypeMoney.null : types[index],
+        money: data ?? 0,
+      });
+      prevBudgetList.current = {
+        type: types[index] || TypeMoney.null,
+        money:
+          [task.budget, task.advance, task.expense][index] ||
+          [task.budget, task.advance, task.expense][0],
+      };
+    }
   }, [task]);
 
   //submit input budget
@@ -81,7 +84,7 @@ const Money = ({ task }: { task: TaskProps }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
         body: JSON.stringify({
-          taskID: task.id,
+          taskID: task?.id,
           budget: budgetList[0],
           advance: budgetList[1],
           expense: budgetList[2],
@@ -127,7 +130,7 @@ const Money = ({ task }: { task: TaskProps }) => {
       const options = {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: `{"taskID":"${task.id}"}`,
+        body: `{"taskID":"${task?.id}"}`,
       };
       try {
         const response = await fetch(url, options);
@@ -139,10 +142,13 @@ const Money = ({ task }: { task: TaskProps }) => {
       }
       return true;
     };
-
     if (await fetchDataDelete()) {
-      budgetList.type = TypeMoney.null;
-      budgetList.money = 0;
+      const budgetNull = {
+        type: TypeMoney.null,
+        money: 0,
+      };
+      setBudgetList(budgetNull);
+      prevBudgetList.current = budgetNull;
       setOpenDialog(false);
       // sentLog();
     }
@@ -231,7 +237,7 @@ const Money = ({ task }: { task: TaskProps }) => {
             </Button>
             <Button
               onClick={() =>
-                task.id ? handleSubmit(budgetList) : handleSubmitWhenNoTaskID(budgetList)
+                task?.id ? handleSubmit(budgetList) : handleSubmitWhenNoTaskID(budgetList)
               }
               className="h-10 bg-inherit rounded-[100px] flex-col justify-center items-center gap-2 inline-flex text-brown text-sm font-normal font-BaiJamjuree  hover:bg-gray-100"
               disabled={
