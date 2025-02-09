@@ -22,7 +22,7 @@ interface Budget {
   money: number;
 }
 
-const Money = ({ task }: { task: TaskProps }) => {
+const Money = ({ task }: { task: TaskProps | undefined }) => {
   enum TypeMoney {
     null = '',
     budget = 'budget',
@@ -45,7 +45,8 @@ const Money = ({ task }: { task: TaskProps }) => {
   });
   // const url = typeof window !== 'undefined' ? window.location.pathname : '';
   // const path = url.split('/');
-  const taskID = task.id;
+  const [taskID, setTaskID] = useState<string>('');
+  if (task) setTaskID(task.id);
 
   const pareJsonValue = React.useCallback(
     (budgetList: { budget: number; advance: number; expense: number }) => {
@@ -297,7 +298,7 @@ const Money = ({ task }: { task: TaskProps }) => {
               </Button>
               <Button
                 onClick={() =>
-                  taskID ? handleSubmit(budgetList) : handleSubmitWhenNoTaskID(budgetList)
+                  taskID === '' ? handleSubmit(budgetList) : handleSubmitWhenNoTaskID(budgetList)
                 }
                 className="h-10 bg-inherit rounded-[100px] flex-col justify-center items-center gap-2 inline-flex text-brown text-sm font-normal font-BaiJamjuree  hover:bg-gray-100 "
                 disabled={
