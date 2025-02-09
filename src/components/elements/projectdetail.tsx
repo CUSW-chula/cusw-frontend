@@ -82,14 +82,14 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const handleDeleteTask = async () => {
-    const url = `${BASE_URL}api/v2/projects/${project_id}`;
+    const url = `${BASE_URL}/v2/projects/${project_id}`;
     const options = { method: 'DELETE', headers: { Authorization: auth } };
 
     try {
       const response = await fetch(url, options);
       const data = await response.json();
       console.log(data);
-      router.push('/');
+      router.push('/projects');
     } catch (error) {
       console.error(error);
     }
@@ -177,19 +177,19 @@ const SumMoney = ({
           </span>
         </div>
         <div className="flex items-center">
-          <span className="text-green text-2xl font-semibold font-BaiJamjuree">฿</span>
-        </div>
-        <div className="flex items-center">
-          <span className="text-green text-base font-medium font-BaiJamjuree">
-            {advance.toLocaleString()}
+          <span
+            className={`text-2xl font-semibold font-BaiJamjuree ${
+              total < 0 ? 'text-red' : 'text-green'
+            }`}>
+            ฿
           </span>
         </div>
         <div className="flex items-center">
-          <span className="text-red text-2xl font-semibold font-BaiJamjuree">฿</span>
-        </div>
-        <div className="flex items-center">
-          <span className="text-red text-base font-medium font-BaiJamjuree">
-            {expense.toLocaleString()}
+          <span
+            className={`text-base font-medium font-BaiJamjuree ${
+              total < 0 ? 'text-red' : 'text-green'
+            }`}>
+            {Math.abs(total).toLocaleString()}
           </span>
         </div>
       </div>
