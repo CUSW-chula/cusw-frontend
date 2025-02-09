@@ -177,19 +177,19 @@ const SumMoney = ({
           </span>
         </div>
         <div className="flex items-center">
-          <span
-            className={`text-2xl font-semibold font-BaiJamjuree ${
-              total < 0 ? 'text-red' : 'text-green'
-            }`}>
-            ฿
+          <span className="text-green text-2xl font-semibold font-BaiJamjuree">฿</span>
+        </div>
+        <div className="flex items-center">
+          <span className="text-green text-base font-medium font-BaiJamjuree">
+            {advance.toLocaleString()}
           </span>
         </div>
         <div className="flex items-center">
-          <span
-            className={`text-base font-medium font-BaiJamjuree ${
-              total < 0 ? 'text-red' : 'text-green'
-            }`}>
-            {Math.abs(total).toLocaleString()}
+          <span className="text-red text-2xl font-semibold font-BaiJamjuree">฿</span>
+        </div>
+        <div className="flex items-center">
+          <span className="text-red text-base font-medium font-BaiJamjuree">
+            {expense.toLocaleString()}
           </span>
         </div>
       </div>

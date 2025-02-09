@@ -70,7 +70,7 @@ const Money = ({ task }: { task: TaskProps }) => {
         [task.budget, task.advance, task.expense][index] ||
         [task.budget, task.advance, task.expense][0],
     };
-  }, []);
+  }, [task]);
 
   //submit input budget
   const handleSubmit = async (budget: Budget) => {
