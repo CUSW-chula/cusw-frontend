@@ -18,7 +18,12 @@ import {
 import type { TaskProps } from '@/app/types/types';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
-import { exportAsFile, exportAsTemplate, statusSections } from '@/lib/taskUtils';
+import {
+  exportAsFile,
+  exportAsTemplate,
+  statusSections,
+  parseJsonValuesTemplate,
+} from '@/lib/taskUtils';
 
 export const ExportDialog = ({ tasks }: { tasks: TaskProps[] }) => {
   const [exportType, setExportType] = useState<string>(''); // the type of export
@@ -41,7 +46,7 @@ export const ExportDialog = ({ tasks }: { tasks: TaskProps[] }) => {
     if (value === 'saveFile') {
       exportAsFile(exportedTasks);
     } else if (value === 'saveTemplate') {
-      exportAsTemplate(tasks, visibleExportTasks);
+      exportAsTemplate(parseJsonValuesTemplate(tasks), visibleExportTasks);
     }
     setExportType('');
     setExportedTasks([]);

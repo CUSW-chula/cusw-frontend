@@ -183,7 +183,8 @@ export const exportAsTemplate = (tasks: TaskProps[], ids: Set<string>) => {
   const filteredTasks = filterTasksByIds(tasks, ids);
   const taskTree = buildTaskTree(filteredTasks);
   const jsonData = JSON.stringify(taskTree, null, 2);
-  const blob = new Blob([jsonData], { type: 'application/json' });
+  const BOM = '\uFEFF'; // UTF-8 BOM
+  const blob = new Blob([BOM + jsonData], { type: 'application/json' });
   const jsonFile = new File([blob], 'templateName.json', { type: 'application/json' });
   uploadTemplate(jsonFile);
 };
@@ -209,6 +210,29 @@ export const parseJsonValues = (values: any[]): TaskProps[] => {
     tags: value.tags,
     subtasks: value.subtasks ? parseJsonValues(value.subtasks) : [],
     emojis: value.emojis,
+  }));
+};
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+export const parseJsonValuesTemplate = (values: any[]): any[] => {
+  return values.map((value) => ({
+    id: value.id,
+    title: value.title,
+    description: value.description,
+    statusBudget: 'Initial',
+    budget: 0,
+    advance: 0,
+    expense: 0,
+    status: 'Unassigned',
+    parentTaskId: value.parentTaskId,
+    projectId: value.projectId,
+    createdById: null,
+    startDate: new Date(),
+    endDate: new Date(),
+    members: [],
+    tags: value.tags,
+    subtasks: value.subtasks ? parseJsonValuesTemplate(value.subtasks) : [],
+    emojis: [],
   }));
 };
 
