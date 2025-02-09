@@ -16,8 +16,9 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
 import { Profile } from './profile';
-import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
+import BASE_URL, { BASE_SOCKET, Task, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
+import type { TaskProps } from '@/app/types/types';
 
 interface UsersInterfaces {
   id: string;
@@ -25,7 +26,7 @@ interface UsersInterfaces {
   email: string;
 }
 
-export function AssignedTaskToMember({ task_id }: TaskManageMentProp) {
+export function AssignedTaskToMember({ task }: { task: TaskProps }) {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [open, setOpen] = React.useState(false);
@@ -44,24 +45,18 @@ export function AssignedTaskToMember({ task_id }: TaskManageMentProp) {
 
   React.useEffect(() => {
     const fetchAssignAndUsers = async () => {
-      const usersData = await fetch(`${BASE_URL}/users`, {
+      const usersData = await fetch(`${BASE_URL}/v2/users`, {
         headers: {
           Authorization: auth,
         },
       });
       const userList = await usersData.json();
       setUsersList(userList);
-
-      const assignData = await fetch(`${BASE_URL}/tasks/getassign/${task_id}`, {
-        headers: {
-          Authorization: auth,
-        },
-      });
-      const assignList = await assignData.json();
-      setSelectedUser(Array.isArray(assignList) ? assignList : []); // Ensure array format
     };
 
     fetchAssignAndUsers();
+
+    setSelectedUser(task.members);
 
     const ws = new WebSocket(BASE_SOCKET);
 
@@ -93,7 +88,7 @@ export function AssignedTaskToMember({ task_id }: TaskManageMentProp) {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue, task_id, auth]);
+  }, [pareJsonValue, task, auth]);
 
   // Handle user selection and unselection
   const handleSelectUser = async (value: string) => {
@@ -102,13 +97,13 @@ export function AssignedTaskToMember({ task_id }: TaskManageMentProp) {
       const isAlreadySelected = selectedUser.some((user) => user.id === selected.id);
 
       const url = isAlreadySelected
-        ? `${BASE_URL}/tasks/unassigned` // Unassign user
-        : `${BASE_URL}/tasks/assign`; // Assign user
+        ? `${BASE_URL}/v2/tasks/unassigned` // Unassign user
+        : `${BASE_URL}/v2/tasks/assign`; // Assign user
 
       const options = {
         method: isAlreadySelected ? 'DELETE' : 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: JSON.stringify({ taskId: task_id, userId: selected.id }),
+        body: JSON.stringify({ taskId: task.id, userId: selected.id }),
       };
 
       try {

@@ -15,26 +15,20 @@ import * as Tabs from '@/components/ui/tabs';
 import * as Toggle from '@/components/ui/toggle';
 import * as Tooltip from '@/components/ui/tooltip';
 import { useEffect, useState } from 'react';
-import BASE_URL, { type TaskManageMentProp } from '@/lib/shared';
+import BASE_URL, { type ProjectOverviewProps, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { jwtDecode, type JwtPayload } from 'jwt-decode';
 
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
-
 interface CustomJwtPayload extends JwtPayload {
   id: string;
 }
-
-interface Description {
-  description: { id: string; description: string };
-}
-
-export default function Blocknotes({ description }: Description) {
-  const docId = description.id;
+export default function Blocknotes({ project_id }: ProjectOverviewProps) {
+  const docId = project_id;
   return (
     <YDocProvider docId={docId} authEndpoint="https://demos.y-sweet.dev/api/auth">
-      <Document description={description} />
+      <Document project_id={project_id} />
     </YDocProvider>
   );
 }
@@ -47,24 +41,37 @@ function getRandomLightColor(): string {
   return `#${r}${g}${b}`;
 }
 
-function Document({ description }: Description) {
+function Document({ project_id }: ProjectOverviewProps) {
   const [Description, setDescription] = useState<string>('');
-  const task_id = description.id;
 
   useEffect(() => {
-    setDescription(description.description);
-  }, [description.description]);
+    const fetchDescription = async () => {
+      try {
+        const response = await fetch(`${BASE_URL}/v2/projects/${project_id}`, {
+          headers: {
+            Authorization: auth,
+          },
+        });
+        const data = await response.json();
+        setDescription(data.description);
+        const blocks = await editor.tryParseHTMLToBlocks(data.description);
+        editor.replaceBlocks(editor.document, blocks);
+      } catch (error) {
+        console.error('Error fetching Description:', error);
+      }
+    };
+    fetchDescription();
+  }, [project_id]);
 
   useEffect(() => {
     if (!Description) return;
+
     const timer = setTimeout(async () => {
-      const taskId = task_id;
-      const url = `${BASE_URL}/v1/tasks/description`;
+      const url = `${BASE_URL}/v2/projects/${project_id}`;
       const options = {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
         body: JSON.stringify({
-          taskId,
           description: Description,
         }),
       };
@@ -81,7 +88,7 @@ function Document({ description }: Description) {
 
     // Cleanup the timer if Description or task_id changes
     return () => clearTimeout(timer);
-  }, [Description, task_id]);
+  }, [Description, project_id]);
 
   const { audio, image, video, file, codeBlock, ...allowedBlockSpecs } = defaultBlockSpecs;
   const schema = BlockNoteSchema.create({
@@ -104,7 +111,6 @@ function Document({ description }: Description) {
       provider,
       fragment: doc.getXmlFragment('blocknote'),
       user: { color: getRandomLightColor(), name: userData.id },
-      showCursorLabels: 'always',
     },
   });
 

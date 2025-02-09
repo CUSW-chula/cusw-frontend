@@ -27,6 +27,7 @@ import { Profile, Profile2 } from './profile';
 import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
 import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
+import type { TaskProps } from '@/app/types/types';
 
 interface CommentBoxProp {
   id: string;
@@ -229,7 +230,7 @@ function CommentBox({ id, content, taskId, name, createdAt, isDelete, editTime }
   );
 }
 
-const Comment = ({ task_id }: TaskManageMentProp) => {
+const Comment = ({ task }: { task: TaskProps }) => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [comment, setComment] = useState('');
@@ -267,7 +268,7 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
       content: value.content,
       createdAt: new Date(value.createdAt),
       taskId: value.taskId,
-      name: value.author.name,
+      name: value.author ? value.author.name : '',
       isDelete: value.isDelete,
       editTime: value.editTime,
     }),
@@ -276,7 +277,7 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
 
   useEffect(() => {
     const fetchComment = async () => {
-      const commentData = await fetch(`${BASE_URL}/v2/comments/${task_id}`, {
+      const commentData = await fetch(`${BASE_URL}/v2/comments/${task.id}`, {
         headers: {
           Authorization: auth,
         },
@@ -325,7 +326,7 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
     return () => {
       ws.close();
     };
-  }, [parseJsonValue, parseJsonValues, setList, task_id, auth]);
+  }, [parseJsonValue, parseJsonValues, setList, task.id, auth]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setComment(e.target.value);
@@ -346,7 +347,7 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
       },
       body: JSON.stringify({
         content: comment,
-        taskId: task_id,
+        taskId: task.id,
       }),
     });
     setComment('');
@@ -404,7 +405,7 @@ const Comment = ({ task_id }: TaskManageMentProp) => {
   );
 };
 
-export default Comment;
+export { Comment };
 
 /**
  * list comment = [];
