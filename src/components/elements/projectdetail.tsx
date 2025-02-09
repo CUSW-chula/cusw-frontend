@@ -82,14 +82,14 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const handleDeleteTask = async () => {
-    const url = `${BASE_URL}api/v2/projects/${project_id}`;
+    const url = `${BASE_URL}/v2/projects/${project_id}`;
     const options = { method: 'DELETE', headers: { Authorization: auth } };
 
     try {
       const response = await fetch(url, options);
       const data = await response.json();
       console.log(data);
-      router.push('/');
+      router.push('/projects');
     } catch (error) {
       console.error(error);
     }
