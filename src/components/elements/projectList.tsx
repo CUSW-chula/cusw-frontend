@@ -310,16 +310,17 @@ export const ProjectList = () => {
     projectList.map((project) =>
       project.tags.map((tag) => tags.push({ id: tag.id, name: tag.name })),
     );
-    const newFrameworksList = tags.map((tag) => ({
+    const TagsList = tags.map((tag) => ({
       value: tag.name,
       label: tag.name,
     }));
 
-    setTagsList(newFrameworksList);
+    setTagsList(TagsList);
   }
-  React.useEffect(() => {
+
+  useEffect(() => {
     handleProjectTags();
-  }, []);
+  }, [projectList]); //dont remove this dependency bro!!!
 
   return (
     <>
