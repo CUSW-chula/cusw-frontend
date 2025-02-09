@@ -169,7 +169,7 @@ export function FilterByTags({ onSelectTagChange }: FilterTagsProp) {
         <Button
           onClick={handleTogglePopover}
           className={cn(
-            'flex p-4 rounded-[6px] border border-brown h-10 items-center justify-between bg-white hover:bg-neutral-100',
+            'flex p-4 rounded-[6px] border border-brown h-10 items-center justify-between bg-white hover:bg-neutral-100' ,
           )}>
           <span className="text-[14px] text-brown font-BaiJamjuree">Filter by tag</span>
         </Button>
