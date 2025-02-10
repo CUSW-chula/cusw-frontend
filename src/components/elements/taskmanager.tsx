@@ -73,6 +73,29 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     );
   };
 
+  const statusToInt = (status: string): number => {
+    const statusMap: { [key: string]: number } = {
+      Unassigned: 1,
+      Assigned: 2,
+      InRecheck: 3,
+      UnderReview: 4,
+      Done: 5,
+    };
+    return statusMap[status] || -1;
+  };
+
+  const groupingStatus = (task: TaskProps, max: number): number => {
+    let currentMax = Math.min(max, statusToInt(task.status));
+
+    if (task.subtasks) {
+      currentMax = task.subtasks.reduce((acc, subtask) => {
+        return Math.min(acc, groupingStatus(subtask, currentMax));
+      }, currentMax);
+    }
+
+    return currentMax;
+  };
+
   return (
     <div className="h-auto w-full p-11 font-BaiJamjuree bg-white rounded-md border border-brown flex flex-col">
       <header className="h-9 text-black text-3xl font-semibold leading-9 mb-6">
@@ -89,7 +112,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           {/* Tasks in there group */}
           <div className="w-full block">
             {showTasks
-              .filter((item) => item.status === status) // Match with the status property
+              .filter((item) => groupingStatus(item, 99) === statusToInt(status))
               .map((item) => (
                 <Task key={item.id} item={item} hiddenDate={false} />
               ))}
