@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation';
 import { useAtom, useAtomValue } from 'jotai';
 import { moneyAtom } from '@/atom'; // Adjust the import path as necessary
 import { ButtonAddTags } from './button-add-projecttag';
+import { Money } from './money';
 
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
