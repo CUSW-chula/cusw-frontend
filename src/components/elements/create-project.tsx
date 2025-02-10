@@ -1,14 +1,14 @@
 'use client';
 import { getCookie } from 'cookies-next';
 import type React from 'react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { Money } from './money';
 import { DatePickerWithRange } from './date-feature';
 import { ProjectOwner } from './project-owner';
 import { Input } from '../ui/input';
-import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { AssignedTaskToMember } from './assigned-task';
 import BASE_URL, { type ProjectOverviewProps } from '@/lib/shared';
@@ -16,10 +16,13 @@ import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@radix
 import { formatDate } from 'date-fns';
 import { CrownIcon, Users, Tag, Calendar } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { de } from 'date-fns/locale';
+import { da, de, tr } from 'date-fns/locale';
 import { useAtom, useAtomValue } from 'jotai';
 import { moneyAtom } from '@/atom'; // Adjust the import path as necessary
 import { ButtonAddTags } from './button-add-projecttag';
+
+const cookie = getCookie('auth');
+const auth = cookie?.toString() ?? '';
 
 interface projectProps {
   id: string;
@@ -190,6 +193,15 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
   );
 };
 
+type Template = {
+  id: string;
+  filePath: string;
+  fileSize: number;
+  fileName: string;
+  uploadedBy: string;
+  createdAt: Date;
+};
+
 export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [title, setTitle] = useState<string>('');
@@ -210,10 +222,6 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
       console.log(project_id);
     }
   }, []); // Empty dependency array to run only once
-
-  const handleTemplateSelect = (template: string) => {
-    setSelectedTemplate(template);
-  };
 
   const handleNavigateToTemplatePage = () => {
     const url = `/projects/${project_id}`;
@@ -270,6 +278,109 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
     console.info('Adding task to project:', project_id);
   };
 
+  const [allTemplates, setAllTemplates] = useState<Template[]>();
+
+  const handleTemplateSelect = (template: Template) => {
+    const fetchTemplate = async () => {
+      try {
+        console.log(template.filePath);
+        const response = await fetch(template.filePath);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Error get templates:', error);
+      }
+    };
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    const fetchPostTemplate = async (templateFormat: any) => {
+      await fetch(`${BASE_URL}/v2/template`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: auth,
+        },
+        body: templateFormat,
+      });
+    };
+    const templateFormat = fetchTemplate();
+    fetchPostTemplate(templateFormat);
+  };
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  const parseJsonValuesTemplate = useCallback((values: any[]): Template[] => {
+    return values.map((value) => ({
+      id: value.id, // Corrected key reference
+      filePath: value.filePath,
+      fileSize: value.fileSize,
+      fileName: value.fileName,
+      uploadedBy: value.uploadedBy,
+      createdAt: new Date(value.createdAt), // Correctly parse the date
+    }));
+  }, []);
+
+  useEffect(() => {
+    const fetchTemplate = async () => {
+      const url = `${BASE_URL}/v2/template`;
+      const options = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
+      };
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        setAllTemplates(parseJsonValuesTemplate(data));
+      } catch (error) {
+        console.error('Error get templates:', error);
+      }
+    };
+    fetchTemplate();
+  }, []);
+
+  const SelectTemplate = () => {
+    return (
+      <div className="flex flex-col justify-between items-start space-y-6">
+        <div className="grid grid-cols-3 gap-4 p-4 w-full overflow-auto">
+          {allTemplates?.map((template) => (
+            <div
+              key={template.id}
+              className="p-4 bg-white border rounded-md hover:shadow-md"
+              onClick={() => handleTemplateSelect(template)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleTemplateSelect(template);
+                }
+              }}>
+              <div className="flex items-center gap-3">
+                {/* <span className="text-2xl">{template.icon}</span> */}
+                <span className="text-sm font-medium">{template.fileName}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="self-stretch flex-col justify-center items-end flex">
+          <div className="justify-start items-start gap-3 inline-flex">
+            <DialogTrigger asChild>
+              <Button
+                variant="outline"
+                className="px-4 py-2 bg-white border-[#6b5c56] justify-center items-center gap-2.5 flex">
+                Cancel
+              </Button>
+            </DialogTrigger>
+            <Button
+              variant="destructive"
+              className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex"
+              onClick={handleNavigateToTemplatePage} // Handle navigation after selecting a template
+            >
+              Select Template
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="h-[414px] px-20 flex-col justify-start items-start gap-[18px] inline-flex w-full">
       <div className="self-stretch text-black text-5xl font-semibold font-Anuphan leading-[48px]">
@@ -303,6 +414,7 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-[920px] max-h-[400px] h-full w-full p-6 bg-white rounded-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.09)] border border-[#6b5c56] flex-col justify-between items-center inline-flex">
+                    <DialogTitle className="hidden" />
                     <Tabs className="w-full max-w-[654px]">
                       <TabsList className="grid w-full grid-cols-2">
                         <TabsTrigger value="New Task">New Task</TabsTrigger>
@@ -348,52 +460,7 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
                         </div>
                       </TabsContent>
                       <TabsContent value="Select Template">
-                        <div className="flex flex-col justify-between items-start space-y-6">
-                          <div className="grid grid-cols-3 gap-4 p-4 w-full overflow-auto">
-                            {[
-                              { name: 'หน้าเปล่า', icon: '📄' },
-                              { name: 'Hotline', icon: '📞' },
-                              { name: 'Workshop', icon: '📋' },
-                              { name: 'จ้างเหมา', icon: '🛠️' },
-                              { name: 'Sup Hotline', icon: '📱' },
-                              { name: 'จ้างงานในเวลา', icon: '⏱️' },
-                              { name: 'Mind Talk', icon: '🧠' },
-                              { name: 'จ้างงานนอกเวลา', icon: '🌙' },
-                            ].map((template) => (
-                              // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
-                              <div
-                                key={template.name}
-                                className="p-4 bg-white border rounded-md hover:shadow-md"
-                                onClick={() => handleTemplateSelect(template.name)} // Set template on click
-                              >
-                                <div className="flex items-center gap-3">
-                                  <span className="text-2xl">{template.icon}</span>
-                                  <span className="text-sm font-medium text-gray-700">
-                                    {template.name}
-                                  </span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="self-stretch flex-col justify-center items-end flex">
-                            <div className="justify-start items-start gap-3 inline-flex">
-                              <DialogTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  className="px-4 py-2 bg-white border-[#6b5c56] justify-center items-center gap-2.5 flex">
-                                  Cancel
-                                </Button>
-                              </DialogTrigger>
-                              <Button
-                                variant="destructive"
-                                className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex"
-                                onClick={handleNavigateToTemplatePage} // Handle navigation after selecting a template
-                              >
-                                Select Template
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
+                        <SelectTemplate />
                       </TabsContent>
                     </Tabs>
                   </DialogContent>
