@@ -4,7 +4,7 @@ export interface CommentBoxProp {
   taskId: string;
   name: string;
   createdAt: Date;
-  isDelete: boolean;
+  isDeleted: boolean;
   editTime: Date | null;
 }
 

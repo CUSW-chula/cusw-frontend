@@ -35,7 +35,7 @@ interface CommentBoxProp {
   taskId: string;
   name: string;
   createdAt: Date;
-  isDelete: boolean;
+  isDeleted: boolean;
   editTime: Date | null;
 }
 
@@ -115,17 +115,16 @@ function formatName(name: string) {
   return nameParts[0];
 }
 
-function CommentBox({ id, content, taskId, name, createdAt, isDelete, editTime }: CommentBoxProp) {
+function CommentBox({ id, content, taskId, name, createdAt, isDeleted, editTime }: CommentBoxProp) {
   const [isEditing, setIsEditing] = useState(false);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
 
   const deleteComment = async () => {
     try {
-      await fetch(`${BASE_URL}/comments/`, {
+      await fetch(`${BASE_URL}/v2/comments/${id}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: JSON.stringify({ id }),
       });
     } catch (error) {
       console.error('Failed to delete comment:', error);
@@ -134,10 +133,10 @@ function CommentBox({ id, content, taskId, name, createdAt, isDelete, editTime }
 
   const saveEditedContent = async (newContent: string) => {
     try {
-      await fetch(`${BASE_URL}/comments/`, {
+      await fetch(`${BASE_URL}/v2/comments/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: JSON.stringify({ id: id, content: newContent }),
+        body: JSON.stringify({ content: newContent }),
       });
       setIsEditing(false);
     } catch (error) {
@@ -148,7 +147,7 @@ function CommentBox({ id, content, taskId, name, createdAt, isDelete, editTime }
   return (
     <div className="h-auto w-full min-w-full flex flex-col p-1 gap-4">
       <div className="bg-gray-50 rounded-md p-3 w-full">
-        {!isDelete && (
+        {!isDeleted && (
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2 mb-2">
               <TooltipProvider>
@@ -210,7 +209,7 @@ function CommentBox({ id, content, taskId, name, createdAt, isDelete, editTime }
           </div>
         )}
 
-        {isDelete ? (
+        {isDeleted ? (
           <div className="text-gray-500 italic">This comment was deleted</div>
         ) : isEditing ? (
           <EditBox
@@ -250,13 +249,14 @@ const Comment = ({ task }: { task: TaskProps }) => {
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValues = useCallback((values: any[]) => {
+    console.log(values[0]);
     return values.map((value) => ({
       id: value.id,
       content: value.content,
       createdAt: new Date(value.createdAt),
       taskId: value.taskId,
       name: value.author.name,
-      isDelete: value.isDelete,
+      isDeleted: value.isDeleted,
       editTime: value.editTime,
     }));
   }, []);
@@ -269,7 +269,7 @@ const Comment = ({ task }: { task: TaskProps }) => {
       createdAt: new Date(value.createdAt),
       taskId: value.taskId,
       name: value.author ? value.author.name : '',
-      isDelete: value.isDelete,
+      isDeleted: value.isDeleted,
       editTime: value.editTime,
     }),
     [],
@@ -339,7 +339,7 @@ const Comment = ({ task }: { task: TaskProps }) => {
       return;
     }
 
-    await fetch(`${BASE_URL}/comments/`, {
+    await fetch(`${BASE_URL}/v2/comments/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -361,19 +361,22 @@ const Comment = ({ task }: { task: TaskProps }) => {
           {list
             .slice()
             .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
-            .map((item) => (
-              <li key={item.id}>
-                <CommentBox
-                  id={item.id}
-                  content={item.content}
-                  taskId={item.taskId}
-                  name={item.name}
-                  createdAt={item.createdAt}
-                  isDelete={item.isDelete}
-                  editTime={item.editTime}
-                />
-              </li>
-            ))}
+            .map((item) => {
+              console.log(item.content, item.isDeleted);
+              return (
+                <li key={item.id}>
+                  <CommentBox
+                    id={item.id}
+                    content={item.content}
+                    taskId={item.taskId}
+                    name={item.name}
+                    createdAt={item.createdAt}
+                    isDeleted={item.isDeleted}
+                    editTime={item.editTime}
+                  />
+                </li>
+              );
+            })}
           <div ref={commentsEndRef} /> {/* Empty div to anchor scroll to bottom */}
         </ul>
       </div>
