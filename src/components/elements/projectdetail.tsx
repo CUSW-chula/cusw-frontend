@@ -22,7 +22,7 @@ import { useRouter } from 'next/navigation';
 import ProjectWorkspace from './project-workspace';
 import { ButtonAddTags } from './button-add-projecttag';
 
-interface projectProps {
+export interface projectProps {
   id: string;
   title: string;
   description: string;
