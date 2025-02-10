@@ -44,6 +44,7 @@ export type Project = {
   owner: User[];
   members: User[];
   tags: Tag[];
+  isPinned: boolean;
 };
 
 export type Task = {

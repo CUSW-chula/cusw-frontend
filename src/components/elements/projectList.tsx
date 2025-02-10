@@ -7,7 +7,13 @@ import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { getCookie } from 'cookies-next';
 import { Button } from '../ui/button';
-import BASE_URL, { type ProjectTagProp, type Project, type Tag, type User } from '@/lib/shared';
+import BASE_URL, {
+  type ProjectTagProp,
+  type Project,
+  type Tag,
+  type User,
+  BASE_SOCKET,
+} from '@/lib/shared';
 import {
   FilterByTags,
   FilterByDateRange,
@@ -18,12 +24,14 @@ import {
 import { useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { tagsListAtom } from '@/atom';
+import Link from 'next/link';
 
 export const ProjectList = () => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [projectList, setProjectList] = React.useState<Project[]>([]);
   const [query, setQuery] = React.useState<Project[]>([]);
+  const [starredProjects, setStarredProjects] = React.useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const fetchAllProjects = async () => {
@@ -31,9 +39,34 @@ export const ProjectList = () => {
         const response = await fetch(`${BASE_URL}/v2/projects`, {
           headers: { Authorization: auth },
         });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
         const data = await response.json();
-        setProjectList(data);
-        setQuery(data);
+
+        if (!data || !Array.isArray(data)) {
+          throw new Error('Invalid data format received');
+        }
+
+        const temp = parseJsonValues(data);
+        setProjectList(temp ?? []);
+        setQuery(temp ?? []);
+
+        const pinnedProjects = temp?.filter((item) => item?.isPinned) ?? [];
+
+        const updatedStarredProjects = pinnedProjects.reduce(
+          (acc, item) => {
+            if (item?.id) {
+              acc[item.id] = true;
+            }
+            return acc;
+          },
+          {} as Record<string, boolean>,
+        );
+
+        setStarredProjects(updatedStarredProjects);
         console.log('All projects fetched successfully:', data);
       } catch (error) {
         console.error('Error fetching projects:', error);
@@ -41,7 +74,54 @@ export const ProjectList = () => {
     };
 
     fetchAllProjects();
-  }, [auth]);
+
+    const ws = new WebSocket(BASE_SOCKET);
+
+    ws.onopen = () => {
+      console.log('Connected to WebSocket');
+    };
+
+    ws.onmessage = (event) => {
+      console.log('Message received:', event.data);
+      try {
+        const socketEvent = JSON.parse(event.data ?? '{}');
+
+        if (!socketEvent || typeof socketEvent !== 'object') {
+          throw new Error('Invalid WebSocket event format');
+        }
+
+        const { eventName, project } = socketEvent ?? {}; // ✅ ใช้ `project` ได้ตรงๆ เลย
+
+        if (!project?.id) {
+          console.warn('Received event with missing project ID:', socketEvent);
+          return;
+        }
+
+        if (eventName === 'pinProject' || eventName === 'unpinProject') {
+          setProjectList((prevList) =>
+            prevList.map((item) =>
+              item?.id === project?.id ? { ...item, isPinned: eventName === 'pinProject' } : item,
+            ),
+          );
+
+          setStarredProjects((prevStarred) => ({
+            ...prevStarred,
+            [project.id]: eventName === 'pinProject',
+          }));
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    };
+
+    ws.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [auth, setStarredProjects, setQuery]);
 
   //owner
   const getInitials = (name: string) => {
@@ -75,13 +155,40 @@ export const ProjectList = () => {
   const handlesetIsActive = () => {
     setIsActive(!isActive);
   };
-  const [starredProjects, setStarredProjects] = React.useState<Record<string, boolean>>({});
-  const toggleStar = (projectId: string) => {
-    setStarredProjects((prevState) => ({
-      ...prevState,
-      [projectId]: !prevState[projectId],
-    }));
+
+  const toggleStar = async (projectId: string) => {
+    setStarredProjects((prevState) => {
+      const isCurrentlyStarred = prevState[projectId] ?? false;
+      return {
+        ...prevState,
+        [projectId]: !isCurrentlyStarred,
+      };
+    });
+
+    try {
+      const isCurrentlyStarred = starredProjects[projectId] ?? false;
+      await fetch(`${BASE_URL}/v2/projects/pin/${projectId}`, {
+        method: isCurrentlyStarred ? 'DELETE' : 'POST',
+        headers: { Authorization: auth },
+      });
+    } catch (error) {
+      console.error('Failed to toggle star:', error);
+
+      // 🔄 รีเซ็ตค่า UI กลับถ้า API ล้มเหลว
+      setStarredProjects((prevState) => {
+        const wasStarred = prevState[projectId] ?? false;
+        return {
+          ...prevState,
+          [projectId]: wasStarred,
+        };
+      });
+    }
   };
+  React.useEffect(() => {
+    // ทำงานเมื่อ starredProjects เปลี่ยนแปลง
+    console.log('Starred projects updated:', starredProjects);
+  }, [starredProjects]);
+
   const [dateRange, setDateRange] = React.useState<{ from: string; to: string } | undefined>();
   const [searchText, setSearchText] = React.useState('');
   const [filterTag, setfilterTag] = React.useState<string[]>([]);
@@ -119,8 +226,19 @@ export const ProjectList = () => {
         return projectTitle.includes(searchText.toLocaleLowerCase().trim());
       });
     }
-    setQuery(filteredProjects);
+    // setQuery(filteredProjects);
+    setQuery(sortByStarredProjects(filteredProjects));
   };
+  const sortByStarredProjects = (projects: Project[]) => {
+    return [...projects].sort((a, b) => {
+      const aStarred = starredProjects[a.id] ? 1 : 0;
+      const bStarred = starredProjects[b.id] ? 1 : 0;
+      return bStarred - aStarred; // เรียงโปรเจ็กต์ที่ starred ไว้ก่อน
+    });
+  };
+  React.useEffect(() => {
+    setQuery((prevQuery) => sortByStarredProjects(prevQuery));
+  }, [starredProjects]);
 
   const handleDateRangeChange = (dateRange: { from: string; to: string } | undefined) => {
     setDateRange(dateRange);
@@ -192,16 +310,17 @@ export const ProjectList = () => {
     projectList.map((project) =>
       project.tags.map((tag) => tags.push({ id: tag.id, name: tag.name })),
     );
-    const newFrameworksList = tags.map((tag) => ({
+    const TagsList = tags.map((tag) => ({
       value: tag.name,
       label: tag.name,
     }));
 
-    setTagsList(newFrameworksList);
+    setTagsList(TagsList);
   }
-  React.useEffect(() => {
+
+  useEffect(() => {
     handleProjectTags();
-  }, []);
+  }, [projectList]); //dont remove this dependency bro!!!
 
   return (
     <>
@@ -214,26 +333,34 @@ export const ProjectList = () => {
       </div>
       <div className="flex items-start content-start gap-[16px] flex-wrap ">
         {query.length > 0 ? (
-          query.map((project) => (
-            <a key={project.id} href={`/projects/detail/${project.id}`}>
-              <div
-                key={project.id}
-                className="flex flex-start w-[308px] h-[284px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px] relative">
-                <div className="flex flex-col gap-y-[8px] ">
-                  <div className="h-[56px] w-[204px] self-stretch">
-                    <div className="font-BaiJamjuree text-[16px] text-base font-medium leading-[1.75] ">
-                      {project.title}
-                    </div>
-                  </div>
-
-                  <div className="absolute top-[15px] right-[20px]">
-                    <button type="button" onClick={() => toggleStar(project.id)}>
-                      {starredProjects[project.id] ? (
-                        <Star className="text-brown h-[24px] w-[24px] fill-yellow" />
-                      ) : (
-                        <Star className="text-brown h-[24px] w-[24px]" />
-                      )}
-                    </button>
+          query.map((project, index) => (
+            <div key={`${project.id}-${index}`} className="relative">
+              <div className="absolute top-[15px] right-[20px] z-50">
+                <button type="button" onClick={() => toggleStar(project.id)}>
+                  {starredProjects[project.id] ? (
+                    <Star className="text-brown h-[24px] w-[24px] fill-yellow" />
+                  ) : (
+                    <Star className="text-brown h-[24px] w-[24px]" />
+                  )}
+                </button>
+              </div>
+              <Link
+                href={`/projects/${project.id}`}
+                className="flex flex-start w-[308px] h-[284px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px] ">
+                <div className="flex flex-col gap-y-[8px]">
+                  <div className="h-[56px] w-[204px] self-stretch overflow-hidden">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <div className="font-BaiJamjuree text-[16px] text-base font-medium leading-[1.75] truncate w-full">
+                            {project.title}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{project.title}</p> {/* Full title on hover */}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
 
                   <div className="absolute top-[60px] right-[20px]  ">
@@ -284,7 +411,7 @@ export const ProjectList = () => {
                     <CrownIcon className="w-[24px] h-[24px] relative text-black mr-1" />
                     <TooltipProvider>
                       <div className="flex items-center space-x-[4px] gap-1">
-                        {project.owner.map((user) => (
+                        {project.owner?.map((user) => (
                           <Tooltip key={user?.id ?? user?.email}>
                             <TooltipTrigger>
                               <div className="flex items-center space-x-2">
@@ -307,7 +434,7 @@ export const ProjectList = () => {
                     <Users className="w-[24px] h-[24px] relative text-black mr-1" />
                     <TooltipProvider>
                       <div className="flex items-center space-x-[4px]">
-                        {project.members.map((user) => (
+                        {project.members?.map((user) => (
                           <Tooltip key={user?.id ?? user?.email}>
                             <TooltipTrigger>
                               <div className="flex items-center space-x-2">
@@ -367,8 +494,8 @@ export const ProjectList = () => {
                     </div>
                   </div>
                 </div>
-              </div>
-            </a>
+              </Link>
+            </div>
           ))
         ) : (
           <div>No projects found</div>
@@ -376,4 +503,22 @@ export const ProjectList = () => {
       </div>
     </>
   );
+};
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+const parseJsonValues = (values: any[]) => {
+  return values.map((value) => ({
+    id: value.id,
+    title: value.title,
+    description: value.description,
+    budget: value.budget,
+    advance: value.advance,
+    expense: value.expense,
+    startDate: value.startDate,
+    endDate: value.endDate,
+    createdById: value.cretedById,
+    owner: value.owner,
+    members: value.members,
+    tags: value.tags,
+    isPinned: value.isPinned,
+  }));
 };
