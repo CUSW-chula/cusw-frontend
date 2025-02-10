@@ -1,20 +1,25 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogTrigger,
   DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import BASE_URL from '@/lib/shared';
 import { getCookie } from 'cookies-next';
-import { atom, useAtom, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { moneyAtom } from '@/atom';
 import type { TaskProps } from '@/app/types/types';
 interface Budget {
@@ -22,7 +27,7 @@ interface Budget {
   money: number;
 }
 
-const Money = ({ task }: { task: TaskProps | undefined }) => {
+const Money = ({ task }: { task: TaskProps | null }) => {
   enum TypeMoney {
     null = '',
     budget = 'budget',
@@ -31,7 +36,6 @@ const Money = ({ task }: { task: TaskProps | undefined }) => {
   }
 
   const [openDialog, setOpenDialog] = useState(false); // Manage dialog open state
-  const [openType, setOpenType] = useState(false); //Manage Popover state Money type
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const setMoney = useSetAtom(moneyAtom);
@@ -39,71 +43,57 @@ const Money = ({ task }: { task: TaskProps | undefined }) => {
     type: TypeMoney.null,
     money: 0,
   });
-  const [tempBudget, setTempBudget] = useState<Budget>({
+  const prevBudgetList = useRef<Budget>({
     type: TypeMoney.null,
-    money: budgetList.money,
+    money: 0,
   });
-  // const url = typeof window !== 'undefined' ? window.location.pathname : '';
-  // const path = url.split('/');
-  const [taskID, setTaskID] = useState<string>('');
-  if (task) setTaskID(task.id);
 
-  const pareJsonValue = React.useCallback(
-    (budgetList: { budget: number; advance: number; expense: number }) => {
-      return budgetList.budget
-        ? { type: TypeMoney.budget, money: budgetList.budget }
-        : budgetList.advance
-          ? { type: TypeMoney.ad, money: budgetList.advance }
-          : budgetList.expense
-            ? { type: TypeMoney.exp, money: budgetList.expense }
-            : { type: TypeMoney.null, money: 0 };
-    },
-    [],
-  );
+  const getMoneyColor = (budgetType: string) => {
+    return budgetType === TypeMoney.ad
+      ? 'text-green'
+      : budgetType === TypeMoney.exp
+        ? 'text-red'
+        : 'text-black';
+  };
 
   //get budget
   useEffect(() => {
-    //sent GET method
-    const fetchDataGet = async () => {
-      const url = `${BASE_URL}/v1/tasks/money/${taskID}`;
-      const options = {
-        method: 'GET',
-        headers: {
-          Authorization: auth,
-        },
+    if (task) {
+      const data = [task.budget, task.advance, task.expense].find((item) => item !== 0);
+      const types = [TypeMoney.budget, TypeMoney.ad, TypeMoney.exp];
+      const index = [task.budget, task.advance, task.expense].findIndex((item) => item !== 0);
+      setBudgetList({
+        type: index === -1 ? TypeMoney.null : types[index],
+        money: data ?? 0,
+      });
+      prevBudgetList.current = {
+        type: types[index] || TypeMoney.null,
+        money:
+          [task.budget, task.advance, task.expense][index] ||
+          [task.budget, task.advance, task.expense][0],
       };
-
-      try {
-        const response = await fetch(url, options);
-        const data = await response.json();
-        const types = [TypeMoney.budget, TypeMoney.ad, TypeMoney.exp];
-        const index = data.findIndex((value: number) => value !== 0);
-        setBudgetList({
-          type: types[index] || TypeMoney.null,
-          money: data[index] || data[0],
-        });
-        if (!response.ok) return console.log('GET failed. Operation aborted.');
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchDataGet();
-  }, [taskID, auth]);
+    }
+  }, [task]);
 
   //submit input budget
   const handleSubmit = async (budget: Budget) => {
     //sent POST method
     const fetchDataPost = async (budgetList: number[]) => {
-      const url = `${BASE_URL}/tasks/money`;
+      const url = `${BASE_URL}/v2/tasks/money`;
       const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: `{"taskID":"${taskID}","budget":${budgetList[0]},"advance":${budgetList[1]},"expense":${budgetList[2]}}`,
+        body: JSON.stringify({
+          taskID: task?.id,
+          budget: budgetList[0],
+          advance: budgetList[1],
+          expense: budgetList[2],
+        }),
       };
       try {
         const response = await fetch(url, options);
         const data = await response.json();
-        // console.log("POST: " + data);
+        console.log(`POST:·${data}`);
         if (!response.ok) return false;
       } catch (error) {
         console.error(error);
@@ -118,9 +108,8 @@ const Money = ({ task }: { task: TaskProps | undefined }) => {
           ? [0, budget.money, 0]
           : [0, 0, budget.money];
     if (await fetchDataPost(data)) {
-      setTempBudget(budget);
+      prevBudgetList.current = budget;
       setOpenDialog(false);
-      // sentLog();
     }
   };
 
@@ -137,26 +126,29 @@ const Money = ({ task }: { task: TaskProps | undefined }) => {
   const handleClear = async () => {
     //sent DELETE method
     const fetchDataDelete = async () => {
-      const url = `${BASE_URL}/tasks/money`;
+      const url = `${BASE_URL}/v2/tasks/money`;
       const options = {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: `{"taskID":"${taskID}"}`,
+        body: `{"taskID":"${task?.id}"}`,
       };
       try {
         const response = await fetch(url, options);
         const data = await response.json();
-        // console.log("DELETE: " + data);
         if (!response.ok) return false;
+        return data;
       } catch (error) {
         console.error(error);
       }
       return true;
     };
-
     if (await fetchDataDelete()) {
-      budgetList.type = TypeMoney.null;
-      budgetList.money = 0;
+      const budgetNull = {
+        type: TypeMoney.null,
+        money: 0,
+      };
+      setBudgetList(budgetNull);
+      prevBudgetList.current = budgetNull;
       setOpenDialog(false);
       // sentLog();
     }
@@ -164,155 +156,101 @@ const Money = ({ task }: { task: TaskProps | undefined }) => {
 
   //not save budget input
   const handleCancel = () => {
-    setBudgetList(tempBudget);
+    setBudgetList(prevBudgetList.current);
     setOpenDialog(false);
   };
 
-  //sent log of budget
-  const sentLog = () => {
-    const { budget, advance, expense } =
-      budgetList.type === TypeMoney.budget
-        ? { budget: budgetList.money, advance: 0, expense: 0 }
-        : budgetList.type === TypeMoney.ad
-          ? { budget: 0, advance: budgetList.money, expense: 0 }
-          : { budget: 0, advance: 0, expense: budgetList.money };
+  function handleInputMoney(value: string): void {
+    setBudgetList((prevBudget) => ({
+      ...prevBudget,
+      money: Number.parseFloat(value),
+    }));
+  }
 
-    console.log({
-      taskId: taskID,
-      budget,
-      advance,
-      expense,
-    });
-  };
+  function changeTypeMoney(value: string): void {
+    setBudgetList((prevBudget) => ({
+      ...prevBudget,
+      type: value,
+    }));
+  }
 
   return (
-    <div className="h-10 justify-start items-center gap-[15px] inline-flex ">
-      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogTrigger asChild>
-          <div
-            className={`h-10 px-4 bg-white rounded-md border justify-center items-center flex min-w-32 font-BaiJamjuree hover:cursor-pointer  border-brown text-brown${
-              budgetList.type === TypeMoney.ad
-                ? 'text-green'
-                : budgetList.type === TypeMoney.null
-                  ? 'text-brown'
-                  : budgetList.type === TypeMoney.exp
-                    ? 'text-red'
-                    : 'text-black'
-            }`}>
-            {budgetList.type === TypeMoney.null
-              ? 'Add Money'
-              : Number.isNaN(budgetList.money)
-                ? 'Add Money'
-                : budgetList.money.toLocaleString()}
-            {/* Allow up to three decimal */}
-          </div>
-        </DialogTrigger>
-        <DialogContent className="w-[360px] h-[156px] px-3 pt-1 pb-3 bg-white rounded-md border border-brown flex-col justify-start items-start gap-4 inline-flex">
+    <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+      <DialogTrigger asChild>
+        <div
+          className={`h-10 px-4 bg-white rounded-md border justify-center items-center flex min-w-32 font-BaiJamjuree hover:cursor-pointer  border-brown text-brown ${getMoneyColor(budgetList.type)}`}>
+          {budgetList.type === TypeMoney.null || Number.isNaN(budgetList.money)
+            ? 'Add Money'
+            : budgetList.money.toLocaleString()}
+          {/* Allow up to three decimal */}
+        </div>
+      </DialogTrigger>
+      <DialogContent className="w-[360px] px-3 pt-1 pb-3 bg-white rounded-md border border-brown gap-0">
+        <DialogHeader>
           <DialogTitle className="hidden" />
           {/* Content Zone */}
           <DialogDescription className="w-full flex flex-row self-stretch h-24 px-1.5 pt-9 justify-start gap-2">
-            <Popover open={openType} onOpenChange={setOpenType}>
-              <PopoverTrigger className="w-32 h-10 px-3 rounded-md border border-gray-300 justify-between items-center inline-flex ">
-                {budgetList.type === TypeMoney.null ? (
-                  <div>Select Type</div>
-                ) : budgetList.type === TypeMoney.budget ? (
-                  <div>งบประมาณ</div>
-                ) : budgetList.type === TypeMoney.ad ? (
-                  <div className="text-green">สำรองจ่าย</div>
-                ) : (
-                  <div className="text-red">ค่าใช้จ่าย</div>
-                )}
-
-                <ChevronDown className="w-4 h-4" />
-              </PopoverTrigger>
-              <PopoverContent className="flex flex-col gap-1 w-44">
-                <div className="text-lg font-Anuphan font-semibold">เลือกประเภท</div>
-                <Button
-                  className="bg-gray-100 text-black text-sm font-normal font-Anuphan leading-normal hover:text-white "
-                  onClick={() => {
-                    setBudgetList((prevBudget) => ({
-                      ...prevBudget,
-                      type: TypeMoney.budget,
-                    }));
-                    setOpenType(false);
-                  }}>
+            <Select value={budgetList.type} onValueChange={(value) => changeTypeMoney(value)}>
+              <SelectTrigger
+                className={`w-32 h-10 px-3 rounded-md border border-gray-300 justify-between items-center inline-flex ${getMoneyColor(budgetList.type)}`}>
+                <SelectValue placeholder="Select Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem
+                  value="budget"
+                  className="text-black text-sm font-normal font-Anuphan leading-normal hover:bg-gray-100">
                   งบประมาณ
-                </Button>
-                <Button
-                  className="bg-gray-100 text-black text-sm font-normal font-Anuphan leading-normal hover:text-white "
-                  onClick={() => {
-                    setBudgetList((prevBudget) => ({
-                      ...prevBudget,
-                      type: TypeMoney.ad,
-                    }));
-                    setOpenType(false);
-                  }}>
+                </SelectItem>
+                <SelectItem
+                  value="advance"
+                  className="text-black text-sm font-normal font-Anuphan leading-normal hover:bg-gray-100">
                   สำรองจ่าย
-                </Button>
-                <Button
-                  className="bg-gray-100 text-black text-sm font-normal font-Anuphan leading-normal hover:text-white "
-                  onClick={() => {
-                    setBudgetList((prevBudget) => ({
-                      ...prevBudget,
-                      type: TypeMoney.exp,
-                    }));
-                    setOpenType(false);
-                  }}>
+                </SelectItem>
+                <SelectItem
+                  value="expense"
+                  className="text-black text-sm font-normal font-Anuphan leading-normal hover:bg-gray-100">
                   ค่าใช้จ่าย
-                </Button>
-              </PopoverContent>
-            </Popover>
+                </SelectItem>
+              </SelectContent>
+            </Select>
             <Input
               id="budget"
               value={Number.isNaN(budgetList.money) ? '' : budgetList.money}
-              onChange={(e) =>
-                setBudgetList((prevBudget) => ({
-                  ...prevBudget,
-                  money: Number.parseFloat(e.target.value),
-                }))
-              }
+              onChange={(e) => handleInputMoney(e.target.value)}
               type="number"
-              className={`h-10 w-48 px-4 bg-white rounded-md border-t border-gray-300 font-BaiJamjuree  ${
-                budgetList.type === TypeMoney.ad
-                  ? 'text-green'
-                  : budgetList.type === TypeMoney.exp
-                    ? 'text-red'
-                    : 'text-black'
-              }
-              `}
+              className={`h-10 w-48 px-4 bg-white rounded-md border-t border-gray-300 font-BaiJamjuree  ${getMoneyColor(budgetList.type)}`}
               placeholder="Add Budget..."
             />
           </DialogDescription>
-          {/* Controller Zone */}
-          <div className="self-stretch px-3 pt-2 border-t border-gray-300 justify-between items-start inline-flex">
+        </DialogHeader>
+        <DialogFooter className="px-3 pt-2 border-t border-gray-300 flex">
+          <Button
+            onClick={handleClear}
+            className="h-10 bg-inherit rounded-[100px] flex-col justify-center items-center gap-2 inline-flex text-brown text-sm font-normal font-BaiJamjuree  hover:bg-gray-100">
+            Clear
+          </Button>
+          <div className="space-x-2 grow flex justify-end">
             <Button
-              onClick={handleClear}
+              onClick={handleCancel}
               className="h-10 bg-inherit rounded-[100px] flex-col justify-center items-center gap-2 inline-flex text-brown text-sm font-normal font-BaiJamjuree  hover:bg-gray-100">
-              Clear
+              Cancel
             </Button>
-            <div className="grow shrink basis-0 h-10 justify-end items-start gap-2 flex">
-              <Button
-                onClick={handleCancel}
-                className="h-10 w-20 bg-inherit rounded-[100px] flex-col justify-center items-center gap-2 inline-flex text-brown text-sm font-normal font-BaiJamjuree  hover:bg-gray-100">
-                Cancel
-              </Button>
-              <Button
-                onClick={() =>
-                  taskID === '' ? handleSubmit(budgetList) : handleSubmitWhenNoTaskID(budgetList)
-                }
-                className="h-10 bg-inherit rounded-[100px] flex-col justify-center items-center gap-2 inline-flex text-brown text-sm font-normal font-BaiJamjuree  hover:bg-gray-100 "
-                disabled={
-                  budgetList.type === TypeMoney.null ||
-                  Number.isNaN(budgetList.money) ||
-                  budgetList.money === 0
-                }>
-                Ok
-              </Button>
-            </div>
+            <Button
+              onClick={() =>
+                task?.id ? handleSubmit(budgetList) : handleSubmitWhenNoTaskID(budgetList)
+              }
+              className="h-10 bg-inherit rounded-[100px] flex-col justify-center items-center gap-2 inline-flex text-brown text-sm font-normal font-BaiJamjuree  hover:bg-gray-100"
+              disabled={
+                budgetList.type === TypeMoney.null ||
+                Number.isNaN(budgetList.money) ||
+                budgetList.money === 0
+              }>
+              Ok
+            </Button>
           </div>
-        </DialogContent>
-      </Dialog>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 

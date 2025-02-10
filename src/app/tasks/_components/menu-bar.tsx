@@ -82,7 +82,7 @@ const MenuBar = ({ task }: { task: TaskProps }) => {
             Money :{' '}
           </div>
         </div>
-        {/* <Money task={task} /> */} {/* TODO: waiting for WAI PR  */}
+        <Money task={task} />
       </div>
 
       <div aria-label="date" className="h-10 justify-start items-center inline-flex">
