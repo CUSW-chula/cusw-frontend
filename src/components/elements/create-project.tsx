@@ -4,19 +4,13 @@ import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
-import { Money } from './money';
-import { DatePickerWithRange } from './date-feature';
-import { ProjectOwner } from './project-owner';
 import { Input } from '../ui/input';
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { AssignedTaskToMember } from './assigned-task';
 import BASE_URL, { type ProjectOverviewProps } from '@/lib/shared';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@radix-ui/react-tooltip';
-import { formatDate } from 'date-fns';
 import { CrownIcon, Users, Tag, Calendar } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { da, de, tr } from 'date-fns/locale';
 import { useAtom, useAtomValue } from 'jotai';
 import { moneyAtom } from '@/atom'; // Adjust the import path as necessary
 import { ButtonAddTags } from './button-add-projecttag';
@@ -188,12 +182,12 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
     }
   }, []); // Empty dependency array to run only once
 
-  const handleNavigateToTemplatePage = async() => {
+  const handleNavigateToTemplatePage = async () => {
     const url = `/projects/${project_id}`;
     if (selectedTemplate) {
-      await createTasks(selectedTemplate)
+      await createTasks(selectedTemplate);
       router.push(url);
-    }  
+    }
   };
 
   const handleAddTask = async (project_id: string, auth: string) => {
@@ -218,7 +212,7 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
         endDate: new Date(),
       }),
     };
-    
+
     try {
       const res = await fetch(url, options);
       if (!res.ok) {
@@ -231,8 +225,8 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
     console.info('Adding task to project:', project_id);
   };
 
-  const updateProject = async () =>{
-    console.log('patch project')
+  const updateProject = async () => {
+    console.log('patch project');
     const url = `${BASE_URL}/v2/projects/${project_id}`;
     const options = {
       method: 'PATCH',
@@ -251,11 +245,11 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
     } catch (error) {
       console.error('Error update project:', error);
     }
-  }
+  };
 
   const [allTemplates, setAllTemplates] = useState<Template[]>();
 
-  const createTasks = async(template: Template) =>{
+  const createTasks = async (template: Template) => {
     const fetchTemplate = async () => {
       try {
         const response = await fetch(template.filePath);
@@ -270,7 +264,7 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
     };
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     const fetchPostTemplate = async (templateFormat: any) => {
-      console.log(templateFormat)
+      console.log(templateFormat);
       try {
         const response = await fetch(`${BASE_URL}/v2/tasks/template/${project_id}`, {
           method: 'POST',
@@ -278,20 +272,19 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
             'Content-Type': 'application/json',
             Authorization: auth,
           },
-          body: JSON.stringify(templateFormat)
+          body: JSON.stringify(templateFormat),
         });
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        console.log(`Post successful ${response.status}`)
+        console.log(`Post successful ${response.status}`);
       } catch (error) {
         console.error('Error create tasks with template:', error);
       }
-      
     };
     const templateFormat = await fetchTemplate();
     await fetchPostTemplate(templateFormat);
-  }
+  };
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValuesTemplate = useCallback((values: any[]): Template[] => {
@@ -330,7 +323,7 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
           {allTemplates?.map((template) => (
             <div
               key={template.id}
-              className={`p-4 border rounded-md hover:shadow-md ${template.id===selectedTemplate?.id?'bg-gray-100':'bg-white'}`}
+              className={`p-4 border rounded-md hover:shadow-md ${template.id === selectedTemplate?.id ? 'bg-gray-100' : 'bg-white'}`}
               onClick={() => setSelectedTemplate(template)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -394,7 +387,7 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
                     <Button
                       variant="destructive"
                       disabled={projectTitle === ''}
-                      onClick={()=>updateProject()}
+                      onClick={() => updateProject()}
                       className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex">
                       Select Project Template
                     </Button>
