@@ -107,12 +107,12 @@ const Subtask = ({ task }: { task: TaskProps }) => {
         body: JSON.stringify({
           title: '',
           description: '',
-          expectedBudget: 0,
-          realBudget: 0,
-          usedBudget: 0,
+          budget: 0,
+          advance: 0,
+          expense: 0,
           status: 'Unassigned',
           parentTaskId: task.id,
-          projectId: 'cm24w5yu000008tlglutu5czu',
+          projectId: task.projectId,
           startDate: new Date(),
           endDate: new Date(),
         }),
@@ -136,7 +136,7 @@ const Subtask = ({ task }: { task: TaskProps }) => {
   const handleDeleteSubtask = async () => {
     try {
       const latestSubtask = subtasks[subtasks.length - 1];
-      const response = await fetch(`${BASE_URL}/tasks/${latestSubtask.id}`, {
+      const response = await fetch(`${BASE_URL}/v1/tasks/${latestSubtask.id}`, {
         method: 'DELETE',
         headers: {
           Authorization: auth,
@@ -165,7 +165,7 @@ const Subtask = ({ task }: { task: TaskProps }) => {
 
     try {
       const latestSubtask = subtasks[subtasks.length - 1]; // Get the latest created subtask
-      const response = await fetch(`${BASE_URL}/tasks/`, {
+      const response = await fetch(`${BASE_URL}/v1/tasks/`, {
         method: 'PATCH',
         headers: {
           Authorization: auth,

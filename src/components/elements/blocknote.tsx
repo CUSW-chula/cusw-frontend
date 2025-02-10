@@ -104,7 +104,7 @@ function Document({ description }: Description) {
       provider,
       fragment: doc.getXmlFragment('blocknote'),
       user: { color: getRandomLightColor(), name: userData.id },
-      showCursorLabels: 'always',
+      // showCursorLabels: 'always',
     },
   });
 
