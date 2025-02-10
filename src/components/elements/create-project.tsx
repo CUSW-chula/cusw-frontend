@@ -24,44 +24,10 @@ import { ButtonAddTags } from './button-add-projecttag';
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
 
-interface projectProps {
-  id: string;
-  title: string;
-  description: string;
-  budget: number;
-  advance: number;
-  expense: number;
-  startDate: Date;
-  endDate: Date;
-  owner: UsersProps;
-  members: UsersProps[];
-  tags: Tags[];
-}
-interface Tags {
-  id: string;
-  name: string;
-}
 interface UsersProps {
   id: string;
   name: string;
   email: string;
-}
-
-interface taskProps {
-  id: string;
-  title: string;
-  description: string;
-  budget: number;
-  advance: number;
-  expense: number;
-  status: 'Unassigned' | 'Assigned' | 'UnderReview' | 'InRecheck' | 'Done';
-  parentTaskId: string;
-  projectId: string;
-  createdById: string;
-  startDate: Date;
-  endDate: Date;
-  tags?: string[];
-  subtasks?: taskProps[];
 }
 
 const CancelButton = ({
@@ -203,15 +169,14 @@ type Template = {
 };
 
 export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
-  const [title, setTitle] = useState<string>('');
-  const [pTitle, setPTitle] = useState<string>('');
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const [taskTitle, setTaskTitle] = useState<string>('');
+  const [projectTitle, setProjectTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
+  const [projectDescription, setProjectDescription] = useState<string>('');
   const router = useRouter();
   const money = useAtomValue(moneyAtom);
   const id = project_id;
-  const cookie = getCookie('auth');
-  const auth = cookie?.toString() ?? '';
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -223,25 +188,25 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
     }
   }, []); // Empty dependency array to run only once
 
-  const handleNavigateToTemplatePage = () => {
+  const handleNavigateToTemplatePage = async() => {
     const url = `/projects/${project_id}`;
     if (selectedTemplate) {
+      await createTasks(selectedTemplate)
       router.push(url);
-    }
+    }  
   };
 
   const handleAddTask = async (project_id: string, auth: string) => {
-    if (title === '') {
+    if (taskTitle === '') {
       alert('Title is required');
       return;
     }
-    console.log('auth', auth);
     const url = `${BASE_URL}/v2/tasks/`;
     const options = {
       method: 'POST',
       headers: { Authorization: auth, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        title: title,
+        title: taskTitle,
         description: description,
         budget: money[0],
         advance: money[1],
@@ -253,23 +218,11 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
         endDate: new Date(),
       }),
     };
-    const url2 = `${BASE_URL}/v2/projects/${project_id}`;
-    const options2 = {
-      method: 'PATCH',
-      headers: { Authorization: auth, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title: pTitle,
-      }),
-    };
-
+    
     try {
       const res = await fetch(url, options);
-      const res2 = await fetch(url2, options2);
       if (!res.ok) {
         throw new Error('Failed to add task');
-      }
-      if (!res2.ok) {
-        throw new Error('Failed to add project title');
       }
       router.push(`/projects/${project_id}`);
     } catch (error) {
@@ -278,12 +231,33 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
     console.info('Adding task to project:', project_id);
   };
 
+  const updateProject = async () =>{
+    console.log('patch project')
+    const url = `${BASE_URL}/v2/projects/${project_id}`;
+    const options = {
+      method: 'PATCH',
+      headers: { Authorization: auth, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: projectTitle,
+        description: projectDescription,
+      }),
+    };
+
+    try {
+      const res = await fetch(url, options);
+      if (!res.ok) {
+        throw new Error('Failed to add project title');
+      }
+    } catch (error) {
+      console.error('Error update project:', error);
+    }
+  }
+
   const [allTemplates, setAllTemplates] = useState<Template[]>();
 
-  const handleTemplateSelect = (template: Template) => {
+  const createTasks = async(template: Template) =>{
     const fetchTemplate = async () => {
       try {
-        console.log(template.filePath);
         const response = await fetch(template.filePath);
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -296,18 +270,29 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
     };
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     const fetchPostTemplate = async (templateFormat: any) => {
-      await fetch(`${BASE_URL}/v2/template`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: auth,
-        },
-        body: templateFormat,
-      });
+      console.log(templateFormat)
+      try {
+        const response = await fetch(`${BASE_URL}/v2/tasks/template/${project_id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: auth,
+          },
+          body: JSON.stringify(templateFormat)
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        console.log(`Post successful ${response.status}`)
+      } catch (error) {
+        console.error('Error create tasks with template:', error);
+      }
+      
     };
-    const templateFormat = fetchTemplate();
-    fetchPostTemplate(templateFormat);
-  };
+    const templateFormat = await fetchTemplate();
+    await fetchPostTemplate(templateFormat);
+  }
+
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValuesTemplate = useCallback((values: any[]): Template[] => {
     return values.map((value) => ({
@@ -345,11 +330,11 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
           {allTemplates?.map((template) => (
             <div
               key={template.id}
-              className="p-4 bg-white border rounded-md hover:shadow-md"
-              onClick={() => handleTemplateSelect(template)}
+              className={`p-4 border rounded-md hover:shadow-md ${template.id===selectedTemplate?.id?'bg-gray-100':'bg-white'}`}
+              onClick={() => setSelectedTemplate(template)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  handleTemplateSelect(template);
+                  setSelectedTemplate(template);
                 }
               }}>
               <div className="flex items-center gap-3">
@@ -392,12 +377,12 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
             <Input
               className="resize-none border-none w-full outline-none placeholder-black font-semibold text-3xl font-Anuphan leading-[48px]"
               placeholder="Project title"
-              onChange={(e) => setPTitle(e.target.value)}
+              onChange={(e) => setProjectTitle(e.target.value)}
             />
             <Textarea
               className="resize-none border-none w-full outline-none text-black text-xl font-Anuphan leading-7"
               placeholder="Project description"
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => setProjectDescription(e.target.value)}
             />
           </form>
           <div className="self-stretch h-[104px] flex-col justify-center items-end gap-3 flex">
@@ -408,7 +393,8 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
                   <DialogTrigger asChild>
                     <Button
                       variant="destructive"
-                      disabled={pTitle === ''}
+                      disabled={projectTitle === ''}
+                      onClick={()=>updateProject()}
                       className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex">
                       Select Project Template
                     </Button>
@@ -426,7 +412,7 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
                             <Input
                               className="resize-none border-none w-full outline-none placeholder-black font-semibold text-3xl font-Anuphan leading-[48px]"
                               placeholder="add task title"
-                              onChange={(e) => setTitle(e.target.value)}
+                              onChange={(e) => setTaskTitle(e.target.value)}
                             />
                             <Textarea
                               className="resize-none border-none w-full outline-none text-black text-xl font-Anuphan leading-7"
