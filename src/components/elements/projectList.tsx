@@ -199,9 +199,6 @@ export const ProjectList = () => {
 
     setTagsList(newFrameworksList);
   }
-  React.useEffect(() => {
-    handleProjectTags();
-  }, []);
 
   return (
     <>
