@@ -59,12 +59,11 @@ function Document({ description }: Description) {
     if (!Description) return;
     const timer = setTimeout(async () => {
       const taskId = task_id;
-      const url = `${BASE_URL}/v1/tasks/description`;
+      const url = `${BASE_URL}/v2/tasks/${taskId}`;
       const options = {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
         body: JSON.stringify({
-          taskId,
           description: Description,
         }),
       };

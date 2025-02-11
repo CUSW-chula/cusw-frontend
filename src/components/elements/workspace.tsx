@@ -114,12 +114,11 @@ const Workspace = ({ workspace }: Workspace) => {
     if (!Title) return;
     const updateTitle = async () => {
       const taskId = task_id;
-      const url = `${BASE_URL}/v1/tasks/title`;
+      const url = `${BASE_URL}/v2/tasks/${taskId}`;
       const options = {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
         body: JSON.stringify({
-          taskId,
           title: Title,
         }),
       };

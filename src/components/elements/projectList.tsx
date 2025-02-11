@@ -121,7 +121,7 @@ export const ProjectList = () => {
     return () => {
       ws.close();
     };
-  }, [auth, setStarredProjects, setQuery]);
+  }, [auth]);
 
   //owner
   const getInitials = (name: string) => {
@@ -229,16 +229,19 @@ export const ProjectList = () => {
     // setQuery(filteredProjects);
     setQuery(sortByStarredProjects(filteredProjects));
   };
-  const sortByStarredProjects = (projects: Project[]) => {
-    return [...projects].sort((a, b) => {
-      const aStarred = starredProjects[a.id] ? 1 : 0;
-      const bStarred = starredProjects[b.id] ? 1 : 0;
-      return bStarred - aStarred; // เรียงโปรเจ็กต์ที่ starred ไว้ก่อน
-    });
-  };
+  const sortByStarredProjects = React.useCallback(
+    (projects: Project[]) => {
+      return [...projects].sort((a, b) => {
+        const aStarred = starredProjects[a.id] ? 1 : 0;
+        const bStarred = starredProjects[b.id] ? 1 : 0;
+        return bStarred - aStarred; // เรียงโปรเจ็กต์ที่ starred ไว้ก่อน
+      });
+    },
+    [starredProjects],
+  );
   React.useEffect(() => {
     setQuery((prevQuery) => sortByStarredProjects(prevQuery));
-  }, [starredProjects]);
+  }, [sortByStarredProjects]);
 
   const handleDateRangeChange = (dateRange: { from: string; to: string } | undefined) => {
     setDateRange(dateRange);
@@ -305,7 +308,7 @@ export const ProjectList = () => {
   };
 
   const [, setTagsList] = useAtom<ProjectTagProp[]>(tagsListAtom);
-  function handleProjectTags() {
+  const handleProjectTags = React.useCallback(() => {
     const tags: Tag[] = [];
     projectList.map((project) =>
       project.tags.map((tag) => tags.push({ id: tag.id, name: tag.name })),
@@ -316,11 +319,11 @@ export const ProjectList = () => {
     }));
 
     setTagsList(TagsList);
-  }
+  }, [projectList, setTagsList]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     handleProjectTags();
-  }, [projectList]); //dont remove this dependency bro!!!
+  }, [handleProjectTags]); //dont remove this dependency bro!!!
 
   return (
     <>
