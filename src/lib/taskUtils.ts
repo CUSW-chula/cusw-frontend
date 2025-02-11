@@ -6,15 +6,11 @@ type csvDataType = {
   index: string;
   title: string;
   month: string;
-  budget: string;
-  expense: string;
-  remaining: string;
+  budget: number;
+  expense: number;
+  remaining: number;
 };
 export const exportAsFile = (tasks: TaskProps[]) => {
-  const moneyToString = (money: number): string => {
-    return money === 0 ? '-' : money.toString();
-  };
-
   // Converts CSV data array to a CSV string format
   const convertToCSV = (item: csvDataType[]) => {
     const header = ['ลำดับที่', 'รายการ', 'เดือน', 'งบประมาณที่ได้รับอนุมัติ ', 'เบิกจ่ายจริง', 'คงเหลือ'];
@@ -51,23 +47,18 @@ export const exportAsFile = (tasks: TaskProps[]) => {
     let csvData: csvDataType[] = [];
     for (const subtask of task.subtasks) {
       totalRemainingBudget -= subtask.expense;
-      const assignedMonth = subtask.tags ? getTag(subtask.tags) : '-';
+      const assignedMonth = subtask.tags ? getTag(subtask.tags) : '';
 
-      let index = `${indexData}.${task.subtasks.indexOf(subtask) + 1}`;
-      const level = indexData.split('.');
-      if (level.length >= 2 || indexData === '-') {
-        // check is level deta more than 2
-        index = '-';
-      }
+      const index = `${indexData}.${task.subtasks.indexOf(subtask) + 1}`;
 
       // Push the current subtask's formatted data into the CSV array
       csvData.push({
         index: index,
         title: subtask.title,
         month: assignedMonth,
-        budget: '-',
-        expense: moneyToString(subtask.expense),
-        remaining: totalRemainingBudget.toString(),
+        budget: subtask.budget,
+        expense: subtask.expense,
+        remaining: totalRemainingBudget,
       });
       // Recursively process subtasks and append results
 
@@ -95,7 +86,7 @@ export const exportAsFile = (tasks: TaskProps[]) => {
     ]);
 
     const foundTag = tags.find((tag) => months.has(tag.name));
-    return foundTag ? foundTag.name : '-';
+    return foundTag ? foundTag.name : '';
   };
 
   let csvData: csvDataType[] = [];
@@ -103,7 +94,7 @@ export const exportAsFile = (tasks: TaskProps[]) => {
   let indexData = 0;
 
   for (const task of tasks) {
-    const assignedMonth = task.tags ? getTag(task.tags) : '-';
+    const assignedMonth = task.tags ? getTag(task.tags) : '';
     totalRemainingBudget += task.budget;
     totalRemainingBudget -= task.expense;
     indexData++;
@@ -112,9 +103,9 @@ export const exportAsFile = (tasks: TaskProps[]) => {
       index: indexData.toString(),
       title: task.title,
       month: assignedMonth,
-      budget: moneyToString(task.budget),
-      expense: moneyToString(task.expense),
-      remaining: moneyToString(totalRemainingBudget),
+      budget: task.budget,
+      expense: task.expense,
+      remaining: totalRemainingBudget,
     });
 
     const result = task.budget !== 0 ? [] : recursiveGenerateCSVData(task, indexData.toString());
