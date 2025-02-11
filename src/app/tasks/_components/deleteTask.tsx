@@ -26,7 +26,7 @@ export const DeleteTask = ({ task }: { task: TaskProps }) => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const handleDeleteTask = async () => {
-    const url = `${BASE_URL}/tasks/${task.id}`;
+    const url = `${BASE_URL}/v2/tasks/${task.id}`;
     const options = { method: 'DELETE', headers: { Authorization: auth } };
 
     try {

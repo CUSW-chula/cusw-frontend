@@ -133,7 +133,7 @@ function DatePickerWithRange({ task }: { task: TaskProps }) {
     // console.log(value + "\n" + fromStr + " " + toStr + "\n" + from + " " + to + "\n");
     // console.log('Cur input value:', inputValue);
 
-    const url = `${BASE_URL}/tasks/date`;
+    const url = `${BASE_URL}/v2/tasks/date`;
     const options = {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', Authorization: auth },
@@ -162,7 +162,7 @@ function DatePickerWithRange({ task }: { task: TaskProps }) {
   // Handle calendar selection
   const handleCalendarSelect = async (range: DateRange | undefined) => {
     // Patch input to database.
-    const url = `${BASE_URL}/tasks/date`;
+    const url = `${BASE_URL}/v2/tasks/date`;
     const options = {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', Authorization: auth },
