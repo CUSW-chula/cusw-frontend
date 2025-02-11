@@ -348,7 +348,7 @@ export const ProjectList = () => {
                 </button>
               </div>
               <Link
-                href={`/projects/${project.id}`}
+                href={`/projects/detail/${project.id}`}
                 className="flex flex-start w-[308px] h-[284px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px] ">
                 <div className="flex flex-col gap-y-[8px]">
                   <div className="h-[56px] w-[204px] self-stretch overflow-hidden">
