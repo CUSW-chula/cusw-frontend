@@ -305,7 +305,7 @@ const Comment = ({ task }: { task: TaskProps }) => {
           setList((prevList) => [...prevList, data]);
         } else if (eventName === 'comment-delete') {
           setList((prevList) =>
-            prevList.map((item) => (item.id === data.id ? { ...item, isDelete: true } : item)),
+            prevList.map((item) => (item.id === data.id ? { ...item, isDeleted: true } : item)),
           );
         } else if (eventName === 'comment-edit') {
           setList((prevList) =>
