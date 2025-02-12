@@ -315,7 +315,7 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
       }
     };
     fetchTemplate();
-  }, []);
+  }, [parseJsonValuesTemplate]);
 
   const SelectTemplate = () => {
     return (
@@ -333,7 +333,9 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
               }}>
               <div className="flex items-center gap-3">
                 {/* <span className="text-2xl">{template.icon}</span> */}
-                <span className="text-sm font-medium">{template.fileName}</span>
+                <span className="text-sm font-medium">
+                  {template.fileName.replace('.json', '')}
+                </span>
               </div>
             </div>
           ))}
