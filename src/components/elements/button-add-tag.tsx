@@ -17,6 +17,8 @@ import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { Badge } from '@/components/ui/badge';
 import type { TaskProps, TagProps } from '@/app/types/types';
+import { useToast } from "@/hooks/use-toast"
+
 
 // Mock data
 export function ButtonAddTags({ task }: { task: TaskProps }) {
@@ -54,23 +56,7 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
       }
     };
 
-    // const fetchSelectedTags = async () => {
-    //   const url = `${BASE_URL}/tags/getassigntag/${task.id}`;
-    //   const options = {
-    //     method: 'GET',
-    //     headers: {
-    //       Authorization: auth,
-    //     },
-    //   };
 
-    //   try {
-    //     const response = await fetch(url, options);
-    //     const data = await response.json();
-    //     setSelectedTags(data);
-    //   } catch (error) {
-    //     console.error(error);
-    //   }
-    // };
 
     fetchTags();
     setSelectedTags(task.tags ?? []);
@@ -122,7 +108,24 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
       };
 
       try {
-        await fetch(url, options);
+        const response = await fetch(url, options);
+
+        // เช็คว่าคำขอสำเร็จหรือไม่
+        if (response.ok) {
+          // throw new Error("Failed to assign tag");
+          toast({
+            title: "Tag Added",
+            description: `You added "${selected.name}"`,
+            variant: "default", // หรือใช้ 'success' ถ้ามี custom variant
+          });
+        }else{
+          toast({
+            title: "Error",
+            description: "Failed to assign tag. Please try again.",
+            variant: "default", // ใช้สีแดงสำหรับ error
+          });
+          
+        }
         // After adding the tag, update the local state
       } catch (error) {
         console.error(error);
@@ -147,9 +150,12 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
       console.error(error);
     }
   };
+  const { toast } = useToast();
+ 
 
   return (
     <>
+    
       <div className="">
         <div className="flex flex-row flex-wrap items-center   overflow-hidden  ">
           {Array.isArray(selectedTags) && selectedTags.length > 0 ? (
@@ -161,7 +167,14 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
                 <span className="text-base font-medium font-BaiJamjuree">{tag.name}</span>
                 <button
                   type="button"
-                  onClick={() => handleDeleteTag(tag.id)}
+                  onClick={() => {
+                    handleDeleteTag(tag.id);
+                    toast({
+                      title: "Tag Removed",
+                      description: `You removed "${tag.name}"`,
+                      variant: "default",
+                    });
+                  }}
                   className="text-red-500 ml-1 max-w-20">
                   <XCircle className="h-4 w-4" />
                 </button>

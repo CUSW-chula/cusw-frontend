@@ -35,7 +35,6 @@ export const ProjectList = () => {
 
   useEffect(() => {
     const fetchAllProjects = async () => {
-      try {
         const response = await fetch(`${BASE_URL}/v2/projects`, {
           headers: { Authorization: auth },
         });
@@ -67,10 +66,6 @@ export const ProjectList = () => {
         );
 
         setStarredProjects(updatedStarredProjects);
-        console.log('All projects fetched successfully:', data);
-      } catch (error) {
-        console.error('Error fetching projects:', error);
-      }
     };
 
     fetchAllProjects();
@@ -165,14 +160,12 @@ export const ProjectList = () => {
       };
     });
 
-    try {
+  
       const isCurrentlyStarred = starredProjects[projectId] ?? false;
       await fetch(`${BASE_URL}/v2/projects/pin/${projectId}`, {
         method: isCurrentlyStarred ? 'DELETE' : 'POST',
         headers: { Authorization: auth },
       });
-    } catch (error) {
-      console.error('Failed to toggle star:', error);
 
       // 🔄 รีเซ็ตค่า UI กลับถ้า API ล้มเหลว
       setStarredProjects((prevState) => {
@@ -182,12 +175,8 @@ export const ProjectList = () => {
           [projectId]: wasStarred,
         };
       });
-    }
+   
   };
-  React.useEffect(() => {
-    // ทำงานเมื่อ starredProjects เปลี่ยนแปลง
-    console.log('Starred projects updated:', starredProjects);
-  }, [starredProjects]);
 
   const [dateRange, setDateRange] = React.useState<{ from: string; to: string } | undefined>();
   const [searchText, setSearchText] = React.useState('');
@@ -464,7 +453,7 @@ export const ProjectList = () => {
 
                     {/* <img src="/asset/icon/budget-black.svg" alt="Budget Icon " /> */}
                     <div className="font-BaiJamjuree text-[14px] font-medium flex text-center ml-1">
-                      {project.budget}
+                      {project.budget.toLocaleString()}
                     </div>
                   </div>
                   <div className="w-[24px] h-[24px] flex flex-row  ">
@@ -474,7 +463,7 @@ export const ProjectList = () => {
 
                     {/* <img src="/asset/icon/budget-red.svg" alt="Budget Icon " /> */}
                     <div className="font-BaiJamjuree text-[14px] font-medium flex text-center ml-1 text-[#EF4444]">
-                      {project.expense}
+                      {project.expense.toLocaleString()}
                     </div>
                   </div>
                   <div className="w-[24px] h-[24px] flex flex-row  ">
@@ -483,7 +472,7 @@ export const ProjectList = () => {
                     </div>
                     {/* <img src="/asset/icon/budget-green.svg" alt="Budget Icon " /> */}
                     <div className="font-BaiJamjuree text-[14px] font-medium flex text-center ml-1 text-[#69BCA0]">
-                      {project.advance}
+                      {project.advance.toLocaleString()}
                     </div>
                   </div>
 
