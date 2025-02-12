@@ -11,6 +11,7 @@ import { Comment } from '@/components/elements/comment';
 import ActivityLogs from '@/app/tasks/_components/activity-logs';
 import { DeleteTask } from '@/app/tasks/_components/deleteTask';
 import Emoji from '@/components/elements/emoji';
+import { Toaster } from '@/components/ui/toaster';
 
 interface Workspace {
   id: string;
@@ -84,6 +85,7 @@ export default async function TasksManageMentPage({
           </div>
         </div>
       </div>
+      <Toaster />
     </div>
   );
 }

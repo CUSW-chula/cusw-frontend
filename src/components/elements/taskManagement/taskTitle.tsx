@@ -52,19 +52,25 @@ export const TaskTitle = ({
   return (
     <div className="inline-flex w-7/12 items-center">
       <Chevron task={item} />
-      <img src={getStatusIcon(item.status)} alt={`${item.status} Icon`} className="w-6 h-6 mr-2" />
       <div
+        className="inline-flex hover:cursor-pointer items-center w-full"
         onClick={() => router.push(`/tasks/${item.id}`)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault(); // Prevent default scroll behavior for space key
             router.push(`/tasks/${item.id}`);
           }
-        }}
-        className="cursor-pointer w-full">
-        <span className="flex text-black text-base font-normal font-BaiJamjuree w-11/12">
-          {item.title}
-        </span>
+        }}>
+        <img
+          src={getStatusIcon(item.status)}
+          alt={`${item.status} Icon`}
+          className="w-6 h-6 mr-2"
+        />
+        <div className="cursor-pointer w-full">
+          <span className="flex text-black text-base font-normal font-BaiJamjuree w-11/12">
+            {item.title}
+          </span>
+        </div>
       </div>
     </div>
   );

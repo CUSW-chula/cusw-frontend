@@ -22,6 +22,7 @@ import { getCookie } from 'cookies-next';
 import { useSetAtom } from 'jotai';
 import { moneyAtom } from '@/atom';
 import type { TaskProps } from '@/app/types/types';
+import { useToast } from '@/hooks/use-toast';
 interface Budget {
   type: string;
   money: number;
@@ -47,6 +48,7 @@ const Money = ({ task }: { task: TaskProps | null }) => {
     type: TypeMoney.null,
     money: 0,
   });
+  const { toast } = useToast();
 
   const getMoneyColor = (budgetType: string) => {
     return budgetType === TypeMoney.ad
@@ -94,8 +96,18 @@ const Money = ({ task }: { task: TaskProps | null }) => {
         const response = await fetch(url, options);
         const data = await response.json();
         if (!response.ok) return false;
+        toast({
+          title: 'Budget Changes Saved',
+          description: 'Your task budget changes have been successfully saved.',
+          variant: 'default',
+        });
       } catch (error) {
         console.error(error);
+        toast({
+          title: 'Save Failed',
+          description: 'An error occurred while saving budget changes. Please try again.',
+          variant: 'destructive',
+        });
       }
       return true;
     };
@@ -134,9 +146,19 @@ const Money = ({ task }: { task: TaskProps | null }) => {
         const response = await fetch(url, options);
         const data = await response.json();
         if (!response.ok) return false;
+        toast({
+          title: 'Budget Cleared',
+          description: 'The task budget has been reset successfully.',
+          variant: 'default', // Optional: Use "destructive" if clearing is a critical action
+        });
         return data;
       } catch (error) {
         console.error(error);
+        toast({
+          title: 'Clear Failed',
+          description: 'An error occurred while clearing the budget. Please try again.',
+          variant: 'destructive',
+        });
       }
       return true;
     };

@@ -1,4 +1,5 @@
 import { CreateProject } from '@/components/elements/create-project';
+import { Toaster } from '@/components/ui/toaster';
 
 export default async function Page({
   params,
@@ -10,6 +11,7 @@ export default async function Page({
   return (
     <div className="min-w-full min-h-screen flex flex-col lg:flex-row items-start justify-center mt-10 gap-8">
       <CreateProject project_id={projectId} />
+      <Toaster />
     </div>
   );
 }
