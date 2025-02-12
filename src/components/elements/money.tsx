@@ -93,7 +93,6 @@ const Money = ({ task }: { task: TaskProps | null }) => {
       try {
         const response = await fetch(url, options);
         const data = await response.json();
-        console.log(`POST:·${data}`);
         if (!response.ok) return false;
       } catch (error) {
         console.error(error);
@@ -119,7 +118,6 @@ const Money = ({ task }: { task: TaskProps | null }) => {
     const expense = budgetList.type === TypeMoney.exp ? budgetList.money : 0;
     setMoney([budget, advance, expense]);
     setOpenDialog(false);
-    console.log('MoneyAtom in money: ', moneyAtom);
   };
 
   //clear budget

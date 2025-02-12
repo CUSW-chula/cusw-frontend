@@ -62,7 +62,7 @@ const handleDeleteProject = async (project_id: string, auth: string) => {
     if (!res.ok) {
       throw new Error('Failed to delete project');
     }
-    console.info('Deleted project:', project_id);
+    // console.info('Deleted project:', project_id);
   } catch (error) {
     console.error('Error deleting project:', error);
   }
@@ -179,7 +179,7 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
 
     if (project_id) {
       // You can now use project_id safely here
-      console.log(project_id);
+      // console.log(project_id);
     }
   }, []); // Empty dependency array to run only once
 
@@ -223,11 +223,10 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
     } catch (error) {
       console.error('Error adding task:', error);
     }
-    console.info('Adding task to project:', project_id);
+    // console.info('Adding task to project:', project_id);
   };
 
   const updateProject = async () => {
-    console.log('patch project');
     const url = `${BASE_URL}/v2/projects/${project_id}`;
     const options = {
       method: 'PATCH',
@@ -265,7 +264,6 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
     };
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     const fetchPostTemplate = async (templateFormat: any) => {
-      console.log(templateFormat);
       try {
         const response = await fetch(`${BASE_URL}/v2/tasks/template/${project_id}`, {
           method: 'POST',
@@ -278,7 +276,6 @@ export const CreateProject = ({ project_id }: ProjectOverviewProps) => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        console.log(`Post successful ${response.status}`);
       } catch (error) {
         console.error('Error create tasks with template:', error);
       }

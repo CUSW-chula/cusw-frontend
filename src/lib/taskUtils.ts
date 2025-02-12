@@ -19,7 +19,6 @@ export const exportAsFile = (tasks: TaskProps[]) => {
   const convertToCSV = (item: csvDataType[]) => {
     const header = ['ลำดับที่', 'รายการ', 'เดือน', 'งบประมาณที่ได้รับอนุมัติ ', 'เบิกจ่ายจริง', 'คงเหลือ'];
     const rows = item.map((item) => {
-      // console.log(item.index,item.title)
       return [item.index, item.title, item.month, item.budget, item.expense, item.remaining];
     });
     return [header, ...rows].map((row) => row.join(',')).join('\n');
@@ -174,7 +173,6 @@ export const exportAsTemplate = (tasks: TaskProps[], ids: Set<string>) => {
     try {
       const response = await fetch(url, options);
       await response.json();
-      console.log('Save Template success');
     } catch (error) {
       console.error('Error saving template:', error);
     }

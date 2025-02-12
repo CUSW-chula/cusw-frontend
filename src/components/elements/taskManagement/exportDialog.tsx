@@ -102,7 +102,6 @@ export const ExportDialog = ({ tasks }: { tasks: TaskProps[] }) => {
       } else {
         const newSet = exportedTasks.filter((item) => item !== task);
         setExportedTasks(newSet);
-        console.log('work');
         setVisibleExportTasks((prev) => {
           const newSet = new Set(prev);
           newSet.delete(task.id);
