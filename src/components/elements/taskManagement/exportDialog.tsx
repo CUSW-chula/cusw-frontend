@@ -157,7 +157,7 @@ export const ExportDialog = ({ tasks }: { tasks: TaskProps[] }) => {
       <DialogTrigger className="border p-2 text-sm rounded-md border-brown h-10">
         Export tasks
       </DialogTrigger>
-      <DialogContent className="w-max max-w-3xl h-5/6 gap-1 flex-col">
+      <DialogContent className="w-max max-w-3xl gap-3">
         <DialogTitle>Export tasks</DialogTitle>
         <DialogDescription> กรุณาเลือกรูปแบบการส่งออกเอกสาร</DialogDescription>
         <div className="flex-col w-[640px] h-full ">
