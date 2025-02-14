@@ -22,9 +22,9 @@ const auth = cookie?.toString() ?? '';
 
 export const CreateProject = () => {
   const router = useRouter();
-  const [selectedTemplate, setSelectedTemplate] = useState<Template>();
   const [allTemplates, setAllTemplates] = useState<Template[]>();
   const [inputs, setInputs] = useState<FormInput>({});
+  const [owner, setOwner] = useState<string>('');
 
   useEffect(() => {
     const fetchTemplates = async () => {
@@ -32,6 +32,7 @@ export const CreateProject = () => {
         const templates = await getAllTemplates(auth, BASE_URL);
         setAllTemplates(templates);
         const projectOwner = await getProjectOwner('cm0siagz300003mbv5bsz6wty', auth, BASE_URL);
+        setOwner(projectOwner.name);
       } catch (error) {
         console.error('Failed to fetch templates:', error);
       }
@@ -124,7 +125,7 @@ export const CreateProject = () => {
             </Dialog>
           </div>
         </form>
-        <MenuBar />
+        <MenuBar inputs={inputs} handleChange={handleChange} owner={owner} />
       </div>
     </div>
   );

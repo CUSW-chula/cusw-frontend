@@ -1,8 +1,16 @@
+import { FormInput } from '@/app/types/createProjectType';
 import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { getCookie } from 'cookies-next';
 import { CrownIcon, Tag } from 'lucide-react';
+import { ChangeEvent } from 'react';
 
-export const MenuBar = () => {
+interface MenuBarProps {
+  inputs: FormInput;
+  owner: string;
+  handleChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+}
+
+export const MenuBar = ({ inputs, owner, handleChange }: MenuBarProps) => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
 
@@ -24,14 +32,14 @@ export const MenuBar = () => {
         {/* get Owner name from API */}
         <TooltipProvider>
           <div className="flex items-center space-x-2">
-            <Tooltip key={auth}>
+            <Tooltip key={owner}>
               <TooltipTrigger>
                 <div className="w-[24px] h-[24px] bg-gray-100 rounded-full border flex items-center justify-center border-brown text-brown text-sm font-BaiJamjuree">
-                  {getInitials(auth)}
+                  {getInitials(owner)}
                 </div>
               </TooltipTrigger>
-              <span className="text-black text-sm font-BaiJamjuree">{auth}</span>
-              <TooltipContent>{auth}</TooltipContent>
+              <span className="text-black text-sm font-BaiJamjuree">{owner}</span>
+              <TooltipContent>{owner}</TooltipContent>
             </Tooltip>
           </div>
         </TooltipProvider>
