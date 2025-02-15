@@ -16,10 +16,12 @@ COPY . .
 # Accept environment variables from GitHub Actions
 ARG GOOGLE_CLIENT_ID
 ARG GOOGLE_CLIENT_SECRET
+ARG GOOGLE_SECRET
 
 # Set them as environment variables inside the container
 ENV GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
 ENV GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
+ENV GOOGLE_SECRET=$GOOGLE_SECRET
 
 # Build the Next.js project with standalone output
 RUN bun next build

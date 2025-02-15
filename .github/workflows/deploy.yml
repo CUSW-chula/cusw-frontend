@@ -48,6 +48,7 @@ jobs:
           docker build . -t bunnybunbun37204/cusw-frontend:${{ env.TAG }} \
             --build-arg GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
             --build-arg GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+            --build-arg GOOGLE_SECRET=${{ secrets.GOOGLE_SECRET }}
 
       - name: Push Docker image to Docker Hub
         run: docker push bunnybunbun37204/cusw-frontend:${{ env.TAG }}
