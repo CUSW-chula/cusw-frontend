@@ -1,7 +1,10 @@
+'use client';
+
 import type { Metadata } from 'next';
 import { Bai_Jamjuree, Anuphan } from 'next/font/google';
 import './globals.css';
 import NavBar from '@/components/elements/nav-bar';
+import { SessionProvider } from 'next-auth/react';
 
 const bai_jamjuree = Bai_Jamjuree({
   subsets: ['latin'],
@@ -17,11 +20,6 @@ const anuphan = Anuphan({
   display: 'swap',
 });
 
-export const metadata: Metadata = {
-  title: 'CUSW workspace',
-  description: 'CUSW workspace for taks management',
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,14 +27,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`min-h-lvh ${bai_jamjuree.variable} ${anuphan.variable} antialiased flex flex-col`}>
-        <div className="flex flex-row justify-between">
-          <NavBar />
-        </div>
+      <SessionProvider>
+        <body
+          className={`min-h-lvh ${bai_jamjuree.variable} ${anuphan.variable} antialiased flex flex-col`}>
+          <div className="flex flex-row justify-between">
+            <NavBar />
+          </div>
 
-        <div className="w-full px-20 pb-10 flex justify-center">{children}</div>
-      </body>
+          <div className="w-full px-20 pb-10 flex justify-center">{children}</div>
+        </body>
+      </SessionProvider>
     </html>
   );
 }
