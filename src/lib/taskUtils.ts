@@ -51,23 +51,23 @@ export const useExportTask = () => {
         // Base case: If there are no subtasks, return an empty array
         if (!task.subtasks || task.subtasks.length === 0) return [];
 
-    let csvData: csvDataType[] = [];
-    for (const subtask of task.subtasks) {
-      totalRemainingBudget -= subtask.expense;
-      const assignedMonth = subtask.tags ? getTag(subtask.tags) : '';
+        let csvData: csvDataType[] = [];
+        for (const subtask of task.subtasks) {
+          totalRemainingBudget -= subtask.expense;
+          const assignedMonth = subtask.tags ? getTag(subtask.tags) : '';
 
-      const index = `${indexData}.${task.subtasks.indexOf(subtask) + 1}`;
+          const index = `${indexData}.${task.subtasks.indexOf(subtask) + 1}`;
 
-      // Push the current subtask's formatted data into the CSV array
-      csvData.push({
-        index: index,
-        title: subtask.title,
-        month: assignedMonth,
-        budget: subtask.budget,
-        expense: subtask.expense,
-        remaining: totalRemainingBudget,
-      });
-      // Recursively process subtasks and append results
+          // Push the current subtask's formatted data into the CSV array
+          csvData.push({
+            index: index,
+            title: subtask.title,
+            month: assignedMonth,
+            budget: subtask.budget,
+            expense: subtask.expense,
+            remaining: totalRemainingBudget,
+          });
+          // Recursively process subtasks and append results
 
           csvData = csvData.concat(recursiveGenerateCSVData(subtask, index));
         }
@@ -92,28 +92,28 @@ export const useExportTask = () => {
           'ธันวาคม',
         ]);
 
-    const foundTag = tags.find((tag) => months.has(tag.name));
-    return foundTag ? foundTag.name : '';
-  };
+        const foundTag = tags.find((tag) => months.has(tag.name));
+        return foundTag ? foundTag.name : '';
+      };
 
       let csvData: csvDataType[] = [];
       let totalRemainingBudget = 0;
       let indexData = 0;
 
-  for (const task of tasks) {
-    const assignedMonth = task.tags ? getTag(task.tags) : '';
-    totalRemainingBudget += task.budget;
-    totalRemainingBudget -= task.expense;
-    indexData++;
+      for (const task of tasks) {
+        const assignedMonth = task.tags ? getTag(task.tags) : '';
+        totalRemainingBudget += task.budget;
+        totalRemainingBudget -= task.expense;
+        indexData++;
 
-    csvData.push({
-      index: indexData.toString(),
-      title: task.title,
-      month: assignedMonth,
-      budget: task.budget,
-      expense: task.expense,
-      remaining: totalRemainingBudget,
-    });
+        csvData.push({
+          index: indexData.toString(),
+          title: task.title,
+          month: assignedMonth,
+          budget: task.budget,
+          expense: task.expense,
+          remaining: totalRemainingBudget,
+        });
 
         const result =
           task.budget !== 0 ? [] : recursiveGenerateCSVData(task, indexData.toString());
