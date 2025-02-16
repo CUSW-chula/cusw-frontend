@@ -1,6 +1,7 @@
 import type { TagProps, TaskProps } from '@/app/types/types';
 import { getCookie } from 'cookies-next';
 import BASE_URL from './shared';
+import { useToast } from '@/hooks/use-toast';
 
 type csvDataType = {
   index: string;
@@ -10,174 +11,210 @@ type csvDataType = {
   expense: number;
   remaining: number;
 };
-export const exportAsFile = (tasks: TaskProps[]) => {
-  // Converts CSV data array to a CSV string format
-  const convertToCSV = (item: csvDataType[]) => {
-    const header = ['ลำดับที่', 'รายการ', 'เดือน', 'งบประมาณที่ได้รับอนุมัติ ', 'เบิกจ่ายจริง', 'คงเหลือ'];
-    const rows = item.map((item) => {
-      // console.log(item.index,item.title)
-      return [item.index, item.title, item.month, item.budget, item.expense, item.remaining];
-    });
-    return [header, ...rows].map((row) => row.join(',')).join('\n');
-  };
-
-  // Triggers a CSV file download
-  const downloadCSV = (filename: string, text: string) => {
-    const BOM = '\uFEFF'; // UTF-8 BOM
-    const blob = new Blob([BOM + text], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.download = `${filename}.csv`;
-    a.href = url;
-
-    const TIMEOUT_DURATION = 30 * 1000;
-    a.addEventListener('click', () => {
-      setTimeout(() => URL.revokeObjectURL(url), TIMEOUT_DURATION);
-    });
-
-    a.click();
-  };
-
-  // Recursively generates CSV data from task subtasks
-  const recursiveGenerateCSVData = (task: TaskProps, indexData: string): csvDataType[] => {
-    // Base case: If there are no subtasks, return an empty array
-    if (!task.subtasks || task.subtasks.length === 0) return [];
-
-    let csvData: csvDataType[] = [];
-    for (const subtask of task.subtasks) {
-      totalRemainingBudget -= subtask.expense;
-      const assignedMonth = subtask.tags ? getTag(subtask.tags) : '';
-
-      const index = `${indexData}.${task.subtasks.indexOf(subtask) + 1}`;
-
-      // Push the current subtask's formatted data into the CSV array
-      csvData.push({
-        index: index,
-        title: subtask.title,
-        month: assignedMonth,
-        budget: subtask.budget,
-        expense: subtask.expense,
-        remaining: totalRemainingBudget,
-      });
-      // Recursively process subtasks and append results
-
-      csvData = csvData.concat(recursiveGenerateCSVData(subtask, index));
-    }
-
-    return csvData;
-  };
-
-  // Extracts the first matching month tag from a list of tags
-  const getTag = (tags: TagProps[]) => {
-    const months = new Set([
-      'มกราคม',
-      'กุมภาพันธ์',
-      'มีนาคม',
-      'เมษายน',
-      'พฤษภาคม',
-      'มิถุนายน',
-      'กรกฎาคม',
-      'สิงหาคม',
-      'กันยายน',
-      'ตุลาคม',
-      'พฤศจิกายน',
-      'ธันวาคม',
-    ]);
-
-    const foundTag = tags.find((tag) => months.has(tag.name));
-    return foundTag ? foundTag.name : '';
-  };
-
-  let csvData: csvDataType[] = [];
-  let totalRemainingBudget = 0;
-  let indexData = 0;
-
-  for (const task of tasks) {
-    const assignedMonth = task.tags ? getTag(task.tags) : '';
-    totalRemainingBudget += task.budget;
-    totalRemainingBudget -= task.expense;
-    indexData++;
-
-    csvData.push({
-      index: indexData.toString(),
-      title: task.title,
-      month: assignedMonth,
-      budget: task.budget,
-      expense: task.expense,
-      remaining: totalRemainingBudget,
-    });
-
-    const result = task.budget !== 0 ? [] : recursiveGenerateCSVData(task, indexData.toString());
-    csvData = csvData.concat(result);
-  }
-  const csv = convertToCSV(csvData);
-  downloadCSV('budgetReport', csv);
-  return csv;
-};
-
-export const exportAsTemplate = (tasks: TaskProps[], ids: Set<string>) => {
-  const cookie = getCookie('auth');
-  const auth = cookie?.toString() ?? '';
-  const filterTasksByIds = (tasks: TaskProps[], ids: Set<string>): TaskProps[] => {
-    const result: TaskProps[] = [];
-
-    const traverse = (task: TaskProps) => {
-      if (ids.has(task.id)) {
-        result.push(task);
-      }
-      task.subtasks?.forEach(traverse);
-    };
-
-    tasks.forEach(traverse);
-    return result;
-  };
-  const buildTaskTree = (tasks: TaskProps[]): TaskProps[] => {
-    const taskMap = new Map<string, TaskProps>();
-    const rootTasks: TaskProps[] = [];
-
-    for (const task of tasks) {
-      taskMap.set(task.id, { ...task, subtasks: [] });
-    }
-
-    for (const task of tasks) {
-      const taskEntry = taskMap.get(task.id);
-      if (!taskEntry) continue;
-      if (task.parentTaskId && taskMap.has(task.parentTaskId)) {
-        const parentTask = taskMap.get(task.parentTaskId);
-        if (parentTask) parentTask.subtasks?.push(taskEntry);
-      } else rootTasks.push(taskEntry);
-    }
-
-    return rootTasks;
-  };
-  const uploadTemplate = async (jsonFile: File) => {
-    const url = `${BASE_URL}/v2/template`;
-    const formData = new FormData();
-    formData.append('file', jsonFile);
-    const options = {
-      method: 'POST',
-      body: formData,
-      headers: {
-        Authorization: auth,
-      },
-    };
+export const useExportTask = () => {
+  const { toast } = useToast();
+  const exportAsFile = (tasks: TaskProps[]) => {
     try {
-      const response = await fetch(url, options);
-      await response.json();
-      console.log('Save Template success');
+      const moneyToString = (money: number): string => {
+        return money === 0 ? '-' : money.toString();
+      };
+
+      // Converts CSV data array to a CSV string format
+      const convertToCSV = (item: csvDataType[]) => {
+        const header = ['ลำดับที่', 'รายการ', 'เดือน', 'งบประมาณที่ได้รับอนุมัติ ', 'เบิกจ่ายจริง', 'คงเหลือ'];
+        const rows = item.map((item) => {
+          return [item.index, item.title, item.month, item.budget, item.expense, item.remaining];
+        });
+        return [header, ...rows].map((row) => row.join(',')).join('\n');
+      };
+
+      // Triggers a CSV file download
+      const downloadCSV = (filename: string, text: string) => {
+        const BOM = '\uFEFF'; // UTF-8 BOM
+        const blob = new Blob([BOM + text], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.download = `${filename}.csv`;
+        a.href = url;
+
+        const TIMEOUT_DURATION = 30 * 1000;
+        a.addEventListener('click', () => {
+          setTimeout(() => URL.revokeObjectURL(url), TIMEOUT_DURATION);
+        });
+
+        a.click();
+      };
+
+      // Recursively generates CSV data from task subtasks
+      const recursiveGenerateCSVData = (task: TaskProps, indexData: string): csvDataType[] => {
+        // Base case: If there are no subtasks, return an empty array
+        if (!task.subtasks || task.subtasks.length === 0) return [];
+
+        let csvData: csvDataType[] = [];
+        for (const subtask of task.subtasks) {
+          totalRemainingBudget -= subtask.expense;
+          const assignedMonth = subtask.tags ? getTag(subtask.tags) : '';
+
+          const index = `${indexData}.${task.subtasks.indexOf(subtask) + 1}`;
+
+          // Push the current subtask's formatted data into the CSV array
+          csvData.push({
+            index: index,
+            title: subtask.title,
+            month: assignedMonth,
+            budget: subtask.budget,
+            expense: subtask.expense,
+            remaining: totalRemainingBudget,
+          });
+          // Recursively process subtasks and append results
+
+          csvData = csvData.concat(recursiveGenerateCSVData(subtask, index));
+        }
+
+        return csvData;
+      };
+
+      // Extracts the first matching month tag from a list of tags
+      const getTag = (tags: TagProps[]) => {
+        const months = new Set([
+          'มกราคม',
+          'กุมภาพันธ์',
+          'มีนาคม',
+          'เมษายน',
+          'พฤษภาคม',
+          'มิถุนายน',
+          'กรกฎาคม',
+          'สิงหาคม',
+          'กันยายน',
+          'ตุลาคม',
+          'พฤศจิกายน',
+          'ธันวาคม',
+        ]);
+
+        const foundTag = tags.find((tag) => months.has(tag.name));
+        return foundTag ? foundTag.name : '';
+      };
+
+      let csvData: csvDataType[] = [];
+      let totalRemainingBudget = 0;
+      let indexData = 0;
+
+      for (const task of tasks) {
+        const assignedMonth = task.tags ? getTag(task.tags) : '';
+        totalRemainingBudget += task.budget;
+        totalRemainingBudget -= task.expense;
+        indexData++;
+
+        csvData.push({
+          index: indexData.toString(),
+          title: task.title,
+          month: assignedMonth,
+          budget: task.budget,
+          expense: task.expense,
+          remaining: totalRemainingBudget,
+        });
+
+        const result =
+          task.budget !== 0 ? [] : recursiveGenerateCSVData(task, indexData.toString());
+        csvData = csvData.concat(result);
+      }
+      const csv = convertToCSV(csvData);
+      downloadCSV('budgetReport', csv);
+      // Trigger success toast
+      toast({
+        title: 'Export Successful',
+        description: 'The tasks has been exported as a file.',
+        variant: 'default',
+      });
+      return csv;
     } catch (error) {
-      console.error('Error saving template:', error);
+      console.error('Export failed:', error);
+      // Trigger error toast
+      toast({
+        title: 'Export Failed',
+        description: 'An error occurred while exporting the tasks.',
+        variant: 'destructive',
+      });
     }
   };
+  const exportAsTemplate = (tasks: TaskProps[], ids: Set<string>) => {
+    try {
+      const cookie = getCookie('auth');
+      const auth = cookie?.toString() ?? '';
+      const filterTasksByIds = (tasks: TaskProps[], ids: Set<string>): TaskProps[] => {
+        const result: TaskProps[] = [];
 
-  const filteredTasks = filterTasksByIds(tasks, ids);
-  const taskTree = buildTaskTree(filteredTasks);
-  const jsonData = JSON.stringify(taskTree, null, 2);
-  const BOM = '\uFEFF'; // UTF-8 BOM
-  const blob = new Blob([BOM + jsonData], { type: 'application/json' });
-  const jsonFile = new File([blob], 'templateName.json', { type: 'application/json' });
-  uploadTemplate(jsonFile);
+        const traverse = (task: TaskProps) => {
+          if (ids.has(task.id)) {
+            result.push(task);
+          }
+          task.subtasks?.forEach(traverse);
+        };
+
+        tasks.forEach(traverse);
+        return result;
+      };
+      const buildTaskTree = (tasks: TaskProps[]): TaskProps[] => {
+        const taskMap = new Map<string, TaskProps>();
+        const rootTasks: TaskProps[] = [];
+
+        for (const task of tasks) {
+          taskMap.set(task.id, { ...task, subtasks: [] });
+        }
+
+        for (const task of tasks) {
+          const taskEntry = taskMap.get(task.id);
+          if (!taskEntry) continue;
+          if (task.parentTaskId && taskMap.has(task.parentTaskId)) {
+            const parentTask = taskMap.get(task.parentTaskId);
+            if (parentTask) parentTask.subtasks?.push(taskEntry);
+          } else rootTasks.push(taskEntry);
+        }
+
+        return rootTasks;
+      };
+      const uploadTemplate = async (jsonFile: File) => {
+        const url = `${BASE_URL}/v2/template`;
+        const formData = new FormData();
+        formData.append('file', jsonFile);
+        const options = {
+          method: 'POST',
+          body: formData,
+          headers: {
+            Authorization: auth,
+          },
+        };
+        try {
+          const response = await fetch(url, options);
+          await response.json();
+        } catch (error) {
+          console.error('Error saving template:', error);
+        }
+      };
+
+      const filteredTasks = filterTasksByIds(tasks, ids);
+      const taskTree = buildTaskTree(filteredTasks);
+      const jsonData = JSON.stringify(taskTree, null, 2);
+      const BOM = '\uFEFF'; // UTF-8 BOM
+      const blob = new Blob([BOM + jsonData], { type: 'application/json' });
+      const jsonFile = new File([blob], 'templateName.json', { type: 'application/json' });
+      uploadTemplate(jsonFile);
+      toast({
+        title: 'Export Successful',
+        description: 'The tasks has been exported as a template.',
+        variant: 'default',
+      });
+    } catch (error) {
+      // Trigger error toast
+      toast({
+        title: 'Export Failed',
+        description: 'An error occurred while exporting the tasks.',
+        variant: 'destructive',
+      });
+    }
+  };
+  return { exportAsFile, exportAsTemplate };
 };
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>

@@ -18,18 +18,13 @@ import {
 import type { TaskProps } from '@/app/types/types';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
-import {
-  exportAsFile,
-  exportAsTemplate,
-  statusSections,
-  parseJsonValuesTemplate,
-} from '@/lib/taskUtils';
+import { statusSections, parseJsonValuesTemplate, useExportTask } from '@/lib/taskUtils';
 
 export const ExportDialog = ({ tasks }: { tasks: TaskProps[] }) => {
   const [exportType, setExportType] = useState<string>(''); // the type of export
   const [visibleExportTasks, setVisibleExportTasks] = useState<Set<string>>(new Set()); //Tracks taskID visible for export
   const [exportedTasks, setExportedTasks] = useState<TaskProps[]>([]); //Stores the list of tasks selected for export
-
+  const { exportAsFile, exportAsTemplate } = useExportTask();
   const recursiveCheck = (task: TaskProps) => {
     setVisibleExportTasks((prev) => {
       const newSet = new Set(prev);
@@ -102,7 +97,6 @@ export const ExportDialog = ({ tasks }: { tasks: TaskProps[] }) => {
       } else {
         const newSet = exportedTasks.filter((item) => item !== task);
         setExportedTasks(newSet);
-        console.log('work');
         setVisibleExportTasks((prev) => {
           const newSet = new Set(prev);
           newSet.delete(task.id);
