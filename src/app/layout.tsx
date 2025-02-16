@@ -5,6 +5,8 @@ import { Bai_Jamjuree, Anuphan } from 'next/font/google';
 import './globals.css';
 import NavBar from '@/components/elements/nav-bar';
 import { SessionProvider } from 'next-auth/react';
+import { Toast } from '@radix-ui/react-toast';
+import { Toaster } from '@/components/ui/toaster';
 
 const bai_jamjuree = Bai_Jamjuree({
   subsets: ['latin'],
@@ -35,6 +37,7 @@ export default function RootLayout({
           </div>
 
           <div className="w-full px-20 pb-10 flex justify-center">{children}</div>
+          <Toaster/>
         </body>
       </SessionProvider>
     </html>
