@@ -8,14 +8,14 @@ const handler = NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
     }),
   ],
-  secret: process.env.GOOGLE_SECRET,
+  // secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async redirect({ url, baseUrl }) {
       const BASE_URL =
         process.env.NODE_ENV === 'production'
           ? 'https://cusw-workspace.sa.chula.ac.th'
           : 'http://localhost:3000';
-      return `${BASE_URL}/callback}`;
+      return `${BASE_URL}/callback`;
     },
   },
 });
