@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Bai_Jamjuree, Anuphan } from 'next/font/google';
 import './globals.css';
 import NavBar from '@/components/elements/nav-bar';
-import { Toaster } from "@/components/ui/toaster"
+import { Toaster } from '@/components/ui/toaster';
 const bai_jamjuree = Bai_Jamjuree({
   subsets: ['latin'],
   weight: ['400', '700'],
