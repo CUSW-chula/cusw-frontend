@@ -42,6 +42,7 @@ ENV AUTH_SECRET=${AUTH_SECRET}
 
 # Set Node.js environment to production
 ENV NODE_ENV=production
+ENV NEXTAUTH_URL=https://cusw-workspace.sa.chula.ac.th
 
 EXPOSE 3000
 ENV HOSTNAME="0.0.0.0"
