@@ -6,7 +6,7 @@ import { signIn } from 'next-auth/react';
 const Home = () => {
   return (
     <div className="fixed inset-0 flex items-center justify-center">
-      <Button onClick={() => signIn('google')}>Sign in with Google</Button>
+      <Button onClick={() => signIn('google')}>Sign in with Google v1</Button>
     </div>
   );
 };
