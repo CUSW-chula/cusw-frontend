@@ -95,7 +95,14 @@ const Money = ({ task }: { task: TaskProps | null }) => {
       try {
         const response = await fetch(url, options);
         const data = await response.json();
-        if (!response.ok) return false;
+        if (!response.ok) {
+          toast({
+            title: 'Save Failed',
+            description: data,
+            variant: 'destructive',
+          });
+          return false;
+        }
         toast({
           title: 'Budget Changes Saved',
           description: 'Your task budget changes have been successfully saved.',
@@ -121,6 +128,8 @@ const Money = ({ task }: { task: TaskProps | null }) => {
     if (await fetchDataPost(data)) {
       prevBudgetList.current = budget;
       setOpenDialog(false);
+    } else {
+      setBudgetList(prevBudgetList.current);
     }
   };
 
