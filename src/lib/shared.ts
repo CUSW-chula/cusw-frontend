@@ -6,6 +6,7 @@ export interface CommentBoxProp {
   createdAt: Date;
   isDeleted: boolean;
   editTime: Date | null;
+  authorId: string;
 }
 
 export interface Status {

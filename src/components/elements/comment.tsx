@@ -28,6 +28,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProv
 import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import type { TaskProps } from '@/app/types/types';
+import { jwtDecode } from 'jwt-decode';
 
 interface CommentBoxProp {
   id: string;
@@ -37,6 +38,7 @@ interface CommentBoxProp {
   createdAt: Date;
   isDeleted: boolean;
   editTime: Date | null;
+  authorId: string;
 }
 
 function formatDate(date?: Date | string): string {
@@ -115,10 +117,12 @@ function formatName(name: string) {
   return nameParts[0];
 }
 
-function CommentBox({ id, content, taskId, name, createdAt, isDeleted, editTime }: CommentBoxProp) {
+function CommentBox({ id, content, taskId, name, createdAt, isDeleted, editTime ,authorId}: CommentBoxProp) {
   const [isEditing, setIsEditing] = useState(false);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
+  const userid = jwtDecode(auth).toString();
+  const Isauthor = authorId === userid;
 
   const deleteComment = async () => {
     try {
@@ -167,7 +171,7 @@ function CommentBox({ id, content, taskId, name, createdAt, isDeleted, editTime 
               </div>
             </div>
 
-            {!isEditing && (
+            {!isEditing && !Isauthor &&(
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button className="hover:text-gray-800" variant="ghost">
@@ -249,7 +253,6 @@ const Comment = ({ task }: { task: TaskProps }) => {
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValues = useCallback((values: any[]) => {
-    console.log(values[0]);
     return values.map((value) => ({
       id: value.id,
       content: value.content,
@@ -258,6 +261,7 @@ const Comment = ({ task }: { task: TaskProps }) => {
       name: value.author.name,
       isDeleted: value.isDeleted,
       editTime: value.editTime,
+      authorId: value.author.id,
     }));
   }, []);
 
@@ -271,6 +275,7 @@ const Comment = ({ task }: { task: TaskProps }) => {
       name: value.author ? value.author.name : '',
       isDeleted: value.isDeleted,
       editTime: value.editTime,
+      authorId: value.author.id,
     }),
     [],
   );
@@ -362,7 +367,6 @@ const Comment = ({ task }: { task: TaskProps }) => {
             .slice()
             .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
             .map((item) => {
-              console.log(item.content, item.isDeleted);
               return (
                 <li key={item.id}>
                   <CommentBox
@@ -373,6 +377,7 @@ const Comment = ({ task }: { task: TaskProps }) => {
                     createdAt={item.createdAt}
                     isDeleted={item.isDeleted}
                     editTime={item.editTime}
+                    authorId={item.authorId}
                   />
                 </li>
               );
