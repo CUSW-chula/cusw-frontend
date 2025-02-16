@@ -64,8 +64,12 @@ export function BreadcrumbComponent({ task }: { task: TaskProps }) {
           <BreadcrumbItem>
             <BreadcrumbLink
               href={`/projects/${project?.id}`}
-              className="font-BaiJamjuree text-[12px] text-black">
-              {project?.title}
+              className="font-BaiJamjuree text-[14px] text-black">
+              {project?.title && project.title.length > 20 ? (
+                <span title={project.title}>{project.title.substring(0, 20)}...</span>
+              ) : (
+                project?.title
+              )}
             </BreadcrumbLink>
           </BreadcrumbItem>
           {tasks.map((task) => (
@@ -74,8 +78,12 @@ export function BreadcrumbComponent({ task }: { task: TaskProps }) {
               <BreadcrumbItem>
                 <BreadcrumbLink
                   href={`/tasks/${task.id}`}
-                  className="font-BaiJamjuree text-[12px] text-black ">
-                  {task.title}
+                  className="font-BaiJamjuree text-[14px] text-black ">
+                  {task.title.length > 20 ? (
+                    <span title={task.title}>{task.title.substring(0, 20)}...</span>
+                  ) : (
+                    task.title
+                  )}
                 </BreadcrumbLink>
               </BreadcrumbItem>
             </React.Fragment>
