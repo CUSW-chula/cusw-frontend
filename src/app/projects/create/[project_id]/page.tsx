@@ -1,5 +1,4 @@
 import { CreateProject } from '@/components/elements/create-project';
-import { Toaster } from '@/components/ui/toaster';
 
 export default async function Page({
   params,

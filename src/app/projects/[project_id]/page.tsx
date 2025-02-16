@@ -1,7 +1,6 @@
 import React from 'react';
 import { TaskManager } from '@/components/elements/taskmanager';
 import { ProjectBackButton } from '@/components/elements/backButton';
-import { Toaster } from '@/components/ui/toaster';
 
 export default async function Page({ params }: { params: Promise<{ project_id: string }> }) {
   const project_id = (await params).project_id;
