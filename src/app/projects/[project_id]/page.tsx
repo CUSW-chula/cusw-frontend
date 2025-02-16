@@ -9,7 +9,6 @@ export default async function Page({ params }: { params: Promise<{ project_id: s
     <div className="min-w-full flex-col items-start justify-center gap-8">
       <div className="flex pb-4 items-center justify-end">
         <ProjectBackButton />
-        <Toaster />
       </div>
       <TaskManager project_id={project_id} />
     </div>

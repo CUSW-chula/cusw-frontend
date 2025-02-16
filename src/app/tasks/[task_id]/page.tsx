@@ -85,7 +85,6 @@ export default async function TasksManageMentPage({
           </div>
         </div>
       </div>
-      <Toaster />
     </div>
   );
 }
