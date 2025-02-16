@@ -4,6 +4,9 @@ export interface FormInput {
   // projectTag?: any[];
   taskTitle?: string;
   taskDescription?: string;
+  taskBudget?: number;
+  taskAdvance?: number;
+  taskExpense?: number;
   task?: { template: Template };
 }
 

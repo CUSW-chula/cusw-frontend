@@ -1,8 +1,8 @@
-import { FormInput } from '@/app/types/createProjectType';
+import type { FormInput } from '@/app/types/createProjectType';
 import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { getCookie } from 'cookies-next';
 import { CrownIcon, Tag } from 'lucide-react';
-import { ChangeEvent } from 'react';
+import type { ChangeEvent } from 'react';
 
 interface MenuBarProps {
   inputs: FormInput;

@@ -3,16 +3,20 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import type { ChangeEvent, FormEvent } from 'react';
+import { MoneyContainer } from './money';
+import type { Budget } from '@/app/types/moneyType';
 
 interface NewSingleTaskProps {
   inputs: FormInput;
   handleChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  handleChangeBudgets: (budgetList: Budget) => void;
   handleSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }
 
 export const NewSingleTask: React.FC<NewSingleTaskProps> = ({
   inputs,
   handleChange,
+  handleChangeBudgets,
   handleSubmit,
 }) => {
   return (
@@ -35,6 +39,9 @@ export const NewSingleTask: React.FC<NewSingleTaskProps> = ({
           value={inputs.taskDescription || ''}
           onChange={handleChange}
         />
+        <div className="w-1/6">
+          <MoneyContainer value={inputs} onChange={handleChangeBudgets} />
+        </div>
       </div>
       <div className="self-stretch h-[104px] flex-col justify-center items-end gap-3 flex">
         <div className="justify-start items-start gap-3 inline-flex">

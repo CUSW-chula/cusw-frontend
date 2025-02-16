@@ -9,13 +9,12 @@ import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import BASE_URL from '@/lib/shared';
 import { useRouter } from 'next/navigation';
-import { MenuBar } from '@/app/projects/create/_components/menu';
-import { NewSingleTask } from '@/app/projects/create/_components/newTaskForm';
-import { NewTaskwithTemplate } from '@/app/projects/create/_components/newTaskwithTemplate';
+import { MenuBar, NewSingleTask, NewTaskwithTemplate } from '@/app/projects/create/_components';
 import { useCreateProject } from '@/hooks/useProject';
 import { getAllTemplates } from '@/service/templateService';
 import type { FormInput, Template } from '@/app/types/createProjectType';
 import { getProjectOwner } from '@/service/projectService';
+import { type Budget, TypeMoney } from '@/app/types/moneyType';
 
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
@@ -45,6 +44,25 @@ export const CreateProject = () => {
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = event.target;
     setInputs((values) => ({ ...values, [name]: value }));
+  };
+
+  const handleChangeBudgets = (budgetList: Budget) => {
+    const taskMoney = { budget: 'taskBudget', advance: 'taskAdvance', expense: 'taskExpense' };
+    const resetValues = { [taskMoney.budget]: 0, [taskMoney.advance]: 0, [taskMoney.expense]: 0 };
+    const key =
+      budgetList.type === TypeMoney.budget
+        ? taskMoney.budget
+        : budgetList.type === TypeMoney.ad
+          ? taskMoney.advance
+          : budgetList.type === TypeMoney.exp
+            ? taskMoney.expense
+            : null;
+
+    setInputs((values) => ({
+      ...values,
+      ...resetValues,
+      ...(key ? { [key]: budgetList.money } : {}),
+    }));
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -109,6 +127,7 @@ export const CreateProject = () => {
                     <NewSingleTask
                       inputs={inputs}
                       handleChange={handleChange}
+                      handleChangeBudgets={handleChangeBudgets}
                       handleSubmit={handleSubmit}
                     />
                   </TabsContent>
