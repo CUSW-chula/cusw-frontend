@@ -65,7 +65,7 @@ export default async function TasksManageMentPage({
         <div className="w-full rounded-[6px] p-5 border-brown border-[1px] bg-white">
           <Workspace workspace={workspace} />
           <div className="flex justify-between">
-            <Emoji task={task} />
+            {/* <Emoji task={task} /> */}
             <Uploadfile task={task} />
           </div>
           <div className="flex flex-col gap-4 mt-4">
