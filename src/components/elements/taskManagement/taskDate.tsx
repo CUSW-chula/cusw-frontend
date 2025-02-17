@@ -1,5 +1,6 @@
 import type { TaskProps } from '@/app/types/types';
 import { Calendar } from 'lucide-react';
+import { DateInterface, DateText } from '../date-feature';
 
 export const TaskDate = ({
   item,
@@ -39,7 +40,7 @@ export const TaskDate = ({
           title={formatDate(item.startDate, item.endDate)}>
           <Calendar className="w-6 h-6" />
           <span className={`${hiddenDate ? 'hidden' : 'inline'} whitespace-nowrap`}>
-            {formatDate(item.startDate, item.endDate)}
+            <DateText date={item} />
           </span>
         </div>
       )}

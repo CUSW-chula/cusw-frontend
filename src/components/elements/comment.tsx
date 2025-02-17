@@ -262,6 +262,7 @@ const Comment = ({ task }: { task: TaskProps }) => {
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValues = useCallback((values: any[]) => {
+    console.log(values[0]);
     return values.map((value) => ({
       id: value.id,
       content: value.content,
