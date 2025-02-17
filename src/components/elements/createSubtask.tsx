@@ -7,6 +7,13 @@ import BASE_URL, { User } from '@/lib/shared';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { getCookie } from 'cookies-next';
+import "@blocknote/core/fonts/inter.css";
+import { BlockNoteView } from '@blocknote/shadcn';
+import "@blocknote/mantine/style.css";
+import { useCreateBlockNote } from "@blocknote/react";
+import '@blocknote/shadcn/style.css';
+
+import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
 interface FormInput {
   taskTitle?: string;
   taskDescription?: string;
@@ -27,14 +34,17 @@ export const CreateSubtask = ({
     const { name, value } = event.target;
     setInputs((values) => ({ ...values, [name]: value }));
   };
+
+  const editor = useCreateBlockNote();
   const handleSubmit = async () => {
     const url = `${BASE_URL}/v2/tasks/`;
+    const HTML = await editor.blocksToHTMLLossy(editor.document);
     const options = {
       method: 'POST',
       headers: { Authorization: auth, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         title: inputs.taskTitle,
-        description: inputs.taskDescription,
+        description: HTML,
         budget: 0,
         advance: 0,
         parentTaskId: task.id,
@@ -45,11 +55,9 @@ export const CreateSubtask = ({
         endDate: new Date(),
       }),
     };
-
     try {
       const response = await fetch(url, options);
       const data = await response.json();
-      console.log(data);
       router.push(`/tasks/${data.id}`);
       toast({
         title: 'Budget Changes Saved',
@@ -69,19 +77,20 @@ export const CreateSubtask = ({
     <div className="h-60 w-full p-6 bg-gray-50 rounded-md shadow border border-[#6b5c56] flex-col justify-start items-start gap-4 inline-flex">
       <div className="h-56 w-full flex flex-col gap-2">
         <Input
-          className="resize-none border-none bg-transparent w-full outline-none placeholder-black font-semibold text-3xl font-Anuphan leading-[48px]"
+          className="resize-none border-none w-full outline-none placeholder-black font-semibold text-3xl font-Anuphan leading-[48px]"
           placeholder="Task title"
           name="taskTitle"
           value={inputs.taskTitle || ''}
           onChange={handleChange}
         />
-        <Textarea
+        <BlockNoteView editor={editor} theme={'light'} emojiPicker={false}/>
+        {/* <Textarea
           className="resize-none border-none bg-transparent w-full outline-none text-black text-xl font-Anuphan leading-7"
           placeholder="Task description"
           name="taskDescription"
           value={inputs.taskDescription || ''}
           onChange={handleChange}
-        />
+        /> */}
       </div>
       <div className="self-stretch h-[92px] flex-col justify-start items-start gap-3 flex">
         <div className="self-stretch justify-end items-center gap-3 inline-flex">
