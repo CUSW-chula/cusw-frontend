@@ -10,7 +10,7 @@ const Home = () => {
   }, []);
   return (
     <div className="fixed inset-0 flex items-center justify-center">
-      <Button onClick={() => signIn('google')}>Sign in with Google v2</Button>
+      <Button onClick={() => signIn('google')}>Sign in with Google</Button>
     </div>
   );
 };

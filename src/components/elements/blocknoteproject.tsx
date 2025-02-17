@@ -15,7 +15,11 @@ import * as Tabs from '@/components/ui/tabs';
 import * as Toggle from '@/components/ui/toggle';
 import * as Tooltip from '@/components/ui/tooltip';
 import { useEffect, useState } from 'react';
-import BASE_URL, { type ProjectOverviewProps, type TaskManageMentProp } from '@/lib/shared';
+import BASE_URL, {
+  BASE_YSWEET,
+  type ProjectOverviewProps,
+  type TaskManageMentProp,
+} from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { jwtDecode, type JwtPayload } from 'jwt-decode';
 
@@ -27,7 +31,7 @@ interface CustomJwtPayload extends JwtPayload {
 export default function Blocknotes({ project_id }: ProjectOverviewProps) {
   const docId = project_id;
   return (
-    <YDocProvider docId={docId} authEndpoint="https://demos.y-sweet.dev/api/auth">
+    <YDocProvider docId={docId} authEndpoint={BASE_YSWEET}>
       <Document project_id={project_id} />
     </YDocProvider>
   );
