@@ -92,7 +92,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
         const eventName = socketEvent.eventName;
         const data = pareJsonValue(socketEvent.data);
 
-        if (eventName === 'assigned-tags-project') {
+        if (eventName === `assigned-tags-project:${project_id}`) {
           // Update selected tags with new tag added
           setSelectedTags(data);
         }
