@@ -24,10 +24,10 @@ interface MoneyProps {
   handleSubmit: (value: Budget) => void;
 }
 
-export const MoneyUI = ({ budgetList, handleSubmit }: MoneyProps) => {
-  const [budgets, setBudgetList] = useState<Budget>({
-    type: budgetList.type,
-    money: budgetList.money,
+export const MoneyUI = ({ budgetList: initialBudget, handleSubmit }: MoneyProps) => {
+  const [budgetList, setBudgetList] = useState<Budget>({
+    type: initialBudget.type,
+    money: initialBudget.money,
   });
   const prevBudgetList = useRef<Budget>({
     type: TypeMoney.null,
@@ -41,24 +41,24 @@ export const MoneyUI = ({ budgetList, handleSubmit }: MoneyProps) => {
         ? 'text-red'
         : 'text-black';
   }
-  function handleChangeType(value: string): void {
+  function handleChangeType(newType: string): void {
     setBudgetList((prevBudget) => ({
       ...prevBudget,
-      type: value,
+      type: newType,
     }));
   }
   function handleClear(): void {
-    const _budgetList: Budget = {
+    const resetBudget: Budget = {
       type: TypeMoney.null,
       money: 0,
     };
-    setBudgetList(_budgetList);
-    handleSubmit(_budgetList);
+    setBudgetList(resetBudget);
+    handleSubmit(resetBudget);
   }
   function handleSubmitBudget(): void {
     const _budgetList: Budget = {
-      type: budgets.type,
-      money: budgets.money,
+      type: budgetList.type,
+      money: budgetList.money,
     };
     setBudgetList(_budgetList);
     handleSubmit(_budgetList);
@@ -68,29 +68,29 @@ export const MoneyUI = ({ budgetList, handleSubmit }: MoneyProps) => {
     setBudgetList(prevBudgetList.current);
     setOpenDialog(false);
   }
-  function handleInputMoney(value: string): void {
+  function handleInputMoney(amount: string): void {
     setBudgetList((prevBudget) => ({
       ...prevBudget,
-      money: Number.parseFloat(value),
+      money: Number.parseFloat(amount),
     }));
   }
   return (
     <Dialog open={openDialog} onOpenChange={setOpenDialog}>
       <DialogTrigger asChild>
         <div
-          className={`h-10 px-4 bg-white rounded-md border justify-center items-center flex min-w-32 font-BaiJamjuree hover:cursor-pointer  border-brown text-brown ${getMoneyColor(budgets.type)}`}>
-          {budgets.type === TypeMoney.null || Number.isNaN(budgets.money)
+          className={`h-10 px-4 bg-white rounded-md border justify-center items-center flex min-w-32 font-BaiJamjuree hover:cursor-pointer  border-brown text-brown ${getMoneyColor(budgetList.type)}`}>
+          {budgetList.type === TypeMoney.null || Number.isNaN(budgetList.money)
             ? 'Add Money'
-            : budgets.money.toLocaleString()}
+            : budgetList.money.toLocaleString()}
         </div>
       </DialogTrigger>
       <DialogContent className="w-[360px] px-3 pt-1 pb-3 bg-white rounded-md border border-brown gap-0">
         <DialogHeader>
           <DialogTitle className="hidden" />
           <DialogDescription className="w-full flex flex-row self-stretch h-24 px-1.5 pt-9 justify-start gap-2">
-            <Select value={budgets.type} onValueChange={handleChangeType}>
+            <Select value={budgetList.type} onValueChange={handleChangeType}>
               <SelectTrigger
-                className={`w-32 h-10 px-3 rounded-md border border-gray-300 justify-between items-center inline-flex ${getMoneyColor(budgets.type)}`}>
+                className={`w-32 h-10 px-3 rounded-md border border-gray-300 justify-between items-center inline-flex ${getMoneyColor(budgetList.type)}`}>
                 <SelectValue placeholder="Select Type" />
               </SelectTrigger>
               <SelectContent>
@@ -113,10 +113,10 @@ export const MoneyUI = ({ budgetList, handleSubmit }: MoneyProps) => {
             </Select>
             <Input
               id="budget"
-              value={Number.isNaN(budgets.money) ? '' : budgets.money}
+              value={Number.isNaN(budgetList.money) ? '' : budgetList.money}
               onChange={(e) => handleInputMoney(e.target.value)}
               type="number"
-              className={`h-10 w-48 px-4 bg-white rounded-md border-t border-gray-300 font-BaiJamjuree  ${getMoneyColor(budgets.type)}`}
+              className={`h-10 w-48 px-4 bg-white rounded-md border-t border-gray-300 font-BaiJamjuree  ${getMoneyColor(budgetList.type)}`}
               placeholder="Add Budget..."
             />
           </DialogDescription>
@@ -140,9 +140,9 @@ export const MoneyUI = ({ budgetList, handleSubmit }: MoneyProps) => {
               onClick={handleSubmitBudget}
               className="h-10 bg-inherit rounded-[100px] flex-col justify-center items-center gap-2 inline-flex text-brown text-sm font-normal font-BaiJamjuree  hover:bg-gray-100"
               disabled={
-                budgets.type === TypeMoney.null ||
-                Number.isNaN(budgets.money) ||
-                budgets.money === 0
+                budgetList.type === TypeMoney.null ||
+                Number.isNaN(budgetList.money) ||
+                budgetList.money === 0
               }>
               Ok
             </Button>

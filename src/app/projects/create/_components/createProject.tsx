@@ -15,6 +15,7 @@ import { getAllTemplates } from '@/service/templateService';
 import type { FormInput, Template } from '@/app/types/createProjectType';
 import { getProjectOwner } from '@/service/projectService';
 import { type Budget, TypeMoney } from '@/app/types/moneyType';
+import { TagProps } from '@/app/types/types';
 
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
@@ -67,6 +68,7 @@ export const CreateProject = () => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    alert(JSON.stringify(inputs));
     await handleProjectCreation();
   };
 
@@ -77,6 +79,11 @@ export const CreateProject = () => {
       taskTitle: undefined,
       taskDescription: undefined,
     }));
+  };
+
+  const handleChangeTag = (tag: TagProps[]) => {
+    const name = 'projectTag';
+    setInputs((values) => ({ ...values, [name]: tag }));
   };
 
   return (
@@ -144,7 +151,7 @@ export const CreateProject = () => {
             </Dialog>
           </div>
         </form>
-        <MenuBar inputs={inputs} handleChange={handleChange} owner={owner} />
+        <MenuBar inputs={inputs} handleChangeTag={handleChangeTag} owner={owner} />
       </div>
     </div>
   );

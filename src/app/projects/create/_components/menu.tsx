@@ -1,19 +1,16 @@
 import type { FormInput } from '@/app/types/createProjectType';
 import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { getCookie } from 'cookies-next';
 import { CrownIcon, Tag } from 'lucide-react';
-import type { ChangeEvent } from 'react';
+import { ProjectTag } from './tags';
+import { TagProps } from '@/app/types/types';
 
 interface MenuBarProps {
   inputs: FormInput;
   owner: string;
-  handleChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  handleChangeTag: (value: TagProps[]) => void;
 }
 
-export const MenuBar = ({ inputs, owner, handleChange }: MenuBarProps) => {
-  const cookie = getCookie('auth');
-  const auth = cookie?.toString() ?? '';
-
+export const MenuBar = ({ inputs, owner, handleChangeTag }: MenuBarProps) => {
   const getInitials = (name: string) => {
     if (typeof name !== 'string') return ''; // Handle non-string input
     const nameParts = name.split(' ');
@@ -44,17 +41,14 @@ export const MenuBar = ({ inputs, owner, handleChange }: MenuBarProps) => {
           </div>
         </TooltipProvider>
       </div>
-      <div aria-label="tag" className="justify-start items-center inline-flex flex-wrap w-full">
-        {/* Label Zone */}
+      <div aria-label="tag" className="flex items-center ">
         <div className="w-24 justify-start items-center gap-2 flex self-start ">
-          {/* Icon */}
           <Tag className="w-6 h-6 relative" />
-          {/* Description */}
           <div className="text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-tight">
             Tag :{' '}
           </div>
         </div>
-        <div className="flex w-[253.67px] ">{/* <ButtonAddTags project_id={project_id} /> */}</div>
+        <ProjectTag value={inputs} onChange={handleChangeTag} />
       </div>
     </div>
   );

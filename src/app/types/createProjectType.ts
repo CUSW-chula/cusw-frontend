@@ -1,7 +1,9 @@
+import { TagProps } from './types';
+
 export interface FormInput {
   projectTitle?: string;
   projectDescription?: string;
-  // projectTag?: any[];
+  projectTag?: TagProps[];
   taskTitle?: string;
   taskDescription?: string;
   taskBudget?: number;

@@ -31,3 +31,10 @@ export const getProjectOwner = async (userId: string, auth: string, BASE_URL: st
     console.error('Error fetching template:', error);
   }
 };
+
+export const assignProjectTag = async (
+  projectId: string,
+  inputs: FormInput,
+  auth: string,
+  BASE_URL: string,
+) => {};
