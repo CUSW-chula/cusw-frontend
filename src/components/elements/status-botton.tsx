@@ -5,20 +5,25 @@ import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useCallback, useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
-import { selectedStatusAtom } from '@/atom';
 import BASE_URL, { BASE_SOCKET, Task, type Status, type TaskManageMentProp } from '@/lib/shared';
 import React from 'react';
 import { getCookie } from 'cookies-next';
 import { statusSections } from '@/lib/taskUtils';
 import type { TaskProps } from '@/app/types/types';
+import { useToast } from '@/hooks/use-toast';
 
 const statuses: Status[] = statusSections;
+const unassignStatus: Status = {
+  status: 'Unassigned',
+  displayName: 'Unassigned',
+  icon: '/asset/icon/unassigned.svg',
+};
 
 export function StatusButton({ task }: { task: TaskProps }) {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [open, setOpen] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useAtom<Status>(selectedStatusAtom);
+  const [selectedStatus, setSelectedStatus] = useState<Status>(unassignStatus);
   const [isAllSubTaskDone, setIsAllSubTaskDone] = useState(true);
 
   const getStatus = (value: string) => {
@@ -67,7 +72,7 @@ export function StatusButton({ task }: { task: TaskProps }) {
     };
 
     return () => ws.close();
-  }, [setSelectedStatus, parseJsonValue, task]);
+  }, [parseJsonValue, task]);
 
   const handleSelectStatus = async (status: Status) => {
     setSelectedStatus(getStatus(task.status));
@@ -84,11 +89,21 @@ export function StatusButton({ task }: { task: TaskProps }) {
 
     try {
       const response = await fetch(url, options);
+
+      if (response.ok) {
+        toast({
+          title: 'success',
+          description: `You changed the status to "${selectedStatus.displayName}"`,
+          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+        });
+      }
       const data = await response.json();
     } catch (error) {
       console.error(error);
     }
   };
+
+  const { toast } = useToast();
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

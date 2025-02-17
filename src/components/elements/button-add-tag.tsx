@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { Circle, XCircle, CircleFadingPlus } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import * as React from 'react';
+import { Circle, XCircle, CircleFadingPlus } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import {
   Command,
   CommandEmpty,
@@ -11,22 +11,18 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from "@/lib/shared";
-import { getCookie } from "cookies-next";
-import { Badge } from "@/components/ui/badge";
-import type { TaskProps, TagProps } from "@/app/types/types";
-import { useToast } from "@/hooks/use-toast";
+} from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
+import { getCookie } from 'cookies-next';
+import { Badge } from '@/components/ui/badge';
+import type { TaskProps, TagProps } from '@/app/types/types';
+import { useToast } from '@/hooks/use-toast';
 
 // Mock data
 export function ButtonAddTags({ task }: { task: TaskProps }) {
-  const cookie = getCookie("auth");
-  const auth = cookie?.toString() ?? "";
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
   const [open, setOpen] = React.useState(false);
   const [statuses, setStatuses] = React.useState<TagProps[]>([]);
   const [selectedTags, setSelectedTags] = React.useState<TagProps[]>([]);
@@ -44,7 +40,7 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
     const fetchTags = async () => {
       const url = `${BASE_URL}/v2/tags/`;
       const options = {
-        method: "GET",
+        method: 'GET',
         headers: {
           Authorization: auth,
         },
@@ -73,15 +69,15 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
         const eventName = socketEvent.eventName;
         const data = pareJsonValue(socketEvent.data);
 
-        if (eventName === "assigned-tags") {
+        if (eventName === 'assigned-tags') {
           // Update selected tags with new tag added
           setSelectedTags((prev) => [data, ...prev]);
-        } else if (eventName === "unassigned-tag") {
+        } else if (eventName === 'unassigned-tag') {
           // Remove tag from selected tags
           setSelectedTags((prev) => prev.filter((t) => t.id !== data.id));
         }
       } catch (error) {
-        console.error("Error parsing WebSocket message:", error);
+        console.error('Error parsing WebSocket message:', error);
       }
     };
 
@@ -97,8 +93,8 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
     if (selected && !selectedTags.some((tag) => tag.id === selected.id)) {
       const url = `${BASE_URL}/v2/tags/assign`;
       const options = {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: auth },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
         body: JSON.stringify({ taskId: task.id, tagId: selected.id }),
       };
 
@@ -109,15 +105,15 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
         if (response.ok) {
           // throw new Error("Failed to assign tag");
           toast({
-            title: "Tag Added",
+            title: 'Tag Added',
             description: `You added "${selected.name}"`,
-            variant: "default", // หรือใช้ 'success' ถ้ามี custom variant
+            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
           });
         } else {
           toast({
-            title: "Error",
-            description: "Failed to assign tag. Please try again.",
-            variant: "destructive", // ใช้สีแดงสำหรับ error
+            title: 'Error',
+            description: 'Failed to assign tag. Please try again.',
+            variant: 'destructive', // ใช้สีแดงสำหรับ error
           });
         }
         // After adding the tag, update the local state
@@ -131,8 +127,8 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
   const handleDeleteTag = async (value: string) => {
     const url = `${BASE_URL}/v2/tags/unassigned`;
     const options = {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json", Authorization: auth },
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', Authorization: auth },
       body: JSON.stringify({ taskId: task.id, tagId: value }),
     };
 
@@ -155,23 +151,19 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
               <Badge
                 key={tag.id}
                 variant="destructive"
-                className="h-10 min-w-fit flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mb-1"
-              >
-                <span className="text-base font-medium font-BaiJamjuree">
-                  {tag.name}
-                </span>
+                className="h-10 min-w-fit flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mb-1">
+                <span className="text-base font-medium font-BaiJamjuree">{tag.name}</span>
                 <button
                   type="button"
                   onClick={() => {
                     handleDeleteTag(tag.id);
                     toast({
-                      title: "Tag Removed",
+                      title: 'Tag Removed',
                       description: `You removed "${tag.name}"`,
-                      variant: "default",
+                      variant: 'default',
                     });
                   }}
-                  className="text-red-500 ml-1 max-w-20"
-                >
+                  className="text-red-500 ml-1 max-w-20">
                   <XCircle className="h-4 w-4" />
                 </button>
               </Badge>
@@ -193,18 +185,14 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
                   <CommandEmpty>No results found.</CommandEmpty>
                   <CommandGroup>
                     {statuses.map((status) => (
-                      <CommandItem
-                        key={status.id}
-                        value={status.name}
-                        onSelect={handleSelectTag}
-                      >
+                      <CommandItem key={status.id} value={status.name} onSelect={handleSelectTag}>
                         <Circle
                           className={cn(
-                            "mr-2 h-4 w-4 fill-greenLight text-greenLight",
+                            'mr-2 h-4 w-4 fill-greenLight text-greenLight',
                             Array.isArray(selectedTags) &&
                               selectedTags.some((tag) => tag.id === status.id)
-                              ? "opacity-100"
-                              : "opacity-40"
+                              ? 'opacity-100'
+                              : 'opacity-40',
                           )}
                         />
                         <span>{status.name}</span>

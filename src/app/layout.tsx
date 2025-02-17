@@ -37,7 +37,7 @@ export default function RootLayout({
           </div>
 
           <div className="w-full px-20 pb-10 flex justify-center">{children}</div>
-          <Toaster/>
+          <Toaster />
         </body>
       </SessionProvider>
     </html>

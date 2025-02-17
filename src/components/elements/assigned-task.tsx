@@ -19,6 +19,7 @@ import { Profile } from './profile';
 import BASE_URL, { BASE_SOCKET, Task, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import type { TaskProps } from '@/app/types/types';
+import { useToast } from '@/hooks/use-toast';
 
 interface UsersInterfaces {
   id: string;
@@ -107,13 +108,40 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
       };
 
       try {
-        await fetch(url, options);
+        const response = await fetch(url, options);
+
+        // เช็คว่าคำขอสำเร็จหรือไม่
+        if (response.ok) {
+          // throw new Error("Failed to assign tag");
+          if (options.method === 'POST') {
+            toast({
+              title: 'Assigned user',
+              description: `You assigned "${selected.name}" to this task"`,
+              variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+            });
+          } else {
+            toast({
+              title: 'Unssigned user',
+              description: `You unassigned "${selected.name}" from this task"`,
+              variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+            });
+          }
+        } else {
+          toast({
+            title: 'Error',
+            description:
+              "Failed to assign user. Assigner can't assign task to themself. Please try again.",
+            variant: 'default', // ใช้สีแดงสำหรับ error
+          });
+        }
       } catch (error) {
         console.error(error);
       }
     }
     setOpen(false);
   };
+
+  const { toast } = useToast();
 
   return (
     <TooltipProvider>
