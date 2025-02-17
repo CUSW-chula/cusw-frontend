@@ -9,13 +9,7 @@ export const createProject = async (inputs: FormInput, auth: string, BASE_URL: s
     endDate: new Date(),
   };
 
-  return await fetchData(
-    `${BASE_URL}/v2/projects`,
-    'POST',
-    projectPayload,
-    auth,
-    'Create Project Fail',
-  );
+  return await fetchData(`${BASE_URL}/v2/projects`, 'POST', projectPayload, 'Create Project Fail');
 };
 
 export const getProjectOwner = async (userId: string, auth: string, BASE_URL: string) => {
@@ -24,7 +18,6 @@ export const getProjectOwner = async (userId: string, auth: string, BASE_URL: st
       `${BASE_URL}/v2/users/${userId}`,
       'GET',
       {},
-      auth,
       'Get User From Server Fail.',
     );
   } catch (error) {

@@ -310,19 +310,19 @@ export function Createproject() {
       }),
     };
 
-    try {
-      const response = await fetch(url, options);
-      const data = await response.json();
-      console.log(data);
-      if (data?.id) {
-        router.push(`/projects/create/${data.id}`);
-      } else {
-        console.error('Project ID not found', data);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-    // router.push('/projects/create');
+    // try {
+    //   const response = await fetch(url, options);
+    //   const data = await response.json();
+    //   console.log(data);
+    //   if (data?.id) {
+    //     router.push(`/projects/create/${data.id}`);
+    //   } else {
+    //     console.error('Project ID not found', data);
+    //   }
+    // } catch (error) {
+    //   console.error(error);
+    // }
+    router.push('/projects/create');
   };
 
   return (

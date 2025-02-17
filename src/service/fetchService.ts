@@ -1,10 +1,13 @@
+import { getCookie } from 'cookies-next';
+
 export const fetchData = async (
   url: string,
   method: string,
   body: object,
-  auth: string,
   errorMessage: string,
 ) => {
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
   try {
     const options: RequestInit = {
       method,

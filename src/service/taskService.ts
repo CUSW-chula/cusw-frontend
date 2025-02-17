@@ -21,7 +21,7 @@ export const createSingleTask = async (
     endDate: new Date(),
   };
 
-  await fetchData(`${BASE_URL}/v2/tasks/`, 'POST', taskPayload, auth, 'Error creating task');
+  await fetchData(`${BASE_URL}/v2/tasks/`, 'POST', taskPayload, 'Error creating task');
 };
 
 export const createTasksFromTemplate = async (
@@ -39,7 +39,6 @@ export const createTasksFromTemplate = async (
         `${BASE_URL}/v2/tasks/template/${projectId}`,
         'POST',
         templateFormat,
-        auth,
         'Error creating tasks with template',
       );
     }

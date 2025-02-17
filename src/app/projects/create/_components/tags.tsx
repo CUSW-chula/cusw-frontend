@@ -36,7 +36,6 @@ export const ProjectTag = ({ value, onChange }: ProjectTagProps) => {
         `${BASE_URL}/v2/tags/`,
         'GET',
         {},
-        auth,
         'Get Tags From Server Fail.',
       );
       setStatuses(response);

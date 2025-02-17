@@ -27,18 +27,18 @@ export const CreateProject = () => {
   const [owner, setOwner] = useState<string>('');
 
   useEffect(() => {
-    const fetchTemplates = async () => {
+    const fetchData = async () => {
       try {
         const templates = await getAllTemplates(auth, BASE_URL);
         setAllTemplates(templates);
-        const projectOwner = await getProjectOwner('cm0siagz300003mbv5bsz6wty', auth, BASE_URL);
-        setOwner(projectOwner.name);
+        // const projectOwner = await getProjectOwner('cm0siagz300003mbv5bsz6wty', auth, BASE_URL);
+        // setOwner(projectOwner.name);
       } catch (error) {
         console.error('Failed to fetch templates:', error);
       }
     };
 
-    fetchTemplates();
+    fetchData();
   }, []);
   const { handleProjectCreation } = useCreateProject(inputs, auth, BASE_URL);
 
@@ -68,7 +68,6 @@ export const CreateProject = () => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    alert(JSON.stringify(inputs));
     await handleProjectCreation();
   };
 
@@ -90,7 +89,7 @@ export const CreateProject = () => {
     <div className="h-full px-20 flex flex-col justify-start items-start gap-4 w-full">
       <h1 className="text-black text-5xl font-semibold font-Anuphan">Create Project</h1>
       <div className="inline-flex w-full gap-7">
-        <form className="w-4/6 h-[348px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start inline-flex">
+        <form className="w-full h-[348px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start inline-flex">
           <div className="self-stretch h-[82px] flex-col justify-start items-start gap-[18px] flex">
             <Input
               className="resize-none border-none w-full outline-none placeholder-black font-semibold text-3xl font-Anuphan leading-[48px]"
@@ -151,7 +150,7 @@ export const CreateProject = () => {
             </Dialog>
           </div>
         </form>
-        <MenuBar inputs={inputs} handleChangeTag={handleChangeTag} owner={owner} />
+        {/* <MenuBar inputs={inputs} handleChangeTag={handleChangeTag} owner={owner} /> */}
       </div>
     </div>
   );
