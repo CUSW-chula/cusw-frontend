@@ -96,4 +96,9 @@ const BASE_URL =
     ? 'https://cusw-workspace.sa.chula.ac.th/api'
     : 'http://localhost:4000/api';
 
+export const BASE_YSWEET =
+  process.env.NODE_ENV === 'production'
+    ? 'https://cusw-workspace.sa.chula.ac.th/api/auth'
+    : 'http://localhost:4001/api/auth';
+
 export default BASE_URL;
