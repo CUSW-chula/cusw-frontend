@@ -17,10 +17,6 @@ import { useRouter } from 'next/navigation';
 import BASE_URL from '@/lib/shared';
 import type { TaskProps } from '@/app/types/types';
 
-interface DeleteTaskProps {
-  task_id: string;
-}
-
 export const DeleteTask = ({ task }: { task: TaskProps }) => {
   const router = useRouter();
   const cookie = getCookie('auth');
@@ -33,7 +29,7 @@ export const DeleteTask = ({ task }: { task: TaskProps }) => {
       const response = await fetch(url, options);
       const data = await response.json();
       console.log(data);
-      router.push('/');
+      router.push(`/projects/${task.projectId}`);
     } catch (error) {
       console.error(error);
     }
