@@ -130,7 +130,7 @@ function CommentBox({
   const [isEditing, setIsEditing] = useState(false);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
-  const userid = jwtDecode(auth).toString();
+  const userid = (jwtDecode(auth) as { id: string }).id;
   const Isauthor = authorId === userid;
 
   const deleteComment = async () => {
@@ -180,7 +180,7 @@ function CommentBox({
               </div>
             </div>
 
-            {!isEditing && !Isauthor && (
+            {!isEditing && Isauthor && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button className="hover:text-gray-800" variant="ghost">
@@ -262,7 +262,6 @@ const Comment = ({ task }: { task: TaskProps }) => {
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValues = useCallback((values: any[]) => {
-    console.log(values[0]);
     return values.map((value) => ({
       id: value.id,
       content: value.content,
@@ -316,7 +315,7 @@ const Comment = ({ task }: { task: TaskProps }) => {
         const eventName = socketEvent.eventName;
         const data = parseJsonValue(socketEvent.data);
 
-        if (eventName === 'comment') {
+        if (eventName === `comment:${task.id}`) {
           setList((prevList) => [...prevList, data]);
         } else if (eventName === 'comment-delete') {
           setList((prevList) =>
