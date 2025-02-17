@@ -1,4 +1,4 @@
-import { TagProps } from './types';
+import type { TagProps } from './types';
 
 export interface FormInput {
   projectTitle?: string;

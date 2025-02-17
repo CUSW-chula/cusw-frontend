@@ -2,7 +2,7 @@ import type { FormInput } from '@/app/types/createProjectType';
 import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { CrownIcon, Tag } from 'lucide-react';
 import { ProjectTag } from './tags';
-import { TagProps } from '@/app/types/types';
+import type { TagProps } from '@/app/types/types';
 
 interface MenuBarProps {
   inputs: FormInput;

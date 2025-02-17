@@ -15,7 +15,7 @@ import BASE_URL from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { Badge } from '@/components/ui/badge';
 import type { FormInput } from '@/app/types/createProjectType';
-import { TagProps } from '@/app/types/types';
+import type { TagProps } from '@/app/types/types';
 import { fetchData } from '@/service/fetchService';
 
 interface ProjectTagProps {

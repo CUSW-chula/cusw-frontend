@@ -15,7 +15,7 @@ import { getAllTemplates } from '@/service/templateService';
 import type { FormInput, Template } from '@/app/types/createProjectType';
 import { getProjectOwner } from '@/service/projectService';
 import { type Budget, TypeMoney } from '@/app/types/moneyType';
-import { TagProps } from '@/app/types/types';
+import type { TagProps } from '@/app/types/types';
 
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
