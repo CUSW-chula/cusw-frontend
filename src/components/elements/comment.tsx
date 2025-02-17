@@ -117,7 +117,16 @@ function formatName(name: string) {
   return nameParts[0];
 }
 
-function CommentBox({ id, content, taskId, name, createdAt, isDeleted, editTime ,authorId}: CommentBoxProp) {
+function CommentBox({
+  id,
+  content,
+  taskId,
+  name,
+  createdAt,
+  isDeleted,
+  editTime,
+  authorId,
+}: CommentBoxProp) {
   const [isEditing, setIsEditing] = useState(false);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
@@ -171,7 +180,7 @@ function CommentBox({ id, content, taskId, name, createdAt, isDeleted, editTime 
               </div>
             </div>
 
-            {!isEditing && !Isauthor &&(
+            {!isEditing && !Isauthor && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button className="hover:text-gray-800" variant="ghost">
