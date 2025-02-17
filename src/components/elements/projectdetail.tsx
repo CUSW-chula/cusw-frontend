@@ -1,7 +1,7 @@
 'use client';
 import { getCookie } from 'cookies-next';
 import type React from 'react';
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import BASE_URL from '@/lib/shared';
 import type { ProjectOverviewProps } from '@/lib/shared';
@@ -21,6 +21,7 @@ import {
 import { useRouter } from 'next/navigation';
 import ProjectWorkspace from './project-workspace';
 import { ButtonAddTags } from './button-add-projecttag';
+import { DatePickerWithRangeProject } from './date-feature';
 
 interface projectProps {
   id: string;
@@ -205,6 +206,7 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
   const [budget, setBudget] = useState<number>(0);
   const [advance, setAdvance] = useState<number>(0);
   const [expense, setExpense] = useState<number>(0);
+  const [project, setProject] = useState<projectProps>();
   const MAX_VISIBLE_MEMBERS = 3;
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
@@ -229,6 +231,7 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
         setBudget(data.budget);
         setAdvance(data.advance);
         setExpense(data.expense);
+        setProject(data);
       } catch (error) {
         console.error('Error fetching project data:', error);
       }
@@ -350,7 +353,7 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
             Date :{' '}
           </div>
         </div>
-        {formatDate(startDate, endDate)}
+        {project && <DatePickerWithRangeProject project={project} />}
       </div>
     </div>
   );
