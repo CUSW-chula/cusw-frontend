@@ -98,7 +98,7 @@ const BASE_URL =
 
 export const BASE_YSWEET =
   process.env.NODE_ENV === 'production'
-    ? 'https://cusw-workspace.sa.chula.ac.th/yjs/auth'
+    ? 'https://cusw-workspace.sa.chula.ac.th/yjs/auth/'
     : 'http://localhost:4001/yjs/auth';
 
 export default BASE_URL;
