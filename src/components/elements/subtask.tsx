@@ -23,6 +23,7 @@ import { getCookie } from 'cookies-next';
 import BASE_URL, { BASE_SOCKET } from '@/lib/shared';
 import { Task } from './taskManagement';
 import type { TaskProps } from '@/app/types/types';
+import { CreateSubtask } from './createSubtask';
 
 function TitleInput({ content, onChange }: { content: string; onChange: (value: string) => void }) {
   const [editedContent, setEditedContent] = useState(content);
@@ -238,7 +239,7 @@ const Subtask = ({ task }: { task: TaskProps }) => {
           className="ml-3 flex items-center text-[#6b5c56] border-[#6b5c56] px-3 py-1 rounded-md"
           onClick={() => {
             setIsSubtaskSectionVisible(!isSubtaskSectionVisible);
-            handleCreateSubtask();
+            // handleCreateSubtask();
           }}>
           + Add Subtask
         </Button>
@@ -246,58 +247,7 @@ const Subtask = ({ task }: { task: TaskProps }) => {
 
       {/* Subtask creation section */}
       {isSubtaskSectionVisible && (
-        <div className="h-[232px] w-full p-6 bg-gray-50 rounded-md shadow border border-[#6b5c56] flex-col justify-start items-start gap-4 inline-flex">
-          <div className="">
-            <TitleInput content={''} onChange={setSubtaskTitle} />
-            <BlockNoteView
-              editor={editor}
-              theme={'light'}
-              onChange={() => {
-                setBlocks(editor.document);
-              }}
-              shadCNComponents={{
-                Card,
-                DropdownMenu,
-                Form,
-                Input,
-                Label,
-                Popover,
-                Tabs,
-                Toggle,
-                Tooltip,
-              }}
-            />
-          </div>
-          <div className="self-stretch h-[92px] flex-col justify-start items-start gap-3 flex">
-            <div className="justify-start items-center gap-2 inline-flex">
-              {subtasks && subtasks.length > 0 && (
-                <>
-                  <StatusButton task={subtasks[subtasks.length - 1]} />
-                  <AssignedTaskToMember task={subtasks[subtasks.length - 1]} />
-                  <ButtonAddTags task={subtasks[subtasks.length - 1]} />
-                </>
-              )}
-            </div>
-            <div className="self-stretch justify-end items-center gap-3 inline-flex">
-              <Button
-                variant="outline"
-                className="text-base font-BaiJamjuree font-medium leading-normal border-[#6b5c56]"
-                onClick={() => {
-                  handleToggleSubtaskSection();
-                  handleDeleteSubtask();
-                }}>
-                Cancel
-              </Button>
-              <Button
-                variant="outline"
-                type="submit"
-                className="bg-[#6b5c56] text-base font-BaiJamjuree font-medium text-white leading-normal"
-                onClick={handleSubmitSubtask}>
-                Create
-              </Button>
-            </div>
-          </div>
-        </div>
+        <CreateSubtask task={task} setDialog={setIsSubtaskSectionVisible} />
       )}
       {isSubtaskVisible && (
         <div className="w-full space-y-1">
