@@ -3,8 +3,7 @@
 import type { TaskProps } from '@/app/types/types';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { useAuth } from '@/hooks/use-auth';
-import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
-import { getCookie } from 'cookies-next';
+import BASE_URL, { BASE_SOCKET } from '@/lib/shared';
 import React, { useEffect, useCallback, useState } from 'react';
 
 interface ActivityLogItemProps {
