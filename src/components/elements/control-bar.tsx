@@ -169,12 +169,13 @@ export function FilterByTags({ onSelectTagChange }: FilterTagsProp) {
         <Button
           onClick={handleTogglePopover}
           className={cn(
-            'flex p-4 rounded-[6px] border border-brown h-10 items-center justify-between  ',
+            'flex p-4 rounded-[6px] border h-10 items-center justify-between border-brown',
             selectedValues.length !== 0
-              ? 'border-red bg-rose-50 hover:bg-rose-50'
+              ? ' bg-slate-100 hover:bg-gray-50'
               : 'bg-white hover:bg-white',
           )}>
-          <span className="text-[14px] text-brown font-BaiJamjuree">
+          <span
+            className={`text-[14px] font-BaiJamjuree ${selectedValues.length !== 0 ? 'text-black font-bold' : 'text-brown'}`}>
             Filter {selectedValues.length} tag(s)
           </span>
         </Button>
@@ -259,15 +260,13 @@ export function SortButton({ onSelectChange }: SortProp) {
     <div>
       <Select onValueChange={(value) => handleSelectChange(value)}>
         <SelectTrigger className="w-[200px] font-BaiJamjuree text-brown border-[#6b5c56] outline-none focus:ring-none ring-offset-transparent focus:ring-offset-transparent ">
-          <SelectValue placeholder="Sort By: Default" />
+          <SelectValue placeholder="Sort by: Default" />
         </SelectTrigger>
         <SelectContent className="font-BaiJamjuree text-brown">
           <SelectItem value="Start Date ↑">Sort by: Start date ↑</SelectItem>
           <SelectItem value="Start Date ↓">Sort by: Start date ↓</SelectItem>
           <SelectItem value="End Date ↑">Sort by: End date ↑</SelectItem>
           <SelectItem value="End Date ↓">Sort by: End date ↓</SelectItem>
-          <SelectItem value="Highest">Sort by: Highest money</SelectItem>
-          <SelectItem value="Lowest">Sort by: Lowest money</SelectItem>
         </SelectContent>
       </Select>
     </div>
