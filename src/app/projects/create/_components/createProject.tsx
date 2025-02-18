@@ -88,11 +88,11 @@ export const CreateProject = () => {
   return (
     <div className="h-full px-20 flex flex-col justify-start items-start gap-4 w-full">
       <h1 className="text-black text-5xl font-semibold font-Anuphan">Create Project</h1>
-      <div className="inline-flex w-full gap-7">
+      {/* <div className="inline-flex w-full gap-7"> */}
         <form className="w-full h-[348px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start inline-flex">
           <div className="self-stretch h-[82px] flex-col justify-start items-start gap-[18px] flex">
             <Input
-              className="resize-none border-none w-full outline-none placeholder-black font-semibold text-3xl font-Anuphan leading-[48px]"
+              className="resize-y border-none w-full h-60 outline-none placeholder-black font-semibold text-3xl font-Anuphan leading-[48px]"
               placeholder="Project title"
               name="projectTitle"
               value={inputs.projectTitle || ''}
@@ -151,7 +151,7 @@ export const CreateProject = () => {
           </div>
         </form>
         {/* <MenuBar inputs={inputs} handleChangeTag={handleChangeTag} owner={owner} /> */}
-      </div>
+      {/* </div> */}
     </div>
   );
 };
