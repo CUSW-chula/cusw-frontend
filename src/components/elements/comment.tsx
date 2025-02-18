@@ -132,7 +132,6 @@ function CommentBox({
   const auth = cookie?.toString() ?? '';
   const userid = (jwtDecode(auth) as { id: string }).id;
   const Isauthor = authorId === userid;
-  
 
   const deleteComment = async () => {
     try {

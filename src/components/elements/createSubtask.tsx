@@ -7,13 +7,9 @@ import BASE_URL, { User } from '@/lib/shared';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { getCookie } from 'cookies-next';
-import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from '@blocknote/shadcn';
-import "@blocknote/mantine/style.css";
-import { useCreateBlockNote } from "@blocknote/react";
-import '@blocknote/shadcn/style.css';
+import { useCreateBlockNote } from '@blocknote/react';
 
-import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
 interface FormInput {
   taskTitle?: string;
   taskDescription?: string;
@@ -60,16 +56,16 @@ export const CreateSubtask = ({
       const data = await response.json();
       router.push(`/tasks/${data.id}`);
       toast({
-        title: 'Budget Changes Saved',
-        description: 'Your task budget changes have been successfully saved.',
+        title: 'Task Created Successfully',
+        description: 'Your task has been created and saved successfully.',
         variant: 'default',
       });
     } catch (error) {
       console.error(error);
       toast({
-        title: 'Budget Changes mai Saved',
-        description: 'Your task budget changes have been successfully saved.',
-        variant: 'default',
+        title: 'Task Creation Failed',
+        description: 'There was an issue creating your task. Please try again.',
+        variant: 'destructive',
       });
     }
   };
@@ -83,7 +79,7 @@ export const CreateSubtask = ({
           value={inputs.taskTitle || ''}
           onChange={handleChange}
         />
-        <BlockNoteView editor={editor} theme={'light'} emojiPicker={false}/>
+        <BlockNoteView editor={editor} theme={'light'} emojiPicker={false} />
         {/* <Textarea
           className="resize-none border-none bg-transparent w-full outline-none text-black text-xl font-Anuphan leading-7"
           placeholder="Task description"

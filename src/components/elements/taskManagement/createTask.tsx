@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import { getCookie } from 'cookies-next';
 
 import BASE_URL from '@/lib/shared';
+import { toast } from '@/hooks/use-toast';
 
 export const CreateTask = (project: { project_id: string }) => {
   const cookie = getCookie('auth');
@@ -31,8 +32,18 @@ export const CreateTask = (project: { project_id: string }) => {
       const response = await fetch(url, options);
       const data = await response.json();
       router.push(`/tasks/${data.id}`);
+      toast({
+        title: 'Task Created Successfully',
+        description: 'Your task has been created and saved successfully.',
+        variant: 'default',
+      });
     } catch (error) {
       console.error(error);
+      toast({
+        title: 'Task Creation Failed',
+        description: 'There was an issue creating your task. Please try again.',
+        variant: 'destructive',
+      });
     }
   };
   return (
