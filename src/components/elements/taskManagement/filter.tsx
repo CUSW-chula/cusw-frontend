@@ -1,13 +1,39 @@
+import BASE_URL from '@/lib/shared';
+import { getCookie } from 'cookies-next';
+import { useEffect, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 import type { TaskProps, TagProps } from '@/app/types/types';
 
 interface FilterProps {
   tasks: TaskProps[];
-  allTags: TagProps[];
   setShowTasks: (prev: TaskProps[]) => void;
 }
+const cookie = getCookie('auth');
+const auth = cookie?.toString() ?? '';
 
-export const Filter = ({ tasks, allTags, setShowTasks }: FilterProps) => {
+export const Filter = ({ tasks, setShowTasks }: FilterProps) => {
+  const [allTags, setAllTags] = useState<TagProps[]>([]);
+  useEffect(() => {
+    //get all tags of tasks from db
+    const fetchTagData = async () => {
+      const url = `${BASE_URL}/v2/tags/`;
+      const options = {
+        method: 'GET',
+        headers: {
+          Authorization: auth,
+        },
+      };
+
+      try {
+        const response = await fetch(url, options);
+        const data = (await response.json()) as TagProps[];
+        setAllTags(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchTagData();
+  }, [auth]);
   const handleFilter = async (tagID: string) => {
     const filterByTag = async (tasks: TaskProps[], tag: TagProps): Promise<TaskProps[]> => {
       const filteredTasks: TaskProps[] = [];
