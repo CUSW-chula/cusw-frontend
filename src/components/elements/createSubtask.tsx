@@ -70,8 +70,8 @@ export const CreateSubtask = ({
     }
   };
   return (
-    <div className="h-60 w-full p-6 bg-gray-50 rounded-md shadow border border-[#6b5c56] flex-col justify-start items-start gap-4 inline-flex">
-      <div className="h-56 w-full flex flex-col gap-2">
+    <div className="min-h-60 w-full p-6 bg-gray-50 rounded-md shadow border border-[#6b5c56] flex-col justify-start items-start gap-4 inline-flex">
+      <div className="min-h-30 w-full flex flex-col gap-2">
         <Input
           className="resize-none border-none w-full outline-none placeholder-black font-semibold text-3xl font-Anuphan leading-[48px]"
           placeholder="Task title"
@@ -88,7 +88,7 @@ export const CreateSubtask = ({
           onChange={handleChange}
         /> */}
       </div>
-      <div className="self-stretch h-[92px] flex-col justify-start items-start gap-3 flex">
+      <div className="self-stretch min-h-[92px] flex-col justify-start items-start gap-3 flex">
         <div className="self-stretch justify-end items-center gap-3 inline-flex">
           <Button
             variant="outline"
