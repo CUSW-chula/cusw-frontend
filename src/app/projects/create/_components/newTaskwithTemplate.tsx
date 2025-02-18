@@ -23,7 +23,7 @@ export const NewTaskwithTemplate: React.FC<NewTaskwithTemplateProps> = ({
             key={template.id}
             type="button"
             variant={'secondary'}
-            className={`${template.id === inputs.task?.template.id ? 'bg-gray-500' : ''}`}
+            className={`${template.id === inputs.task?.template.id ? 'bg-neutral-200' : ''}`}
             onClick={() => handleTemplateSelect(template)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
@@ -32,7 +32,7 @@ export const NewTaskwithTemplate: React.FC<NewTaskwithTemplateProps> = ({
             }}>
             <div className="flex items-center gap-3">
               {/* <span className="text-2xl">{template.icon}</span> */}
-              <span className="text-sm font-medium">{template.fileName}</span>
+              <span className="text-sm font-medium font-BaiJamjuree">{template.fileName.replace('.json', '')}</span>
             </div>
           </Button>
         ))}
