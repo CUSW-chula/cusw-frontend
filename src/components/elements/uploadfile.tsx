@@ -130,7 +130,7 @@ const handleDelete = async (id: string, auth: string) => {
 
 async function getName(authorId: string, auth: string) {
   try {
-    const response = await fetch(`${BASE_URL}/v1/users/${authorId}`, {
+    const response = await fetch(`${BASE_URL}/v2/users/${authorId}`, {
       headers: {
         Authorization: auth,
       },
