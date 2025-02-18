@@ -7,15 +7,11 @@ import { getCookie } from 'cookies-next';
 import { Redo2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type React from 'react';
-
-const useAuthHeader = () => {
-  const cookie = getCookie('auth');
-  return cookie?.toString() ?? '';
-};
+import { useAuth } from '@/hooks/use-auth';
 
 const BackButton = ({ task }: { task: TaskProps }) => {
   const router = useRouter();
-  const auth = useAuthHeader();
+  const auth = useAuth();
 
   const handleBack = async () => {
     try {
