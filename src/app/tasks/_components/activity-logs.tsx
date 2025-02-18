@@ -2,6 +2,7 @@
 
 import type { TaskProps } from '@/app/types/types';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
+import { useAuth } from '@/hooks/use-auth';
 import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import React, { useEffect, useCallback, useState } from 'react';
@@ -85,8 +86,7 @@ function formatDate(date?: string): string {
 
 function ActivityLogItem({ userId, action, detail, createdAt }: ActivityLogItemProps) {
   const [name, setName] = useState('');
-  const cookie = getCookie('auth');
-  const auth = cookie?.toString() ?? '';
+  const auth = useAuth();
 
   useEffect(() => {
     getName(userId, auth).then(setName);
@@ -117,8 +117,7 @@ function ActivityLogItem({ userId, action, detail, createdAt }: ActivityLogItemP
 
 const ActivityLogs = ({ task }: { task: TaskProps }) => {
   const [activityLogs, setActivityLogs] = useState<ActivityLogItemProps[]>([]);
-  const cookie = getCookie('auth');
-  const auth = cookie?.toString() ?? '';
+  const auth = useAuth();
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValue = useCallback((values: any) => {
@@ -146,7 +145,6 @@ const ActivityLogs = ({ task }: { task: TaskProps }) => {
       try {
         const response = await fetch(url, options);
         const data = await response.json();
-        console.log('DD', data);
         setActivityLogs(data);
       } catch (error) {
         console.error(error);
@@ -171,7 +169,7 @@ const ActivityLogs = ({ task }: { task: TaskProps }) => {
 
         setActivityLogs((prevList) =>
           Array.isArray(prevList)
-            ? eventName === 'activity'
+            ? eventName === `activity:${task.id}`
               ? [...prevList, data]
               : prevList.filter((item) => item.id !== data.id)
             : [],
