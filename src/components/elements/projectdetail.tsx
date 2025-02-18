@@ -22,6 +22,8 @@ import { useRouter } from 'next/navigation';
 import ProjectWorkspace from './project-workspace';
 import { ButtonAddTags } from './button-add-projecttag';
 import { DatePickerWithRangeProject } from './date-feature';
+import type { Project } from '@/lib/shared';
+import { AssignedProjectOwner } from './assigned-projectowner';
 
 interface projectProps {
   id: string;
@@ -206,7 +208,7 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
   const [budget, setBudget] = useState<number>(0);
   const [advance, setAdvance] = useState<number>(0);
   const [expense, setExpense] = useState<number>(0);
-  const [project, setProject] = useState<projectProps>();
+  const [project, setProject] = useState<Project>();
   const MAX_VISIBLE_MEMBERS = 3;
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
@@ -261,21 +263,7 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
             Owner :{' '}
           </div>
         </div>
-        <TooltipProvider>
-          <div className="flex items-center space-x-2 rounded-md border border-brown h-10 px-4">
-            {ProjectOwner.map((owner) => (
-              <Tooltip key={owner.id}>
-                <TooltipTrigger>
-                  <div className="w-[24px] h-[24px] bg-gray-100 rounded-full border flex items-center justify-center border-brown text-brown text-sm font-BaiJamjuree">
-                    {getInitials(owner.name)}
-                  </div>
-                </TooltipTrigger>
-                <span className="text-black text-sm font-BaiJamjuree">{owner.name}</span>
-                <TooltipContent>{owner.name}</TooltipContent>
-              </Tooltip>
-            ))}
-          </div>
-        </TooltipProvider>
+        <AssignedProjectOwner project={project}/>
       </div>
       <div aria-label="member" className="h-10 justify-start items-center inline-flex">
         <div className="w-24 justify-start items-center gap-2 flex">
