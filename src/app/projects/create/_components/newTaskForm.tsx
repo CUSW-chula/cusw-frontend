@@ -50,7 +50,7 @@ export const NewSingleTask: React.FC<NewSingleTaskProps> = ({
           Cancel
         </Button>
         <Button type="submit" className="px-4 py-2 bg-brown justify-center items-center flex">
-          {inputs.taskTitle === '' ? 'Create project without task' : 'Add Task'}
+          {inputs.taskTitle ? 'Add Task' : 'Create project without task'}
         </Button>
       </div>
     </form>
