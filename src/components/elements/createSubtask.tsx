@@ -2,14 +2,23 @@ import { TagProps, type TaskProps } from '@/app/types/types';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
-import { type ChangeEvent, FormEvent, useState } from 'react';
+import { type ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import BASE_URL, { User } from '@/lib/shared';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { getCookie } from 'cookies-next';
 import { BlockNoteView } from '@blocknote/shadcn';
-import { useCreateBlockNote } from '@blocknote/react';
-
+import '@blocknote/shadcn/style.css';
+import { GridSuggestionMenuController, useCreateBlockNote } from '@blocknote/react';
+import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
+import * as Card from '@/components/ui/card';
+import * as DropdownMenu from '@/components/ui/dropdown-menu';
+import * as Form from '@/components/ui/form';
+import * as Label from '@/components/ui/label';
+import * as Popover from '@/components/ui/popover';
+import * as Tabs from '@/components/ui/tabs';
+import * as Toggle from '@/components/ui/toggle';
+import * as Tooltip from '@/components/ui/tooltip';
 interface FormInput {
   taskTitle?: string;
   taskDescription?: string;
@@ -26,21 +35,22 @@ export const CreateSubtask = ({
   const router = useRouter();
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
+
+  const [Description, setDescription] = useState<string>('');
+
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = event.target;
     setInputs((values) => ({ ...values, [name]: value }));
   };
 
-  const editor = useCreateBlockNote();
   const handleSubmit = async () => {
     const url = `${BASE_URL}/v2/tasks/`;
-    const HTML = await editor.blocksToHTMLLossy(editor.document);
     const options = {
       method: 'POST',
       headers: { Authorization: auth, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         title: inputs.taskTitle,
-        description: HTML,
+        description: Description,
         budget: 0,
         advance: 0,
         parentTaskId: task.id,
@@ -53,6 +63,7 @@ export const CreateSubtask = ({
     };
     try {
       const response = await fetch(url, options);
+      console.log(options);
       const data = await response.json();
       router.push(`/tasks/${data.id}`);
       toast({
@@ -69,6 +80,25 @@ export const CreateSubtask = ({
       });
     }
   };
+  const { audio, image, video, file, codeBlock, ...allowedBlockSpecs } = defaultBlockSpecs;
+  const schema = BlockNoteSchema.create({
+    blockSpecs: {
+      ...allowedBlockSpecs,
+    },
+  });
+
+  const editor = useCreateBlockNote({
+    schema,
+  });
+
+  const onChangeBlock = async () => {
+    const HTML = await editor.blocksToHTMLLossy(editor.document);
+    setDescription(HTML);
+  };
+  useEffect(() => {
+    console.log(Description);
+  }, [Description]);
+
   return (
     <div className="min-h-60 w-full p-6 bg-gray-50 rounded-md shadow border border-[#6b5c56] flex-col justify-start items-start gap-4 inline-flex">
       <div className="min-h-30 w-full flex flex-col gap-2">
@@ -79,7 +109,25 @@ export const CreateSubtask = ({
           value={inputs.taskTitle || ''}
           onChange={handleChange}
         />
-        <BlockNoteView editor={editor} theme={'light'} emojiPicker={false} />
+        <BlockNoteView
+          editor={editor}
+          theme={'light'}
+          onChange={() => {
+            onChangeBlock();
+          }}
+          emojiPicker={false}
+          shadCNComponents={{
+            Card,
+            DropdownMenu,
+            Form,
+            Label,
+            Popover,
+            Tabs,
+            Toggle,
+            Tooltip,
+          }}>
+          <GridSuggestionMenuController triggerCharacter={':'} columns={5} minQueryLength={2} />
+        </BlockNoteView>{' '}
         {/* <Textarea
           className="resize-none border-none bg-transparent w-full outline-none text-black text-xl font-Anuphan leading-7"
           placeholder="Task description"
