@@ -53,17 +53,16 @@ export default function NavBar() {
 
   return (
     <>
-      {/* {url !== '/' && auth && (
-        // <div className="flex flex-row min-w-full h-[84px] justify-between items-center">
-        //   <a href="/projects">
-        //     <img src="/asset/logo/Logo_s2.svg" alt="CUSW" />
-        //   </a>
-        //   <div className="flex flex-row px-5">
-        //     <Profile2 userId={userid} userName={name} />
-        //   </div>
-        // </div>
-      )} */}
-      <div>KKKKKK</div>
+      {url !== '/' && auth && (
+        <div className="flex flex-row min-w-full h-[84px] justify-between items-center">
+          <a href="/projects">
+            <img src="/asset/logo/Logo_s2.svg" alt="CUSW" />
+          </a>
+          <div className="flex flex-row px-5">
+            <Profile2 userId={userid} userName={name} />
+          </div>
+        </div>
+      )}
     </>
   );
 }
