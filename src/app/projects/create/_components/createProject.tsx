@@ -119,10 +119,14 @@ export const CreateProject = () => {
             </DialogTrigger>
             <DialogContent className="max-w-[920px] max-h-[400px] h-full w-full p-6 bg-white rounded-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.09)] border border-[#6b5c56] flex-col justify-between items-center inline-flex">
               <DialogTitle className="hidden" />
-              <Tabs className="w-full max-w-[654px]">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="New Task">New Task</TabsTrigger>
-                  <TabsTrigger value="Select Template">Select Template</TabsTrigger>
+              <Tabs className="w-full px-4">
+                <TabsList className="flex max-w-[400px] w-full justify-evenly mx-auto">
+                  <TabsTrigger className="w-full" value="New Task">
+                    New Task
+                  </TabsTrigger>
+                  <TabsTrigger className="w-full" value="Select Template">
+                    Select Template
+                  </TabsTrigger>
                 </TabsList>
                 <TabsContent value="New Task">
                   <NewSingleTask
