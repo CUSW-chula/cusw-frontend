@@ -4,7 +4,6 @@ import { BlockNoteView } from '@blocknote/shadcn';
 import '@blocknote/shadcn/style.css';
 import { GridSuggestionMenuController, useCreateBlockNote } from '@blocknote/react';
 import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
-import * as Button from '@/components/ui/button';
 import * as Card from '@/components/ui/card';
 import * as DropdownMenu from '@/components/ui/dropdown-menu';
 import * as Form from '@/components/ui/form';
@@ -121,7 +120,6 @@ function Document({ description }: Description) {
       }}
       emojiPicker={false}
       shadCNComponents={{
-        Button,
         Card,
         DropdownMenu,
         Form,
