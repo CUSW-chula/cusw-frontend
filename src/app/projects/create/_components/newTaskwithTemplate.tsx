@@ -16,14 +16,16 @@ export const NewTaskwithTemplate: React.FC<NewTaskwithTemplateProps> = ({
   handleTemplateSelect,
 }) => {
   return (
-    <form className="flex flex-col justify-between items-start space-y-6" onSubmit={handleSubmit}>
-      <div className="grid grid-cols-3 gap-4 p-4 w-full overflow-auto">
+    <form
+      className="flex flex-col h-full justify-between items-start space-y-2"
+      onSubmit={handleSubmit}>
+      <div className="grid grid-cols-3 gap-3 p-3 w-full overflow-auto">
         {allTemplates?.map((template) => (
           <Button
             key={template.id}
             type="button"
             variant={'secondary'}
-            className={`${template.id === inputs.task?.template.id ? 'bg-neutral-200' : ''}`}
+            className={`${template.id === inputs.task?.template.id ? 'bg-neutral-200' : ''} hover:bg-neutral-200`}
             onClick={() => handleTemplateSelect(template)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
@@ -32,21 +34,25 @@ export const NewTaskwithTemplate: React.FC<NewTaskwithTemplateProps> = ({
             }}>
             <div className="flex items-center gap-3">
               {/* <span className="text-2xl">{template.icon}</span> */}
-              <span className="text-sm font-medium font-BaiJamjuree">{template.fileName.replace('.json', '')}</span>
+              <span className="text-sm font-medium font-BaiJamjuree">
+                {template.fileName.replace('.json', '')}
+              </span>
             </div>
           </Button>
         ))}
       </div>
-      <div className="self-stretch justify-end items-start gap-3 inline-flex">
+      <div className="flex flex-col overflow-auto h-28 w-full">Client template</div>
+      <div className="h-auto w-auto absolute flex gap-3 bottom-6 right-8">
         <Button
           variant="outline"
-          className="px-4 py-2 bg-white border-[#6b5c56] justify-center items-center gap-2.5 flex">
+          className="px-4 py-2 bg-white border-[#6b5c56] justify-center items-center flex">
           Cancel
         </Button>
         <Button
           variant="destructive"
           type="submit"
-          className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex">
+          className="px-4 py-2 bg-brown justify-center items-center flex"
+          disabled={!inputs.task?.template}>
           Select Template
         </Button>
       </div>
