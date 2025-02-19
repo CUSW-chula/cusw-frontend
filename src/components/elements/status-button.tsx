@@ -11,6 +11,7 @@ import React from 'react';
 import { getCookie } from 'cookies-next';
 import { statusSections } from '@/lib/taskUtils';
 import type { TaskProps } from '@/app/types/types';
+import { useToast } from '@/hooks/use-toast';
 
 const statuses: Status[] = statusSections;
 
@@ -54,7 +55,7 @@ export function StatusButton({ task }: { task: TaskProps }) {
         const eventName = socketEvent.eventName;
         const data = parseJsonValue(socketEvent.data);
 
-        if (eventName === 'status-changed') {
+        if (eventName === `status-changed:${task.id}`) {
           setSelectedStatus(data);
         }
       } catch (error) {
@@ -84,11 +85,20 @@ export function StatusButton({ task }: { task: TaskProps }) {
 
     try {
       const response = await fetch(url, options);
-      const data = await response.json();
+      if (response.ok) {
+        // throw new Error("Failed to assign tag");
+        toast({
+          title: 'Complete',
+          description: `You change this task status to "${status.status}"`,
+          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+        });
+      }
     } catch (error) {
       console.error(error);
     }
   };
+
+  const { toast } = useToast();
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
