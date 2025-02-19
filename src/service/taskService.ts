@@ -11,9 +11,9 @@ export const createSingleTask = async (
   const taskPayload = {
     title: inputs.taskTitle,
     description: inputs.taskDescription ?? '',
-    budget: inputs.taskBudget,
-    advance: inputs.taskAdvance,
-    expense: inputs.taskExpense,
+    budget: inputs.taskBudget ?? 0,
+    advance: inputs.taskAdvance ?? 0,
+    expense: inputs.taskExpense ?? 0,
     status: 'Unassigned',
     parentTaskId: '',
     projectId,
