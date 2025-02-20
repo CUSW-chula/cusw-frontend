@@ -236,7 +236,7 @@ export const ProjectList = () => {
         ? new Date(project1.startDate).getTime() - new Date(project2.startDate).getTime()
         : new Date(project2.startDate).getTime() - new Date(project1.startDate).getTime();
     });
-    setQuery(sorted);
+    setQuery(sortByStarredProjects(sorted));
   };
 
   const sortByEndDate = async (projects: Project[], inOrder: boolean) => {
@@ -247,7 +247,7 @@ export const ProjectList = () => {
         ? new Date(project1.endDate).getTime() - new Date(project2.endDate).getTime()
         : new Date(project2.endDate).getTime() - new Date(project1.endDate).getTime();
     });
-    setQuery(sorted);
+    setQuery(sortByStarredProjects(sorted));
   };
 
   const sortByExpectedBudget = async (projects: Project[], inOrder: boolean) => {
@@ -258,7 +258,7 @@ export const ProjectList = () => {
         ? new Date(project1.budget).getTime() - new Date(project2.budget).getTime()
         : new Date(project2.budget).getTime() - new Date(project1.budget).getTime();
     });
-    setQuery(sorted);
+    setQuery(sortByStarredProjects(sorted));
   };
 
   const handleSort = (value: string) => {
@@ -372,7 +372,7 @@ export const ProjectList = () => {
                                     key={tag?.id}
                                     variant="destructive"
                                     className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mt-1 mb-1">
-                                    <span className="text-base font-medium font-BaiJamjuree">
+                                    <span className="text-xs font-medium font-BaiJamjuree">
                                       {tag?.name}
                                     </span>
                                   </Badge>
@@ -385,19 +385,17 @@ export const ProjectList = () => {
                     </div>
                   </div>
 
-                  <div className="flex-row flex">
-                    <CrownIcon className="w-[24px] h-[24px] relative text-black mr-1" />
+                  <div className="flex flex-row items-center">
+                    <CrownIcon className="w-6 h-6 text-black mr-1" />
                     <TooltipProvider>
-                      <div className="flex items-center space-x-[4px] gap-1">
-                        {project.owner?.map((user) => (
+                      <div className="flex items-center space-x-1">
+                        {project.owner?.slice(0, 3).map((user) => (
                           <Tooltip key={user?.id ?? user?.email}>
                             <TooltipTrigger>
-                              <div className="flex items-center space-x-2">
-                                <div className="w-[24px] h-[24px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown">
-                                  <span className="text-brown text-[12px] font-BaiJamjuree">
-                                    {getInitials(user?.name || '')}
-                                  </span>
-                                </div>
+                              <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center border border-brown">
+                                <span className="text-brown text-xs font-BaiJamjuree">
+                                  {getInitials(user?.name || '')}
+                                </span>
                               </div>
                             </TooltipTrigger>
                             <TooltipContent>
@@ -407,20 +405,43 @@ export const ProjectList = () => {
                         ))}
                       </div>
                     </TooltipProvider>
+                    {project.owner && project.owner.length > 3 && (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <div className="ml-1 w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center border border-brown">
+                              <span className="text-brown text-xs font-BaiJamjuree">
+                                +{project.members.length - 3}
+                              </span>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <div className=" flex flex-col flex-wrap items-start">
+                              {project.members?.map((mem) => (
+                                <span
+                                  key={mem?.id}
+                                  className="text-xs font-medium font-BaiJamjuree  bg-white  text-brown">
+                                  {mem?.name}
+                                </span>
+                              ))}
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
                   </div>
-                  <div className="flex-row flex">
-                    <Users className="w-[24px] h-[24px] relative text-black mr-1" />
+
+                  <div className="flex flex-row items-center">
+                    <Users className="w-6 h-6 text-black mr-1" />
                     <TooltipProvider>
-                      <div className="flex items-center space-x-[4px]">
-                        {project.members?.map((user) => (
+                      <div className="flex items-center space-x-1">
+                        {project.members?.slice(0, 3).map((user) => (
                           <Tooltip key={user?.id ?? user?.email}>
                             <TooltipTrigger>
-                              <div className="flex items-center space-x-2">
-                                <div className="w-[24px] h-[24px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown">
-                                  <span className="text-brown text-[12px] font-BaiJamjuree">
-                                    {getInitials(user?.name || '')}
-                                  </span>
-                                </div>
+                              <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center border border-brown">
+                                <span className="text-brown text-xs font-BaiJamjuree">
+                                  {getInitials(user?.name || '')}
+                                </span>
                               </div>
                             </TooltipTrigger>
                             <TooltipContent>
@@ -430,6 +451,30 @@ export const ProjectList = () => {
                         ))}
                       </div>
                     </TooltipProvider>
+                    {project.members && project.members.length > 3 && (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <div className="ml-1 w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center border border-brown">
+                              <span className="text-brown text-xs font-BaiJamjuree">
+                                +{project.members.length - 3}
+                              </span>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <div className=" flex flex-col flex-wrap items-start">
+                              {project.members?.map((mem) => (
+                                <span
+                                  key={mem?.id}
+                                  className="text-xs font-medium font-BaiJamjuree  bg-white  text-brown">
+                                  {mem?.name}
+                                </span>
+                              ))}
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
                   </div>
 
                   <div className="w-[24px] h-[24px] flex flex-row  ">
