@@ -51,7 +51,13 @@ function Document({ description }: Description) {
   const task_id = description.id;
 
   useEffect(() => {
-    setDescription(description.description);
+    const replaceBlocks = async () => {
+      const blocks = await editor.tryParseHTMLToBlocks(description.description);
+      editor.replaceBlocks(editor.document, blocks);
+      setDescription(description.description);
+    };
+
+    replaceBlocks();
   }, [description.description]);
 
   useEffect(() => {

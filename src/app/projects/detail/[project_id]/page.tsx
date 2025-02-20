@@ -19,7 +19,7 @@ export default async function Page({
     throw new Error(`Failed to fetch task data: ${response.statusText}`);
   }
 
-  const project: Project= await response.json();
+  const project: Project = await response.json();
 
   return (
     <div className="min-w-full min-h-screen flex flex-col lg:flex-row items-start justify-center mt-10 gap-8">
