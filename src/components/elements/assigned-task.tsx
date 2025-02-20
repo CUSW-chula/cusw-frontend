@@ -71,7 +71,7 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
         const data = pareJsonValue(socketEvent.data); // Comment Data
         setSelectedUser((prevList) =>
           Array.isArray(prevList) // Ensure array
-            ? eventName === 'assigned'
+            ? eventName === `assigned${task.id}`
               ? [...prevList, data] // Functional update
               : prevList.filter((item) => item.id !== data.id) // Remove deleted comment
             : [],
