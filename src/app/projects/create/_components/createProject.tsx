@@ -35,7 +35,7 @@ export const CreateProject = () => {
 
     fetchData();
   }, []);
-  const { handleProjectCreation } = useCreateProject(inputs, auth, BASE_URL);
+  const { handleProjectCreation } = useCreateProject(inputs, BASE_URL);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = event.target;
@@ -61,9 +61,9 @@ export const CreateProject = () => {
     }));
   };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>, typeofSubmit: string) => {
     event.preventDefault();
-    await handleProjectCreation();
+    await handleProjectCreation(typeofSubmit);
   };
 
   const handleTemplateSelect = (template: Template) => {
@@ -75,10 +75,9 @@ export const CreateProject = () => {
     }));
   };
 
-  // const handleChangeTag = (tag: TagProps[]) => {
-  //   const name = 'projectTag';
-  //   setInputs((values) => ({ ...values, [name]: tag }));
-  // };
+  const handleCancel = () =>{
+    router.push("/projects");
+  }
 
   return (
     <div className="h-full px-20 flex flex-col justify-start items-start gap-4 w-full">
@@ -104,8 +103,9 @@ export const CreateProject = () => {
         <div className="justify-start items-start gap-3 inline-flex">
           <Button
             variant="outline"
+            type='button'
             className="px-4 py-2 bg-white border-[#6b5c56] justify-center items-center gap-2.5 flex"
-            onClick={() => router.push('/projects')}>
+            onClick={handleCancel}>
             Cancel
           </Button>
           <Dialog>

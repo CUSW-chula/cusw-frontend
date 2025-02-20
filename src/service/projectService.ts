@@ -1,7 +1,7 @@
 import { fetchData } from '@/service/fetchService';
 import type { FormInput } from '@/app/types/createProjectType';
 
-export const createProject = async (inputs: FormInput, auth: string, BASE_URL: string) => {
+export const createProject = async (inputs: FormInput, BASE_URL: string) => {
   const projectPayload = {
     title: inputs.projectTitle,
     description: inputs.projectDescription ?? '',
@@ -12,7 +12,7 @@ export const createProject = async (inputs: FormInput, auth: string, BASE_URL: s
   return await fetchData(`${BASE_URL}/v2/projects`, 'POST', projectPayload, 'Create Project Fail');
 };
 
-export const getProjectOwner = async (userId: string, auth: string, BASE_URL: string) => {
+export const getProjectOwner = async (userId: string, BASE_URL: string) => {
   try {
     return await fetchData(
       `${BASE_URL}/v2/users/${userId}`,
@@ -28,6 +28,5 @@ export const getProjectOwner = async (userId: string, auth: string, BASE_URL: st
 export const assignProjectTag = async (
   projectId: string,
   inputs: FormInput,
-  auth: string,
   BASE_URL: string,
 ) => {};
