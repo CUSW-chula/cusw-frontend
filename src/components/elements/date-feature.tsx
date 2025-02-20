@@ -343,13 +343,15 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
 function ChristGregor(date: Date | null): string {
   const formatDate = (date: Date | null): string => {
     // Check if date is null or not a valid Date object
-    if (!date || !(date instanceof Date) || Number.isNaN(date.getTime())) {
+    const formatted = date ? new Date(date) : null;
+    if (!formatted) {
+      console.log('date is error::\n', date, typeof date);
       return '';
     }
 
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear(); // Add to buddhist year
+    const day = String(formatted.getDate()).padStart(2, '0');
+    const month = String(formatted.getMonth() + 1).padStart(2, '0');
+    const year = formatted.getFullYear(); // Add to buddhist year
     return `${day}/${month}/${year}`;
   };
 
