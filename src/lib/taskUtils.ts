@@ -138,7 +138,7 @@ export const useExportTask = () => {
       });
     }
   };
-  const exportAsTemplate = (tasks: TaskProps[], ids: Set<string>) => {
+  const exportAsTemplate = (tasks: TaskProps[], ids: Set<string>, templateName: string) => {
     try {
       const cookie = getCookie('auth');
       const auth = cookie?.toString() ?? '';
@@ -198,7 +198,7 @@ export const useExportTask = () => {
       const jsonData = JSON.stringify(taskTree, null, 2);
       const BOM = '\uFEFF'; // UTF-8 BOM
       const blob = new Blob([BOM + jsonData], { type: 'application/json' });
-      const jsonFile = new File([blob], 'templateName.json', { type: 'application/json' });
+      const jsonFile = new File([blob], `${templateName}.json`, { type: 'application/json' });
       uploadTemplate(jsonFile);
       toast({
         title: 'Export Successful',
