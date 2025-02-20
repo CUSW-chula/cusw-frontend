@@ -26,7 +26,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         if (data.ok) {
           const project = await data.json();
           setProjectName(project.title);
-
           const parsedData = parseJsonValues(project.tasks);
           setTasks(parsedData);
           setShowTasks(parsedData);

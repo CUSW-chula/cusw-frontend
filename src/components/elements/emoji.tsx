@@ -6,53 +6,33 @@ import { SmilePlus } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import type { EmojiClickData } from 'emoji-picker-react';
 import { getCookie } from 'cookies-next';
-import BASE_URL, { BASE_SOCKET, type Emojis, type User } from '@/lib/shared';
+import BASE_URL, { BASE_SOCKET, type Emojis } from '@/lib/shared';
 import { jwtDecode, type JwtPayload } from 'jwt-decode';
 import type { TaskProps } from '@/app/types/types';
 
-const Picker = dynamic(
-  () => {
-    return import('emoji-picker-react');
-  },
-  { ssr: true },
-);
+const Picker = dynamic(() => import('emoji-picker-react'), { ssr: true });
 
 interface CustomJwtPayload extends JwtPayload {
   id: string;
 }
-// interface taskEmoji {
-//   emoji: {
-//     id: string;
-//     emoji: Emojis[];
-//   };
-// }
+
 interface EmojiTaskUser {
   id: string;
   emoji: string;
   userId: string;
+  name: string;
   taskId: string;
 }
 
-// const Emoji = ({ emoji }: taskEmoji) => {
 const Emoji = ({ task }: { task: TaskProps }) => {
   const [emojis, setEmojis] = useState<Emojis[]>([]);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const task_id = task.id;
 
-  // useEffect(() => {
-  //   const transformedEmojis = Array.isArray(emoji.emoji)
-  //     ? emoji.emoji.map((e) => ({
-  //         id: e.id,
-  //         emoji: e.emoji,
-  //         taskId: e.taskId,
-  //         userId: e.user.id, // Extract user ID
-  //       }))
-  //     : [];
-
-  //   setEmojis(transformedEmojis);
-  // }, [emoji.emoji]);
-  setEmojis(task.emojis);
+  useEffect(() => {
+    setEmojis(task.emojis);
+  }, [task.emojis]);
 
   const pareJsonValue = useCallback((values: EmojiTaskUser) => {
     return {
@@ -66,9 +46,7 @@ const Emoji = ({ task }: { task: TaskProps }) => {
   async function getName(authorId: string) {
     try {
       const response = await fetch(`${BASE_URL}/v1/users/${authorId}`, {
-        headers: {
-          Authorization: auth,
-        },
+        headers: { Authorization: auth },
       });
       if (!response.ok) {
         throw new Error(`Error: ${response.statusText}`);
@@ -89,7 +67,6 @@ const Emoji = ({ task }: { task: TaskProps }) => {
         const name = await getName(userId);
         setUserName(name);
       };
-
       fetchUserName();
     }, [userId]);
 
@@ -103,34 +80,35 @@ const Emoji = ({ task }: { task: TaskProps }) => {
 
   useEffect(() => {
     const ws = new WebSocket(BASE_SOCKET);
-    ws.onopen = () => {
-      console.log('Connected to WebSocket');
-    };
-    ws.onmessage = (event) => {
-      console.log('Message received:', event.data);
+    ws.onopen = () => {};
+    ws.onmessage = async (event) => {
       try {
         const socketEvent = JSON.parse(event.data);
         const newEmoji = pareJsonValue(socketEvent.data);
-        // setEmojis((prevEmojis) => {
-        //   if (socketEvent.eventName === 'addEmoji') {
-        //     return [newEmoji, ...prevEmojis];
-        //   }
-        //   return prevEmojis.map((prevEmoji) =>
-        //     prevEmoji.id === newEmoji.id ? newEmoji : prevEmoji,
-        //   );
-        // });
+        const updatedEmoji = {
+          id: newEmoji.id,
+          emoji: newEmoji.emoji,
+          user: { id: newEmoji.userId, email: '', name: await getName(newEmoji.userId) },
+          taskId: newEmoji.taskId,
+        };
+
+        setEmojis((prevEmojis) => {
+          if (socketEvent.eventName === 'addEmoji') {
+            return [updatedEmoji, ...prevEmojis];
+          }
+          return prevEmojis.map((prevEmoji) =>
+            prevEmoji.id === updatedEmoji.id ? updatedEmoji : prevEmoji,
+          );
+        });
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
       }
     };
-    ws.onclose = () => {
-      console.log('WebSocket connection closed');
-    };
+
     return () => {
       ws.close();
     };
   }, [pareJsonValue]);
-  setEmojis(task.emojis);
 
   const handleEmojiActions = async (emojiData: EmojiClickData) => {
     const emoji = emojiData.emoji;
@@ -141,11 +119,11 @@ const Emoji = ({ task }: { task: TaskProps }) => {
     };
     const userData = getUserDataFromCookie();
     const url = `${BASE_URL}/v1/tasks/emoji`;
+
     const checkResponse = await fetch(`${BASE_URL}/v1/tasks/emoji/${taskId}/${userData.id}`, {
-      headers: {
-        Authorization: auth,
-      },
+      headers: { Authorization: auth },
     });
+
     const isEmojiAssigned = await checkResponse.json();
     const options = {
       method: isEmojiAssigned ? 'PATCH' : 'POST',
@@ -207,6 +185,7 @@ const Emoji = ({ task }: { task: TaskProps }) => {
                   userId={emojiData.user.id}
                   taskId={emojiData.taskId}
                   key={emojiData.id}
+                  name={''}
                 />
               ))}
             </ul>
@@ -216,4 +195,5 @@ const Emoji = ({ task }: { task: TaskProps }) => {
     </div>
   );
 };
+
 export default Emoji;

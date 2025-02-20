@@ -7,25 +7,28 @@ import { getCookie } from 'cookies-next';
 import { Redo2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type React from 'react';
+import { useAuth } from '@/hooks/use-auth';
 
-export const BackButton = ({ task }: { task: TaskProps }) => {
+const BackButton = ({ task }: { task: TaskProps }) => {
   const router = useRouter();
-  const cookie = getCookie('auth');
-  const auth = cookie?.toString() ?? '';
+  const auth = useAuth();
+
   const handleBack = async () => {
-    const url = `${BASE_URL}/v2/tasks/parent/${task.id}`;
-    const options = { method: 'GET', headers: { Authorization: auth } };
     try {
-      const response = await fetch(url, options);
+      const response = await fetch(`${BASE_URL}/v2/tasks/parent/${task.id}`, {
+        method: 'GET',
+        headers: { Authorization: auth },
+      });
+
       if (!response.headers.get('content-type')?.includes('application/json')) {
-        const stringdata = await response.text();
-        router.push(`/projects/${stringdata}`);
+        const projectId = await response.text();
+        router.push(`/projects/${projectId}`);
       } else {
         const data = await response.json();
         router.push(`/tasks/${data.id}`);
       }
     } catch (error) {
-      console.error(error);
+      console.error('Error fetching task parent:', error);
     }
   };
 
@@ -40,18 +43,18 @@ export const BackButton = ({ task }: { task: TaskProps }) => {
   );
 };
 
-export const ProjectBackButton: React.FC = () => {
+const ProjectBackButton = ({ project_id }: { project_id: string }) => {
   const router = useRouter();
-  const handleBackProject = async () => {
-    router.push('/projects');
-  };
+
   return (
     <Button
       variant="link"
       size="sm"
-      onClick={handleBackProject}
+      onClick={() => router.push(`/projects/detail/${project_id}`)}
       className="font-BaiJamjuree bg-white border-x border-y border-brown text-brown text-md">
       <Redo2 className="transform rotate-180 text-brown" /> Back
     </Button>
   );
 };
+
+export { BackButton, ProjectBackButton };

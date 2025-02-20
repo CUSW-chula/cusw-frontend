@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import { Circle, CircleFadingPlus } from 'lucide-react';
 
@@ -19,6 +18,7 @@ import { Profile } from './profile';
 import BASE_URL, { BASE_SOCKET, Task, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import type { TaskProps } from '@/app/types/types';
+import type { Project } from '@/lib/shared';
 
 interface UsersInterfaces {
   id: string;
@@ -26,7 +26,7 @@ interface UsersInterfaces {
   email: string;
 }
 
-export function AssignedTaskToMember({ task }: { task: TaskProps }) {
+export function AssignedProjectOwner({ project }: { project: Project }) {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [open, setOpen] = React.useState(false);
@@ -56,26 +56,27 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
 
     fetchAssignAndUsers();
 
-    setSelectedUser(task.members);
+    setSelectedUser(project.owner);
 
     const ws = new WebSocket(BASE_SOCKET);
 
-    ws.onopen = () => {};
+    ws.onopen = () => {
+      console.log('Connected to WebSocket');
+    };
 
     ws.onmessage = (event) => {
       try {
-        const socketEvent = JSON.parse(event.data); // Parse incoming message
+        const socketEvent = JSON.parse(event.data);
         const eventName = socketEvent.eventName;
-        if (eventName === `assigned:${task.id}`) {
-          const data = pareJsonValue(socketEvent.data);
-          setSelectedUser((prevList) => (Array.isArray(prevList) ? [...prevList, data] : []));
-        }
-        if (eventName === `unassigned:${task.id}`) {
-          const data = pareJsonValue(socketEvent.data);
-          setSelectedUser((prevList) =>
-            Array.isArray(prevList) ? prevList.filter((item) => item.id !== data.id) : [],
-          );
-        }
+        const data = pareJsonValue(socketEvent.data);
+
+        setSelectedUser((prevList) =>
+          Array.isArray(prevList)
+            ? eventName === `owner:${project.id}`
+              ? [...prevList.filter((item) => item.id !== data.id), data] // Prevent duplicates
+              : prevList.filter((item) => item.id !== data.id)
+            : [],
+        );
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
       }
@@ -88,7 +89,7 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue, task, auth]);
+  }, [pareJsonValue, project, auth]);
 
   // Handle user selection and unselection
   const handleSelectUser = async (value: string) => {
@@ -96,14 +97,15 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
     if (selected) {
       const isAlreadySelected = selectedUser.some((user) => user.id === selected.id);
 
-      const url = isAlreadySelected
-        ? `${BASE_URL}/v2/tasks/unassigned` // Unassign user
-        : `${BASE_URL}/v2/tasks/assign`; // Assign user
+      if (!project) {
+        console.error('Project is undefined');
+        return;
+      }
+      const url = `${BASE_URL}/v2/projects/owner?userId=${selected.id}&projectId=${project.id}`; // Unassign user
 
       const options = {
-        method: isAlreadySelected ? 'DELETE' : 'POST',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: JSON.stringify({ taskId: task.id, userId: selected.id }),
       };
 
       try {

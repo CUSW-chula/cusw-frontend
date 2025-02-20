@@ -45,7 +45,7 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
   }, [project_id, auth]);
 
   useEffect(() => {
-    if (!Title) return;
+    if (!Title || !Title.trim()) return;
     const updateTitle = async () => {
       const url = `${BASE_URL}/v2/projects/${project_id}`;
       const options = {
@@ -71,7 +71,7 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
   return (
     <div>
       <input
-        className="resize-none border-none w-full outline-none pl-[54px] placeholder-gray-300 text-[30px] font-semibold font-Anuphan"
+        className="resize-none border-none w-full outline-none placeholder-gray-300 text-[30px] font-semibold font-Anuphan"
         placeholder="Task Title"
         value={Title}
         onChange={(e) => {
