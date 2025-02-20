@@ -329,9 +329,7 @@ const Comment = ({ task }: { task: TaskProps }) => {
       }
     };
 
-    ws.onclose = () => {
-      console.log('WebSocket connection closed');
-    };
+    ws.onclose = () => {};
 
     return () => {
       ws.close();

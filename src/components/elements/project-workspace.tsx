@@ -60,7 +60,6 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
         const response = await fetch(url, options);
         if (!response.ok) throw new Error(`Error: ${response.statusText}`);
         const data = await response.json();
-        console.log('Title updated successfully:', data);
       } catch (error) {
         console.error('Error updating Title:', error);
       }

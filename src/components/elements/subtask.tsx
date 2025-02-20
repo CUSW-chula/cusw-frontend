@@ -58,7 +58,7 @@ const Subtask = ({ task }: { task: TaskProps }) => {
       setSubtasks(task.subtasks ?? []);
       task.subtasks?.map((item) => {});
     } catch (error) {
-      console.log('Error');
+      console.error('Error');
     }
   }, []);
 

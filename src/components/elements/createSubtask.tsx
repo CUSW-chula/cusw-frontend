@@ -63,7 +63,6 @@ export const CreateSubtask = ({
     };
     try {
       const response = await fetch(url, options);
-      console.log(options);
       const data = await response.json();
       router.push(`/tasks/${data.id}`);
       toast({
@@ -95,9 +94,6 @@ export const CreateSubtask = ({
     const HTML = await editor.blocksToHTMLLossy(editor.document);
     setDescription(HTML);
   };
-  useEffect(() => {
-    console.log(Description);
-  }, [Description]);
 
   return (
     <div className="min-h-60 w-full p-6 bg-gray-50 rounded-md shadow border border-[#6b5c56] flex-col justify-start items-start gap-4 inline-flex">

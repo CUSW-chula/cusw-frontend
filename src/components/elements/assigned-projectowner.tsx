@@ -60,9 +60,7 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
 
     const ws = new WebSocket(BASE_SOCKET);
 
-    ws.onopen = () => {
-      console.log('Connected to WebSocket');
-    };
+    ws.onopen = () => {};
 
     ws.onmessage = (event) => {
       try {
@@ -82,9 +80,7 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
       }
     };
 
-    ws.onclose = () => {
-      console.log('WebSocket connection closed');
-    };
+    ws.onclose = () => {};
 
     return () => {
       ws.close();

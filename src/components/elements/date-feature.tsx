@@ -138,13 +138,10 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
         setDate(range);
         setFormattedDate(formatDate(range ?? { from: undefined, to: undefined }));
       }
-      // console.log(data); // Check Fetch Data
+      // Check Fetch Data
     } catch (error) {
       console.error(error);
     }
-
-    //Show data in range
-    console.log('range from selected date:', range);
   };
 
   return (
@@ -294,13 +291,10 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
         setDate(range);
         setFormattedDate(formatDate(range));
       }
-      // console.log(data); // Check Fetch Data
+      // Check Fetch Data
     } catch (error) {
       console.error(error);
     }
-
-    //Show data in range
-    console.log('range from selected date:', range);
   };
 
   return (
@@ -345,7 +339,6 @@ function ChristGregor(date: Date | null): string {
     // Check if date is null or not a valid Date object
     const formatted = date ? new Date(date) : null;
     if (!formatted) {
-      console.log('date is error::\n', date, typeof date);
       return '';
     }
 
@@ -366,7 +359,6 @@ function DateText(date: DateInterface): string {
 
     const format = (date: Date | null): string => {
       const formatted = date ? new Date(date) : null;
-      //console.log('date: ', formatted instanceof Date);
       if (!(formatted instanceof Date)) return '';
       const day = String(formatted.getDate()).padStart(2, '0');
       const month = String(formatted.getMonth() + 1).padStart(2, '0');
@@ -379,23 +371,16 @@ function DateText(date: DateInterface): string {
     const end = date.endDate ? format(date.endDate) : '';
     return `${start}${start && end ? ' -> ' : ''}${end}`;
   };
-
-  console.log('result:', formatDate(date));
-
   return formatDate(date);
 }
 
 // Check if date is valid or not to check on showing format
 // **
 // function isValidDate(date: Date | null): boolean {
-//   console.log("Date: ", date)
 //   if (!date) return false;
 //   const isValid = (date: Date | null): boolean => {
-//     console.log(`Instance: ${date instanceof Date}, Is: ${typeof date}`)
 //     return date instanceof Date && !isNaN(date.getTime()) && date.getFullYear() > 1970;
 //   }
-
-//   console.log("Valid?: ", isValid(date));
 
 //   return isValid(date);
 // }
