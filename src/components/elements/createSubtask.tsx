@@ -57,8 +57,8 @@ export const CreateSubtask = ({
         expense: 0,
         status: 'Unassigned',
         projectId: task.projectId,
-        startDate: new Date(),
-        endDate: new Date(),
+        startDate: null,
+        endDate: null,
       }),
     };
     try {

@@ -12,8 +12,8 @@ export const createSingleTask = async (projectId: string, inputs: FormInput, BAS
     status: 'Unassigned',
     parentTaskId: '',
     projectId: projectId,
-    startDate: new Date(),
-    endDate: new Date(),
+    startDate: null,
+    endDate: null,
   };
 
   await fetchData(`${BASE_URL}/v2/tasks/`, 'POST', taskPayload, 'Error creating task');
