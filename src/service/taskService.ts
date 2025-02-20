@@ -5,7 +5,6 @@ import type { FormInput } from '@/app/types/createProjectType';
 export const createSingleTask = async (
   projectId: string,
   inputs: FormInput,
-  auth: string,
   BASE_URL: string,
 ) => {
   const taskPayload = {
@@ -16,18 +15,17 @@ export const createSingleTask = async (
     expense: inputs.taskExpense ?? 0,
     status: 'Unassigned',
     parentTaskId: '',
-    projectId,
+    projectId: projectId,
     startDate: new Date(),
     endDate: new Date(),
   };
-
+  
   await fetchData(`${BASE_URL}/v2/tasks/`, 'POST', taskPayload, 'Error creating task');
 };
 
 export const createTasksFromTemplate = async (
   projectId: string,
   inputs: FormInput,
-  auth: string,
   BASE_URL: string,
 ) => {
   try {

@@ -35,7 +35,7 @@ export const CreateProject = () => {
 
     fetchData();
   }, []);
-  const { handleProjectCreation } = useCreateProject(inputs, auth, BASE_URL);
+  const { handleProjectCreation } = useCreateProject(inputs, BASE_URL);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = event.target;
@@ -61,9 +61,9 @@ export const CreateProject = () => {
     }));
   };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>, typeofSubmit: string) => {
     event.preventDefault();
-    await handleProjectCreation();
+    await handleProjectCreation(typeofSubmit);
   };
 
   const handleTemplateSelect = (template: Template) => {
@@ -74,11 +74,6 @@ export const CreateProject = () => {
       taskDescription: undefined,
     }));
   };
-
-  // const handleChangeTag = (tag: TagProps[]) => {
-  //   const name = 'projectTag';
-  //   setInputs((values) => ({ ...values, [name]: tag }));
-  // };
 
   return (
     <div className="h-full px-20 flex flex-col justify-start items-start gap-4 w-full">
