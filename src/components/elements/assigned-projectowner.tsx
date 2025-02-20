@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Circle, CircleFadingPlus } from 'lucide-react';
-
+import { Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,12 +12,12 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { Profile } from './profile';
-import BASE_URL, { BASE_SOCKET, Task, type TaskManageMentProp } from '@/lib/shared';
+import BASE_URL, { BASE_SOCKET } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
-import type { TaskProps } from '@/app/types/types';
 import type { Project } from '@/lib/shared';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface UsersInterfaces {
   id: string;
@@ -27,129 +26,147 @@ interface UsersInterfaces {
 }
 
 export function AssignedProjectOwner({ project }: { project: Project }) {
-  const cookie = getCookie('auth');
-  const auth = cookie?.toString() ?? '';
   const [open, setOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<UsersInterfaces[]>([]);
   const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
+  const [auth, setAuth] = React.useState('');
+  const [isMounted, setIsMounted] = React.useState(false);
 
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  const pareJsonValue = React.useCallback((values: any) => {
-    const newValue: UsersInterfaces = {
-      id: values.id,
-      email: values.email,
-      name: values.name,
-    };
-    return newValue;
+  // Client-side only initialization
+  React.useEffect(() => {
+    setIsMounted(true);
+    setAuth(getCookie('auth')?.toString() || '');
   }, []);
 
+  // Safe users fetch
   React.useEffect(() => {
-    const fetchAssignAndUsers = async () => {
-      const usersData = await fetch(`${BASE_URL}/v2/users`, {
-        headers: {
-          Authorization: auth,
-        },
-      });
-      const userList = await usersData.json();
-      setUsersList(userList);
+    if (!isMounted || !auth) return;
+
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch(`${BASE_URL}/v2/users`, {
+          headers: { Authorization: auth },
+        });
+        const data = await response.json();
+        setUsersList(data);
+      } catch (error) {
+        console.error('Failed to fetch users:', error);
+      }
     };
 
-    fetchAssignAndUsers();
+    fetchUsers();
+  }, [auth, isMounted]);
 
-    setSelectedUser(project.owner);
+  // Initialize selected user safely
+  React.useEffect(() => {
+    if (isMounted && project?.owner) {
+      setSelectedUser(project.owner);
+    }
+  }, [project, isMounted]);
+
+  // WebSocket connection
+  React.useEffect(() => {
+    if (!isMounted || !auth || !project) return;
 
     const ws = new WebSocket(BASE_SOCKET);
 
-    ws.onopen = () => {
-      console.log('Connected to WebSocket');
-    };
-
-    ws.onmessage = (event) => {
+    const handleMessage = (event: MessageEvent) => {
       try {
-        const socketEvent = JSON.parse(event.data);
-        const eventName = socketEvent.eventName;
-        const data = pareJsonValue(socketEvent.data);
-
-        setSelectedUser((prevList) =>
-          Array.isArray(prevList)
-            ? eventName === `owner:${project.id}`
-              ? [...prevList.filter((item) => item.id !== data.id), data] // Prevent duplicates
-              : prevList.filter((item) => item.id !== data.id)
-            : [],
-        );
+        const { eventName, data } = JSON.parse(event.data);
+        if (eventName === `owner:${project.id}`) {
+          setSelectedUser((prev) => [
+            ...prev.filter((u) => u.id !== data.id),
+            { id: data.id, name: data.name, email: data.email },
+          ]);
+        }
       } catch (error) {
-        console.error('Error parsing WebSocket message:', error);
+        console.error('WebSocket message error:', error);
       }
     };
 
-    ws.onclose = () => {
-      console.log('WebSocket connection closed');
-    };
-
+    ws.addEventListener('message', handleMessage);
     return () => {
+      ws.removeEventListener('message', handleMessage);
       ws.close();
     };
-  }, [pareJsonValue, project, auth]);
+  }, [auth, project, isMounted]);
 
-  // Handle user selection and unselection
-  const handleSelectUser = async (value: string) => {
-    const selected = usersList.find((user) => user.name === value);
-    if (selected) {
-      const isAlreadySelected = selectedUser.some((user) => user.id === selected.id);
+  const handleSelectUser = async (userName: string) => {
+    if (!isMounted || !project) return;
 
-      if (!project) {
-        console.error('Project is undefined');
-        return;
-      }
-      const url = `${BASE_URL}/v2/projects/owner?userId=${selected.id}&projectId=${project.id}`; // Unassign user
+    const user = usersList.find((u) => u.name === userName);
+    if (!user) return;
 
-      const options = {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: auth },
-      };
+    try {
+      const response = await fetch(
+        `${BASE_URL}/v2/projects/owner?userId=${user.id}&projectId=${project.id}`,
+        {
+          method: 'PATCH',
+          headers: { Authorization: auth },
+        },
+      );
 
-      try {
-        await fetch(url, options);
-      } catch (error) {
-        console.error(error);
-      }
+      if (!response.ok) throw new Error('Update failed');
+
+      setSelectedUser((prev) =>
+        prev.some((u) => u.id === user.id) ? prev.filter((u) => u.id !== user.id) : [...prev, user],
+      );
+    } catch (error) {
+      console.error('Error updating owner:', error);
     }
-    setOpen(false);
   };
+
+  if (!isMounted) {
+    return (
+      <div className="flex items-center space-x-4">
+        <Skeleton className="h-10 w-32 rounded-md" />
+      </div>
+    );
+  }
 
   return (
     <TooltipProvider>
       <div className="flex flex-row gap-1 flex-wrap">
         <div className="flex items-center space-x-4">
           <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild className=" border-brown text-brown">
-              <Button variant="outline">
-                {selectedUser.length > 0 ? (
-                  // Display selected users as circles with initials
-                  <div className="flex space-x-2 ">
-                    {selectedUser.map((user) => (
-                      <Profile key={user.id} userId={user.id} userName={user.name} />
-                    ))}
-                  </div>
-                ) : (
-                  <>
-                    <p className="p-ui ">Assigned</p>
-                  </>
-                )}
-              </Button>
+            <PopoverTrigger asChild>
+              <div>
+                {' '}
+                {/* Critical wrapper to prevent button nesting */}
+                <Button type="button" variant="outline" className="border-brown text-brown">
+                  {selectedUser.length > 0 ? (
+                    <div className="flex space-x-2">
+                      {selectedUser.map((user) => (
+                        <Profile
+                          key={user.id}
+                          userId={user.id}
+                          userName={user.name}
+                          fallback={<Skeleton className="h-6 w-6 rounded-full" />}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="p-ui">Assigned</p>
+                  )}
+                </Button>
+              </div>
             </PopoverTrigger>
+
             <PopoverContent className="p-0" side="right" align="start">
               <Command>
-                <CommandInput placeholder="Search Member ..." />
+                <CommandInput placeholder="Search Member..." />
                 <CommandList>
-                  <CommandEmpty>No results found.</CommandEmpty>
+                  <CommandEmpty>No members found</CommandEmpty>
                   <CommandGroup>
                     {usersList.map((user) => (
-                      <CommandItem key={user.id} value={user.name} onSelect={handleSelectUser}>
+                      <CommandItem
+                        key={user.id}
+                        value={user.name}
+                        onSelect={() => handleSelectUser(user.name)}>
                         <Circle
                           className={cn(
-                            'mr-2 h-4 w-4 fill-greenLight text-greenLight ',
-                            selectedUser?.length > 0 && selectedUser.some((u) => u.id === user.id)
+                            'mr-2 h-4 w-4 fill-greenLight text-greenLight',
+                            selectedUser.some((u) => u.id === user.id)
                               ? 'opacity-100'
                               : 'opacity-40',
                           )}

@@ -1,30 +1,42 @@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
+import { Skeleton } from '@/components/ui/skeleton';
+import type React from 'react';
+
 interface ProfileProp {
   userId: string;
-  userName: string;
+  userName?: string; // Made optional to handle loading states
+  fallback?: React.ReactNode;
 }
 
-const getInitials = (name: string) => {
+const getInitials = (name?: string) => {
+  if (!name) return '';
   const nameParts = name.split(' ');
-  return nameParts.map((part) => part[0]).join(''); // Take the first letter of each part
+  return nameParts.map((part) => part[0]).join('');
 };
 
-export const Profile = ({ userId, userName }: ProfileProp) => {
+export const Profile = ({ userId, userName, fallback }: ProfileProp) => {
+  // Show fallback if no username provided
+  if (!userName) {
+    return (
+      <div className="flex items-center space-x-2 border-brown text-brown">
+        {fallback || <Skeleton className="w-[24px] h-[24px] rounded-full" />}
+      </div>
+    );
+  }
+
   return (
     <TooltipProvider>
-      <Tooltip key={userId}>
-        <TooltipTrigger>
-          <div className="flex items-center space-x-2  border-brown text-brown ">
-            {/* Circle with initials */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="flex items-center space-x-2 border-brown text-brown">
             <div className="w-[24px] h-[24px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown">
-              <span className="  text-brown text-[12px] font-BaiJamjuree">
+              <span className="text-brown text-[12px] font-BaiJamjuree">
                 {getInitials(userName)}
               </span>
             </div>
           </div>
         </TooltipTrigger>
-        {/* Tooltip content showing the full name */}
         <TooltipContent>
           <span>{userName}</span>
         </TooltipContent>
