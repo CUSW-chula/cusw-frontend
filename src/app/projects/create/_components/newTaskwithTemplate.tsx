@@ -5,7 +5,7 @@ import type { FormInput, Template } from '@/app/types/createProjectType';
 interface NewTaskwithTemplateProps {
   inputs: FormInput;
   allTemplates: Template[] | undefined;
-  handleSubmit: (event: FormEvent<HTMLFormElement> , typeofSubmit: string) => void;
+  handleSubmit: (event: FormEvent<HTMLFormElement>, typeofSubmit: string) => void;
   handleTemplateSelect: (template: Template) => void;
 }
 
@@ -18,7 +18,7 @@ export const NewTaskwithTemplate: React.FC<NewTaskwithTemplateProps> = ({
   return (
     <form
       className="flex flex-col h-full justify-between items-start space-y-2"
-      onSubmit={(event)=>handleSubmit(event,'newTaskwithTemplate')}>
+      onSubmit={(event) => handleSubmit(event, 'newTaskwithTemplate')}>
       <div className="grid grid-cols-3 gap-3 p-3 w-full overflow-auto">
         {allTemplates?.map((template) => (
           <Button

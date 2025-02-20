@@ -6,18 +6,19 @@ import { toast } from './use-toast';
 
 export const useCreateProject = (inputs: FormInput, BASE_URL: string) => {
   const router = useRouter();
-  const handleProjectCreation = async (typeCreation:string) => {
+  const handleProjectCreation = async (typeCreation: string) => {
     try {
       const projectRes = await createProject(inputs, BASE_URL);
       if (!projectRes?.id) {
         console.error('Project ID not found', projectRes);
         return;
       }
-      if (inputs.taskTitle && typeCreation === 'newTaskForm') await createSingleTask(projectRes.id, inputs, BASE_URL);
-      else if (typeCreation === 'newTaskwithTemplate') await createTasksFromTemplate(projectRes.id, inputs, BASE_URL);
+      if (inputs.taskTitle && typeCreation === 'newTaskForm')
+        await createSingleTask(projectRes.id, inputs, BASE_URL);
+      else if (typeCreation === 'newTaskwithTemplate')
+        await createTasksFromTemplate(projectRes.id, inputs, BASE_URL);
       if (inputs.projectTag) await assignProjectTag(projectRes.id, inputs, BASE_URL);
 
-      
       toast({
         title: 'Project Created Successfully',
         description: 'Your project has been created and saved successfully.',
@@ -32,7 +33,7 @@ export const useCreateProject = (inputs: FormInput, BASE_URL: string) => {
         description: 'There was an issue creating your project. Please try again.',
         variant: 'destructive',
       });
-    } 
+    }
   };
 
   return { handleProjectCreation };

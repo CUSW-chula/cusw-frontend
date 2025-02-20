@@ -2,11 +2,7 @@ import { fetchData } from '@/service/fetchService';
 import { fetchTemplate } from './templateService';
 import type { FormInput } from '@/app/types/createProjectType';
 
-export const createSingleTask = async (
-  projectId: string,
-  inputs: FormInput,
-  BASE_URL: string,
-) => {
+export const createSingleTask = async (projectId: string, inputs: FormInput, BASE_URL: string) => {
   const taskPayload = {
     title: inputs.taskTitle,
     description: inputs.taskDescription ?? '',
@@ -19,7 +15,7 @@ export const createSingleTask = async (
     startDate: new Date(),
     endDate: new Date(),
   };
-  
+
   await fetchData(`${BASE_URL}/v2/tasks/`, 'POST', taskPayload, 'Error creating task');
 };
 

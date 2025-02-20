@@ -10,7 +10,7 @@ interface NewSingleTaskProps {
   inputs: FormInput;
   handleChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleChangeBudgets: (budgetList: Budget) => void;
-  handleSubmit: (event: FormEvent<HTMLFormElement> , typeofSubmit: string) => void;
+  handleSubmit: (event: FormEvent<HTMLFormElement>, typeofSubmit: string) => void;
 }
 
 export const NewSingleTask: React.FC<NewSingleTaskProps> = ({
@@ -44,9 +44,10 @@ export const NewSingleTask: React.FC<NewSingleTaskProps> = ({
         </div>
       </div>
       <div className="h-auto w-auto absolute flex gap-3 bottom-6 right-8">
-        <Button type="submit" className="px-4 py-2 bg-brown justify-center items-center flex"
-        >
-          {inputs.taskTitle === '' || inputs.taskTitle === undefined ? 'Create project without task' : 'Add Task'}
+        <Button type="submit" className="px-4 py-2 bg-brown justify-center items-center flex">
+          {inputs.taskTitle === '' || inputs.taskTitle === undefined
+            ? 'Create project without task'
+            : 'Add Task'}
         </Button>
       </div>
     </form>
