@@ -80,11 +80,8 @@ const Emoji = ({ task }: { task: TaskProps }) => {
 
   useEffect(() => {
     const ws = new WebSocket(BASE_SOCKET);
-    ws.onopen = () => {
-      console.log('Connected to WebSocket');
-    };
+    ws.onopen = () => {};
     ws.onmessage = async (event) => {
-      console.log('Message received:', event.data);
       try {
         const socketEvent = JSON.parse(event.data);
         const newEmoji = pareJsonValue(socketEvent.data);

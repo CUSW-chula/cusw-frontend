@@ -60,22 +60,22 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
 
     const ws = new WebSocket(BASE_SOCKET);
 
-    ws.onopen = () => {
-      console.log('Connected to WebSocket');
-    };
+    ws.onopen = () => {};
 
     ws.onmessage = (event) => {
       try {
         const socketEvent = JSON.parse(event.data); // Parse incoming message
         const eventName = socketEvent.eventName;
-        const data = pareJsonValue(socketEvent.data); // Comment Data
-        setSelectedUser((prevList) =>
-          Array.isArray(prevList) // Ensure array
-            ? eventName === `assigned${task.id}`
-              ? [...prevList, data] // Functional update
-              : prevList.filter((item) => item.id !== data.id) // Remove deleted comment
-            : [],
-        );
+        if (eventName === `assigned:${task.id}`) {
+          const data = pareJsonValue(socketEvent.data);
+          setSelectedUser((prevList) => (Array.isArray(prevList) ? [...prevList, data] : []));
+        }
+        if (eventName === `unassigned:${task.id}`) {
+          const data = pareJsonValue(socketEvent.data);
+          setSelectedUser((prevList) =>
+            Array.isArray(prevList) ? prevList.filter((item) => item.id !== data.id) : [],
+          );
+        }
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
       }

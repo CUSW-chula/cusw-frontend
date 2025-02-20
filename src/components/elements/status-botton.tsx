@@ -44,11 +44,9 @@ export function StatusButton({ task }: { task: TaskProps }) {
 
     const ws = new WebSocket(BASE_SOCKET);
 
-    ws.onopen = () => console.log('Connected to WebSocket');
+    ws.onopen = () => {};
 
     ws.onmessage = (event) => {
-      console.log('Message received:', event.data);
-
       try {
         const socketEvent = JSON.parse(event.data);
         const eventName = socketEvent.eventName;
@@ -62,9 +60,7 @@ export function StatusButton({ task }: { task: TaskProps }) {
       }
     };
 
-    ws.onclose = () => {
-      console.log('websocket connection closed');
-    };
+    ws.onclose = () => {};
 
     return () => ws.close();
   }, [setSelectedStatus, parseJsonValue, task]);
