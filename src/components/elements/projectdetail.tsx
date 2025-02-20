@@ -45,7 +45,6 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
     try {
       const response = await fetch(url, options);
       const data = await response.json();
-      console.log(data);
       router.push('/projects');
     } catch (error) {
       console.error(error);

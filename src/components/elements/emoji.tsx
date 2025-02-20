@@ -136,12 +136,7 @@ const Emoji = ({ task }: { task: TaskProps }) => {
     };
 
     try {
-      const response = await fetch(url, options);
-      const data = await response.json();
-      console.log(
-        isEmojiAssigned ? 'Emoji updated successfully:' : 'Emoji assigned successfully:',
-        data,
-      );
+      await fetch(url, options);
     } catch (error) {
       console.error(isEmojiAssigned ? 'Error updating emoji:' : 'Error assigning emoji:', error);
     }

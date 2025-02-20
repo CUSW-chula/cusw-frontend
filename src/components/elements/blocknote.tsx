@@ -77,7 +77,6 @@ function Document({ description }: Description) {
         const response = await fetch(url, options);
         if (!response.ok) throw new Error(`Error: ${response.statusText}`);
         const data = await response.json();
-        console.log('Description updated successfully:', data);
       } catch (error) {
         console.error('Error updating Description:', error);
       }

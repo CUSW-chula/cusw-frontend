@@ -189,8 +189,6 @@ export const ProjectList = () => {
         const projectStartDate = project.startDate ? project.startDate : null;
         const projectEndDate = project.endDate ? project.endDate : null;
 
-        console.log('project start: ', projectStartDate);
-
         if (!projectStartDate) return false;
         if (!projectEndDate) {
           return projectStartDate >= fromDate;

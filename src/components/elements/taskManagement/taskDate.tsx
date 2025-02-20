@@ -12,8 +12,6 @@ export const TaskDate = ({
   //format Date display
   const formatDate = (startdate: Date | null, enddate: Date | null): string => {
     // Return an empty string if both dates are not provided
-    console.log('From task date: ', startdate, enddate);
-    console.log('item: ', item);
     if (!startdate || !enddate) return '';
 
     const format = (date: Date): string => {

@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import StatusButton from './status-botton';
+import StatusButton from './status-button';
 import { AssignedTaskToMember } from './assigned-task';
 import { ButtonAddTags } from './button-add-tag';
 import { Button } from '@/components/ui/button';
@@ -58,7 +58,7 @@ const Subtask = ({ task }: { task: TaskProps }) => {
       setSubtasks(task.subtasks ?? []);
       task.subtasks?.map((item) => {});
     } catch (error) {
-      console.log('Error');
+      console.error('Error');
     }
   }, []);
 
