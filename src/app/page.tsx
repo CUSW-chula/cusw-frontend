@@ -5,9 +5,6 @@ import { signIn } from 'next-auth/react';
 import { useEffect } from 'react';
 
 const Home = () => {
-  useEffect(() => {
-    console.log('Home ', process.env.AUTH_SECRET);
-  }, []);
   return (
     <div className="fixed inset-0 flex items-center justify-center">
       <Button onClick={() => signIn('google')}>Sign in with Google</Button>

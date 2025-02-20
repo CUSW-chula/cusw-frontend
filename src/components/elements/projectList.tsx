@@ -23,6 +23,7 @@ import { useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { tagsListAtom } from '@/atom';
 import Link from 'next/link';
+import { DateText } from './date-feature';
 
 export const ProjectList = () => {
   const cookie = getCookie('auth');
@@ -126,7 +127,8 @@ export const ProjectList = () => {
     // Return an empty string if both dates are not provided
     if (!startdate || !enddate) return '';
 
-    const format = (date: Date): string => {
+    const format = (date: Date | null): string => {
+      if (date == null) return '';
       const day = String(date.getDate()).padStart(2, '0');
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const year = date.getFullYear();
@@ -180,12 +182,19 @@ export const ProjectList = () => {
         return (project.tags as Tag[]).some((tag) => filterTag.includes(tag.name));
       });
     }
-    if (dateRange?.from && dateRange.to) {
+    if (dateRange?.from != null) {
       const fromDate = new Date(dateRange.from);
       const toDate = new Date(dateRange.to);
       filteredProjects = filteredProjects.filter((project) => {
-        const projectStartDate = new Date(project.startDate);
-        const projectEndDate = new Date(project.endDate);
+        const projectStartDate = project.startDate ? project.startDate : null;
+        const projectEndDate = project.endDate ? project.endDate : null;
+
+        console.log('project start: ', projectStartDate);
+
+        if (!projectStartDate) return false;
+        if (!projectEndDate) {
+          return projectStartDate >= fromDate;
+        }
 
         return (
           (projectStartDate >= fromDate && projectStartDate <= toDate) ||
@@ -511,9 +520,7 @@ export const ProjectList = () => {
                     <Calendar className="w-[24px] h-[24px] relative text-black mr-1" />
                     {/* {item.startDate && item.endDate && ( */}
                     <div className="text-[14px] font-BaiJamjuree flex  gap-1 items-center">
-                      <span>
-                        {formatDate(new Date(project.startDate), new Date(project.endDate))}
-                      </span>
+                      <span>{DateText(project)}</span>
                     </div>
                   </div>
                 </div>

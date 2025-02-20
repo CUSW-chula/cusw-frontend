@@ -12,6 +12,8 @@ export const TaskDate = ({
   //format Date display
   const formatDate = (startdate: Date | null, enddate: Date | null): string => {
     // Return an empty string if both dates are not provided
+    console.log('From task date: ', startdate, enddate);
+    console.log('item: ', item);
     if (!startdate || !enddate) return '';
 
     const format = (date: Date): string => {
@@ -34,13 +36,11 @@ export const TaskDate = ({
 
   return (
     <>
-      {item.startDate && item.endDate && (
-        <div
-          className={`${hiddenDate ? '' : 'lg:min-w-60'} inline-flex gap-1`}
-          title={formatDate(item.startDate, item.endDate)}>
+      {(item.startDate || item.endDate) && (
+        <div className={`${hiddenDate ? '' : ''} inline-flex gap-1`} title={DateText(item)}>
           <Calendar className="w-6 h-6" />
           <span className={`${hiddenDate ? 'hidden' : 'inline'} whitespace-nowrap`}>
-            <DateText date={item} />
+            {DateText(item)}
           </span>
         </div>
       )}
