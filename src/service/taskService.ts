@@ -2,12 +2,7 @@ import { fetchData } from '@/service/fetchService';
 import { fetchTemplate } from './templateService';
 import type { FormInput } from '@/app/types/createProjectType';
 
-export const createSingleTask = async (
-  projectId: string,
-  inputs: FormInput,
-  auth: string,
-  BASE_URL: string,
-) => {
+export const createSingleTask = async (projectId: string, inputs: FormInput, BASE_URL: string) => {
   const taskPayload = {
     title: inputs.taskTitle,
     description: inputs.taskDescription ?? '',
@@ -16,7 +11,7 @@ export const createSingleTask = async (
     expense: inputs.taskExpense ?? 0,
     status: 'Unassigned',
     parentTaskId: '',
-    projectId,
+    projectId: projectId,
     startDate: new Date(),
     endDate: new Date(),
   };
@@ -27,7 +22,6 @@ export const createSingleTask = async (
 export const createTasksFromTemplate = async (
   projectId: string,
   inputs: FormInput,
-  auth: string,
   BASE_URL: string,
 ) => {
   try {
