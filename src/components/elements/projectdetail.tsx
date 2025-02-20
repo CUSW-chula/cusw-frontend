@@ -22,58 +22,14 @@ import { useRouter } from 'next/navigation';
 import ProjectWorkspace from './project-workspace';
 import { ButtonAddTags } from './button-add-projecttag';
 import { DatePickerWithRangeProject } from './date-feature';
+import type { Project } from '@/lib/shared';
+import { AssignedProjectOwner } from './assigned-projectowner';
 
-interface projectProps {
-  id: string;
-  title: string;
-  description: string;
-  budget: number;
-  advance: number;
-  expense: number;
-  startDate: Date;
-  endDate: Date;
-  owner: UsersProps;
-  members: UsersProps[];
-  tags: Tags[];
-}
-
-interface Tags {
-  id: string;
-  name: string;
-}
-interface Files {
-  id: string;
-  fileName: string;
-  filePath: string;
-  fileSize: number;
-  taskId: string;
-  projectId: string;
-  uploadedBy: string;
-  createdAt: Date;
-}
 interface UsersProps {
   id: string;
   name: string;
   email: string;
 }
-
-interface taskProps {
-  id: string;
-  title: string;
-  description: string;
-  budget: number;
-  advance: number;
-  expense: number;
-  status: 'Unassigned' | 'Assigned' | 'UnderReview' | 'InRecheck' | 'Done';
-  parentTaskId: string;
-  projectId: string;
-  createdById: string;
-  startDate: Date;
-  endDate: Date;
-  tags?: string[];
-  subtasks?: taskProps[];
-}
-
 interface DeleteTaskProps {
   project_id: string;
 }
@@ -198,46 +154,11 @@ const SumMoney = ({
   );
 };
 
-const MenuBar = ({ project_id }: ProjectOverviewProps) => {
-  const [ProjectOwner, setProjectOwner] = useState<UsersProps[]>([]);
-  const [member, setMember] = useState<UsersProps[]>([]);
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
-  const [budget, setBudget] = useState<number>(0);
-  const [advance, setAdvance] = useState<number>(0);
-  const [expense, setExpense] = useState<number>(0);
-  const [project, setProject] = useState<projectProps>();
+const MenuBar = ({ project }: { project: Project }) => {
   const MAX_VISIBLE_MEMBERS = 3;
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
-
-  useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        const res = await fetch(`${BASE_URL}/v2/projects/${project_id}`, {
-          headers: {
-            Authorization: auth,
-          },
-        });
-        if (!res.ok) {
-          throw new Error('Failed to fetch project data');
-        }
-        const data = await res.json();
-        console.log('Data', data);
-        setProjectOwner(data.owner);
-        setMember(data.members);
-        setStartDate(new Date(data.startDate));
-        setEndDate(new Date(data.endDate));
-        setBudget(data.budget);
-        setAdvance(data.advance);
-        setExpense(data.expense);
-        setProject(data);
-      } catch (error) {
-        console.error('Error fetching project data:', error);
-      }
-    };
-    fetchProject();
-  }, [project_id, auth]);
+  const member: UsersProps[] = project.members;
 
   const getInitials = (name: string) => {
     if (typeof name !== 'string') return ''; // Handle non-string input
@@ -261,21 +182,7 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
             Owner :{' '}
           </div>
         </div>
-        <TooltipProvider>
-          <div className="flex items-center space-x-2 rounded-md border border-brown h-10 px-4">
-            {ProjectOwner.map((owner) => (
-              <Tooltip key={owner.id}>
-                <TooltipTrigger>
-                  <div className="w-[24px] h-[24px] bg-gray-100 rounded-full border flex items-center justify-center border-brown text-brown text-sm font-BaiJamjuree">
-                    {getInitials(owner.name)}
-                  </div>
-                </TooltipTrigger>
-                <span className="text-black text-sm font-BaiJamjuree">{owner.name}</span>
-                <TooltipContent>{owner.name}</TooltipContent>
-              </Tooltip>
-            ))}
-          </div>
-        </TooltipProvider>
+        {project && <AssignedProjectOwner project={project} />}
       </div>
       <div aria-label="member" className="h-10 justify-start items-center inline-flex">
         <div className="w-24 justify-start items-center gap-2 flex">
@@ -325,7 +232,7 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
           </div>
         </div>
         <div className="flex w-[253.67px] ">
-          <ButtonAddTags project_id={project_id} />
+          {project && <ButtonAddTags project_id={project.id} />}
         </div>
       </div>
       <div aria-label="money" className="h-10 justify-start items-center inline-flex">
@@ -341,7 +248,7 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
             Money :{' '}
           </div>
         </div>
-        <SumMoney budget={budget} advance={advance} expense={expense} />
+        <SumMoney budget={project.budget} advance={project.advance} expense={project.expense} />
       </div>
       <div aria-label="date" className="h-10 justify-start items-center inline-flex">
         {/* Label Zone */}
@@ -359,15 +266,16 @@ const MenuBar = ({ project_id }: ProjectOverviewProps) => {
   );
 };
 
-export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
+export const ProjectDetail = ({ project }: { project: Project }) => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const Router = useRouter();
 
   const handleClick = () => {
-    const url = `/projects/${project_id}`;
+    const url = `/projects/${project.id}`;
     Router.push(url);
   };
+
 
   return (
     <div className="max-h-[414px] px-20 flex-col justify-start items-start gap-[18px] inline-flex w-full">
@@ -383,7 +291,7 @@ export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
       <div className="self-stretch justify-center items-start gap-7 inline-flex">
         <div className="grow shrink basis-0 min-h-[348px] h-auto p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start inline-flex">
           <div className="self-stretch h-full flex-col justify-start items-start gap-[18px] flex">
-            <ProjectWorkspace project_id={project_id} />
+            <ProjectWorkspace project_id={project.id} />
           </div>
           <div className="self-stretch h-[120px] flex-col justify-center items-end gap-3 flex">
             <hr className="my-4 w-full border-t-1 border-gray-200" />
@@ -398,8 +306,8 @@ export const ProjectDetail = ({ project_id }: ProjectOverviewProps) => {
           </div>
         </div>
         <div className="flex-col justify-between items-end gap-4 inline-flex">
-          <MenuBar project_id={project_id} />
-          <DeleteProject project_id={project_id} />
+          <MenuBar project={project} />
+          <DeleteProject project_id={project.id} />
         </div>
       </div>
     </div>
