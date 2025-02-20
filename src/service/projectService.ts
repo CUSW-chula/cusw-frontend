@@ -5,8 +5,8 @@ export const createProject = async (inputs: FormInput, BASE_URL: string) => {
   const projectPayload = {
     title: inputs.projectTitle,
     description: inputs.projectDescription ?? '',
-    startDate: new Date(),
-    endDate: new Date(),
+    startDate: null,
+    endDate: null,
   };
 
   return await fetchData(`${BASE_URL}/v2/projects`, 'POST', projectPayload, 'Create Project Fail');
