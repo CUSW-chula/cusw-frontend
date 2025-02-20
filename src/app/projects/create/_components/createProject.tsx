@@ -112,7 +112,7 @@ export const CreateProject = () => {
             <DialogTrigger asChild>
               <Button
                 variant="destructive"
-                disabled={inputs.projectTitle === undefined}
+                disabled={inputs.projectTitle === undefined || inputs.projectTitle === ''}
                 className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex">
                 Select Project Template
               </Button>
