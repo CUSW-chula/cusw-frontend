@@ -75,9 +75,9 @@ export const CreateProject = () => {
     }));
   };
 
-  const handleCancel = () =>{
-    router.push("/projects");
-  }
+  const handleCancel = () => {
+    router.push('/projects');
+  };
 
   return (
     <div className="h-full px-20 flex flex-col justify-start items-start gap-4 w-full">
@@ -103,7 +103,7 @@ export const CreateProject = () => {
         <div className="justify-start items-start gap-3 inline-flex">
           <Button
             variant="outline"
-            type='button'
+            type="button"
             className="px-4 py-2 bg-white border-[#6b5c56] justify-center items-center gap-2.5 flex"
             onClick={handleCancel}>
             Cancel

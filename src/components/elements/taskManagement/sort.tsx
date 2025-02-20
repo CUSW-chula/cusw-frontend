@@ -34,8 +34,12 @@ export const Sort = ({ showTasks, setShowTasks }: SortProps) => {
       return tasks
         .filter((task) => task[dateType] !== null) // Filter out tasks with null dates
         .sort((task1, task2) => {
-          const date1 = new Date(task1[dateType]).getTime();
-          const date2 = new Date(task2[dateType]).getTime();
+          const date1 = task1[dateType]
+            ? new Date(task1[dateType]).getTime()
+            : Number.POSITIVE_INFINITY;
+          const date2 = task2[dateType]
+            ? new Date(task2[dateType]).getTime()
+            : Number.POSITIVE_INFINITY;
           return inOrder ? date1 - date2 : date2 - date1; // Sort in ascending or descending order
         })
         .concat(tasks.filter((task) => task[dateType] === null)); // Add tasks with null dates at the end
