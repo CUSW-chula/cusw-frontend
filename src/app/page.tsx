@@ -2,7 +2,6 @@
 
 import { Button } from '@/components/ui/button';
 import { signIn } from 'next-auth/react';
-import { useEffect } from 'react';
 
 const Home = () => {
   return (

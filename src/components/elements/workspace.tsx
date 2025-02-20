@@ -79,9 +79,7 @@ const Workspace = ({ workspace }: Workspace) => {
 
     fetchFile();
     const ws = new WebSocket(BASE_SOCKET);
-    ws.onopen = () => {
-      console.log('Connected to WebSocket');
-    };
+    ws.onopen = () => {};
 
     ws.onmessage = (event) => {
       try {
@@ -101,9 +99,7 @@ const Workspace = ({ workspace }: Workspace) => {
       }
     };
 
-    ws.onclose = () => {
-      console.log('WebSocket connection closed');
-    };
+    ws.onclose = () => {};
 
     return () => {
       ws.close();
@@ -132,7 +128,6 @@ const Workspace = ({ workspace }: Workspace) => {
           );
         }
         const data = await response.json();
-        console.log('Title updated successfully:', data);
       } catch (error) {
         console.error('Error updating Title:', error);
       }
