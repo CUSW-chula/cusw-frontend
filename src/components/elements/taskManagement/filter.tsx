@@ -73,13 +73,13 @@ export const Filter = ({ tasks, setShowTasks }: FilterProps) => {
       onValueChange={(value) => {
         handleFilter(value);
       }}>
-      <SelectTrigger className="w-[150px] border-brown">
+      <SelectTrigger className="w-40 border-brown">
         <SelectValue className="text-brown" placeholder="Filter by: Tag" />
       </SelectTrigger>
 
       <SelectContent>
         <SelectItem key="default" value="all" className="font-BaiJamjuree">
-          Default
+          All
         </SelectItem>
         {allTags.map((tag: TagProps) => (
           <SelectItem key={tag.id} value={tag.id} className="font-BaiJamjuree">

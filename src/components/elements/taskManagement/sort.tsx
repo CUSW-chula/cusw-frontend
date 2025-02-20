@@ -1,9 +1,10 @@
+import type { Dispatch, SetStateAction } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 import type { TaskProps } from '@/app/types/types';
 
 interface SortProps {
   showTasks: TaskProps[];
-  setShowTasks: (prev: TaskProps[]) => void;
+  setShowTasks: Dispatch<SetStateAction<TaskProps[]>>;
 }
 
 export const Sort = ({ showTasks, setShowTasks }: SortProps) => {
@@ -40,9 +41,7 @@ export const Sort = ({ showTasks, setShowTasks }: SortProps) => {
         })
         .concat(tasks.filter((task) => task[dateType] === null)); // Add tasks with null dates at the end
     };
-
-    let sortedTasks: TaskProps[];
-
+    let sortedTasks = showTasks;
     switch (value) {
       case 'StartDate123':
         sortedTasks = sortTasksByDate(showTasks, 'startDate', true);
@@ -59,12 +58,11 @@ export const Sort = ({ showTasks, setShowTasks }: SortProps) => {
       default:
         return; // Do nothing if the value is not recognized
     }
-
     setShowTasks(sortedTasks); // Update the state with sorted tasks
   };
   return (
     <Select onValueChange={(value) => handleSort(value)}>
-      <SelectTrigger className="w-[150px] border-brown">
+      <SelectTrigger className="w-40 border-brown">
         <SelectValue className="text-brown" placeholder="Sort by: Start date" />
       </SelectTrigger>
       <SelectContent>
