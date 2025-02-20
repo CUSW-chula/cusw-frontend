@@ -4,7 +4,6 @@ import { BlockNoteView } from '@blocknote/shadcn';
 import '@blocknote/shadcn/style.css';
 import { GridSuggestionMenuController, useCreateBlockNote } from '@blocknote/react';
 import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
-import * as Button from '@/components/ui/button';
 import * as Card from '@/components/ui/card';
 import * as DropdownMenu from '@/components/ui/dropdown-menu';
 import * as Form from '@/components/ui/form';
@@ -52,7 +51,13 @@ function Document({ description }: Description) {
   const task_id = description.id;
 
   useEffect(() => {
-    setDescription(description.description);
+    const replaceBlocks = async () => {
+      const blocks = await editor.tryParseHTMLToBlocks(description.description);
+      editor.replaceBlocks(editor.document, blocks);
+      setDescription(description.description);
+    };
+
+    replaceBlocks();
   }, [description.description]);
 
   useEffect(() => {
@@ -121,7 +126,6 @@ function Document({ description }: Description) {
       }}
       emojiPicker={false}
       shadCNComponents={{
-        Button,
         Card,
         DropdownMenu,
         Form,

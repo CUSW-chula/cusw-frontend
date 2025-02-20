@@ -35,7 +35,7 @@ export const CreateProject = () => {
 
     fetchData();
   }, []);
-  const { handleProjectCreation } = useCreateProject(inputs, auth, BASE_URL);
+  const { handleProjectCreation } = useCreateProject(inputs, BASE_URL);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = event.target;
@@ -61,9 +61,9 @@ export const CreateProject = () => {
     }));
   };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>, typeofSubmit: string) => {
     event.preventDefault();
-    await handleProjectCreation();
+    await handleProjectCreation(typeofSubmit);
   };
 
   const handleTemplateSelect = (template: Template) => {
@@ -75,10 +75,9 @@ export const CreateProject = () => {
     }));
   };
 
-  // const handleChangeTag = (tag: TagProps[]) => {
-  //   const name = 'projectTag';
-  //   setInputs((values) => ({ ...values, [name]: tag }));
-  // };
+  const handleCancel = () => {
+    router.push('/projects');
+  };
 
   return (
     <div className="h-full px-20 flex flex-col justify-start items-start gap-4 w-full">
@@ -104,25 +103,30 @@ export const CreateProject = () => {
         <div className="justify-start items-start gap-3 inline-flex">
           <Button
             variant="outline"
+            type="button"
             className="px-4 py-2 bg-white border-[#6b5c56] justify-center items-center gap-2.5 flex"
-            onClick={() => router.push('/projects')}>
+            onClick={handleCancel}>
             Cancel
           </Button>
           <Dialog>
             <DialogTrigger asChild>
               <Button
                 variant="destructive"
-                disabled={inputs.projectTitle === undefined}
+                disabled={inputs.projectTitle === undefined || inputs.projectTitle === ''}
                 className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex">
                 Select Project Template
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-[920px] max-h-[400px] h-full w-full p-6 bg-white rounded-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.09)] border border-[#6b5c56] flex-col justify-between items-center inline-flex">
               <DialogTitle className="hidden" />
-              <Tabs className="w-full max-w-[654px]">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="New Task">New Task</TabsTrigger>
-                  <TabsTrigger value="Select Template">Select Template</TabsTrigger>
+              <Tabs className="w-full px-4">
+                <TabsList className="flex max-w-[400px] w-full justify-evenly mx-auto">
+                  <TabsTrigger className="w-full" value="New Task">
+                    New Task
+                  </TabsTrigger>
+                  <TabsTrigger className="w-full" value="Select Template">
+                    Select Template
+                  </TabsTrigger>
                 </TabsList>
                 <TabsContent value="New Task">
                   <NewSingleTask

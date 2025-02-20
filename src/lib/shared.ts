@@ -39,8 +39,8 @@ export type Project = {
   budget: number;
   advance: number;
   expense: number;
-  startDate: Date;
-  endDate: Date;
+  startDate: Date | null;
+  endDate: Date | null;
   createdById: string;
   owner: User[];
   members: User[];

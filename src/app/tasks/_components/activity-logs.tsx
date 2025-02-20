@@ -154,13 +154,9 @@ const ActivityLogs = ({ task }: { task: TaskProps }) => {
 
     const ws = new WebSocket(BASE_SOCKET);
 
-    ws.onopen = () => {
-      console.log('Connected to WebSocket');
-    };
+    ws.onopen = () => {};
 
     ws.onmessage = (event) => {
-      console.log('Message received:', event.data);
-
       try {
         const socketEvent = JSON.parse(event.data);
         const eventName = socketEvent.eventName;
@@ -178,9 +174,7 @@ const ActivityLogs = ({ task }: { task: TaskProps }) => {
       }
     };
 
-    ws.onclose = () => {
-      console.log('Disconnected from WebSocket');
-    };
+    ws.onclose = () => {};
 
     return () => {
       ws.close();

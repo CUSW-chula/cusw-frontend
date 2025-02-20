@@ -28,7 +28,7 @@ interface Description {
 }
 
 const Workspace = ({ workspace }: Workspace) => {
-  const [Title, setTitle] = useState<string>('');
+  const [Title, setTitle] = useState<string>();
   const [fileList, setFileList] = useState<Files[]>([]);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
@@ -79,9 +79,7 @@ const Workspace = ({ workspace }: Workspace) => {
 
     fetchFile();
     const ws = new WebSocket(BASE_SOCKET);
-    ws.onopen = () => {
-      console.log('Connected to WebSocket');
-    };
+    ws.onopen = () => {};
 
     ws.onmessage = (event) => {
       try {
@@ -101,9 +99,7 @@ const Workspace = ({ workspace }: Workspace) => {
       }
     };
 
-    ws.onclose = () => {
-      console.log('WebSocket connection closed');
-    };
+    ws.onclose = () => {};
 
     return () => {
       ws.close();
@@ -111,7 +107,7 @@ const Workspace = ({ workspace }: Workspace) => {
   }, [pareJsonValue, pareJsonValues, task_id, auth]);
 
   useEffect(() => {
-    if (!Title) return;
+    if (!Title || !Title.trim()) return;
     const updateTitle = async () => {
       const taskId = task_id;
       const url = `${BASE_URL}/v2/tasks/${taskId}`;
@@ -132,7 +128,6 @@ const Workspace = ({ workspace }: Workspace) => {
           );
         }
         const data = await response.json();
-        console.log('Title updated successfully:', data);
       } catch (error) {
         console.error('Error updating Title:', error);
       }
@@ -148,7 +143,7 @@ const Workspace = ({ workspace }: Workspace) => {
   return (
     <div>
       <input
-        className="resize-none border-none w-full outline-none pl-[54px] placeholder-gray-300 text-[30px] font-semibold font-Anuphan"
+        className="resize-none border-none w-full outline-none placeholder-gray-300 text-[30px] font-semibold font-Anuphan"
         placeholder="Task Title"
         value={Title}
         onChange={(e) => {
