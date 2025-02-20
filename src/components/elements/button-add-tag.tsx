@@ -69,10 +69,10 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
         const eventName = socketEvent.eventName;
         const data = pareJsonValue(socketEvent.data);
 
-        if (eventName === 'assigned-tags') {
+        if (eventName === `assigned-tags:${task.id}`) {
           // Update selected tags with new tag added
           setSelectedTags((prev) => [data, ...prev]);
-        } else if (eventName === 'unassigned-tag') {
+        } else if (eventName === `unassigned-tag:${task.id}`) {
           // Remove tag from selected tags
           setSelectedTags((prev) => prev.filter((t) => t.id !== data.id));
         }
