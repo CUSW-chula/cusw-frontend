@@ -3,16 +3,17 @@ import { getCookie } from 'cookies-next';
 import { useEffect, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 import type { TaskProps, TagProps } from '@/app/types/types';
+import { useAuth } from '@/hooks/use-auth';
 
 interface FilterProps {
   tasks: TaskProps[];
   setShowTasks: (prev: TaskProps[]) => void;
 }
-const cookie = getCookie('auth');
-const auth = cookie?.toString() ?? '';
 
 export const Filter = ({ tasks, setShowTasks }: FilterProps) => {
   const [allTags, setAllTags] = useState<TagProps[]>([]);
+  const [selectedTag, setSelectedTag] = useState<string>('all');
+  const auth = useAuth();
   useEffect(() => {
     //get all tags of tasks from db
     const fetchTagData = async () => {
@@ -34,47 +35,26 @@ export const Filter = ({ tasks, setShowTasks }: FilterProps) => {
     };
     fetchTagData();
   }, [auth]);
-  const handleFilter = async (tagID: string) => {
-    const filterByTag = async (tasks: TaskProps[], tag: TagProps): Promise<TaskProps[]> => {
-      const filteredTasks: TaskProps[] = [];
 
-      // Iterate through all tasks
-      for (const task of tasks) {
-        // Check if the task itself has the matching tag
-        if (task.tags?.some((item) => item.id === tag.id)) {
-          filteredTasks.push(task);
-        }
-
-        // If the task has subtasks, recursively filter them
-        else if (task.subtasks && task.subtasks?.length > 0) {
-          const subtaskResults = await filterByTag(task.subtasks, tag);
-          filteredTasks.push(...subtaskResults); // Append the results
-        }
-      }
-
-      return filteredTasks;
-    };
-
-    const tag = allTags.find((tag) => tag.id === tagID) || {
-      id: 'all',
-      name: 'Default',
-    };
-
-    if (tag.id === 'all') {
+  const handleFilter = (tagId: string) => {
+    setSelectedTag(tagId);
+    if (tagId === 'all') {
       setShowTasks(tasks);
-      return;
+    } else {
+      const filteredTasks = tasks.filter((task) => task.tags?.some((tag) => tag.id === tagId));
+      setShowTasks(filteredTasks);
     }
-    // Call the recursive function and update the state
-    const tasksWithTag = await filterByTag(tasks, tag);
-    setShowTasks(tasksWithTag);
   };
+
   return (
     <Select
       onValueChange={(value) => {
         handleFilter(value);
       }}>
       <SelectTrigger className="w-40 border-brown">
-        <SelectValue className="text-brown" placeholder="Filter by: Tag" />
+        <SelectValue className="text-brown" placeholder="Filter by: Tag">
+          {selectedTag === 'all' ? 'All' : allTags.find((tag) => tag.id === selectedTag)?.name}
+        </SelectValue>
       </SelectTrigger>
 
       <SelectContent>
