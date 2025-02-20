@@ -276,7 +276,6 @@ export const ProjectDetail = ({ project }: { project: Project }) => {
     Router.push(url);
   };
 
-
   return (
     <div className="max-h-[414px] px-20 flex-col justify-start items-start gap-[18px] inline-flex w-full">
       <div className="h-12 px-0.5 justify-between items-center inline-flex w-full">
