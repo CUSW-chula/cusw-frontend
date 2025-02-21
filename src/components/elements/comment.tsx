@@ -284,7 +284,7 @@ const Comment = ({ task }: { task: TaskProps }) => {
       name: value.author ? value.author.name : '',
       isDeleted: value.isDeleted,
       editTime: value.editTime,
-      authorId: value.author.id,
+      authorId: value.author ? value.author.id : '',
     }),
     [],
   );
@@ -309,20 +309,24 @@ const Comment = ({ task }: { task: TaskProps }) => {
       try {
         const socketEvent = JSON.parse(event.data);
         const eventName = socketEvent.eventName;
-        const data = parseJsonValue(socketEvent.data);
+        if (eventName.includes('comment')) {
+          const data = parseJsonValue(socketEvent.data);
 
-        if (eventName === `comment:${task.id}`) {
-          setList((prevList) => [...prevList, data]);
-        } else if (eventName === 'comment-delete') {
-          setList((prevList) =>
-            prevList.map((item) => (item.id === data.id ? { ...item, isDeleted: true } : item)),
-          );
-        } else if (eventName === 'comment-edit') {
-          setList((prevList) =>
-            prevList.map((item) =>
-              item.id === data.id ? { ...item, content: data.content, editTime: new Date() } : item,
-            ),
-          );
+          if (eventName === `comment:${task.id}`) {
+            setList((prevList) => [...prevList, data]);
+          } else if (eventName === 'comment-delete') {
+            setList((prevList) =>
+              prevList.map((item) => (item.id === data.id ? { ...item, isDeleted: true } : item)),
+            );
+          } else if (eventName === 'comment-edit') {
+            setList((prevList) =>
+              prevList.map((item) =>
+                item.id === data.id
+                  ? { ...item, content: data.content, editTime: new Date() }
+                  : item,
+              ),
+            );
+          }
         }
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
