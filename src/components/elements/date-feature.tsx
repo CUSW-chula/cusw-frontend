@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
+import { toast } from '@/hooks/use-toast';
 
 // FUNCTION USING INSTRUCTION
 //================================================================
@@ -133,11 +134,18 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
     try {
       const response = await fetch(url, options);
       const data = await response.json();
+      if (!response.ok) {
+        const errorMessage = await response.json();
+        toast({
+          title: 'Eroror',
+          description:  errorMessage || 'An unexpected error occurred.',
+          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+        });
+      } 
       if (data) {
         setDate(range);
         setFormattedDate(formatDate(range ?? { from: undefined, to: undefined }));
       }
-      // console.log(data); // Check Fetch Data
     } catch (error) {
       console.error(error);
     }
@@ -301,11 +309,18 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
     try {
       const response = await fetch(url, options);
       const data = await response.json();
+      if (!response.ok) {
+              const errorMessage = await response.json();
+              toast({
+                title: 'Eroror',
+                description:  errorMessage || 'An unexpected error occurred.',
+                variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+              });
+            } 
       if (data) {
         setDate(range);
         setFormattedDate(formatDate(range ?? { from: undefined, to: undefined }));
       }
-      // console.log(data); // Check Fetch Data
     } catch (error) {
       console.error(error);
     }

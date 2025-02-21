@@ -4,6 +4,7 @@ import { Displayfile } from './uploadfile';
 import BASE_URL, { BASE_SOCKET } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import Blocknotes from './blocknote';
+import { toast } from '@/hooks/use-toast';
 interface Files {
   id: string;
   fileName: string;
@@ -70,6 +71,14 @@ const Workspace = ({ workspace }: Workspace) => {
             Authorization: auth,
           },
         });
+        if (!response.ok) {
+          const errorMessage = await response.json();
+          toast({
+            title: 'Eroror',
+            description:  errorMessage || 'An unexpected error occurred.',
+            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          });
+        } 
         const data = await response.json();
         setFileList(data);
       } catch (error) {

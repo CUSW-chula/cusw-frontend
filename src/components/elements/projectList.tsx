@@ -23,6 +23,7 @@ import { useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { tagsListAtom } from '@/atom';
 import Link from 'next/link';
+import { toast } from '@/hooks/use-toast';
 
 export const ProjectList = () => {
   const cookie = getCookie('auth');
@@ -39,8 +40,13 @@ export const ProjectList = () => {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+        const errorMessage = await response.json();
+        toast({
+          title: 'Eroror',
+          description:  errorMessage || 'An unexpected error occurred.',
+          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+        });
+      } 
 
       const data = await response.json();
       if (!data || !Array.isArray(data)) {
@@ -149,10 +155,18 @@ export const ProjectList = () => {
     });
 
     const isCurrentlyStarred = starredProjects[projectId] ?? false;
-    await fetch(`${BASE_URL}/v2/projects/pin/${projectId}`, {
+    const response =await fetch(`${BASE_URL}/v2/projects/pin/${projectId}`, {
       method: isCurrentlyStarred ? 'DELETE' : 'POST',
       headers: { Authorization: auth },
     });
+    if (!response.ok) {
+            const errorMessage = await response.json();
+            toast({
+              title: 'Eroror',
+              description:  errorMessage || 'An unexpected error occurred.',
+              variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+            });
+          } 
 
     // 🔄 รีเซ็ตค่า UI กลับถ้า API ล้มเหลว
     setStarredProjects((prevState) => {

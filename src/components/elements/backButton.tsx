@@ -8,6 +8,7 @@ import { Redo2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type React from 'react';
 import { useAuth } from '@/hooks/use-auth';
+import { toast } from '@/hooks/use-toast';
 
 const BackButton = ({ task }: { task: TaskProps }) => {
   const router = useRouter();
@@ -19,6 +20,15 @@ const BackButton = ({ task }: { task: TaskProps }) => {
         method: 'GET',
         headers: { Authorization: auth },
       });
+      if (!response.ok) {
+        const errorMessage = await response.json();
+        // throw new Error("Failed to assign tag");
+        toast({
+          title: 'Eroror',
+          description:  errorMessage || 'An unexpected error occurred.',
+          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+        });
+      } 
 
       if (!response.headers.get('content-type')?.includes('application/json')) {
         const projectId = await response.text();

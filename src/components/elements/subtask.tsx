@@ -24,6 +24,7 @@ import BASE_URL, { BASE_SOCKET } from '@/lib/shared';
 import { Task } from './taskManagement';
 import type { TaskProps } from '@/app/types/types';
 import { CreateSubtask } from './createSubtask';
+import { toast } from '@/hooks/use-toast';
 
 function TitleInput({ content, onChange }: { content: string; onChange: (value: string) => void }) {
   const [editedContent, setEditedContent] = useState(content);
@@ -120,8 +121,13 @@ const Subtask = ({ task }: { task: TaskProps }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create subtask');
-      }
+        const errorMessage = await response.json();
+        toast({
+          title: 'Eroror',
+          description:  errorMessage || 'An unexpected error occurred.',
+          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+        });
+      } 
 
       const data = await response.json();
 
@@ -144,9 +150,14 @@ const Subtask = ({ task }: { task: TaskProps }) => {
         },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to delete subtask');
-      }
+    if (!response.ok) {
+            const errorMessage = await response.json();
+            toast({
+              title: 'Eroror',
+              description:  errorMessage || 'An unexpected error occurred.',
+              variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+            });
+          } 
 
       // Update the subtasks array by removing the deleted subtask
       setSubtasks((prevSubtasks) => prevSubtasks.filter((task) => task.id !== latestSubtask.id));
@@ -179,9 +190,14 @@ const Subtask = ({ task }: { task: TaskProps }) => {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to update subtask');
-      }
+    if (!response.ok) {
+            const errorMessage = await response.json();
+            toast({
+              title: 'Eroror',
+              description:  errorMessage || 'An unexpected error occurred.',
+              variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+            });
+          } 
 
       const data = await response.json();
       console.log('Subtask updated:', data);

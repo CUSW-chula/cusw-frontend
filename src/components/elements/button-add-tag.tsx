@@ -48,6 +48,15 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
 
       try {
         const response = await fetch(url, options);
+        if (!response.ok) {
+          const errorMessage = await response.json();
+          // throw new Error("Failed to assign tag");
+          toast({
+            title: 'Eroror',
+            description:  errorMessage || 'An unexpected error occurred.',
+            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          });
+        } 
         const data = await response.json();
         setStatuses(data);
       } catch (error) {
@@ -100,9 +109,10 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
 
       try {
         const response = await fetch(url, options);
-
+        const errorMessage = await response.json();
         // เช็คว่าคำขอสำเร็จหรือไม่
         if (response.ok) {
+         
           // throw new Error("Failed to assign tag");
           toast({
             title: 'Tag Added',
@@ -111,9 +121,9 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
           });
         } else {
           toast({
-            title: 'Error',
-            description: 'Failed to assign tag. Please try again.',
-            variant: 'destructive', // ใช้สีแดงสำหรับ error
+            title: 'Eroror',
+            description:  errorMessage || 'An unexpected error occurred.',
+            variant: 'destructive', // หรือใช้ 'success' ถ้ามี custom variant
           });
         }
         // After adding the tag, update the local state
@@ -133,7 +143,16 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
     };
 
     try {
-      await fetch(url, options);
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        const errorMessage = await response.json();
+        // throw new Error("Failed to assign tag");
+        toast({
+          title: 'Eroror',
+          description:  errorMessage || 'An unexpected error occurred.',
+          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+        });
+      } 
       // Update local state to remove the deleted tag
       setSelectedTags((prev) => prev.filter((tag) => tag.id !== value));
     } catch (error) {

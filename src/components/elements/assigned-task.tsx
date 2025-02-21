@@ -19,6 +19,7 @@ import { Profile } from './profile';
 import BASE_URL, { BASE_SOCKET, Task, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import type { TaskProps } from '@/app/types/types';
+import { toast } from '@/hooks/use-toast';
 
 interface UsersInterfaces {
   id: string;
@@ -50,6 +51,15 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
           Authorization: auth,
         },
       });
+      if (!usersData.ok) {
+        const errorMessage = await usersData.json();
+        // throw new Error("Failed to assign tag");
+        toast({
+          title: 'Eroror',
+          description:  errorMessage || 'An unexpected error occurred.',
+          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+        });
+      } 
       const userList = await usersData.json();
       setUsersList(userList);
     };
@@ -107,7 +117,16 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
       };
 
       try {
-        await fetch(url, options);
+        const response = await fetch(url, options);
+        if (!response.ok) {
+          const errorMessage = await response.json();
+          // throw new Error("Failed to assign tag");
+          toast({
+            title: 'Eroror',
+            description:  errorMessage || 'An unexpected error occurred.',
+            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          });
+        } 
       } catch (error) {
         console.error(error);
       }

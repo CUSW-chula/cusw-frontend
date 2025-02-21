@@ -5,6 +5,7 @@ import { Button } from '../ui/button';
 import type { TaskProps } from '@/app/types/types';
 import BASE_URL, { type User } from '@/lib/shared';
 import { getCookie } from 'cookies-next/client';
+import { toast } from '@/hooks/use-toast';
 
 // mock data (default users)
 // const users: UsersInterfaces[] = [{ id: '1', userName: 'Bunyaphon Kongthum' }];
@@ -32,6 +33,14 @@ export function ProjectOwner({ task }: { task: TaskProps }) {
             Authorization: auth,
           },
         });
+        if (!response.ok) {
+          const errorMessage = await response.json();
+          toast({
+            title: 'Eroror',
+            description:  errorMessage || 'An unexpected error occurred.',
+            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          });
+        } 
         const data = await response.json();
         setOwner(data.owner);
       } catch (error) {

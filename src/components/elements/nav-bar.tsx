@@ -6,6 +6,7 @@ import { getCookie } from 'cookies-next';
 import { useEffect, useState } from 'react';
 import BASE_URL from '@/lib/shared';
 import { jwtDecode } from 'jwt-decode';
+import { toast } from '@/hooks/use-toast';
 
 export default function NavBar() {
   const url = usePathname();
@@ -38,8 +39,13 @@ export default function NavBar() {
         });
 
         if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+          const errorMessage = await response.json();
+          toast({
+            title: 'Eroror',
+            description:  errorMessage || 'An unexpected error occurred.',
+            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          });
+        } 
 
         const data = await response.json();
         setName(data.name);

@@ -9,6 +9,7 @@ import BASE_URL, {
 } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import Blocknoteproject from './blocknoteproject';
+import { toast } from '@/hooks/use-toast';
 
 const Workspace = ({ project_id }: ProjectOverviewProps) => {
   const [Title, setTitle] = useState<string>('');
@@ -34,6 +35,14 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
             Authorization: auth,
           },
         });
+        if (!response.ok) {
+          const errorMessage = await response.json();
+          toast({
+            title: 'Eroror',
+            description:  errorMessage || 'An unexpected error occurred.',
+            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          });
+        } 
         const data = await response.json();
         setTitle(data.title);
       } catch (error) {
@@ -58,7 +67,14 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
 
       try {
         const response = await fetch(url, options);
-        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+        if (!response.ok) {
+                const errorMessage = await response.json();
+                toast({
+                  title: 'Eroror',
+                  description:  errorMessage || 'An unexpected error occurred.',
+                  variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+                });
+              } 
         const data = await response.json();
         console.log('Title updated successfully:', data);
       } catch (error) {

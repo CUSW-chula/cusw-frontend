@@ -17,6 +17,7 @@ import { useEffect, useState } from 'react';
 import BASE_URL, { BASE_YSWEET, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { jwtDecode, type JwtPayload } from 'jwt-decode';
+import { toast } from '@/hooks/use-toast';
 
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
@@ -69,9 +70,15 @@ function Document({ description }: Description) {
 
       try {
         const response = await fetch(url, options);
-        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
-        const data = await response.json();
-        console.log('Description updated successfully:', data);
+        if (!response.ok) {
+          const errorMessage = await response.json();
+          // throw new Error("Failed to assign tag");
+          toast({
+            title: 'Eroror',
+            description:  errorMessage || 'An unexpected error occurred.',
+            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          });
+        } 
       } catch (error) {
         console.error('Error updating Description:', error);
       }
