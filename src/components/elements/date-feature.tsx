@@ -138,10 +138,10 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
         const errorMessage = await response.json();
         toast({
           title: 'Eroror',
-          description:  errorMessage || 'An unexpected error occurred.',
+          description: errorMessage || 'An unexpected error occurred.',
           variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
         });
-      } 
+      }
       if (data) {
         setDate(range);
         setFormattedDate(formatDate(range ?? { from: undefined, to: undefined }));
@@ -310,13 +310,13 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
       const response = await fetch(url, options);
       const data = await response.json();
       if (!response.ok) {
-              const errorMessage = await response.json();
-              toast({
-                title: 'Eroror',
-                description:  errorMessage || 'An unexpected error occurred.',
-                variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
-              });
-            } 
+        const errorMessage = await response.json();
+        toast({
+          title: 'Eroror',
+          description: errorMessage || 'An unexpected error occurred.',
+          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+        });
+      }
       if (data) {
         setDate(range);
         setFormattedDate(formatDate(range ?? { from: undefined, to: undefined }));

@@ -56,10 +56,10 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
         // throw new Error("Failed to assign tag");
         toast({
           title: 'Eroror',
-          description:  errorMessage || 'An unexpected error occurred.',
+          description: errorMessage || 'An unexpected error occurred.',
           variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
         });
-      } 
+      }
       const userList = await usersData.json();
       setUsersList(userList);
     };
@@ -124,10 +124,10 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
           const errorMessage = await response.json();
           toast({
             title: 'Eroror',
-            description:  errorMessage || 'An unexpected error occurred.',
+            description: errorMessage || 'An unexpected error occurred.',
             variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
           });
-        } 
+        }
       } catch (error) {
         console.error(error);
       }

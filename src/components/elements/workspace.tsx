@@ -75,10 +75,10 @@ const Workspace = ({ workspace }: Workspace) => {
           const errorMessage = await response.json();
           toast({
             title: 'Eroror',
-            description:  errorMessage || 'An unexpected error occurred.',
+            description: errorMessage || 'An unexpected error occurred.',
             variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
           });
-        } 
+        }
         const data = await response.json();
         setFileList(data);
       } catch (error) {

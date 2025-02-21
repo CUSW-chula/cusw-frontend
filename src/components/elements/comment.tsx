@@ -136,7 +136,7 @@ function CommentBox({
 
   const deleteComment = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/v2/comments/${id}`, { 
+      const response = await fetch(`${BASE_URL}/v2/comments/${id}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
       });
@@ -144,10 +144,10 @@ function CommentBox({
         const errorMessage = await response.json();
         toast({
           title: 'Eroror',
-          description:  errorMessage || 'An unexpected error occurred.',
+          description: errorMessage || 'An unexpected error occurred.',
           variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
         });
-      } 
+      }
     } catch (error) {
       console.error('Failed to delete comment:', error);
     }
@@ -155,7 +155,7 @@ function CommentBox({
 
   const saveEditedContent = async (newContent: string) => {
     try {
-      const response =await fetch(`${BASE_URL}/v2/comments/${id}`, {
+      const response = await fetch(`${BASE_URL}/v2/comments/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
         body: JSON.stringify({ content: newContent }),
@@ -164,10 +164,10 @@ function CommentBox({
         const errorMessage = await response.json();
         toast({
           title: 'Eroror',
-          description:  errorMessage || 'An unexpected error occurred.',
+          description: errorMessage || 'An unexpected error occurred.',
           variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
         });
-      } 
+      }
       setIsEditing(false);
     } catch (error) {
       console.error('Failed to save comment:', error);
@@ -317,14 +317,14 @@ const Comment = ({ task }: { task: TaskProps }) => {
         const errorMessage = await commentData.json();
         toast({
           title: 'Eroror',
-          description:  errorMessage || 'An unexpected error occurred.',
+          description: errorMessage || 'An unexpected error occurred.',
           variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
         });
-      } 
+      }
       const commentList = await commentData.json();
       setList(parseJsonValues(commentList));
     };
-    
+
     fetchComment();
 
     const ws = new WebSocket(BASE_SOCKET);
@@ -379,7 +379,7 @@ const Comment = ({ task }: { task: TaskProps }) => {
       return;
     }
 
-    const response =await fetch(`${BASE_URL}/v2/comments/`, {
+    const response = await fetch(`${BASE_URL}/v2/comments/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -394,10 +394,10 @@ const Comment = ({ task }: { task: TaskProps }) => {
       const errorMessage = await response.json();
       toast({
         title: 'Eroror',
-        description:  errorMessage || 'An unexpected error occurred.',
+        description: errorMessage || 'An unexpected error occurred.',
         variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
       });
-    } 
+    }
     setComment('');
   };
 

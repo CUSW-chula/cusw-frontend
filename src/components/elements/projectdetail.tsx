@@ -49,10 +49,10 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
         const errorMessage = await response.json();
         toast({
           title: 'Eroror',
-          description:  errorMessage || 'An unexpected error occurred.',
+          description: errorMessage || 'An unexpected error occurred.',
           variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
         });
-      } 
+      }
       router.push('/projects');
     } catch (error) {
       console.error(error);

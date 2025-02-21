@@ -87,13 +87,13 @@ export function StatusButton({ task }: { task: TaskProps }) {
       const response = await fetch(url, options);
       const data = await response.json();
       if (!response.ok) {
-              const errorMessage = await response.json();
-              toast({
-                title: 'Eroror',
-                description:  errorMessage || 'An unexpected error occurred.',
-                variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
-              });
-            } 
+        const errorMessage = await response.json();
+        toast({
+          title: 'Eroror',
+          description: errorMessage || 'An unexpected error occurred.',
+          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+        });
+      }
     } catch (error) {
       console.error(error);
     }

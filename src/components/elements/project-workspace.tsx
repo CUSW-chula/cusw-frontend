@@ -39,10 +39,10 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
           const errorMessage = await response.json();
           toast({
             title: 'Eroror',
-            description:  errorMessage || 'An unexpected error occurred.',
+            description: errorMessage || 'An unexpected error occurred.',
             variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
           });
-        } 
+        }
         const data = await response.json();
         setTitle(data.title);
       } catch (error) {
@@ -68,13 +68,13 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
       try {
         const response = await fetch(url, options);
         if (!response.ok) {
-                const errorMessage = await response.json();
-                toast({
-                  title: 'Eroror',
-                  description:  errorMessage || 'An unexpected error occurred.',
-                  variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
-                });
-              } 
+          const errorMessage = await response.json();
+          toast({
+            title: 'Eroror',
+            description: errorMessage || 'An unexpected error occurred.',
+            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          });
+        }
         const data = await response.json();
         console.log('Title updated successfully:', data);
       } catch (error) {

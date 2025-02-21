@@ -16,6 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import BASE_URL, { BASE_SOCKET, type ProjectOverviewProps } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { Badge } from '@/components/ui/badge';
+import { toast } from '@/hooks/use-toast';
 
 interface Tags {
   id: string;
@@ -49,6 +50,14 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
 
       try {
         const response = await fetch(url, options);
+        if (!response.ok) {
+          const errorMessage = await response.json();
+          toast({
+            title: 'Eroror',
+            description:  errorMessage || 'An unexpected error occurred.',
+            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          });
+        } 
         const data = await response.json();
         setStatuses(data);
       } catch (error) {

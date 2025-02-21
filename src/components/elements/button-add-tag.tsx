@@ -144,15 +144,15 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
 
     try {
       const response = await fetch(url, options);
-      if (!response.ok) {
-        const errorMessage = await response.json();
-        // throw new Error("Failed to assign tag");
-        toast({
-          title: 'Eroror',
-          description:  errorMessage || 'An unexpected error occurred.',
-          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
-        });
-      } 
+       if (!response.ok) {
+          const errorMessage = await response.json();
+          // throw new Error("Failed to assign tag");
+          toast({
+            title: 'Eroror',
+            description:  errorMessage || 'An unexpected error occurred.',
+            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          });
+        } 
       // Update local state to remove the deleted tag
       setSelectedTags((prev) => prev.filter((tag) => tag.id !== value));
     } catch (error) {

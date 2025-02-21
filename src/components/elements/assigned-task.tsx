@@ -56,10 +56,10 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
         // throw new Error("Failed to assign tag");
         toast({
           title: 'Eroror',
-          description:  errorMessage || 'An unexpected error occurred.',
+          description: errorMessage || 'An unexpected error occurred.',
           variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
         });
-      } 
+      }
       const userList = await usersData.json();
       setUsersList(userList);
     };
@@ -123,10 +123,10 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
           // throw new Error("Failed to assign tag");
           toast({
             title: 'Eroror',
-            description:  errorMessage || 'An unexpected error occurred.',
+            description: errorMessage || 'An unexpected error occurred.',
             variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
           });
-        } 
+        }
       } catch (error) {
         console.error(error);
       }

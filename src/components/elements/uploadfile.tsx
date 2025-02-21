@@ -96,13 +96,13 @@ const Uploadfile = ({ task }: { task: TaskProps }) => {
       const response = await fetch(url, options);
       await response.json();
       if (!response.ok) {
-              const errorMessage = await response.json();
-              toast({
-                title: 'Eroror',
-                description:  errorMessage || 'An unexpected error occurred.',
-                variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
-              });
-            } 
+        const errorMessage = await response.json();
+        toast({
+          title: 'Eroror',
+          description: errorMessage || 'An unexpected error occurred.',
+          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+        });
+      }
     } catch (error) {
       console.error(error);
     }
@@ -131,13 +131,13 @@ const handleDelete = async (id: string, auth: string) => {
   try {
     const response = await fetch(url, options);
     if (!response.ok) {
-            const errorMessage = await response.json();
-            toast({
-              title: 'Eroror',
-              description:  errorMessage || 'An unexpected error occurred.',
-              variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
-            });
-          } 
+      const errorMessage = await response.json();
+      toast({
+        title: 'Eroror',
+        description: errorMessage || 'An unexpected error occurred.',
+        variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+      });
+    }
     await response.json();
     // setFileList((prevFiles) => prevFiles.filter((file) => file.id !== id));
   } catch (error) {
@@ -153,13 +153,13 @@ async function getName(authorId: string, auth: string) {
       },
     });
     if (!response.ok) {
-            const errorMessage = await response.json();
-            toast({
-              title: 'Eroror',
-              description:  errorMessage || 'An unexpected error occurred.',
-              variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
-            });
-          } 
+      const errorMessage = await response.json();
+      toast({
+        title: 'Eroror',
+        description: errorMessage || 'An unexpected error occurred.',
+        variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+      });
+    }
     const data = await response.json();
     return data.name;
   } catch (error) {

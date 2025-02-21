@@ -124,10 +124,10 @@ const Subtask = ({ task }: { task: TaskProps }) => {
         const errorMessage = await response.json();
         toast({
           title: 'Eroror',
-          description:  errorMessage || 'An unexpected error occurred.',
+          description: errorMessage || 'An unexpected error occurred.',
           variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
         });
-      } 
+      }
 
       const data = await response.json();
 
@@ -150,14 +150,14 @@ const Subtask = ({ task }: { task: TaskProps }) => {
         },
       });
 
-    if (!response.ok) {
-            const errorMessage = await response.json();
-            toast({
-              title: 'Eroror',
-              description:  errorMessage || 'An unexpected error occurred.',
-              variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
-            });
-          } 
+      if (!response.ok) {
+        const errorMessage = await response.json();
+        toast({
+          title: 'Eroror',
+          description: errorMessage || 'An unexpected error occurred.',
+          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+        });
+      }
 
       // Update the subtasks array by removing the deleted subtask
       setSubtasks((prevSubtasks) => prevSubtasks.filter((task) => task.id !== latestSubtask.id));
@@ -190,14 +190,14 @@ const Subtask = ({ task }: { task: TaskProps }) => {
         }),
       });
 
-    if (!response.ok) {
-            const errorMessage = await response.json();
-            toast({
-              title: 'Eroror',
-              description:  errorMessage || 'An unexpected error occurred.',
-              variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
-            });
-          } 
+      if (!response.ok) {
+        const errorMessage = await response.json();
+        toast({
+          title: 'Eroror',
+          description: errorMessage || 'An unexpected error occurred.',
+          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+        });
+      }
 
       const data = await response.json();
       console.log('Subtask updated:', data);

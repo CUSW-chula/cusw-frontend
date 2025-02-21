@@ -53,10 +53,10 @@ const Emoji = ({ task }: { task: TaskProps }) => {
         const errorMessage = await response.json();
         toast({
           title: 'Eroror',
-          description:  errorMessage || 'An unexpected error occurred.',
+          description: errorMessage || 'An unexpected error occurred.',
           variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
         });
-      } 
+      }
       const data = await response.json();
       return data.name;
     } catch (error) {
@@ -133,13 +133,13 @@ const Emoji = ({ task }: { task: TaskProps }) => {
       headers: { Authorization: auth },
     });
     if (!checkResponse.ok) {
-            const errorMessage = await checkResponse.json();
-            toast({
-              title: 'Eroror',
-              description:  errorMessage || 'An unexpected error occurred.',
-              variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
-            });
-          } 
+      const errorMessage = await checkResponse.json();
+      toast({
+        title: 'Eroror',
+        description: errorMessage || 'An unexpected error occurred.',
+        variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+      });
+    }
 
     const isEmojiAssigned = await checkResponse.json();
     const options = {
@@ -156,13 +156,13 @@ const Emoji = ({ task }: { task: TaskProps }) => {
       const response = await fetch(url, options);
       const data = await response.json();
       if (!response.ok) {
-              const errorMessage = await response.json();
-              toast({
-                title: 'Eroror',
-                description:  errorMessage || 'An unexpected error occurred.',
-                variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
-              });
-            } 
+        const errorMessage = await response.json();
+        toast({
+          title: 'Eroror',
+          description: errorMessage || 'An unexpected error occurred.',
+          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+        });
+      }
     } catch (error) {
       console.error(isEmojiAssigned ? 'Error updating emoji:' : 'Error assigning emoji:', error);
     }

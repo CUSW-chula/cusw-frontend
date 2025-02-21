@@ -25,10 +25,10 @@ const BackButton = ({ task }: { task: TaskProps }) => {
         // throw new Error("Failed to assign tag");
         toast({
           title: 'Eroror',
-          description:  errorMessage || 'An unexpected error occurred.',
+          description: errorMessage || 'An unexpected error occurred.',
           variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
         });
-      } 
+      }
 
       if (!response.headers.get('content-type')?.includes('application/json')) {
         const projectId = await response.text();

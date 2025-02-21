@@ -32,14 +32,13 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           const parsedData = parseJsonValues(project.tasks);
           setTasks(parsedData);
           setShowTasks(parsedData);
-        }else{
-            const errorMessage = await data.json();
-            toast({
-              title: 'Eroror',
-              description:  errorMessage || 'An unexpected error occurred.',
-              variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
-            });
-         
+        } else {
+          const errorMessage = await data.json();
+          toast({
+            title: 'Eroror',
+            description: errorMessage || 'An unexpected error occurred.',
+            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          });
         }
       } catch (error) {
         console.error(error);
@@ -58,13 +57,13 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       try {
         const response = await fetch(url, options);
         if (!response.ok) {
-                const errorMessage = await response.json();
-                toast({
-                  title: 'Eroror',
-                  description:  errorMessage || 'An unexpected error occurred.',
-                  variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
-                });
-              } 
+          const errorMessage = await response.json();
+          toast({
+            title: 'Eroror',
+            description: errorMessage || 'An unexpected error occurred.',
+            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          });
+        }
         const data = (await response.json()) as TagProps[];
         setAllTags(data);
       } catch (error) {
