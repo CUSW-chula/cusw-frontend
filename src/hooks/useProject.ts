@@ -1,5 +1,5 @@
 import { assignProjectTag, createProject } from '@/service/projectService';
-import { createSingleTask, createTasksFromTemplate } from '@/service/taskService';
+import { addTaskBudget, createSingleTask, createTasksFromTemplate } from '@/service/taskService';
 import type { FormInput } from '@/app/types/createProjectType';
 import { useRouter } from 'next/navigation';
 import { toast } from './use-toast';
@@ -13,9 +13,10 @@ export const useCreateProject = (inputs: FormInput, BASE_URL: string) => {
         console.error('Project ID not found', projectRes);
         return;
       }
-      if (inputs.taskTitle && typeCreation === 'newTaskForm')
-        await createSingleTask(projectRes.id, inputs, BASE_URL);
-      else if (typeCreation === 'newTaskwithTemplate')
+      if (inputs.taskTitle && typeCreation === 'newTaskForm') {
+        const task = await createSingleTask(projectRes.id, inputs, BASE_URL);
+        await addTaskBudget(task.id, inputs);
+      } else if (typeCreation === 'newTaskwithTemplate')
         await createTasksFromTemplate(projectRes.id, inputs, BASE_URL);
       if (inputs.projectTag) await assignProjectTag(projectRes.id, inputs, BASE_URL);
 
