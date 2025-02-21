@@ -1,14 +1,15 @@
 import { fetchData } from '@/service/fetchService';
 import { fetchTemplate } from './templateService';
 import type { FormInput } from '@/app/types/createProjectType';
+import BASE_URL from '@/lib/shared';
 
 export const createSingleTask = async (projectId: string, inputs: FormInput, BASE_URL: string) => {
   const taskPayload = {
     title: inputs.taskTitle,
     description: inputs.taskDescription ?? '',
-    budget: inputs.taskBudget ?? 0,
-    advance: inputs.taskAdvance ?? 0,
-    expense: inputs.taskExpense ?? 0,
+    budget: 0,
+    advance: 0,
+    expense: 0,
     status: 'Unassigned',
     parentTaskId: '',
     projectId: projectId,
@@ -16,7 +17,7 @@ export const createSingleTask = async (projectId: string, inputs: FormInput, BAS
     endDate: null,
   };
 
-  await fetchData(`${BASE_URL}/v2/tasks/`, 'POST', taskPayload, 'Error creating task');
+  return await fetchData(`${BASE_URL}/v2/tasks/`, 'POST', taskPayload, 'Error creating task');
 };
 
 export const createTasksFromTemplate = async (
@@ -39,4 +40,15 @@ export const createTasksFromTemplate = async (
   } catch (error) {
     console.error('Error fetching or posting template:', error);
   }
+};
+
+export const addTaskBudget = async (taskId: string, inputs: FormInput) => {
+  const payload = {
+    taskID: taskId,
+    budget: inputs.taskBudget,
+    advance: inputs.taskAdvance,
+    expense: inputs.taskExpense,
+  };
+
+  await fetchData(`${BASE_URL}/v2/tasks/money/`, 'POST', payload, 'Error adding task money');
 };
