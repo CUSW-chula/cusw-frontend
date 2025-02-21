@@ -54,7 +54,6 @@ const Emoji = ({ task }: { task: TaskProps }) => {
       const data = await response.json();
       return data.name;
     } catch (error) {
-      console.error('Failed to fetch user name:', authorId);
       return 'Unknown';
     }
   }
