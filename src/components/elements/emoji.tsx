@@ -118,9 +118,9 @@ const Emoji = ({ task }: { task: TaskProps }) => {
       return decoded;
     };
     const userData = getUserDataFromCookie();
-    const url = `${BASE_URL}/v1/tasks/emoji`;
+    const url = `${BASE_URL}/v2/tasks/emoji`;
 
-    const checkResponse = await fetch(`${BASE_URL}/v1/tasks/emoji/${taskId}/${userData.id}`, {
+    const checkResponse = await fetch(`${BASE_URL}/v2/tasks/emoji/${taskId}/${userData.id}`, {
       headers: { Authorization: auth },
     });
 
