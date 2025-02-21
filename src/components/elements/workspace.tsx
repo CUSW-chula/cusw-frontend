@@ -28,7 +28,7 @@ interface Description {
 }
 
 const Workspace = ({ workspace }: Workspace) => {
-  const [Title, setTitle] = useState<string>();
+  const [Title, setTitle] = useState<string>('');
   const [fileList, setFileList] = useState<Files[]>([]);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
