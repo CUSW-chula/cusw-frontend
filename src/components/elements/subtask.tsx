@@ -121,7 +121,7 @@ const Subtask = ({ task }: { task: TaskProps }) => {
       });
 
       if (!response.ok) {
-        const errorMessage = await response.json();
+        const errorMessage = await response.text();
         toast({
           title: 'Error',
           description: errorMessage || 'An unexpected error occurred.',
@@ -151,7 +151,7 @@ const Subtask = ({ task }: { task: TaskProps }) => {
       });
 
       if (!response.ok) {
-        const errorMessage = await response.json();
+        const errorMessage = await response.text();
         toast({
           title: 'Error',
           description: errorMessage || 'An unexpected error occurred.',
@@ -191,7 +191,7 @@ const Subtask = ({ task }: { task: TaskProps }) => {
       });
 
       if (!response.ok) {
-        const errorMessage = await response.json();
+        const errorMessage = await response.text();
         toast({
           title: 'Error',
           description: errorMessage || 'An unexpected error occurred.',

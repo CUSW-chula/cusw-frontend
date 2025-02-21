@@ -21,6 +21,7 @@ import BASE_URL, {
 } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { jwtDecode, type JwtPayload } from 'jwt-decode';
+import { toast } from '@/hooks/use-toast';
 
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
@@ -55,6 +56,15 @@ function Document({ project_id }: ProjectOverviewProps) {
             Authorization: auth,
           },
         });
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          // throw new Error("Failed to assign tag");
+          toast({
+            title: 'Error',
+            description: errorMessage || 'An unexpected error occurred.',
+            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          });
+        }
         const data = await response.json();
         setDescription(data.description);
         const blocks = await editor.tryParseHTMLToBlocks(data.description);
@@ -81,7 +91,15 @@ function Document({ project_id }: ProjectOverviewProps) {
 
       try {
         const response = await fetch(url, options);
-        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          // throw new Error("Failed to assign tag");
+          toast({
+            title: 'Error',
+            description: errorMessage || 'An unexpected error occurred.',
+            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          });
+        }
         const data = await response.json();
         console.log('Description updated successfully:', data);
       } catch (error) {

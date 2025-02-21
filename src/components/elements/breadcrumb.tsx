@@ -12,6 +12,7 @@ import { getCookie } from 'cookies-next';
 import React from 'react';
 import { useEffect, useState } from 'react';
 import type { TaskProps } from '@/app/types/types';
+import { toast } from '@/hooks/use-toast';
 
 export function BreadcrumbComponent({ task }: { task: TaskProps }) {
   interface Project {
@@ -32,7 +33,13 @@ export function BreadcrumbComponent({ task }: { task: TaskProps }) {
           },
         });
         if (!response.ok) {
-          throw new Error(`Error: ${response.statusText}`);
+          const errorMessage = await response.text();
+          // throw new Error("Failed to assign tag");
+          toast({
+            title: 'Error',
+            description: errorMessage || 'An unexpected error occurred.',
+            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          });
         }
         const data = await response.json();
         setTasks(data);
@@ -45,7 +52,13 @@ export function BreadcrumbComponent({ task }: { task: TaskProps }) {
             },
           });
           if (!projectResponse.ok) {
-            throw new Error(`Error: ${projectResponse.statusText}`);
+            const errorMessage = await projectResponse.text();
+            // throw new Error("Failed to assign tag");
+            toast({
+              title: 'Error',
+              description: errorMessage || 'An unexpected error occurred.',
+              variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+            });
           }
           const projectData = await projectResponse.json();
           setProject(projectData);

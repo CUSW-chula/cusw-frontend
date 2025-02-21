@@ -52,7 +52,7 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
         },
       });
       if (!usersData.ok) {
-        const errorMessage = await usersData.json();
+        const errorMessage = await usersData.text();
         // throw new Error("Failed to assign tag");
         toast({
           title: 'Error',
@@ -121,7 +121,7 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
       try {
         const response = await fetch(url, options);
         if (!response.ok) {
-          const errorMessage = await response.json();
+          const errorMessage = await response.text();
           toast({
             title: 'Error',
             description: errorMessage || 'An unexpected error occurred.',

@@ -33,7 +33,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           setTasks(parsedData);
           setShowTasks(parsedData);
         } else {
-          const errorMessage = await data.json();
+          const errorMessage = await data.text();
           toast({
             title: 'Error',
             description: errorMessage || 'An unexpected error occurred.',
@@ -57,7 +57,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       try {
         const response = await fetch(url, options);
         if (!response.ok) {
-          const errorMessage = await response.json();
+          const errorMessage = await response.text();
           toast({
             title: 'Error',
             description: errorMessage || 'An unexpected error occurred.',

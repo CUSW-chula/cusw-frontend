@@ -49,7 +49,7 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
       try {
         const response = await fetch(url, options);
         if (!response.ok) {
-          const errorMessage = await response.json();
+          const errorMessage = await response.text();
           // throw new Error("Failed to assign tag");
           toast({
             title: 'Error',
@@ -109,7 +109,7 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
 
       try {
         const response = await fetch(url, options);
-        const errorMessage = await response.json();
+        const errorMessage = await response.text();
         // เช็คว่าคำขอสำเร็จหรือไม่
         if (response.ok) {
           // throw new Error("Failed to assign tag");
@@ -144,7 +144,7 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
     try {
       const response = await fetch(url, options);
       if (!response.ok) {
-        const errorMessage = await response.json();
+        const errorMessage = await response.text();
         // throw new Error("Failed to assign tag");
         toast({
           title: 'Error',

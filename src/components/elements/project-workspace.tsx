@@ -36,7 +36,7 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
           },
         });
         if (!response.ok) {
-          const errorMessage = await response.json();
+          const errorMessage = await response.text();
           toast({
             title: 'Error',
             description: errorMessage || 'An unexpected error occurred.',
@@ -68,7 +68,7 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
       try {
         const response = await fetch(url, options);
         if (!response.ok) {
-          const errorMessage = await response.json();
+          const errorMessage = await response.text();
           toast({
             title: 'Error',
             description: errorMessage || 'An unexpected error occurred.',

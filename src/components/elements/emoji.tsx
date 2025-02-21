@@ -49,14 +49,7 @@ const Emoji = ({ task }: { task: TaskProps }) => {
       const response = await fetch(`${BASE_URL}/v1/users/${authorId}`, {
         headers: { Authorization: auth },
       });
-      if (!response.ok) {
-        const errorMessage = await response.json();
-        toast({
-          title: 'Error',
-          description: errorMessage || 'An unexpected error occurred.',
-          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
-        });
-      }
+
       const data = await response.json();
       return data.name;
     } catch (error) {
@@ -133,7 +126,7 @@ const Emoji = ({ task }: { task: TaskProps }) => {
       headers: { Authorization: auth },
     });
     if (!checkResponse.ok) {
-      const errorMessage = await checkResponse.json();
+      const errorMessage = await checkResponse.text();
       toast({
         title: 'Error',
         description: errorMessage || 'An unexpected error occurred.',
@@ -156,7 +149,7 @@ const Emoji = ({ task }: { task: TaskProps }) => {
       const response = await fetch(url, options);
       const data = await response.json();
       if (!response.ok) {
-        const errorMessage = await response.json();
+        const errorMessage = await response.text();
         toast({
           title: 'Error',
           description: errorMessage || 'An unexpected error occurred.',

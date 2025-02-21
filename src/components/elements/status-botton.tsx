@@ -87,7 +87,7 @@ export function StatusButton({ task }: { task: TaskProps }) {
       const response = await fetch(url, options);
       const data = await response.json();
       if (!response.ok) {
-        const errorMessage = await response.json();
+        const errorMessage = await response.text();
         toast({
           title: 'Error',
           description: errorMessage || 'An unexpected error occurred.',

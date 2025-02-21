@@ -96,7 +96,7 @@ const Uploadfile = ({ task }: { task: TaskProps }) => {
       const response = await fetch(url, options);
       await response.json();
       if (!response.ok) {
-        const errorMessage = await response.json();
+        const errorMessage = await response.text();
         toast({
           title: 'Error',
           description: errorMessage || 'An unexpected error occurred.',
@@ -131,7 +131,7 @@ const handleDelete = async (id: string, auth: string) => {
   try {
     const response = await fetch(url, options);
     if (!response.ok) {
-      const errorMessage = await response.json();
+      const errorMessage = await response.text();
       toast({
         title: 'Error',
         description: errorMessage || 'An unexpected error occurred.',
@@ -153,7 +153,7 @@ async function getName(authorId: string, auth: string) {
       },
     });
     if (!response.ok) {
-      const errorMessage = await response.json();
+      const errorMessage = await response.text();
       toast({
         title: 'Error',
         description: errorMessage || 'An unexpected error occurred.',

@@ -135,7 +135,7 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
       const response = await fetch(url, options);
       const data = await response.json();
       if (!response.ok) {
-        const errorMessage = await response.json();
+        const errorMessage = await response.text();
         toast({
           title: 'Error',
           description: errorMessage || 'An unexpected error occurred.',
@@ -310,7 +310,7 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
       const response = await fetch(url, options);
       const data = await response.json();
       if (!response.ok) {
-        const errorMessage = await response.json();
+        const errorMessage = await response.text();
         toast({
           title: 'Error',
           description: errorMessage || 'An unexpected error occurred.',

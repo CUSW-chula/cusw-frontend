@@ -40,7 +40,7 @@ export const ProjectList = () => {
       });
 
       if (!response.ok) {
-        const errorMessage = await response.json();
+        const errorMessage = await response.text();
         toast({
           title: 'Error',
           description: errorMessage || 'An unexpected error occurred.',
@@ -160,7 +160,7 @@ export const ProjectList = () => {
       headers: { Authorization: auth },
     });
     if (!response.ok) {
-      const errorMessage = await response.json();
+      const errorMessage = await response.text();
       toast({
         title: 'Error',
         description: errorMessage || 'An unexpected error occurred.',

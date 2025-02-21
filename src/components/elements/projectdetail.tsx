@@ -46,7 +46,7 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
     try {
       const response = await fetch(url, options);
       if (!response.ok) {
-        const errorMessage = await response.json();
+        const errorMessage = await response.text();
         toast({
           title: 'Error',
           description: errorMessage || 'An unexpected error occurred.',

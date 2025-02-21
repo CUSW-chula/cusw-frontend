@@ -51,7 +51,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
       try {
         const response = await fetch(url, options);
         if (!response.ok) {
-          const errorMessage = await response.json();
+          const errorMessage = await response.text();
           toast({
             title: 'Error',
             description: errorMessage || 'An unexpected error occurred.',
@@ -76,6 +76,15 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
 
       try {
         const response = await fetch(url, options);
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          // throw new Error("Failed to assign tag");
+          toast({
+            title: 'Error',
+            description: errorMessage || 'An unexpected error occurred.',
+            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          });
+        }
         const data = await response.json();
         console.log('data:', data.tags);
         setSelectedTags(data.tags);
@@ -148,7 +157,16 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
     };
 
     try {
-      await fetch(url, options);
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        // throw new Error("Failed to assign tag");
+        toast({
+          title: 'Error',
+          description: errorMessage || 'An unexpected error occurred.',
+          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+        });
+      }
       // Update local state to remove the deleted tag
       setSelectedTags((prev) => prev.filter((tag) => tag.id !== value));
     } catch (error) {

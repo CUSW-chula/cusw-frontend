@@ -21,7 +21,7 @@ const BackButton = ({ task }: { task: TaskProps }) => {
         headers: { Authorization: auth },
       });
       if (!response.ok) {
-        const errorMessage = await response.json();
+        const errorMessage = await response.text();
         // throw new Error("Failed to assign tag");
         toast({
           title: 'Error',

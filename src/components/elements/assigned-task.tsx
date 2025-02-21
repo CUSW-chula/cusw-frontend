@@ -52,7 +52,7 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
         },
       });
       if (!usersData.ok) {
-        const errorMessage = await usersData.json();
+        const errorMessage = await usersData.text();
         // throw new Error("Failed to assign tag");
         toast({
           title: 'Error',
@@ -119,7 +119,7 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
       try {
         const response = await fetch(url, options);
         if (!response.ok) {
-          const errorMessage = await response.json();
+          const errorMessage = await response.text();
           // throw new Error("Failed to assign tag");
           toast({
             title: 'Error',

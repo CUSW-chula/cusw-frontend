@@ -141,7 +141,7 @@ function CommentBox({
         headers: { 'Content-Type': 'application/json', Authorization: auth },
       });
       if (!response.ok) {
-        const errorMessage = await response.json();
+        const errorMessage = await response.text();
         toast({
           title: 'Error',
           description: errorMessage || 'An unexpected error occurred.',
@@ -161,7 +161,7 @@ function CommentBox({
         body: JSON.stringify({ content: newContent }),
       });
       if (!response.ok) {
-        const errorMessage = await response.json();
+        const errorMessage = await response.text();
         toast({
           title: 'Error',
           description: errorMessage || 'An unexpected error occurred.',
@@ -314,7 +314,7 @@ const Comment = ({ task }: { task: TaskProps }) => {
         },
       });
       if (!commentData.ok) {
-        const errorMessage = await commentData.json();
+        const errorMessage = await commentData.text();
         toast({
           title: 'Error',
           description: errorMessage || 'An unexpected error occurred.',
@@ -391,7 +391,7 @@ const Comment = ({ task }: { task: TaskProps }) => {
       }),
     });
     if (!response.ok) {
-      const errorMessage = await response.json();
+      const errorMessage = await response.text();
       toast({
         title: 'Error',
         description: errorMessage || 'An unexpected error occurred.',

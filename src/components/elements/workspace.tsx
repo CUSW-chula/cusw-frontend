@@ -72,7 +72,7 @@ const Workspace = ({ workspace }: Workspace) => {
           },
         });
         if (!response.ok) {
-          const errorMessage = await response.json();
+          const errorMessage = await response.text();
           toast({
             title: 'Error',
             description: errorMessage || 'An unexpected error occurred.',
@@ -135,7 +135,7 @@ const Workspace = ({ workspace }: Workspace) => {
       try {
         const response = await fetch(url, options);
         if (!response.ok) {
-          const errorDetails = await response.json();
+          const errorDetails = await response.text();
           throw new Error(
             `Error: ${response.status} - ${response.statusText}, Details: ${JSON.stringify(errorDetails)}`,
           );
