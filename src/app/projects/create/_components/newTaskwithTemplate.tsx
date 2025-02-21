@@ -41,7 +41,7 @@ export const NewTaskwithTemplate: React.FC<NewTaskwithTemplateProps> = ({
           </Button>
         ))}
       </div>
-      <div className="flex flex-col overflow-auto h-28 w-full">Client template</div>
+      {/* <div className="flex flex-col overflow-auto h-28 w-full">Client template</div> */}
       <div className="h-auto w-auto absolute flex gap-3 bottom-6 right-8">
         <Button
           type="submit"

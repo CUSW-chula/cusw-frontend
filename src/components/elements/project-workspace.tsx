@@ -76,7 +76,6 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
           });
         }
         const data = await response.json();
-        console.log('Title updated successfully:', data);
       } catch (error) {
         console.error('Error updating Title:', error);
       }

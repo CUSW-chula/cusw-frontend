@@ -101,7 +101,6 @@ function Document({ project_id }: ProjectOverviewProps) {
           });
         }
         const data = await response.json();
-        console.log('Description updated successfully:', data);
       } catch (error) {
         console.error('Error updating Description:', error);
       }

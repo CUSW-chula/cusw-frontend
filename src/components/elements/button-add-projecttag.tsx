@@ -86,7 +86,6 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
           });
         }
         const data = await response.json();
-        console.log('data:', data.tags);
         setSelectedTags(data.tags);
       } catch (error) {
         console.error(error);
@@ -98,13 +97,9 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
 
     const ws = new WebSocket(BASE_SOCKET);
 
-    ws.onopen = () => {
-      console.log('Connected to WebSocket');
-    };
+    ws.onopen = () => {};
 
     ws.onmessage = (event) => {
-      console.log('Message received:', event.data);
-
       try {
         const socketEvent = JSON.parse(event.data);
         const eventName = socketEvent.eventName;
@@ -119,9 +114,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
       }
     };
 
-    ws.onclose = () => {
-      console.log('WebSocket connection closed');
-    };
+    ws.onclose = () => {};
 
     return () => {
       ws.close();

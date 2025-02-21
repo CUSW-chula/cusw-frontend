@@ -55,10 +55,10 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
     if (!dateRange.from) return 'Pick a date';
 
     try {
-      const fromFormatted = BuddhistGregor(dateRange.from);
+      const fromFormatted = ChristGregor(dateRange.from);
       if (!dateRange.to) return fromFormatted;
 
-      const toFormatted = BuddhistGregor(dateRange.to);
+      const toFormatted = ChristGregor(dateRange.to);
       return `${fromFormatted} - ${toFormatted}`;
     } catch (error) {
       console.error('Error formatting date:', error);
@@ -76,8 +76,9 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
         const to = task.endDate ? new Date(task.endDate) : undefined;
 
         // Validate dates before setting
-        if (from && Number.isNaN(from.getTime())) throw new Error('Invalid start date');
-        if (to && Number.isNaN(to.getTime())) throw new Error('Invalid end date');
+        // if (from && Number.isNaN(from.getTime())) throw new Error('Invalid start date');
+        // if (to && Number.isNaN(to.getTime())) throw new Error('Invalid end date');
+        // ** Comment Since date is nullable variable
 
         const newDateRange = { from, to };
         setDate(newDateRange);
@@ -149,15 +150,6 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
     } catch (error) {
       console.error(error);
     }
-
-    //Show data in range
-    console.log('range from selected date:', range);
-  };
-
-  const formatBuddhistCaption = (date: Date) => {
-    const year = date.getFullYear() + 543; // Convert to Buddhist year
-    const month = date.getMonth() + 1; // Months are 0-indexed
-    return `${month} ${year}`; // Format as 'Month Year'
   };
 
   return (
@@ -189,13 +181,6 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
             selected={date}
             onSelect={handleCalendarSelect}
             numberOfMonths={2}
-            formatters={{
-              formatCaption: (date: Date) => {
-                const engMonth = date.toLocaleString('en-US', { month: 'long' });
-                const buddhistYear = date.getFullYear() + 543;
-                return `${engMonth} ${buddhistYear}`;
-              },
-            }}
           />
         </PopoverContent>
       </Popover>
@@ -226,14 +211,15 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
     return newValue;
   }, []);
 
-  const formatDate = React.useCallback((dateRange: DateRange): string => {
+  const formatDate = React.useCallback((dateRange: DateRange | undefined): string => {
+    if (dateRange === undefined) return 'Pick a date';
     if (!dateRange.from) return 'Pick a date';
 
     try {
-      const fromFormatted = BuddhistGregor(dateRange.from);
+      const fromFormatted = ChristGregor(dateRange.from);
       if (!dateRange.to) return fromFormatted;
 
-      const toFormatted = BuddhistGregor(dateRange.to);
+      const toFormatted = ChristGregor(dateRange.to);
       return `${fromFormatted} - ${toFormatted}`;
     } catch (error) {
       console.error('Error formatting date:', error);
@@ -251,8 +237,8 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
         const to = project.endDate ? new Date(project.endDate) : undefined;
 
         // Validate dates before setting
-        if (from && Number.isNaN(from.getTime())) throw new Error('Invalid start date');
-        if (to && Number.isNaN(to.getTime())) throw new Error('Invalid end date');
+        // if (from && Number.isNaN(from.getTime())) throw new Error('Invalid start date');
+        // if (to && Number.isNaN(to.getTime())) throw new Error('Invalid end date');
 
         const newDateRange = { from, to };
         setDate(newDateRange);
@@ -319,14 +305,11 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
       }
       if (data) {
         setDate(range);
-        setFormattedDate(formatDate(range ?? { from: undefined, to: undefined }));
+        setFormattedDate(formatDate(range));
       }
     } catch (error) {
       console.error(error);
     }
-
-    //Show data in range
-    console.log('range from selected date:', range);
   };
 
   return (
@@ -358,14 +341,6 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
             selected={date}
             onSelect={handleCalendarSelect}
             numberOfMonths={2}
-            formatters={{
-              // Format Calendar header to buddhist year
-              formatCaption: (date: Date) => {
-                const engMonth = date.toLocaleString('en-US', { month: 'long' });
-                const buddhistYear = date.getFullYear() + 543;
-                return `${engMonth} ${buddhistYear}`;
-              },
-            }}
           />
         </PopoverContent>
       </Popover>
@@ -374,16 +349,17 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
 }
 
 // Format date to buddhist gregory's calendar
-function BuddhistGregor(date: Date | null): string {
+function ChristGregor(date: Date | null): string {
   const formatDate = (date: Date | null): string => {
     // Check if date is null or not a valid Date object
-    if (!date || !(date instanceof Date) || Number.isNaN(date.getTime())) {
+    const formatted = date ? new Date(date) : null;
+    if (!formatted) {
       return '';
     }
 
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear() + 543; // Add to buddhist year
+    const day = String(formatted.getDate()).padStart(2, '0');
+    const month = String(formatted.getMonth() + 1).padStart(2, '0');
+    const year = formatted.getFullYear(); // Add to buddhist year
     return `${day}/${month}/${year}`;
   };
 
@@ -391,16 +367,17 @@ function BuddhistGregor(date: Date | null): string {
 }
 
 // Sending format text for showing in Task Management and Project page.
-function DateText({ date }: { date: DateInterface }) {
+function DateText(date: DateInterface): string {
   const formatDate = (date: DateInterface): string => {
-    console.log('Type of date:', typeof date, date);
     // Return an empty string if both dates are not provided
     if (!date) return '';
 
-    const format = (date: Date): string => {
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const year = date.getFullYear() + 543;
+    const format = (date: Date | null): string => {
+      const formatted = date ? new Date(date) : null;
+      if (!(formatted instanceof Date)) return '';
+      const day = String(formatted.getDate()).padStart(2, '0');
+      const month = String(formatted.getMonth() + 1).padStart(2, '0');
+      const year = formatted.getFullYear();
       return `${day}/${month}/${year}`;
     };
 
@@ -409,8 +386,18 @@ function DateText({ date }: { date: DateInterface }) {
     const end = date.endDate ? format(date.endDate) : '';
     return `${start}${start && end ? ' -> ' : ''}${end}`;
   };
-
-  return <div>{formatDate(date)}</div>;
+  return formatDate(date);
 }
+
+// Check if date is valid or not to check on showing format
+// **
+// function isValidDate(date: Date | null): boolean {
+//   if (!date) return false;
+//   const isValid = (date: Date | null): boolean => {
+//     return date instanceof Date && !isNaN(date.getTime()) && date.getFullYear() > 1970;
+//   }
+
+//   return isValid(date);
+// }
 
 export { DatePickerWithRange, DatePickerWithRangeProject, DateText };

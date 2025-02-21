@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Circle, CircleFadingPlus } from 'lucide-react';
+import { Circle } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -16,11 +16,8 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
 import { Profile } from './profile';
-import BASE_URL, { BASE_SOCKET, Task, User, type TaskManageMentProp } from '@/lib/shared';
-import { getCookie } from 'cookies-next';
-import type { TaskProps } from '@/app/types/types';
-import { toast } from '@/hooks/use-toast';
-import { useToast } from '@/hooks/use-toast';
+import BASE_URL, { BASE_SOCKET, type Project } from '@/lib/shared';
+import { useAuth } from '@/hooks/use-auth';
 
 interface UsersInterfaces {
   id: string;
@@ -28,9 +25,8 @@ interface UsersInterfaces {
   email: string;
 }
 
-export function AssignedTaskToMember({ task }: { task: TaskProps }) {
-  const cookie = getCookie('auth');
-  const auth = cookie?.toString() ?? '';
+export function AssignedProjectMember({ project }: { project: Project }) {
+  const auth = useAuth();
   const [open, setOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<UsersInterfaces[]>([]);
   const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
@@ -47,45 +43,25 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
   }, []);
 
   React.useEffect(() => {
-    const fetchAssignAndUsers = async () => {
+    const fetchUsers = async () => {
       const usersData = await fetch(`${BASE_URL}/v2/users`, {
         headers: {
           Authorization: auth,
         },
       });
-      if (!usersData.ok) {
-        const errorMessage = await usersData.text();
-        // throw new Error("Failed to assign tag");
-        toast({
-          title: 'Error',
-          description: errorMessage || 'An unexpected error occurred.',
-          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
-        });
-      }
       const userList = await usersData.json();
       setUsersList(userList);
     };
-
-    fetchAssignAndUsers();
-
-    setSelectedUser(task.members);
+    fetchUsers();
+    setSelectedUser(project.members);
 
     const fetchOwner = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/v2/projects/${task.projectId}`, {
+        const response = await fetch(`${BASE_URL}/v2/projects/${project.id}`, {
           headers: {
             Authorization: auth,
           },
         });
-        if (!response.ok) {
-          const errorMessage = await response.text();
-          // throw new Error("Failed to assign tag");
-          toast({
-            title: 'Error',
-            description: errorMessage || 'An unexpected error occurred.',
-            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
-          });
-        }
         const data = await response.json();
         setOwner(data.owner);
       } catch (error) {
@@ -102,11 +78,11 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
       try {
         const socketEvent = JSON.parse(event.data); // Parse incoming message
         const eventName = socketEvent.eventName;
-        if (eventName === `assigned:${task.id}`) {
+        if (eventName === `assigned:${project.id}`) {
           const data = pareJsonValue(socketEvent.data);
           setSelectedUser((prevList) => (Array.isArray(prevList) ? [...prevList, data] : []));
         }
-        if (eventName === `unassigned:${task.id}`) {
+        if (eventName === `unassigned:${project.id}`) {
           const data = pareJsonValue(socketEvent.data);
           setSelectedUser((prevList) =>
             Array.isArray(prevList) ? prevList.filter((item) => item.id !== data.id) : [],
@@ -122,7 +98,7 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
     return () => {
       ws.close();
     };
-  }, [pareJsonValue, task, auth]);
+  }, [pareJsonValue, auth, project]);
 
   // Handle user selection and unselection
   const handleSelectUser = async (value: string) => {
@@ -130,55 +106,25 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
     if (selected && !owner.some((o) => o.id === selected.id)) {
       const isAlreadySelected = selectedUser.some((user) => user.id === selected.id);
 
-      const url = isAlreadySelected
-        ? `${BASE_URL}/v2/tasks/unassigned` // Unassign user
-        : `${BASE_URL}/v2/tasks/assign`; // Assign user
+      const url = `${BASE_URL}/v2/projects/assign/${project.id}`; // Assign or unassign user
 
       const options = {
         method: isAlreadySelected ? 'DELETE' : 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: JSON.stringify({ taskId: task.id, userId: selected.id }),
+        body: JSON.stringify({ projectId: project.id, userId: selected.id }),
       };
 
       try {
         const response = await fetch(url, options);
-
-        // เช็คว่าคำขอสำเร็จหรือไม่
-        if (response.ok) {
-          // throw new Error("Failed to assign tag");
-          if (options.method === 'POST')
-            toast({
-              title: 'Complete',
-              description: `You assigned "${selected.name}" to this task`,
-              variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
-            });
-          if (options.method === 'DELETE')
-            toast({
-              title: 'Complete',
-              description: `You unassigned "${selected.name}" from this task`,
-              variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
-            });
-        } else {
-          toast({
-            title: 'Error',
-            description: 'You cannot assign task to yourself',
-            variant: 'default', // ใช้สีแดงสำหรับ error
-          });
+        if (!response.ok) {
+          console.log('failed');
         }
       } catch (error) {
         console.error(error);
       }
-    } else {
-      toast({
-        title: 'Error',
-        description: 'You cannot assign task to the project owner',
-        variant: 'default', // ใช้สีแดงสำหรับ error
-      });
     }
     setOpen(false);
   };
-
-  const { toast } = useToast();
 
   return (
     <TooltipProvider>

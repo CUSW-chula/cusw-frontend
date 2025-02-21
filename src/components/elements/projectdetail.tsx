@@ -1,12 +1,9 @@
 'use client';
 import { getCookie } from 'cookies-next';
 import type React from 'react';
-import { use, useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import BASE_URL from '@/lib/shared';
-import type { ProjectOverviewProps } from '@/lib/shared';
-import { Calendar, CrownIcon, Redo2, Tag, Trash2, User, Users } from 'lucide-react';
-import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
+import { Calendar, CrownIcon, Redo2, Tag, Trash2, Users } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +22,7 @@ import { DatePickerWithRangeProject } from './date-feature';
 import type { Project } from '@/lib/shared';
 import { AssignedProjectOwner } from './assigned-projectowner';
 import { toast } from '@/hooks/use-toast';
+import { AssignedProjectMember } from './assigned-projectmember';
 
 interface UsersProps {
   id: string;
@@ -47,12 +45,14 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
       const response = await fetch(url, options);
       if (!response.ok) {
         const errorMessage = await response.text();
+        // throw new Error("Failed to assign tag");
         toast({
           title: 'Error',
           description: errorMessage || 'An unexpected error occurred.',
           variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
         });
       }
+      const data = await response.json();
       router.push('/projects');
     } catch (error) {
       console.error(error);
@@ -199,34 +199,7 @@ const MenuBar = ({ project }: { project: Project }) => {
             Member :{' '}
           </div>
         </div>
-        <TooltipProvider>
-          <div className="flex items-center space-x-2 rounded-md border border-brown h-10 px-4">
-            {member.slice(0, MAX_VISIBLE_MEMBERS).map((user) => (
-              <Tooltip key={user.id}>
-                <TooltipTrigger>
-                  <div className="w-[24px] h-[24px] bg-gray-100 rounded-full border border-[#6b5c56] flex-col justify-center items-center gap-2.5 inline-flex text-center text-[#6b5c56] text-sm font-BaiJamjuree ">
-                    {getInitials(user.name)}
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>{user.name}</TooltipContent>
-              </Tooltip>
-            ))}
-            {member.length > MAX_VISIBLE_MEMBERS && (
-              <Tooltip>
-                <TooltipTrigger>
-                  <div className="w-[24px] h-[24px] bg-gray-100 rounded-xl border border-[#6b5c56] flex-col justify-center items-center gap-2.5 inline-flex text-center text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-3">
-                    +{member.length - MAX_VISIBLE_MEMBERS}
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {member.slice(MAX_VISIBLE_MEMBERS).map((user) => (
-                    <p key={user.id}>{user.name}</p>
-                  ))}
-                </TooltipContent>
-              </Tooltip>
-            )}
-          </div>
-        </TooltipProvider>
+        {project && <AssignedProjectMember project={project} />}
       </div>
       <div aria-label="tag" className="justify-start items-center inline-flex flex-wrap w-full">
         {/* Label Zone */}

@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import StatusButton from './status-botton';
+import StatusButton from './status-button';
 import { AssignedTaskToMember } from './assigned-task';
 import { ButtonAddTags } from './button-add-tag';
 import { Button } from '@/components/ui/button';
@@ -57,12 +57,9 @@ const Subtask = ({ task }: { task: TaskProps }) => {
   useEffect(() => {
     try {
       setSubtasks(task.subtasks ?? []);
-      console.log(task.subtasks);
-      task.subtasks?.map((item) => {
-        console.log(item.endDate);
-      });
+      task.subtasks?.map((item) => {});
     } catch (error) {
-      console.log('Error');
+      console.error('Error');
     }
   }, []);
 
@@ -131,9 +128,6 @@ const Subtask = ({ task }: { task: TaskProps }) => {
 
       const data = await response.json();
 
-      // Update subtasks with the new subtask added to the existing list
-      console.log('New subtask created:', data);
-
       setSubtasks((prevSubtasks) => [...prevSubtasks, data]);
     } catch (error) {
       console.error('Error creating subtask:', error);
@@ -200,7 +194,6 @@ const Subtask = ({ task }: { task: TaskProps }) => {
       }
 
       const data = await response.json();
-      console.log('Subtask updated:', data);
 
       // Update the subtasks array with the new data
       setSubtasks((prevSubtasks) =>

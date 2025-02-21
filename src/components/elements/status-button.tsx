@@ -12,6 +12,7 @@ import { getCookie } from 'cookies-next';
 import { statusSections } from '@/lib/taskUtils';
 import type { TaskProps } from '@/app/types/types';
 import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 const statuses: Status[] = statusSections;
 
@@ -45,17 +46,15 @@ export function StatusButton({ task }: { task: TaskProps }) {
 
     const ws = new WebSocket(BASE_SOCKET);
 
-    ws.onopen = () => console.log('Connected to WebSocket');
+    ws.onopen = () => {};
 
     ws.onmessage = (event) => {
-      console.log('Message received:', event.data);
-
       try {
         const socketEvent = JSON.parse(event.data);
         const eventName = socketEvent.eventName;
         const data = parseJsonValue(socketEvent.data);
 
-        if (eventName === 'status-changed') {
+        if (eventName === `status-changed:${task.id}`) {
           setSelectedStatus(data);
         }
       } catch (error) {
@@ -63,9 +62,7 @@ export function StatusButton({ task }: { task: TaskProps }) {
       }
     };
 
-    ws.onclose = () => {
-      console.log('websocket connection closed');
-    };
+    ws.onclose = () => {};
 
     return () => ws.close();
   }, [setSelectedStatus, parseJsonValue, task]);
@@ -85,12 +82,11 @@ export function StatusButton({ task }: { task: TaskProps }) {
 
     try {
       const response = await fetch(url, options);
-      const data = await response.json();
-      if (!response.ok) {
-        const errorMessage = await response.text();
+      if (response.ok) {
+        // throw new Error("Failed to assign tag");
         toast({
-          title: 'Error',
-          description: errorMessage || 'An unexpected error occurred.',
+          title: 'Complete',
+          description: `You change this task status to "${status.status}"`,
           variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
         });
       }
@@ -98,6 +94,8 @@ export function StatusButton({ task }: { task: TaskProps }) {
       console.error(error);
     }
   };
+
+  const { toast } = useToast();
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

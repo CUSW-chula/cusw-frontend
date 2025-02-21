@@ -52,7 +52,13 @@ function Document({ description }: Description) {
   const task_id = description.id;
 
   useEffect(() => {
-    setDescription(description.description);
+    const replaceBlocks = async () => {
+      const blocks = await editor.tryParseHTMLToBlocks(description.description);
+      editor.replaceBlocks(editor.document, blocks);
+      setDescription(description.description);
+    };
+
+    replaceBlocks();
   }, [description.description]);
 
   useEffect(() => {
@@ -72,13 +78,13 @@ function Document({ description }: Description) {
         const response = await fetch(url, options);
         if (!response.ok) {
           const errorMessage = await response.text();
-          // throw new Error("Failed to assign tag");
           toast({
             title: 'Error',
             description: errorMessage || 'An unexpected error occurred.',
             variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
           });
         }
+        const data = await response.json();
       } catch (error) {
         console.error('Error updating Description:', error);
       }
