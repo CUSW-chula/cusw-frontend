@@ -41,12 +41,6 @@ interface CommentBoxProp {
   authorId: string;
 }
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
-
 function formatDate(date?: Date | string): string {
   if (!date) return ''; // Return an empty string if no date is provided
 
@@ -316,21 +310,24 @@ const Comment = ({ task }: { task: TaskProps }) => {
         const socketEvent = JSON.parse(event.data);
         const eventName = socketEvent.eventName;
         if (eventName.includes('comment')) {
-        const data = parseJsonValue(socketEvent.data);
+          const data = parseJsonValue(socketEvent.data);
 
-        if (eventName === `comment:${task.id}`) {
-          setList((prevList) => [...prevList, data]);
-        } else if (eventName === 'comment-delete') {
-          setList((prevList) =>
-            prevList.map((item) => (item.id === data.id ? { ...item, isDeleted: true } : item)),
-          );
-        } else if (eventName === 'comment-edit') {
-          setList((prevList) =>
-            prevList.map((item) =>
-              item.id === data.id ? { ...item, content: data.content, editTime: new Date() } : item,
-            ),
-          );
-        }}
+          if (eventName === `comment:${task.id}`) {
+            setList((prevList) => [...prevList, data]);
+          } else if (eventName === 'comment-delete') {
+            setList((prevList) =>
+              prevList.map((item) => (item.id === data.id ? { ...item, isDeleted: true } : item)),
+            );
+          } else if (eventName === 'comment-edit') {
+            setList((prevList) =>
+              prevList.map((item) =>
+                item.id === data.id
+                  ? { ...item, content: data.content, editTime: new Date() }
+                  : item,
+              ),
+            );
+          }
+        }
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
       }
