@@ -74,7 +74,7 @@ function Document({ description }: Description) {
           const errorMessage = await response.json();
           // throw new Error("Failed to assign tag");
           toast({
-            title: 'Eroror',
+            title: 'Error',
             description: errorMessage || 'An unexpected error occurred.',
             variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
           });

@@ -53,11 +53,11 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
         if (!response.ok) {
           const errorMessage = await response.json();
           toast({
-            title: 'Eroror',
-            description:  errorMessage || 'An unexpected error occurred.',
+            title: 'Error',
+            description: errorMessage || 'An unexpected error occurred.',
             variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
           });
-        } 
+        }
         const data = await response.json();
         setStatuses(data);
       } catch (error) {

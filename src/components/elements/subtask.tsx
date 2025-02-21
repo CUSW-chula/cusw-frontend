@@ -123,7 +123,7 @@ const Subtask = ({ task }: { task: TaskProps }) => {
       if (!response.ok) {
         const errorMessage = await response.json();
         toast({
-          title: 'Eroror',
+          title: 'Error',
           description: errorMessage || 'An unexpected error occurred.',
           variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
         });
@@ -153,7 +153,7 @@ const Subtask = ({ task }: { task: TaskProps }) => {
       if (!response.ok) {
         const errorMessage = await response.json();
         toast({
-          title: 'Eroror',
+          title: 'Error',
           description: errorMessage || 'An unexpected error occurred.',
           variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
         });
@@ -193,7 +193,7 @@ const Subtask = ({ task }: { task: TaskProps }) => {
       if (!response.ok) {
         const errorMessage = await response.json();
         toast({
-          title: 'Eroror',
+          title: 'Error',
           description: errorMessage || 'An unexpected error occurred.',
           variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
         });

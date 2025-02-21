@@ -52,11 +52,11 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
           const errorMessage = await response.json();
           // throw new Error("Failed to assign tag");
           toast({
-            title: 'Eroror',
-            description:  errorMessage || 'An unexpected error occurred.',
+            title: 'Error',
+            description: errorMessage || 'An unexpected error occurred.',
             variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
           });
-        } 
+        }
         const data = await response.json();
         setStatuses(data);
       } catch (error) {
@@ -112,7 +112,6 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
         const errorMessage = await response.json();
         // เช็คว่าคำขอสำเร็จหรือไม่
         if (response.ok) {
-         
           // throw new Error("Failed to assign tag");
           toast({
             title: 'Tag Added',
@@ -121,8 +120,8 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
           });
         } else {
           toast({
-            title: 'Eroror',
-            description:  errorMessage || 'An unexpected error occurred.',
+            title: 'Error',
+            description: errorMessage || 'An unexpected error occurred.',
             variant: 'destructive', // หรือใช้ 'success' ถ้ามี custom variant
           });
         }
@@ -144,15 +143,15 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
 
     try {
       const response = await fetch(url, options);
-       if (!response.ok) {
-          const errorMessage = await response.json();
-          // throw new Error("Failed to assign tag");
-          toast({
-            title: 'Eroror',
-            description:  errorMessage || 'An unexpected error occurred.',
-            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
-          });
-        } 
+      if (!response.ok) {
+        const errorMessage = await response.json();
+        // throw new Error("Failed to assign tag");
+        toast({
+          title: 'Error',
+          description: errorMessage || 'An unexpected error occurred.',
+          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+        });
+      }
       // Update local state to remove the deleted tag
       setSelectedTags((prev) => prev.filter((tag) => tag.id !== value));
     } catch (error) {
