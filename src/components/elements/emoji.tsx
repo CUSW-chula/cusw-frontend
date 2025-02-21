@@ -45,7 +45,7 @@ const Emoji = ({ task }: { task: TaskProps }) => {
 
   async function getName(authorId: string) {
     try {
-      const response = await fetch(`${BASE_URL}/v1/users/${authorId}`, {
+      const response = await fetch(`${BASE_URL}/v2/users/${authorId}`, {
         headers: { Authorization: auth },
       });
       if (!response.ok) {
@@ -54,7 +54,7 @@ const Emoji = ({ task }: { task: TaskProps }) => {
       const data = await response.json();
       return data.name;
     } catch (error) {
-      console.error('Failed to fetch user name:', error);
+      console.error('Failed to fetch user name:', authorId);
       return 'Unknown';
     }
   }
@@ -85,10 +85,15 @@ const Emoji = ({ task }: { task: TaskProps }) => {
       try {
         const socketEvent = JSON.parse(event.data);
         const newEmoji = pareJsonValue(socketEvent.data);
+        const getUserDataFromCookie = () => {
+          const decoded = jwtDecode<CustomJwtPayload>(auth);
+          return decoded;
+        };
+        const userData = getUserDataFromCookie();
         const updatedEmoji = {
           id: newEmoji.id,
           emoji: newEmoji.emoji,
-          user: { id: newEmoji.userId, email: '', name: await getName(newEmoji.userId) },
+          user: { id: userData.id, email: '', name: await getName(userData.id) },
           taskId: newEmoji.taskId,
         };
 
@@ -100,9 +105,7 @@ const Emoji = ({ task }: { task: TaskProps }) => {
             prevEmoji.id === updatedEmoji.id ? updatedEmoji : prevEmoji,
           );
         });
-      } catch (error) {
-        console.error('Error parsing WebSocket message:', error);
-      }
+      } catch (error) {}
     };
 
     return () => {
@@ -137,9 +140,7 @@ const Emoji = ({ task }: { task: TaskProps }) => {
 
     try {
       await fetch(url, options);
-    } catch (error) {
-      console.error(isEmojiAssigned ? 'Error updating emoji:' : 'Error assigning emoji:', error);
-    }
+    } catch (error) {}
   };
 
   const sortedEmojis = [...emojis].sort((a, b) => b.id.localeCompare(a.id));
