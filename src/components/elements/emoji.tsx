@@ -6,21 +6,16 @@ import { SmilePlus } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import type { EmojiClickData } from 'emoji-picker-react';
 import { getCookie } from 'cookies-next';
-import BASE_URL, { BASE_SOCKET, type Emojis } from '@/lib/shared';
-import { jwtDecode, type JwtPayload } from 'jwt-decode';
+import BASE_URL, { BASE_SOCKET, type User, type Emojis } from '@/lib/shared';
+import { jwtDecode } from 'jwt-decode';
 import type { TaskProps } from '@/app/types/types';
 
 const Picker = dynamic(() => import('emoji-picker-react'), { ssr: true });
 
-interface CustomJwtPayload extends JwtPayload {
-  id: string;
-}
-
 interface EmojiTaskUser {
   id: string;
   emoji: string;
-  userId: string;
-  name: string;
+  user: User;
   taskId: string;
 }
 
@@ -29,6 +24,7 @@ const Emoji = ({ task }: { task: TaskProps }) => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const task_id = task.id;
+  const userid = (jwtDecode(auth) as { id: string }).id;
 
   useEffect(() => {
     setEmojis(task.emojis);
@@ -38,40 +34,15 @@ const Emoji = ({ task }: { task: TaskProps }) => {
     return {
       id: values.id,
       emoji: values.emoji,
-      userId: values.userId,
+      user: values.user,
       taskId: values.taskId,
     };
   }, []);
 
-  async function getName(authorId: string) {
-    try {
-      const response = await fetch(`${BASE_URL}/v2/users/${authorId}`, {
-        headers: { Authorization: auth },
-      });
-      if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`);
-      }
-      const data = await response.json();
-      return data.name;
-    } catch (error) {
-      return 'Unknown';
-    }
-  }
-
-  const EmojiUser = ({ emoji, id, userId }: EmojiTaskUser) => {
-    const [userName, setUserName] = useState<string>('Loading...');
-
-    useEffect(() => {
-      const fetchUserName = async () => {
-        const name = await getName(userId);
-        setUserName(name);
-      };
-      fetchUserName();
-    }, [userId]);
-
+  const EmojiUser = ({ emoji, id, user }: EmojiTaskUser) => {
     return (
       <div key={id} className="flex py-1 justify-between">
-        <p className="body self-center">{userName}</p>
+        <p className="body self-center">{user.name}</p>
         <p className="text-[24px]">{emoji}</p>
       </div>
     );
@@ -84,15 +55,10 @@ const Emoji = ({ task }: { task: TaskProps }) => {
       try {
         const socketEvent = JSON.parse(event.data);
         const newEmoji = pareJsonValue(socketEvent.data);
-        const getUserDataFromCookie = () => {
-          const decoded = jwtDecode<CustomJwtPayload>(auth);
-          return decoded;
-        };
-        const userData = getUserDataFromCookie();
         const updatedEmoji = {
           id: newEmoji.id,
           emoji: newEmoji.emoji,
-          user: { id: userData.id, email: '', name: await getName(userData.id) },
+          user: newEmoji.user,
           taskId: newEmoji.taskId,
         };
 
@@ -115,14 +81,9 @@ const Emoji = ({ task }: { task: TaskProps }) => {
   const handleEmojiActions = async (emojiData: EmojiClickData) => {
     const emoji = emojiData.emoji;
     const taskId = task_id;
-    const getUserDataFromCookie = () => {
-      const decoded = jwtDecode<CustomJwtPayload>(auth);
-      return decoded;
-    };
-    const userData = getUserDataFromCookie();
     const url = `${BASE_URL}/v2/tasks/emoji`;
 
-    const checkResponse = await fetch(`${BASE_URL}/v2/tasks/emoji/${taskId}/${userData.id}`, {
+    const checkResponse = await fetch(`${BASE_URL}/v2/tasks/emoji/${taskId}/${userid}`, {
       headers: { Authorization: auth },
     });
 
@@ -132,7 +93,7 @@ const Emoji = ({ task }: { task: TaskProps }) => {
       headers: { 'Content-Type': 'application/json', Authorization: auth },
       body: JSON.stringify({
         taskId: taskId,
-        userId: userData.id,
+        userId: userid,
         emoji: emoji,
       }),
     };
@@ -177,10 +138,9 @@ const Emoji = ({ task }: { task: TaskProps }) => {
                 <EmojiUser
                   emoji={emojiData.emoji}
                   id={emojiData.id}
-                  userId={emojiData.user.id}
+                  user={emojiData.user}
                   taskId={emojiData.taskId}
                   key={emojiData.id}
-                  name={''}
                 />
               ))}
             </ul>
