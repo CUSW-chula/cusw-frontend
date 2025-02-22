@@ -440,17 +440,17 @@ export const ProjectList = () => {
                           <TooltipTrigger>
                             <div className="ml-1 w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center border border-brown">
                               <span className="text-brown text-xs font-BaiJamjuree">
-                                +{project.members.length - 3}
+                                +{project.owner.length - 3}
                               </span>
                             </div>
                           </TooltipTrigger>
                           <TooltipContent>
                             <div className=" flex flex-col flex-wrap items-start">
-                              {project.members?.map((mem) => (
+                              {project.owner?.map((own) => (
                                 <span
-                                  key={mem?.id}
+                                  key={own?.id}
                                   className="text-xs font-medium font-BaiJamjuree  bg-white  text-brown">
-                                  {mem?.name}
+                                  {own?.name}
                                 </span>
                               ))}
                             </div>
