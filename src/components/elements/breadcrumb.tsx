@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Breadcrumb,
@@ -6,13 +6,13 @@ import {
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import BASE_URL from "@/lib/shared";
-import { getCookie } from "cookies-next";
-import React from "react";
-import { useEffect, useState } from "react";
-import type { TaskProps } from "@/app/types/types";
-import { toast } from "@/hooks/use-toast";
+} from '@/components/ui/breadcrumb';
+import BASE_URL from '@/lib/shared';
+import { getCookie } from 'cookies-next';
+import React from 'react';
+import { useEffect, useState } from 'react';
+import type { TaskProps } from '@/app/types/types';
+import { toast } from '@/hooks/use-toast';
 
 export function BreadcrumbComponent({ task }: { task: TaskProps }) {
   interface Project {
@@ -21,30 +21,27 @@ export function BreadcrumbComponent({ task }: { task: TaskProps }) {
   }
   const [tasks, setTasks] = useState<TaskProps[]>([]);
   const [project, setProject] = useState<Project | null>(null);
-  const cookie = getCookie("auth");
-  const auth = cookie?.toString() ?? "";
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(
-          `${BASE_URL}/v2/tasks/parent-recursive/${task.id}`,
-          {
-            headers: {
-              Authorization: auth,
-            },
-          }
-        );
+        const response = await fetch(`${BASE_URL}/v2/tasks/parent-recursive/${task.id}`, {
+          headers: {
+            Authorization: auth,
+          },
+        });
         if (!response.ok) {
           const errorMessage = await response.text();
           toast({
             title: `🚨 Error ${response.status}: ${response.statusText}`,
             description: `
-        🔥 error: ${errorMessage || "An unexpected error occurred."}
+        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
         
         🗂️ file: breadcrunb.tsx
             `,
-            variant: "default",
+            variant: 'default',
           });
         }
         const data = await response.json();
@@ -52,32 +49,29 @@ export function BreadcrumbComponent({ task }: { task: TaskProps }) {
 
         if (data.length > 0) {
           const projectId = data[0].projectId;
-          const projectResponse = await fetch(
-            `${BASE_URL}/v2/projects/${projectId}`,
-            {
-              headers: {
-                Authorization: auth,
-              },
-            }
-          );
+          const projectResponse = await fetch(`${BASE_URL}/v2/projects/${projectId}`, {
+            headers: {
+              Authorization: auth,
+            },
+          });
           if (!projectResponse.ok) {
             const errorMessage = await projectResponse.text();
             // throw new Error("Failed to assign tag");
             toast({
               title: `🚨 Error ${projectResponse.status}: ${projectResponse.statusText}`,
               description: `
-          🔥 error: ${errorMessage || "An unexpected error occurred."}
+          🔥 error: ${errorMessage || 'An unexpected error occurred.'}
           
           🗂️ file: breadcrunb.tsx
               `,
-              variant: "default",
+              variant: 'default',
             });
           }
           const projectData = await projectResponse.json();
           setProject(projectData);
         }
       } catch (error) {
-        console.error("Failed to fetch data:", error);
+        console.error('Failed to fetch data:', error);
       }
     };
     fetchData();
@@ -90,12 +84,9 @@ export function BreadcrumbComponent({ task }: { task: TaskProps }) {
           <BreadcrumbItem>
             <BreadcrumbLink
               href={`/projects/${project?.id}`}
-              className="font-BaiJamjuree text-[14px] text-black"
-            >
+              className="font-BaiJamjuree text-[14px] text-black">
               {project?.title && project.title.length > 20 ? (
-                <span title={project.title}>
-                  {project.title.substring(0, 20)}...
-                </span>
+                <span title={project.title}>{project.title.substring(0, 20)}...</span>
               ) : (
                 project?.title
               )}
@@ -107,12 +98,9 @@ export function BreadcrumbComponent({ task }: { task: TaskProps }) {
               <BreadcrumbItem>
                 <BreadcrumbLink
                   href={`/tasks/${task.id}`}
-                  className="font-BaiJamjuree text-[14px] text-black "
-                >
+                  className="font-BaiJamjuree text-[14px] text-black ">
                   {task.title.length > 20 ? (
-                    <span title={task.title}>
-                      {task.title.substring(0, 20)}...
-                    </span>
+                    <span title={task.title}>{task.title.substring(0, 20)}...</span>
                   ) : (
                     task.title
                   )}

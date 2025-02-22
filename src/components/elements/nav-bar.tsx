@@ -43,11 +43,11 @@ export default function NavBar() {
           toast({
             title: `🚨 Error ${response.status}: ${response.statusText}`,
             description: `
-        🔥 error: ${errorMessage || "An unexpected error occurred."}
+        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
         
         🗂️ file: nav-bar.tsx
             `,
-            variant: "default", 
+            variant: 'default',
           });
         }
 

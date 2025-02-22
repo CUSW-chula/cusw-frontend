@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import type { TaskProps } from "@/app/types/types";
-import { Button } from "@/components/ui/button";
-import BASE_URL from "@/lib/shared";
-import { getCookie } from "cookies-next";
-import { Redo2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import type React from "react";
-import { useAuth } from "@/hooks/use-auth";
-import { toast } from "@/hooks/use-toast";
+import type { TaskProps } from '@/app/types/types';
+import { Button } from '@/components/ui/button';
+import BASE_URL from '@/lib/shared';
+import { getCookie } from 'cookies-next';
+import { Redo2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import type React from 'react';
+import { useAuth } from '@/hooks/use-auth';
+import { toast } from '@/hooks/use-toast';
 
 const BackButton = ({ task }: { task: TaskProps }) => {
   const router = useRouter();
@@ -17,7 +17,7 @@ const BackButton = ({ task }: { task: TaskProps }) => {
   const handleBack = async () => {
     try {
       const response = await fetch(`${BASE_URL}/v2/tasks/parent/${task.id}`, {
-        method: "GET",
+        method: 'GET',
         headers: { Authorization: auth },
       });
       if (!response.ok) {
@@ -26,15 +26,15 @@ const BackButton = ({ task }: { task: TaskProps }) => {
         toast({
           title: `🚨 Error ${response.status}: ${response.statusText}`,
           description: `
-      🔥 error: ${errorMessage || "An unexpected error occurred."}
+      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
       
       🗂️ file: backButton.tsx
           `,
-          variant: "default",
+          variant: 'default',
         });
       }
 
-      if (!response.headers.get("content-type")?.includes("application/json")) {
+      if (!response.headers.get('content-type')?.includes('application/json')) {
         const projectId = await response.text();
         router.push(`/projects/${projectId}`);
       } else {
@@ -42,7 +42,7 @@ const BackButton = ({ task }: { task: TaskProps }) => {
         router.push(`/tasks/${data.id}`);
       }
     } catch (error) {
-      console.error("Error fetching task parent:", error);
+      console.error('Error fetching task parent:', error);
     }
   };
 
@@ -51,8 +51,7 @@ const BackButton = ({ task }: { task: TaskProps }) => {
       variant="link"
       size="sm"
       onClick={handleBack}
-      className="font-BaiJamjuree bg-white border-x border-y border-brown text-brown text-md"
-    >
+      className="font-BaiJamjuree bg-white border-x border-y border-brown text-brown text-md">
       <Redo2 className="transform rotate-180 text-brown" /> Back
     </Button>
   );
@@ -66,8 +65,7 @@ const ProjectBackButton = ({ project_id }: { project_id: string }) => {
       variant="link"
       size="sm"
       onClick={() => router.push(`/projects/detail/${project_id}`)}
-      className="font-BaiJamjuree bg-white border-x border-y border-brown text-brown text-md"
-    >
+      className="font-BaiJamjuree bg-white border-x border-y border-brown text-brown text-md">
       <Redo2 className="transform rotate-180 text-brown" /> Back
     </Button>
   );

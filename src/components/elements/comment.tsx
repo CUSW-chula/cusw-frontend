@@ -145,11 +145,11 @@ function CommentBox({
         toast({
           title: `🚨 Error ${response.status}: ${response.statusText}`,
           description: `
-      🔥 error: ${errorMessage || "An unexpected error occurred."}
+      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
       
       🗂️ file: comment.tsx
           `,
-          variant: "default", 
+          variant: 'default',
         });
       }
     } catch (error) {
@@ -169,11 +169,11 @@ function CommentBox({
         toast({
           title: `🚨 Error ${response.status}: ${response.statusText}`,
           description: `
-      🔥 error: ${errorMessage || "An unexpected error occurred."}
+      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
       
       🗂️ file: comment.tsx
           `,
-          variant: "default", 
+          variant: 'default',
         });
       }
       setIsEditing(false);
@@ -326,11 +326,11 @@ const Comment = ({ task }: { task: TaskProps }) => {
         toast({
           title: `🚨 Error ${commentData.status}: ${commentData.statusText}`,
           description: `
-      🔥 error: ${errorMessage || "An unexpected error occurred."}
+      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
       
       🗂️ file: comment.tsx
           `,
-          variant: "default", 
+          variant: 'default',
         });
       }
       const commentList = await commentData.json();
@@ -405,11 +405,11 @@ const Comment = ({ task }: { task: TaskProps }) => {
       toast({
         title: `🚨 Error ${response.status}: ${response.statusText}`,
         description: `
-    🔥 error: ${errorMessage || "An unexpected error occurred."}
+    🔥 error: ${errorMessage || 'An unexpected error occurred.'}
     
     🗂️ file: comment.tsx
         `,
-        variant: "default", 
+        variant: 'default',
       });
     }
     setComment('');

@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { Circle } from "lucide-react";
+import * as React from 'react';
+import { Circle } from 'lucide-react';
 
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import {
   Command,
   CommandEmpty,
@@ -12,17 +12,13 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { TooltipProvider } from "@/components/ui/tooltip"; // Import TooltipProvider
-import { Profile } from "./profile";
-import BASE_URL, { BASE_SOCKET, type Project } from "@/lib/shared";
-import { useAuth } from "@/hooks/use-auth";
-import { toast } from "@/hooks/use-toast";
+} from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
+import { Profile } from './profile';
+import BASE_URL, { BASE_SOCKET, type Project } from '@/lib/shared';
+import { useAuth } from '@/hooks/use-auth';
+import { toast } from '@/hooks/use-toast';
 
 interface UsersInterfaces {
   id: string;
@@ -58,11 +54,11 @@ export function AssignedProjectMember({ project }: { project: Project }) {
         toast({
           title: `🚨 Error ${usersData.status}: ${usersData.statusText}`,
           description: `
-              🔥 error: ${errorMessage || "An unexpected error occurred."}
+              🔥 error: ${errorMessage || 'An unexpected error occurred.'}
               
               🗂️ file: assigned-projectmember.tsx
                   `,
-          variant: "default",
+          variant: 'default',
         });
       }
       const userList = await usersData.json();
@@ -83,17 +79,17 @@ export function AssignedProjectMember({ project }: { project: Project }) {
           toast({
             title: `🚨 Error ${response.status}: ${response.statusText}`,
             description: `
-        🔥 error: ${errorMessage || "An unexpected error occurred."}
+        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
         
         🗂️ file: assigned-projectmember.tsx
             `,
-            variant: "default",
+            variant: 'default',
           });
         }
         const data = await response.json();
         setOwner(data.owner);
       } catch (error) {
-        console.error("Error fetching Owner:", error);
+        console.error('Error fetching Owner:', error);
       }
     };
     fetchOwner();
@@ -108,20 +104,16 @@ export function AssignedProjectMember({ project }: { project: Project }) {
         const eventName = socketEvent.eventName;
         if (eventName === `assigned:${project.id}`) {
           const data = pareJsonValue(socketEvent.data);
-          setSelectedUser((prevList) =>
-            Array.isArray(prevList) ? [...prevList, data] : []
-          );
+          setSelectedUser((prevList) => (Array.isArray(prevList) ? [...prevList, data] : []));
         }
         if (eventName === `unassigned:${project.id}`) {
           const data = pareJsonValue(socketEvent.data);
           setSelectedUser((prevList) =>
-            Array.isArray(prevList)
-              ? prevList.filter((item) => item.id !== data.id)
-              : []
+            Array.isArray(prevList) ? prevList.filter((item) => item.id !== data.id) : [],
           );
         }
       } catch (error) {
-        console.error("Error parsing WebSocket message:", error);
+        console.error('Error parsing WebSocket message:', error);
       }
     };
 
@@ -136,15 +128,13 @@ export function AssignedProjectMember({ project }: { project: Project }) {
   const handleSelectUser = async (value: string) => {
     const selected = usersList.find((user) => user.name === value);
     if (selected && !owner.some((o) => o.id === selected.id)) {
-      const isAlreadySelected = selectedUser.some(
-        (user) => user.id === selected.id
-      );
+      const isAlreadySelected = selectedUser.some((user) => user.id === selected.id);
 
       const url = `${BASE_URL}/v2/projects/assign/${project.id}`; // Assign or unassign user
 
       const options = {
-        method: isAlreadySelected ? "DELETE" : "POST",
-        headers: { "Content-Type": "application/json", Authorization: auth },
+        method: isAlreadySelected ? 'DELETE' : 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
         body: JSON.stringify({ projectId: project.id, userId: selected.id }),
       };
 
@@ -155,11 +145,11 @@ export function AssignedProjectMember({ project }: { project: Project }) {
           toast({
             title: `🚨 Error ${response.status}: ${response.statusText}`,
             description: `
-        🔥 error: ${errorMessage || "An unexpected error occurred."}
+        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
         
         🗂️ file: assigned-projectmember.tsx
             `,
-            variant: "default",
+            variant: 'default',
           });
         }
       } catch (error) {
@@ -180,11 +170,7 @@ export function AssignedProjectMember({ project }: { project: Project }) {
                   // Display selected users as circles with initials
                   <div className="flex space-x-2 ">
                     {selectedUser.map((user) => (
-                      <Profile
-                        key={user.id}
-                        userId={user.id}
-                        userName={user.name}
-                      />
+                      <Profile key={user.id} userId={user.id} userName={user.name} />
                     ))}
                   </div>
                 ) : (
@@ -201,18 +187,13 @@ export function AssignedProjectMember({ project }: { project: Project }) {
                   <CommandEmpty>No results found.</CommandEmpty>
                   <CommandGroup>
                     {usersList.map((user) => (
-                      <CommandItem
-                        key={user.id}
-                        value={user.name}
-                        onSelect={handleSelectUser}
-                      >
+                      <CommandItem key={user.id} value={user.name} onSelect={handleSelectUser}>
                         <Circle
                           className={cn(
-                            "mr-2 h-4 w-4 fill-greenLight text-greenLight ",
-                            selectedUser?.length > 0 &&
-                              selectedUser.some((u) => u.id === user.id)
-                              ? "opacity-100"
-                              : "opacity-40"
+                            'mr-2 h-4 w-4 fill-greenLight text-greenLight ',
+                            selectedUser?.length > 0 && selectedUser.some((u) => u.id === user.id)
+                              ? 'opacity-100'
+                              : 'opacity-40',
                           )}
                         />
                         <span>{user.name}</span>

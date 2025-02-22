@@ -122,11 +122,11 @@ const Subtask = ({ task }: { task: TaskProps }) => {
         toast({
           title: `🚨 Error ${response.status}: ${response.statusText}`,
           description: `
-      🔥 error: ${errorMessage || "An unexpected error occurred."}
+      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
       
       🗂️ file: subtask.tsx
           `,
-          variant: "default", 
+          variant: 'default',
         });
       }
 
@@ -193,11 +193,11 @@ const Subtask = ({ task }: { task: TaskProps }) => {
         toast({
           title: `🚨 Error ${response.status}: ${response.statusText}`,
           description: `
-      🔥 error: ${errorMessage || "An unexpected error occurred."}
+      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
       
       🗂️ file: subtask.tsx
           `,
-          variant: "default", 
+          variant: 'default',
         });
       }
 

@@ -100,11 +100,11 @@ const Uploadfile = ({ task }: { task: TaskProps }) => {
         toast({
           title: `🚨 Error ${response.status}: ${response.statusText}`,
           description: `
-      🔥 error: ${errorMessage || "An unexpected error occurred."}
+      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
       
       🗂️ file: uploadfile.tsx
           `,
-          variant: "default", 
+          variant: 'default',
         });
       }
     } catch (error) {
@@ -139,11 +139,11 @@ const handleDelete = async (id: string, auth: string) => {
       toast({
         title: `🚨 Error ${response.status}: ${response.statusText}`,
         description: `
-    🔥 error: ${errorMessage || "An unexpected error occurred."}
+    🔥 error: ${errorMessage || 'An unexpected error occurred.'}
     
     🗂️ file: uploadfile.tsx
         `,
-        variant: "default", 
+        variant: 'default',
       });
     }
     await response.json();
@@ -165,11 +165,11 @@ async function getName(authorId: string, auth: string) {
       toast({
         title: `🚨 Error ${response.status}: ${response.statusText}`,
         description: `
-    🔥 error: ${errorMessage || "An unexpected error occurred."}
+    🔥 error: ${errorMessage || 'An unexpected error occurred.'}
     
     🗂️ file: uploadfile.tsx
         `,
-        variant: "default", 
+        variant: 'default',
       });
     }
     const data = await response.json();

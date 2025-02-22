@@ -1,21 +1,17 @@
-"use client";
-import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import dynamic from "next/dynamic";
-import { SmilePlus } from "lucide-react";
-import React, { useCallback, useEffect, useState } from "react";
-import type { EmojiClickData } from "emoji-picker-react";
-import { getCookie } from "cookies-next";
-import BASE_URL, { BASE_SOCKET, type User, type Emojis } from "@/lib/shared";
-import { jwtDecode } from "jwt-decode";
-import type { TaskProps } from "@/app/types/types";
-import { toast } from "@/hooks/use-toast";
+'use client';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import dynamic from 'next/dynamic';
+import { SmilePlus } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
+import type { EmojiClickData } from 'emoji-picker-react';
+import { getCookie } from 'cookies-next';
+import BASE_URL, { BASE_SOCKET, type User, type Emojis } from '@/lib/shared';
+import { jwtDecode } from 'jwt-decode';
+import type { TaskProps } from '@/app/types/types';
+import { toast } from '@/hooks/use-toast';
 
-const Picker = dynamic(() => import("emoji-picker-react"), { ssr: true });
+const Picker = dynamic(() => import('emoji-picker-react'), { ssr: true });
 
 interface EmojiTaskUser {
   id: string;
@@ -26,8 +22,8 @@ interface EmojiTaskUser {
 
 const Emoji = ({ task }: { task: TaskProps }) => {
   const [emojis, setEmojis] = useState<Emojis[]>([]);
-  const cookie = getCookie("auth");
-  const auth = cookie?.toString() ?? "";
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
   const task_id = task.id;
   const userid = (jwtDecode(auth) as { id: string }).id;
 
@@ -68,11 +64,11 @@ const Emoji = ({ task }: { task: TaskProps }) => {
         };
 
         setEmojis((prevEmojis) => {
-          if (socketEvent.eventName === "addEmoji") {
+          if (socketEvent.eventName === 'addEmoji') {
             return [updatedEmoji, ...prevEmojis];
           }
           return prevEmojis.map((prevEmoji) =>
-            prevEmoji.id === updatedEmoji.id ? updatedEmoji : prevEmoji
+            prevEmoji.id === updatedEmoji.id ? updatedEmoji : prevEmoji,
           );
         });
       } catch (error) {}
@@ -88,29 +84,26 @@ const Emoji = ({ task }: { task: TaskProps }) => {
     const taskId = task_id;
     const url = `${BASE_URL}/v2/tasks/emoji`;
 
-    const checkResponse = await fetch(
-      `${BASE_URL}/v2/tasks/emoji/${taskId}/${userid}`,
-      {
-        headers: { Authorization: auth },
-      }
-    );
+    const checkResponse = await fetch(`${BASE_URL}/v2/tasks/emoji/${taskId}/${userid}`, {
+      headers: { Authorization: auth },
+    });
     if (!checkResponse.ok) {
       const errorMessage = await checkResponse.text();
       toast({
         title: `🚨 Error ${checkResponse.status}: ${checkResponse.statusText}`,
         description: `
-           🔥 error: ${errorMessage || "An unexpected error occurred."}
+           🔥 error: ${errorMessage || 'An unexpected error occurred.'}
            
            🗂️ file: emoji.tsx
                `,
-        variant: "default",
+        variant: 'default',
       });
     }
 
     const isEmojiAssigned = await checkResponse.json();
     const options = {
-      method: isEmojiAssigned ? "PATCH" : "POST",
-      headers: { "Content-Type": "application/json", Authorization: auth },
+      method: isEmojiAssigned ? 'PATCH' : 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: auth },
       body: JSON.stringify({
         taskId: taskId,
         userId: userid,
@@ -125,11 +118,11 @@ const Emoji = ({ task }: { task: TaskProps }) => {
         toast({
           title: `🚨 Error ${checkResponse.status}: ${checkResponse.statusText}`,
           description: `
-      🔥 error: ${errorMessage || "An unexpected error occurred."}
+      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
       
       🗂️ file: emoji.tsx
           `,
-          variant: "default",
+          variant: 'default',
         });
       }
     } catch (error) {}
@@ -154,8 +147,7 @@ const Emoji = ({ task }: { task: TaskProps }) => {
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="rounded-full min-w-[20px] w-fit h-[32px] border-none"
-            >
+              className="rounded-full min-w-[20px] w-fit h-[32px] border-none">
               <ul>
                 {sortedEmojis.slice(0, 8).map((emojiData) => (
                   <span key={emojiData.id} className="text-[16px]">

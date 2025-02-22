@@ -1,33 +1,30 @@
-"use client";
-import { useYDoc, useYjsProvider, YDocProvider } from "@y-sweet/react";
-import { BlockNoteView } from "@blocknote/shadcn";
-import "@blocknote/shadcn/style.css";
-import {
-  GridSuggestionMenuController,
-  useCreateBlockNote,
-} from "@blocknote/react";
-import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
-import * as Card from "@/components/ui/card";
-import * as DropdownMenu from "@/components/ui/dropdown-menu";
-import * as Form from "@/components/ui/form";
-import * as Input from "@/components/ui/input";
-import * as Label from "@/components/ui/label";
-import * as Popover from "@/components/ui/popover";
-import * as Tabs from "@/components/ui/tabs";
-import * as Toggle from "@/components/ui/toggle";
-import * as Tooltip from "@/components/ui/tooltip";
-import { useEffect, useState } from "react";
+'use client';
+import { useYDoc, useYjsProvider, YDocProvider } from '@y-sweet/react';
+import { BlockNoteView } from '@blocknote/shadcn';
+import '@blocknote/shadcn/style.css';
+import { GridSuggestionMenuController, useCreateBlockNote } from '@blocknote/react';
+import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
+import * as Card from '@/components/ui/card';
+import * as DropdownMenu from '@/components/ui/dropdown-menu';
+import * as Form from '@/components/ui/form';
+import * as Input from '@/components/ui/input';
+import * as Label from '@/components/ui/label';
+import * as Popover from '@/components/ui/popover';
+import * as Tabs from '@/components/ui/tabs';
+import * as Toggle from '@/components/ui/toggle';
+import * as Tooltip from '@/components/ui/tooltip';
+import { useEffect, useState } from 'react';
 import BASE_URL, {
   BASE_YSWEET,
   type ProjectOverviewProps,
   type TaskManageMentProp,
-} from "@/lib/shared";
-import { getCookie } from "cookies-next";
-import { jwtDecode, type JwtPayload } from "jwt-decode";
-import { toast } from "@/hooks/use-toast";
+} from '@/lib/shared';
+import { getCookie } from 'cookies-next';
+import { jwtDecode, type JwtPayload } from 'jwt-decode';
+import { toast } from '@/hooks/use-toast';
 
-const cookie = getCookie("auth");
-const auth = cookie?.toString() ?? "";
+const cookie = getCookie('auth');
+const auth = cookie?.toString() ?? '';
 interface CustomJwtPayload extends JwtPayload {
   id: string;
 }
@@ -42,14 +39,14 @@ export default function Blocknotes({ project_id }: ProjectOverviewProps) {
 
 function getRandomLightColor(): string {
   const getLightValue = () => Math.floor(Math.random() * 128) + 128;
-  const r = getLightValue().toString(16).padStart(2, "0");
-  const g = getLightValue().toString(16).padStart(2, "0");
-  const b = getLightValue().toString(16).padStart(2, "0");
+  const r = getLightValue().toString(16).padStart(2, '0');
+  const g = getLightValue().toString(16).padStart(2, '0');
+  const b = getLightValue().toString(16).padStart(2, '0');
   return `#${r}${g}${b}`;
 }
 
 function Document({ project_id }: ProjectOverviewProps) {
-  const [Description, setDescription] = useState<string>("");
+  const [Description, setDescription] = useState<string>('');
 
   useEffect(() => {
     const fetchDescription = async () => {
@@ -65,11 +62,11 @@ function Document({ project_id }: ProjectOverviewProps) {
           toast({
             title: `🚨 Error ${response.status}: ${response.statusText}`,
             description: `
-             🔥 error: ${errorMessage || "An unexpected error occurred."}
+             🔥 error: ${errorMessage || 'An unexpected error occurred.'}
              
              🗂️ file: blocknoteproject.tsx
                  `,
-            variant: "default",
+            variant: 'default',
           });
         }
         const data = await response.json();
@@ -77,7 +74,7 @@ function Document({ project_id }: ProjectOverviewProps) {
         const blocks = await editor.tryParseHTMLToBlocks(data.description);
         editor.replaceBlocks(editor.document, blocks);
       } catch (error) {
-        console.error("Error fetching Description:", error);
+        console.error('Error fetching Description:', error);
       }
     };
     fetchDescription();
@@ -89,8 +86,8 @@ function Document({ project_id }: ProjectOverviewProps) {
     const timer = setTimeout(async () => {
       const url = `${BASE_URL}/v2/projects/${project_id}`;
       const options = {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json", Authorization: auth },
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
         body: JSON.stringify({
           description: Description,
         }),
@@ -104,16 +101,16 @@ function Document({ project_id }: ProjectOverviewProps) {
           toast({
             title: `🚨 Error ${response.status}: ${response.statusText}`,
             description: `
-        🔥 error: ${errorMessage || "An unexpected error occurred."}
+        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
         
         🗂️ file: blocknoteproject.tsx
             `,
-            variant: "default",
+            variant: 'default',
           });
         }
         const data = await response.json();
       } catch (error) {
-        console.error("Error updating Description:", error);
+        console.error('Error updating Description:', error);
       }
     }, 5000); // 5-second delay
 
@@ -121,8 +118,7 @@ function Document({ project_id }: ProjectOverviewProps) {
     return () => clearTimeout(timer);
   }, [Description, project_id]);
 
-  const { audio, image, video, file, codeBlock, ...allowedBlockSpecs } =
-    defaultBlockSpecs;
+  const { audio, image, video, file, codeBlock, ...allowedBlockSpecs } = defaultBlockSpecs;
   const schema = BlockNoteSchema.create({
     blockSpecs: {
       ...allowedBlockSpecs,
@@ -141,7 +137,7 @@ function Document({ project_id }: ProjectOverviewProps) {
     schema,
     collaboration: {
       provider,
-      fragment: doc.getXmlFragment("blocknote"),
+      fragment: doc.getXmlFragment('blocknote'),
       user: { color: getRandomLightColor(), name: userData.id },
     },
   });
@@ -154,7 +150,7 @@ function Document({ project_id }: ProjectOverviewProps) {
   return (
     <BlockNoteView
       editor={editor}
-      theme={"light"}
+      theme={'light'}
       onChange={() => {
         onChangeBlock();
       }}
@@ -169,13 +165,8 @@ function Document({ project_id }: ProjectOverviewProps) {
         Tabs,
         Toggle,
         Tooltip,
-      }}
-    >
-      <GridSuggestionMenuController
-        triggerCharacter={":"}
-        columns={5}
-        minQueryLength={2}
-      />
+      }}>
+      <GridSuggestionMenuController triggerCharacter={':'} columns={5} minQueryLength={2} />
     </BlockNoteView>
   );
 }

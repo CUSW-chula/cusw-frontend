@@ -76,11 +76,11 @@ const Workspace = ({ workspace }: Workspace) => {
           toast({
             title: `🚨 Error ${response.status}: ${response.statusText}`,
             description: `
-        🔥 error: ${errorMessage || "An unexpected error occurred."}
+        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
         
         🗂️ file: workspace.tsx
             `,
-            variant: "default", 
+            variant: 'default',
           });
         }
         const data = await response.json();

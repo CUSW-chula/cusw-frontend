@@ -45,11 +45,11 @@ export const ProjectList = () => {
         toast({
           title: `🚨 Error ${response.status}: ${response.statusText}`,
           description: `
-      🔥 error: ${errorMessage || "An unexpected error occurred."}
+      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
       
       🗂️ file: projectList.tsx
           `,
-          variant: "default", 
+          variant: 'default',
         });
       }
 
@@ -170,11 +170,11 @@ export const ProjectList = () => {
       toast({
         title: `🚨 Error ${response.status}: ${response.statusText}`,
         description: `
-    🔥 error: ${errorMessage || "An unexpected error occurred."}
+    🔥 error: ${errorMessage || 'An unexpected error occurred.'}
     
     🗂️ file: projectList.tsx
         `,
-        variant: "default", 
+        variant: 'default',
       });
     }
 
