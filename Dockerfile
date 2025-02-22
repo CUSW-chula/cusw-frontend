@@ -3,7 +3,7 @@ FROM oven/bun:1.2 AS base
 
 WORKDIR /app
 
-COPY package.json bun.lockb ./
+COPY package.json bun.lock ./
 RUN bun install
 
 COPY . .
@@ -21,7 +21,7 @@ ENV AUTH_SECRET=${AUTH_SECRET}
 RUN bun next build
 
 # Production Stage: Serve the app
-FROM oven/bun:1 AS production
+FROM oven/bun:1.2 AS production
 
 WORKDIR /app
 
