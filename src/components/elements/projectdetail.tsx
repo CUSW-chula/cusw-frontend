@@ -40,7 +40,7 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
   const handleDeleteTask = async () => {
     const url = `${BASE_URL}/v2/projects/${project_id}`;
     const options = { method: 'DELETE', headers: { Authorization: auth } };
-  
+
     try {
       const response = await fetch(url, options);
       if (!response.ok) {
