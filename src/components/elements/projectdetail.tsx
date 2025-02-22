@@ -40,7 +40,7 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
   const handleDeleteTask = async () => {
     const url = `${BASE_URL}/v2/projects/${project_id}`;
     const options = { method: 'DELETE', headers: { Authorization: auth } };
-
+  
     try {
       const response = await fetch(url, options);
       if (!response.ok) {
@@ -48,14 +48,15 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
         toast({
           title: `🚨 Error ${response.status}: ${response.statusText}`,
           description: `
-      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-      
-      🗂️ file: projectdetail.tsx
+            🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+            
+            🗂️ file: projectdetail.tsx
           `,
           variant: 'default',
         });
+        return; // Exit early if there's an error
       }
-      const data = await response.json();
+      // Success: Redirect without parsing the response
       router.push('/projects');
     } catch (error) {
       console.error(error);
