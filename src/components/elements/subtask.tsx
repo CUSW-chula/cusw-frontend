@@ -120,9 +120,13 @@ const Subtask = ({ task }: { task: TaskProps }) => {
       if (!response.ok) {
         const errorMessage = await response.text();
         toast({
-          title: 'Error',
-          description: errorMessage || 'An unexpected error occurred.',
-          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `
+      🔥 error: ${errorMessage || "An unexpected error occurred."}
+      
+      🗂️ file: subtask.tsx
+          `,
+          variant: "default", 
         });
       }
 
@@ -187,9 +191,13 @@ const Subtask = ({ task }: { task: TaskProps }) => {
       if (!response.ok) {
         const errorMessage = await response.text();
         toast({
-          title: 'Error',
-          description: errorMessage || 'An unexpected error occurred.',
-          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `
+      🔥 error: ${errorMessage || "An unexpected error occurred."}
+      
+      🗂️ file: subtask.tsx
+          `,
+          variant: "default", 
         });
       }
 

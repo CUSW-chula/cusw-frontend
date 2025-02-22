@@ -1,8 +1,8 @@
-'use client';
-import * as React from 'react';
-import { Circle } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+"use client";
+import * as React from "react";
+import { Circle } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -10,15 +10,19 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { TooltipProvider } from '@/components/ui/tooltip';
-import { Profile } from './profile';
-import BASE_URL, { BASE_SOCKET } from '@/lib/shared';
-import { getCookie } from 'cookies-next';
-import type { Project } from '@/lib/shared';
-import { toast } from '@/hooks/use-toast';
-import { Skeleton } from '@/components/ui/skeleton';
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Profile } from "./profile";
+import BASE_URL, { BASE_SOCKET } from "@/lib/shared";
+import { getCookie } from "cookies-next";
+import type { Project } from "@/lib/shared";
+import { toast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface UsersInterfaces {
   id: string;
@@ -30,13 +34,13 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
   const [open, setOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<UsersInterfaces[]>([]);
   const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
-  const [auth, setAuth] = React.useState('');
+  const [auth, setAuth] = React.useState("");
   const [isMounted, setIsMounted] = React.useState(false);
 
   // Client-side only initialization
   React.useEffect(() => {
     setIsMounted(true);
-    setAuth(getCookie('auth')?.toString() || '');
+    setAuth(getCookie("auth")?.toString() || "");
   }, []);
 
   // Safe users fetch
@@ -50,17 +54,20 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
         });
         if (!response.ok) {
           const errorMessage = await response.text();
-          // throw new Error("Failed to assign tag");
           toast({
-            title: 'Error',
-            description: errorMessage || 'An unexpected error occurred.',
-            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+            title: `🚨 Error ${response.status}: ${response.statusText}`,
+            description: `
+                 🔥 error: ${errorMessage || "An unexpected error occurred."}
+                 
+                 🗂️ file: assigned-projectowner.tsx
+                     `,
+            variant: "default",
           });
         }
         const data = await response.json();
         setUsersList(data);
       } catch (error) {
-        console.error('Failed to fetch users:', error);
+        console.error("Failed to fetch users:", error);
       }
     };
 
@@ -90,13 +97,13 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
           ]);
         }
       } catch (error) {
-        console.error('WebSocket message error:', error);
+        console.error("WebSocket message error:", error);
       }
     };
 
-    ws.addEventListener('message', handleMessage);
+    ws.addEventListener("message", handleMessage);
     return () => {
-      ws.removeEventListener('message', handleMessage);
+      ws.removeEventListener("message", handleMessage);
       ws.close();
     };
   }, [auth, project, isMounted]);
@@ -111,25 +118,30 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
       const response = await fetch(
         `${BASE_URL}/v2/projects/owner?userId=${user.id}&projectId=${project.id}`,
         {
-          method: 'PATCH',
+          method: "PATCH",
           headers: { Authorization: auth },
-        },
+        }
       );
       if (!response.ok) {
         const errorMessage = await response.text();
-        // throw new Error("Failed to assign tag");
         toast({
-          title: 'Error',
-          description: errorMessage || 'An unexpected error occurred.',
-          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `
+      🔥 error: ${errorMessage || "An unexpected error occurred."}
+      
+      🗂️ file: assigned-projectowner.tsx
+          `,
+          variant: "default",
         });
       }
 
       setSelectedUser((prev) =>
-        prev.some((u) => u.id === user.id) ? prev.filter((u) => u.id !== user.id) : [...prev, user],
+        prev.some((u) => u.id === user.id)
+          ? prev.filter((u) => u.id !== user.id)
+          : [...prev, user]
       );
     } catch (error) {
-      console.error('Error updating owner:', error);
+      console.error("Error updating owner:", error);
     }
   };
 
@@ -148,9 +160,13 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <div>
-                {' '}
+                {" "}
                 {/* Critical wrapper to prevent button nesting */}
-                <Button type="button" variant="outline" className="border-brown text-brown">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="border-brown text-brown"
+                >
                   {selectedUser.length > 0 ? (
                     <div className="flex space-x-2">
                       {selectedUser.map((user) => (
@@ -158,7 +174,9 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
                           key={user.id}
                           userId={user.id}
                           userName={user.name}
-                          fallback={<Skeleton className="h-6 w-6 rounded-full" />}
+                          fallback={
+                            <Skeleton className="h-6 w-6 rounded-full" />
+                          }
                         />
                       ))}
                     </div>
@@ -179,13 +197,14 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
                       <CommandItem
                         key={user.id}
                         value={user.name}
-                        onSelect={() => handleSelectUser(user.name)}>
+                        onSelect={() => handleSelectUser(user.name)}
+                      >
                         <Circle
                           className={cn(
-                            'mr-2 h-4 w-4 fill-greenLight text-greenLight',
+                            "mr-2 h-4 w-4 fill-greenLight text-greenLight",
                             selectedUser.some((u) => u.id === user.id)
-                              ? 'opacity-100'
-                              : 'opacity-40',
+                              ? "opacity-100"
+                              : "opacity-40"
                           )}
                         />
                         <span>{user.name}</span>

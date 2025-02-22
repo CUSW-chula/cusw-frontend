@@ -45,11 +45,14 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
       const response = await fetch(url, options);
       if (!response.ok) {
         const errorMessage = await response.text();
-        // throw new Error("Failed to assign tag");
         toast({
-          title: 'Error',
-          description: errorMessage || 'An unexpected error occurred.',
-          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `
+      🔥 error: ${errorMessage || "An unexpected error occurred."}
+      
+      🗂️ file: projectdetail.tsx
+          `,
+          variant: "default", 
         });
       }
       const data = await response.json();

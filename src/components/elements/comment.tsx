@@ -143,9 +143,13 @@ function CommentBox({
       if (!response.ok) {
         const errorMessage = await response.text();
         toast({
-          title: 'Error',
-          description: errorMessage || 'An unexpected error occurred.',
-          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `
+      🔥 error: ${errorMessage || "An unexpected error occurred."}
+      
+      🗂️ file: comment.tsx
+          `,
+          variant: "default", 
         });
       }
     } catch (error) {
@@ -163,9 +167,13 @@ function CommentBox({
       if (!response.ok) {
         const errorMessage = await response.text();
         toast({
-          title: 'Error',
-          description: errorMessage || 'An unexpected error occurred.',
-          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `
+      🔥 error: ${errorMessage || "An unexpected error occurred."}
+      
+      🗂️ file: comment.tsx
+          `,
+          variant: "default", 
         });
       }
       setIsEditing(false);
@@ -316,9 +324,13 @@ const Comment = ({ task }: { task: TaskProps }) => {
       if (!commentData.ok) {
         const errorMessage = await commentData.text();
         toast({
-          title: 'Error',
-          description: errorMessage || 'An unexpected error occurred.',
-          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          title: `🚨 Error ${commentData.status}: ${commentData.statusText}`,
+          description: `
+      🔥 error: ${errorMessage || "An unexpected error occurred."}
+      
+      🗂️ file: comment.tsx
+          `,
+          variant: "default", 
         });
       }
       const commentList = await commentData.json();
@@ -391,9 +403,13 @@ const Comment = ({ task }: { task: TaskProps }) => {
     if (!response.ok) {
       const errorMessage = await response.text();
       toast({
-        title: 'Error',
-        description: errorMessage || 'An unexpected error occurred.',
-        variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+        title: `🚨 Error ${response.status}: ${response.statusText}`,
+        description: `
+    🔥 error: ${errorMessage || "An unexpected error occurred."}
+    
+    🗂️ file: comment.tsx
+        `,
+        variant: "default", 
       });
     }
     setComment('');

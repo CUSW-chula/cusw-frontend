@@ -1,20 +1,20 @@
-'use client';
-import { useCallback, useEffect, useState } from 'react';
-import { Displayfile, Uploadfile } from './uploadfile';
-import Emoji from './emoji';
+"use client";
+import { useCallback, useEffect, useState } from "react";
+import { Displayfile, Uploadfile } from "./uploadfile";
+import Emoji from "./emoji";
 import BASE_URL, {
   BASE_SOCKET,
   type ProjectOverviewProps,
   type TaskManageMentProp,
-} from '@/lib/shared';
-import { getCookie } from 'cookies-next';
-import Blocknoteproject from './blocknoteproject';
-import { toast } from '@/hooks/use-toast';
+} from "@/lib/shared";
+import { getCookie } from "cookies-next";
+import Blocknoteproject from "./blocknoteproject";
+import { toast } from "@/hooks/use-toast";
 
 const Workspace = ({ project_id }: ProjectOverviewProps) => {
-  const [Title, setTitle] = useState<string>('');
-  const cookie = getCookie('auth');
-  const auth = cookie?.toString() ?? '';
+  const [Title, setTitle] = useState<string>("");
+  const cookie = getCookie("auth");
+  const auth = cookie?.toString() ?? "";
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const pareJsonValues = useCallback((values: any) => {
@@ -38,15 +38,19 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
         if (!response.ok) {
           const errorMessage = await response.text();
           toast({
-            title: 'Error',
-            description: errorMessage || 'An unexpected error occurred.',
-            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+            title: `🚨 Error ${response.status}: ${response.statusText}`,
+            description: `
+                 🔥 error: ${errorMessage || "An unexpected error occurred."}
+                 
+                 🗂️ file: project-workspace.tsx
+                     `,
+            variant: "default",
           });
         }
         const data = await response.json();
         setTitle(data.title);
       } catch (error) {
-        console.error('Error fetching Title:', error);
+        console.error("Error fetching Title:", error);
       }
     };
 
@@ -58,8 +62,8 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
     const updateTitle = async () => {
       const url = `${BASE_URL}/v2/projects/${project_id}`;
       const options = {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: auth },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: auth },
         body: JSON.stringify({
           title: Title,
         }),
@@ -70,14 +74,18 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
         if (!response.ok) {
           const errorMessage = await response.text();
           toast({
-            title: 'Error',
-            description: errorMessage || 'An unexpected error occurred.',
-            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+            title: `🚨 Error ${response.status}: ${response.statusText}`,
+            description: `
+        🔥 error: ${errorMessage || "An unexpected error occurred."}
+        
+        🗂️ file: project-workspace.tsx
+            `,
+            variant: "default",
           });
         }
         const data = await response.json();
       } catch (error) {
-        console.error('Error updating Title:', error);
+        console.error("Error updating Title:", error);
       }
     };
 

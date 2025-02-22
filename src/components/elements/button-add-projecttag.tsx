@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { Circle, XCircle, CircleFadingPlus } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import * as React from "react";
+import { Circle, XCircle, CircleFadingPlus } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -11,12 +11,16 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import BASE_URL, { BASE_SOCKET, type ProjectOverviewProps } from '@/lib/shared';
-import { getCookie } from 'cookies-next';
-import { Badge } from '@/components/ui/badge';
-import { toast } from '@/hooks/use-toast';
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import BASE_URL, { BASE_SOCKET, type ProjectOverviewProps } from "@/lib/shared";
+import { getCookie } from "cookies-next";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "@/hooks/use-toast";
 
 interface Tags {
   id: string;
@@ -25,8 +29,8 @@ interface Tags {
 
 // Mock data
 export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
-  const cookie = getCookie('auth');
-  const auth = cookie?.toString() ?? '';
+  const cookie = getCookie("auth");
+  const auth = cookie?.toString() ?? "";
   const [open, setOpen] = React.useState(false);
   const [statuses, setStatuses] = React.useState<Tags[]>([]);
   const [selectedTags, setSelectedTags] = React.useState<Tags[]>([]);
@@ -42,7 +46,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
     const fetchTags = async () => {
       const url = `${BASE_URL}/v2/tags/`;
       const options = {
-        method: 'GET',
+        method: "GET",
         headers: {
           Authorization: auth,
         },
@@ -53,9 +57,13 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
         if (!response.ok) {
           const errorMessage = await response.text();
           toast({
-            title: 'Error',
-            description: errorMessage || 'An unexpected error occurred.',
-            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+            title: `🚨 Error ${response.status}: ${response.statusText}`,
+            description: `
+                  🔥 error: ${errorMessage || "An unexpected error occurred."}
+                  
+                  🗂️ file: button-add-projecttag.tsx
+                      `,
+            variant: "default",
           });
         }
         const data = await response.json();
@@ -68,7 +76,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
     const fetchSelectedTags = async () => {
       const url = `${BASE_URL}/v2/projects/${project_id}`;
       const options = {
-        method: 'GET',
+        method: "GET",
         headers: {
           Authorization: auth,
         },
@@ -80,9 +88,13 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
           const errorMessage = await response.text();
           // throw new Error("Failed to assign tag");
           toast({
-            title: 'Error',
-            description: errorMessage || 'An unexpected error occurred.',
-            variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+            title: `🚨 Error ${response.status}: ${response.statusText}`,
+            description: `
+        🔥 error: ${errorMessage || "An unexpected error occurred."}
+        
+        🗂️ file: button-add-projecttag.tsx
+            `,
+            variant: "default",
           });
         }
         const data = await response.json();
@@ -110,7 +122,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
           setSelectedTags(data);
         }
       } catch (error) {
-        console.error('Error parsing WebSocket message:', error);
+        console.error("Error parsing WebSocket message:", error);
       }
     };
 
@@ -126,13 +138,26 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
     if (selected && !selectedTags.some((tag) => tag.id === selected.id)) {
       const url = `${BASE_URL}/v2/projects/tag/${project_id}`;
       const options = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: auth },
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: auth },
         body: JSON.stringify({ tagId: selected.id }),
       };
 
       try {
-        await fetch(url, options);
+        const response = await fetch(url, options);
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          // throw new Error("Failed to assign tag");
+          toast({
+            title: `🚨 Error ${response.status}: ${response.statusText}`,
+            description: `
+        🔥 error: ${errorMessage || "An unexpected error occurred."}
+        
+        🗂️ file: button-add-projecttag.tsx
+            `,
+            variant: "default",
+          });
+        }
         // After adding the tag, update the local state
       } catch (error) {
         console.error(error);
@@ -144,8 +169,8 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
   const handleDeleteTag = async (value: string) => {
     const url = `${BASE_URL}/v2/projects/tag/${project_id}`;
     const options = {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json', Authorization: auth },
+      method: "DELETE",
+      headers: { "Content-Type": "application/json", Authorization: auth },
       body: JSON.stringify({ tagId: value }),
     };
 
@@ -153,11 +178,14 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
       const response = await fetch(url, options);
       if (!response.ok) {
         const errorMessage = await response.text();
-        // throw new Error("Failed to assign tag");
         toast({
-          title: 'Error',
-          description: errorMessage || 'An unexpected error occurred.',
-          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `
+      🔥 error: ${errorMessage || "An unexpected error occurred."}
+      
+      🗂️ file: button-add-projecttag.tsx
+          `,
+          variant: "default",
         });
       }
       // Update local state to remove the deleted tag
@@ -176,12 +204,16 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
               <Badge
                 key={tag.id}
                 variant="destructive"
-                className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0]  mr-1 mt-1 mb-1">
-                <span className="text-base font-medium font-BaiJamjuree">{tag.name}</span>
+                className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0]  mr-1 mt-1 mb-1"
+              >
+                <span className="text-base font-medium font-BaiJamjuree">
+                  {tag.name}
+                </span>
                 <button
                   type="button"
                   onClick={() => handleDeleteTag(tag.id)}
-                  className="text-red-500 ml-1 max-w-20">
+                  className="text-red-500 ml-1 max-w-20"
+                >
                   <XCircle className="h-4 w-4" />
                 </button>
               </Badge>
@@ -203,14 +235,18 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
                   <CommandEmpty>No results found.</CommandEmpty>
                   <CommandGroup>
                     {statuses.map((status) => (
-                      <CommandItem key={status.id} value={status.name} onSelect={handleSelectTag}>
+                      <CommandItem
+                        key={status.id}
+                        value={status.name}
+                        onSelect={handleSelectTag}
+                      >
                         <Circle
                           className={cn(
-                            'mr-2 h-4 w-4 fill-greenLight text-greenLight',
+                            "mr-2 h-4 w-4 fill-greenLight text-greenLight",
                             Array.isArray(selectedTags) &&
                               selectedTags.some((tag) => tag.id === status.id)
-                              ? 'opacity-100'
-                              : 'opacity-40',
+                              ? "opacity-100"
+                              : "opacity-40"
                           )}
                         />
                         <span>{status.name}</span>
