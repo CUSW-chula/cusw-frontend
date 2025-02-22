@@ -24,6 +24,7 @@ import { useAtom } from 'jotai';
 import { tagsListAtom } from '@/atom';
 import Link from 'next/link';
 import { DateText } from './date-feature';
+import { toast } from '@/hooks/use-toast';
 
 export const ProjectList = () => {
   const cookie = getCookie('auth');
@@ -40,7 +41,16 @@ export const ProjectList = () => {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        const errorMessage = await response.text();
+        toast({
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `
+      🔥 error: ${errorMessage || "An unexpected error occurred."}
+      
+      🗂️ file: projectList.tsx
+          `,
+          variant: "default", 
+        });
       }
 
       const data = await response.json();
@@ -151,10 +161,22 @@ export const ProjectList = () => {
     });
 
     const isCurrentlyStarred = starredProjects[projectId] ?? false;
-    await fetch(`${BASE_URL}/v2/projects/pin/${projectId}`, {
+    const response = await fetch(`${BASE_URL}/v2/projects/pin/${projectId}`, {
       method: isCurrentlyStarred ? 'DELETE' : 'POST',
       headers: { Authorization: auth },
     });
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      toast({
+        title: `🚨 Error ${response.status}: ${response.statusText}`,
+        description: `
+    🔥 error: ${errorMessage || "An unexpected error occurred."}
+    
+    🗂️ file: projectList.tsx
+        `,
+        variant: "default", 
+      });
+    }
 
     // 🔄 รีเซ็ตค่า UI กลับถ้า API ล้มเหลว
     setStarredProjects((prevState) => {

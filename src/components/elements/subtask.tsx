@@ -24,6 +24,7 @@ import BASE_URL, { BASE_SOCKET } from '@/lib/shared';
 import { Task } from './taskManagement';
 import type { TaskProps } from '@/app/types/types';
 import { CreateSubtask } from './createSubtask';
+import { toast } from '@/hooks/use-toast';
 
 function TitleInput({ content, onChange }: { content: string; onChange: (value: string) => void }) {
   const [editedContent, setEditedContent] = useState(content);
@@ -117,7 +118,16 @@ const Subtask = ({ task }: { task: TaskProps }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create subtask');
+        const errorMessage = await response.text();
+        toast({
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `
+      🔥 error: ${errorMessage || "An unexpected error occurred."}
+      
+      🗂️ file: subtask.tsx
+          `,
+          variant: "default", 
+        });
       }
 
       const data = await response.json();
@@ -139,7 +149,12 @@ const Subtask = ({ task }: { task: TaskProps }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete subtask');
+        const errorMessage = await response.text();
+        toast({
+          title: 'Error',
+          description: errorMessage || 'An unexpected error occurred.',
+          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+        });
       }
 
       // Update the subtasks array by removing the deleted subtask
@@ -174,7 +189,16 @@ const Subtask = ({ task }: { task: TaskProps }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update subtask');
+        const errorMessage = await response.text();
+        toast({
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `
+      🔥 error: ${errorMessage || "An unexpected error occurred."}
+      
+      🗂️ file: subtask.tsx
+          `,
+          variant: "default", 
+        });
       }
 
       const data = await response.json();

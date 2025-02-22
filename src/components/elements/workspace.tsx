@@ -4,6 +4,7 @@ import { Displayfile } from './uploadfile';
 import BASE_URL, { BASE_SOCKET } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import Blocknotes from './blocknote';
+import { toast } from '@/hooks/use-toast';
 interface Files {
   id: string;
   fileName: string;
@@ -70,6 +71,18 @@ const Workspace = ({ workspace }: Workspace) => {
             Authorization: auth,
           },
         });
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          toast({
+            title: `🚨 Error ${response.status}: ${response.statusText}`,
+            description: `
+        🔥 error: ${errorMessage || "An unexpected error occurred."}
+        
+        🗂️ file: workspace.tsx
+            `,
+            variant: "default", 
+          });
+        }
         const data = await response.json();
         setFileList(data);
       } catch (error) {
@@ -122,7 +135,7 @@ const Workspace = ({ workspace }: Workspace) => {
       try {
         const response = await fetch(url, options);
         if (!response.ok) {
-          const errorDetails = await response.json();
+          const errorDetails = await response.text();
           throw new Error(
             `Error: ${response.status} - ${response.statusText}, Details: ${JSON.stringify(errorDetails)}`,
           );

@@ -1,18 +1,19 @@
-'use client';
-import { useEffect, useState } from 'react';
-import { getCookie } from 'cookies-next';
-import BASE_URL, { type TaskManageMentOverviewProp } from '@/lib/shared';
-import type { TaskProps, TagProps } from '@/app/types/types';
-import { Task, ExportDialog, Filter, Sort, CreateTask } from './taskManagement';
-import { parseJsonValues, statusSections } from '@/lib/taskUtils';
+"use client";
+import { useEffect, useState } from "react";
+import { getCookie } from "cookies-next";
+import BASE_URL, { type TaskManageMentOverviewProp } from "@/lib/shared";
+import type { TaskProps, TagProps } from "@/app/types/types";
+import { Task, ExportDialog, Filter, Sort, CreateTask } from "./taskManagement";
+import { parseJsonValues, statusSections } from "@/lib/taskUtils";
+import { toast } from "@/hooks/use-toast";
 
-const cookie = getCookie('auth');
-const auth = cookie?.toString() ?? '';
+const cookie = getCookie("auth");
+const auth = cookie?.toString() ?? "";
 
 export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   const [tasks, setTasks] = useState<TaskProps[]>([]);
   const [showTasks, setShowTasks] = useState<TaskProps[]>([]);
-  const [projectName, setProjectName] = useState<string>('');
+  const [projectName, setProjectName] = useState<string>("");
   const [allTags, setAllTags] = useState<TagProps[]>([]);
 
   useEffect(() => {
@@ -30,6 +31,17 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           const parsedData = parseJsonValues(project.tasks);
           setTasks(parsedData);
           setShowTasks(parsedData);
+        } else {
+          const errorMessage = await data.text();
+          toast({
+            title: `🚨 Error ${data.status}: ${data.statusText}`,
+            description: `
+        🔥 error: ${errorMessage || "An unexpected error occurred."}
+        
+        🗂️ file: taskmanager.tsx
+            `,
+            variant: "default",
+          });
         }
       } catch (error) {
         console.error(error);
@@ -39,7 +51,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     const fetchTagData = async () => {
       const url = `${BASE_URL}/v2/tags/`;
       const options = {
-        method: 'GET',
+        method: "GET",
         headers: {
           Authorization: auth,
         },
@@ -47,6 +59,18 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
 
       try {
         const response = await fetch(url, options);
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          toast({
+            title: `🚨 Error ${response.status}: ${response.statusText}`,
+            description: `
+        🔥 error: ${errorMessage || "An unexpected error occurred."}
+        
+        🗂️ file: taskmanager.tsx
+            `,
+            variant: "default",
+          });
+        }
         const data = (await response.json()) as TagProps[];
         setAllTags(data);
       } catch (error) {
@@ -106,12 +130,16 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           {/* Status Title */}
           <div className="flex items-center gap-2 border-b border-gray-300 py-3">
             <img src={icon} alt={`${status} Icon`} className="w-6 h-6" />
-            <span className="text-black text-sm font-medium font-BaiJamjuree">{displayName}</span>
+            <span className="text-black text-sm font-medium font-BaiJamjuree">
+              {displayName}
+            </span>
           </div>
           {/* Tasks in there group */}
           <div className="w-full block">
             {showTasks
-              .filter((item) => groupingStatus(item, 99) === statusToInt(status))
+              .filter(
+                (item) => groupingStatus(item, 99) === statusToInt(status)
+              )
               .sort((task1, task2) => {
                 if (task1.startDate && task2.startDate) {
                   const date1 = new Date(task1.startDate).getTime();

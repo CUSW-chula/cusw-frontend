@@ -21,6 +21,7 @@ import { ButtonAddTags } from './button-add-projecttag';
 import { DatePickerWithRangeProject } from './date-feature';
 import type { Project } from '@/lib/shared';
 import { AssignedProjectOwner } from './assigned-projectowner';
+import { toast } from '@/hooks/use-toast';
 import { AssignedProjectMember } from './assigned-projectmember';
 
 interface UsersProps {
@@ -42,6 +43,18 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
 
     try {
       const response = await fetch(url, options);
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        toast({
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `
+      🔥 error: ${errorMessage || "An unexpected error occurred."}
+      
+      🗂️ file: projectdetail.tsx
+          `,
+          variant: "default", 
+        });
+      }
       const data = await response.json();
       router.push('/projects');
     } catch (error) {

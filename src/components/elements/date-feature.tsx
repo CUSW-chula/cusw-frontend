@@ -1,16 +1,21 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { format, parse, isValid, addDays, set, formatDate } from 'date-fns';
-import { Calendar as CalendarIcon } from 'lucide-react';
-import type { DateRange } from 'react-day-picker';
+import * as React from "react";
+import { format, parse, isValid, addDays, set, formatDate } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import type { DateRange } from "react-day-picker";
 
-import { cn } from '@/lib/utils';
-import { Calendar } from '@/components/ui/calendar';
-import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
-import { getCookie } from 'cookies-next';
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from "@/lib/shared";
+import { getCookie } from "cookies-next";
+import { toast } from "@/hooks/use-toast";
 
 // FUNCTION USING INSTRUCTION
 //================================================================
@@ -32,9 +37,9 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
     from: undefined,
     to: undefined,
   });
-  const [formattedDate, setFormattedDate] = React.useState<string>('');
-  const cookie = getCookie('auth');
-  const auth = cookie?.toString() ?? '';
+  const [formattedDate, setFormattedDate] = React.useState<string>("");
+  const cookie = getCookie("auth");
+  const auth = cookie?.toString() ?? "";
 
   // Regex for date matching
   // const dateTimeRegEx = /^(\d{1,2})[\/\-. ](\d{1,2})[\/\-. ](\d{4})$/;
@@ -51,7 +56,7 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
 
   // Format date for showing inside popover
   const formatDate = React.useCallback((dateRange: DateRange): string => {
-    if (!dateRange.from) return 'Pick a date';
+    if (!dateRange.from) return "Pick a date";
 
     try {
       const fromFormatted = ChristGregor(dateRange.from);
@@ -60,8 +65,8 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
       const toFormatted = ChristGregor(dateRange.to);
       return `${fromFormatted} - ${toFormatted}`;
     } catch (error) {
-      console.error('Error formatting date:', error);
-      return 'Invalid date';
+      console.error("Error formatting date:", error);
+      return "Invalid date";
     }
   }, []);
 
@@ -83,9 +88,9 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
         setDate(newDateRange);
         setFormattedDate(formatDate(newDateRange));
       } catch (error) {
-        console.error('Error initializing dates:', error);
+        console.error("Error initializing dates:", error);
         setDate({ from: undefined, to: undefined });
-        setFormattedDate('Pick a date');
+        setFormattedDate("Pick a date");
       }
     };
 
@@ -99,7 +104,7 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
     ws.onmessage = async (event) => {
       try {
         const socketEvent = JSON.parse(event.data);
-        if (socketEvent.eventName !== 'date') return;
+        if (socketEvent.eventName !== "date") return;
 
         const parsedData = parseJsonValue(socketEvent.data);
         const newDateRange = {
@@ -110,7 +115,7 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
         setDate(newDateRange);
         setFormattedDate(formatDate(newDateRange));
       } catch (error) {
-        console.error('Error handling WebSocket message:', error);
+        console.error("Error handling WebSocket message:", error);
       }
     };
 
@@ -122,8 +127,8 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
     // Patch input to database.
     const url = `${BASE_URL}/v2/tasks/date`;
     const options = {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', Authorization: auth },
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Authorization: auth },
       // body: `{"taskID":"${task_id}", "startDate":"${range?.from}", "endDate":"${range?.to}"}`
       body: JSON.stringify({
         taskID: task.id,
@@ -133,25 +138,42 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
     };
     try {
       const response = await fetch(url, options);
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        toast({
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `
+      🔥 error: ${errorMessage || "An unexpected error occurred."}
+      
+      🗂️ file: date-feature.tsx
+          `,
+          variant: "default", 
+        });
+      }
       const data = await response.json();
       if (data) {
         setDate(range);
-        setFormattedDate(formatDate(range ?? { from: undefined, to: undefined }));
+        setFormattedDate(
+          formatDate(range ?? { from: undefined, to: undefined })
+        );
       }
-      // Check Fetch Data
     } catch (error) {
       console.error(error);
     }
   };
 
   return (
-    <div className={cn('grid gap-2')}>
+    <div className={cn("grid gap-2")}>
       <Popover>
         <PopoverTrigger asChild className="border-brown text-brown">
           <Button
             id="date"
-            variant={'outline'}
-            className={cn('justify-start text-left font-small', !date && 'text-muted-foreground')}>
+            variant={"outline"}
+            className={cn(
+              "justify-start text-left font-small",
+              !date && "text-muted-foreground"
+            )}
+          >
             {date?.from ? (
               date.to ? (
                 <>{formattedDate}</>
@@ -186,9 +208,9 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
     from: undefined,
     to: undefined,
   });
-  const [formattedDate, setFormattedDate] = React.useState<string>('');
-  const cookie = getCookie('auth');
-  const auth = cookie?.toString() ?? '';
+  const [formattedDate, setFormattedDate] = React.useState<string>("");
+  const cookie = getCookie("auth");
+  const auth = cookie?.toString() ?? "";
 
   // Regex for date matching
   // const dateTimeRegEx = /^(\d{1,2})[\/\-. ](\d{1,2})[\/\-. ](\d{4})$/;
@@ -203,21 +225,24 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
     return newValue;
   }, []);
 
-  const formatDate = React.useCallback((dateRange: DateRange | undefined): string => {
-    if (dateRange === undefined) return 'Pick a date';
-    if (!dateRange.from) return 'Pick a date';
+  const formatDate = React.useCallback(
+    (dateRange: DateRange | undefined): string => {
+      if (dateRange === undefined) return "Pick a date";
+      if (!dateRange.from) return "Pick a date";
 
-    try {
-      const fromFormatted = ChristGregor(dateRange.from);
-      if (!dateRange.to) return fromFormatted;
+      try {
+        const fromFormatted = ChristGregor(dateRange.from);
+        if (!dateRange.to) return fromFormatted;
 
-      const toFormatted = ChristGregor(dateRange.to);
-      return `${fromFormatted} - ${toFormatted}`;
-    } catch (error) {
-      console.error('Error formatting date:', error);
-      return 'Invalid date';
-    }
-  }, []);
+        const toFormatted = ChristGregor(dateRange.to);
+        return `${fromFormatted} - ${toFormatted}`;
+      } catch (error) {
+        console.error("Error formatting date:", error);
+        return "Invalid date";
+      }
+    },
+    []
+  );
 
   // Initialize dates from task props
   React.useEffect(() => {
@@ -225,7 +250,9 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
 
     const initializeDates = () => {
       try {
-        const from = project.startDate ? new Date(project.startDate) : undefined;
+        const from = project.startDate
+          ? new Date(project.startDate)
+          : undefined;
         const to = project.endDate ? new Date(project.endDate) : undefined;
 
         // Validate dates before setting
@@ -236,9 +263,9 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
         setDate(newDateRange);
         setFormattedDate(formatDate(newDateRange));
       } catch (error) {
-        console.error('Error initializing dates:', error);
+        console.error("Error initializing dates:", error);
         setDate({ from: undefined, to: undefined });
-        setFormattedDate('Pick a date');
+        setFormattedDate("Pick a date");
       }
     };
 
@@ -252,7 +279,7 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
     ws.onmessage = async (event) => {
       try {
         const socketEvent = JSON.parse(event.data);
-        if (socketEvent.eventName !== 'project') return;
+        if (socketEvent.eventName !== "project") return;
 
         const parsedData = parseJsonValue(socketEvent.data);
         const newDateRange = {
@@ -263,7 +290,7 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
         setDate(newDateRange);
         setFormattedDate(formatDate(newDateRange));
       } catch (error) {
-        console.error('Error handling WebSocket message:', error);
+        console.error("Error handling WebSocket message:", error);
       }
     };
 
@@ -275,8 +302,8 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
     // Patch input to database.
     const url = `${BASE_URL}/v2/projects/${project.id}`;
     const options = {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', Authorization: auth },
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Authorization: auth },
       // body: `{"taskID":"${task_id}", "startDate":"${range?.from}", "endDate":"${range?.to}"}`
       body: JSON.stringify({
         projectID: project.id,
@@ -286,25 +313,40 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
     };
     try {
       const response = await fetch(url, options);
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        toast({
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `
+              🔥 error: ${errorMessage || "An unexpected error occurred."}
+              
+              🗂️ file: date-feature.tsx
+                  `,
+          variant: "default",
+        });
+      }
       const data = await response.json();
       if (data) {
         setDate(range);
         setFormattedDate(formatDate(range));
       }
-      // Check Fetch Data
     } catch (error) {
       console.error(error);
     }
   };
 
   return (
-    <div className={cn('grid gap-2')}>
+    <div className={cn("grid gap-2")}>
       <Popover>
         <PopoverTrigger asChild className="border-brown text-brown">
           <Button
             id="date"
-            variant={'outline'}
-            className={cn('justify-start text-left font-small', !date && 'text-muted-foreground')}>
+            variant={"outline"}
+            className={cn(
+              "justify-start text-left font-small",
+              !date && "text-muted-foreground"
+            )}
+          >
             {date?.from ? (
               date.to ? (
                 <>{formattedDate}</>
@@ -339,11 +381,11 @@ function ChristGregor(date: Date | null): string {
     // Check if date is null or not a valid Date object
     const formatted = date ? new Date(date) : null;
     if (!formatted) {
-      return '';
+      return "";
     }
 
-    const day = String(formatted.getDate()).padStart(2, '0');
-    const month = String(formatted.getMonth() + 1).padStart(2, '0');
+    const day = String(formatted.getDate()).padStart(2, "0");
+    const month = String(formatted.getMonth() + 1).padStart(2, "0");
     const year = formatted.getFullYear(); // Add to buddhist year
     return `${day}/${month}/${year}`;
   };
@@ -355,21 +397,21 @@ function ChristGregor(date: Date | null): string {
 function DateText(date: DateInterface): string {
   const formatDate = (date: DateInterface): string => {
     // Return an empty string if both dates are not provided
-    if (!date) return '';
+    if (!date) return "";
 
     const format = (date: Date | null): string => {
       const formatted = date ? new Date(date) : null;
-      if (!(formatted instanceof Date)) return '';
-      const day = String(formatted.getDate()).padStart(2, '0');
-      const month = String(formatted.getMonth() + 1).padStart(2, '0');
+      if (!(formatted instanceof Date)) return "";
+      const day = String(formatted.getDate()).padStart(2, "0");
+      const month = String(formatted.getMonth() + 1).padStart(2, "0");
       const year = formatted.getFullYear();
       return `${day}/${month}/${year}`;
     };
 
     // Format startdate and enddate if they are valid
-    const start = date.startDate ? format(date.startDate) : '';
-    const end = date.endDate ? format(date.endDate) : '';
-    return `${start}${start && end ? ' -> ' : ''}${end}`;
+    const start = date.startDate ? format(date.startDate) : "";
+    const end = date.endDate ? format(date.endDate) : "";
+    return `${start}${start && end ? " -> " : ""}${end}`;
   };
   return formatDate(date);
 }

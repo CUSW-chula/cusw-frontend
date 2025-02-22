@@ -11,6 +11,7 @@ import React from 'react';
 import { getCookie } from 'cookies-next';
 import { statusSections } from '@/lib/taskUtils';
 import type { TaskProps } from '@/app/types/types';
+import { toast } from '@/hooks/use-toast';
 import { useToast } from '@/hooks/use-toast';
 
 const statuses: Status[] = statusSections;

@@ -16,6 +16,7 @@ import {
 import BASE_URL, { type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import type { TaskProps } from '@/app/types/types';
+import { toast } from '@/hooks/use-toast';
 
 interface Files {
   id: string;
@@ -94,6 +95,18 @@ const Uploadfile = ({ task }: { task: TaskProps }) => {
     try {
       const response = await fetch(url, options);
       await response.json();
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        toast({
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `
+      🔥 error: ${errorMessage || "An unexpected error occurred."}
+      
+      🗂️ file: uploadfile.tsx
+          `,
+          variant: "default", 
+        });
+      }
     } catch (error) {
       console.error(error);
     }
@@ -121,6 +134,18 @@ const handleDelete = async (id: string, auth: string) => {
 
   try {
     const response = await fetch(url, options);
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      toast({
+        title: `🚨 Error ${response.status}: ${response.statusText}`,
+        description: `
+    🔥 error: ${errorMessage || "An unexpected error occurred."}
+    
+    🗂️ file: uploadfile.tsx
+        `,
+        variant: "default", 
+      });
+    }
     await response.json();
     // setFileList((prevFiles) => prevFiles.filter((file) => file.id !== id));
   } catch (error) {
@@ -136,7 +161,16 @@ async function getName(authorId: string, auth: string) {
       },
     });
     if (!response.ok) {
-      throw new Error(`Error: ${response.statusText}`);
+      const errorMessage = await response.text();
+      toast({
+        title: `🚨 Error ${response.status}: ${response.statusText}`,
+        description: `
+    🔥 error: ${errorMessage || "An unexpected error occurred."}
+    
+    🗂️ file: uploadfile.tsx
+        `,
+        variant: "default", 
+      });
     }
     const data = await response.json();
     return data.name;
