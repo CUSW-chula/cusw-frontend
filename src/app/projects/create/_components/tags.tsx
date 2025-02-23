@@ -41,7 +41,7 @@ export const ProjectTag = ({ value, onChange }: ProjectTagProps) => {
       setStatuses(response);
     };
     fetchTags();
-  }, [auth]);
+  }, []);
 
   const handleSelectTag = async (value: string) => {
     onChange(selectedTags);
