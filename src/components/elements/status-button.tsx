@@ -56,6 +56,11 @@ export function StatusButton({ task }: { task: TaskProps }) {
 
         if (eventName === `status-changed:${task.id}`) {
           setSelectedStatus(data);
+          toast({
+            title: 'Status Changed',
+            description: `The status has been changed to "${data.status}"`,
+            variant: 'default',
+          });
         }
       } catch (error) {
         console.error('error parsing websocket message: ', error);
@@ -83,10 +88,9 @@ export function StatusButton({ task }: { task: TaskProps }) {
     try {
       const response = await fetch(url, options);
       if (response.ok) {
-        // throw new Error("Failed to assign tag");
         toast({
           title: 'Complete',
-          description: `You change this task status to "${status.status}"`,
+          description: `You changed this task status to "${status.status}"`,
           variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
         });
       }
