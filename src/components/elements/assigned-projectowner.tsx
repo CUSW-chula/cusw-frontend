@@ -129,6 +129,12 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
           `,
           variant: 'default',
         });
+      } else {
+        toast({
+          title: '✅ Success',
+          description: 'Project owner updated successfully.',
+          variant: 'default',
+        });
       }
 
       setSelectedUser((prev) =>
@@ -136,6 +142,11 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
       );
     } catch (error) {
       console.error('Error updating owner:', error);
+      toast({
+        title: '🚨 Error',
+        description: 'An unexpected error occurred while updating the project owner.',
+        variant: 'default',
+      });
     }
   };
 

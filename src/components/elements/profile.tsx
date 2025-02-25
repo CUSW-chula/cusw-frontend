@@ -1,6 +1,4 @@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
-
-import { Skeleton } from '@/components/ui/skeleton';
 import type React from 'react';
 
 interface ProfileProp {
@@ -15,19 +13,19 @@ const getInitials = (name?: string) => {
   return nameParts.map((part) => part[0]).join('');
 };
 
-export const Profile = ({ userId, userName, fallback }: ProfileProp) => {
+export const Profile = ({ userId, userName }: ProfileProp) => {
   // Show fallback if no username provided
   if (!userName) {
     return (
       <div className="flex items-center space-x-2 border-brown text-brown">
-        {fallback || <Skeleton className="w-[24px] h-[24px] rounded-full" />}
+        {/* Fallback content can be added here if needed */}
       </div>
     );
   }
 
   return (
     <TooltipProvider>
-      <Tooltip>
+      <Tooltip key={userId}>
         <TooltipTrigger asChild>
           <div className="flex items-center space-x-2 border-brown text-brown">
             <div className="w-[24px] h-[24px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown">
