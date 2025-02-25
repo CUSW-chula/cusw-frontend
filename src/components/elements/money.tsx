@@ -274,7 +274,7 @@ const Money = ({ task }: { task: TaskProps | null }) => {
                 Number.isNaN(budgetList.money) ||
                 budgetList.money === 0
               }>
-              Ok
+              OK
             </Button>
           </div>
         </DialogFooter>
