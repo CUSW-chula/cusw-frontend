@@ -13,7 +13,7 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import BASE_URL, { BASE_SOCKET, type ProjectOverviewProps } from '@/lib/shared';
+import BASE_URL, { BASE_SOCKET, type Tag, type ProjectOverviewProps } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
@@ -62,8 +62,8 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
             variant: 'default',
           });
         }
-        const data = await response.json();
-        setStatuses(data);
+        const data: Tag[] = await response.json();
+        setStatuses(data.filter((tag) => tag.isProject));
       } catch (error) {
         console.error(error);
       }
