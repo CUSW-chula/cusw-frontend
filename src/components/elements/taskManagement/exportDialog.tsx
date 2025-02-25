@@ -162,7 +162,7 @@ export const ExportDialog = ({ tasks }: { tasks: TaskProps[] }) => {
             {exportType !== '' && (
               <div className="gap-2 inline-flex">
                 <Input
-                  className="font-BaiJamjuree leading-normal"
+                  className={`font-BaiJamjuree leading-normal ${exportType === 'saveTemplate' ? 'visible' : 'invisible'}`}
                   placeholder="template name..."
                   name="templateName"
                   value={templateName}
@@ -170,13 +170,13 @@ export const ExportDialog = ({ tasks }: { tasks: TaskProps[] }) => {
                 />
                 <Button
                   onClick={() => handleSaveAs(exportType)}
-                  disabled={!templateName || templateName === ''}
-                  className="text-green font-bold border-green px-3 py-1 rounded-md bg-[#eefdf7] border hover:bg-slate-100 w-20">
+                  disabled={(!templateName || templateName === '') && exportType === 'saveTemplate'}
+                  className="text-green font-bold border-green px-3 py-1 rounded-md bg-[#eefdf7] border hover:bg-green hover:text-white w-20">
                   Save
                 </Button>
                 <Button
                   onClick={() => handleSaveAs('cancel')}
-                  className="text-red font-bold border-red px-3 py-1 rounded-md bg-[#fde8e8] border hover:bg-slate-100 w-20">
+                  className="text-red font-bold border-red px-3 py-1 rounded-md bg-[#fde8e8] border hover:bg-red hover:text-white w-20">
                   Cancel
                 </Button>
               </div>
