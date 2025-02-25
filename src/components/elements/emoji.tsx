@@ -82,7 +82,7 @@ const Emoji = ({ task }: { task: TaskProps }) => {
   const handleEmojiActions = async (emojiData: EmojiClickData) => {
     const emoji = emojiData.emoji;
     const taskId = task_id;
-    const url = `${BASE_URL}/v2/tasks/emoji`;
+    const url = `${BASE_URL}/v2/tasks/emoji/${taskId}`;
 
     const checkResponse = await fetch(`${BASE_URL}/v2/tasks/emoji/${taskId}`, {
       headers: { Authorization: auth },
@@ -105,7 +105,6 @@ const Emoji = ({ task }: { task: TaskProps }) => {
       method: isEmojiAssigned ? 'PATCH' : 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: auth },
       body: JSON.stringify({
-        taskId: taskId,
         userId: userid,
         emoji: emoji,
       }),

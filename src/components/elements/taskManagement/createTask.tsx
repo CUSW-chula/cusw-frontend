@@ -10,7 +10,7 @@ export const CreateTask = (project: { project_id: string }) => {
   const auth = cookie?.toString() ?? '';
   const router = useRouter();
   const handleCreateTask = async () => {
-    const url = `${BASE_URL}/v2/tasks/`;
+    const url = `${BASE_URL}/v2/tasks/${project.project_id}`;
     const options = {
       method: 'POST',
       headers: { Authorization: auth, 'Content-Type': 'application/json' },
@@ -22,7 +22,6 @@ export const CreateTask = (project: { project_id: string }) => {
         parentTaskId: '',
         expense: 0,
         status: 'Unassigned',
-        projectId: project.project_id,
         startDate: new Date(),
         endDate: new Date(),
       }),

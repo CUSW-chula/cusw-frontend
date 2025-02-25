@@ -75,12 +75,11 @@ export function StatusButton({ task }: { task: TaskProps }) {
   const handleSelectStatus = async (status: Status) => {
     setSelectedStatus(getStatus(task.status));
     setOpen(false);
-    const url = `${BASE_URL}/v2/tasks/status`;
+    const url = `${BASE_URL}/v2/tasks/status/${task.id}`;
     const options = {
       method: 'PATCH',
       headers: { Authorization: auth, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        taskId: task.id,
         newTaskStatus: status.status,
       }),
     };

@@ -121,13 +121,12 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
   // Handle calendar selection
   const handleCalendarSelect = async (range: DateRange | undefined) => {
     // Patch input to database.
-    const url = `${BASE_URL}/v2/tasks/date`;
+    const url = `${BASE_URL}/v2/tasks/date/${task.id}`;
     const options = {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', Authorization: auth },
       // body: `{"taskID":"${task_id}", "startDate":"${range?.from}", "endDate":"${range?.to}"}`
       body: JSON.stringify({
-        taskID: task.id,
         startDate: range?.from ? range.from : null,
         endDate: range?.to ? range.to : null,
       }),

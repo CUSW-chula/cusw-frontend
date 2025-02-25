@@ -104,11 +104,11 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
   const handleSelectTag = async (value: string) => {
     const selected = statuses.find((status) => status.name === value);
     if (selected && !selectedTags.some((tag) => tag.id === selected.id)) {
-      const url = `${BASE_URL}/v2/tags/assign`;
+      const url = `${BASE_URL}/v2/tags/assign${task.id}`;
       const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: JSON.stringify({ taskId: task.id, tagId: selected.id }),
+        body: JSON.stringify({ tagId: selected.id }),
       };
 
       try {
@@ -138,11 +138,11 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
   };
 
   const handleDeleteTag = async (value: string) => {
-    const url = `${BASE_URL}/v2/tags/unassigned`;
+    const url = `${BASE_URL}/v2/tags/unassigned/${task.id}`;
     const options = {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json', Authorization: auth },
-      body: JSON.stringify({ taskId: task.id, tagId: value }),
+      body: JSON.stringify({ tagId: value }),
     };
 
     try {

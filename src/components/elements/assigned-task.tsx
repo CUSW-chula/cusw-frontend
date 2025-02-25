@@ -139,13 +139,13 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
       const isAlreadySelected = selectedUser.some((user) => user.id === selected.id);
 
       const url = isAlreadySelected
-        ? `${BASE_URL}/v2/tasks/unassigned` // Unassign user
-        : `${BASE_URL}/v2/tasks/assign`; // Assign user
+        ? `${BASE_URL}/v2/tasks/unassigned/${task.id}` // Unassign user
+        : `${BASE_URL}/v2/tasks/assign/${task.id}`; // Assign user
 
       const options = {
         method: isAlreadySelected ? 'DELETE' : 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: JSON.stringify({ taskId: task.id, userId: selected.id }),
+        body: JSON.stringify({ userId: selected.id }),
       };
 
       try {

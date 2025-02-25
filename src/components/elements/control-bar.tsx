@@ -297,18 +297,6 @@ export function Searchbar({ onSearchChange }: SearchProp) {
 export function Createproject() {
   const router = useRouter();
   const handleCreateProject = async () => {
-    const url = `${BASE_URL}/v2/projects`;
-    const options = {
-      method: 'POST',
-      headers: { Authorization: auth, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title: '',
-        description: '',
-        startDate: new Date(),
-        endDate: new Date(),
-      }),
-    };
-
     router.push('/projects/create');
   };
 

@@ -44,7 +44,7 @@ export const CreateSubtask = ({
   };
 
   const handleSubmit = async () => {
-    const url = `${BASE_URL}/v2/tasks/`;
+    const url = `${BASE_URL}/v2/tasks/${task.projectId}`;
     const options = {
       method: 'POST',
       headers: { Authorization: auth, 'Content-Type': 'application/json' },
@@ -56,7 +56,6 @@ export const CreateSubtask = ({
         parentTaskId: task.id,
         expense: 0,
         status: 'Unassigned',
-        projectId: task.projectId,
         startDate: null,
         endDate: null,
       }),
