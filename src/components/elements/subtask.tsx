@@ -32,7 +32,6 @@ const Subtask = ({ task }: { task: TaskProps }) => {
 
   const { audio, image, video, file, ...allowedBlockSpecs } = defaultBlockSpecs;
 
-
   return (
     <div>
       <div className="flex items-center py-1">
@@ -52,7 +51,7 @@ const Subtask = ({ task }: { task: TaskProps }) => {
         </div>
         <div className="flex-grow" />
         <div className="relative">
-              <Sort showTasks={subtasks} setShowTasks={setSubtasks} />
+          <Sort showTasks={subtasks} setShowTasks={setSubtasks} />
         </div>
         <Button
           variant="outline"

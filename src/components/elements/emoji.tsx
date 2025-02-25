@@ -84,7 +84,7 @@ const Emoji = ({ task }: { task: TaskProps }) => {
     const taskId = task_id;
     const url = `${BASE_URL}/v2/tasks/emoji`;
 
-    const checkResponse = await fetch(`${BASE_URL}/v2/tasks/emoji/${taskId}/${userid}`, {
+    const checkResponse = await fetch(`${BASE_URL}/v2/tasks/emoji/${taskId}`, {
       headers: { Authorization: auth },
     });
     if (!checkResponse.ok) {

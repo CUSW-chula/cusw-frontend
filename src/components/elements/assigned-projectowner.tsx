@@ -112,10 +112,14 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
 
     try {
       const response = await fetch(
-        `${BASE_URL}/v2/projects/owner?userId=${user.id}&projectId=${project.id}`,
+        `${BASE_URL}/v2/projects/owner`,
         {
           method: 'PATCH',
           headers: { Authorization: auth },
+          body: JSON.stringify({
+            userId: user.id,
+            projectId: project.id
+          }),
         },
       );
       if (!response.ok) {
