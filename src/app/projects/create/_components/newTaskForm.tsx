@@ -39,7 +39,11 @@ export const NewSingleTask: React.FC<NewSingleTaskProps> = ({
           value={inputs.taskDescription || ''}
           onChange={handleChange}
         />
-        <div className="w-1/6">
+        <div className="w-auto inline-flex items-center ">
+          <img src="/asset/icon/budget.svg" alt="Budget Icon " className=" text-brown" />
+          <p className="text-[#6b5c56] text-base font-semibold font-BaiJamjuree leading-tight mr-2">
+            Money :{''}
+          </p>
           <MoneyContainer value={inputs} onChange={handleChangeBudgets} />
         </div>
       </div>
