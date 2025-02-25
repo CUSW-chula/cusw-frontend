@@ -70,6 +70,7 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
       }
     };
     fetchProject();
+
     setTaskMembers(task.members);
 
     const ws = new WebSocket(BASE_SOCKET);
@@ -133,7 +134,7 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
               description: `You unassigned "${selected.name}" from this task`,
               variant: 'default',
             });
-        } else if (!response.ok) {
+        } else {
           const errorMessage = await response.text();
           toast({
             title: `🚨 Error ${response.status}: ${response.statusText}`,
@@ -173,7 +174,7 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
             </PopoverTrigger>
             <PopoverContent className="p-0" side="right" align="start">
               <Command>
-                <CommandInput placeholder="Search Member ..." />
+                <CommandInput placeholder="Search member ..." />
                 <CommandList>
                   <CommandEmpty>No results found.</CommandEmpty>
                   <CommandGroup>
