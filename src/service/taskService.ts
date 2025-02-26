@@ -17,7 +17,7 @@ export const createSingleTask = async (projectId: string, inputs: FormInput, BAS
     endDate: null,
   };
 
-  return await fetchData(`${BASE_URL}/v2/tasks/`, 'POST', taskPayload, 'Error creating task');
+  return await fetchData(`${BASE_URL}/v2/tasks`, 'POST', taskPayload, 'Error creating task');
 };
 
 export const createTasksFromTemplate = async (

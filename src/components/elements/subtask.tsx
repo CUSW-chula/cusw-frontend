@@ -24,7 +24,7 @@ const Subtask = ({ task }: { task: TaskProps }) => {
     } catch (error) {
       console.error('Error');
     }
-  }, []);
+  }, [task.subtasks]);
 
   const handleToggleSubtask = () => {
     setIsSubtaskVisible(!isSubtaskVisible);
