@@ -74,8 +74,7 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
         const response = await fetch(url, options);
         if (response.status === 403) {
           setCanEdit(false);
-        }
-        else if (!response.ok) {
+        } else if (!response.ok) {
           const errorMessage = await response.text();
           toast({
             title: `🚨 Error ${response.status}: ${response.statusText}`,

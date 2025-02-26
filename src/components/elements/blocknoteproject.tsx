@@ -47,6 +47,7 @@ function getRandomLightColor(): string {
 
 function Document({ project_id }: ProjectOverviewProps) {
   const [Description, setDescription] = useState<string>('');
+  const [canEdit, setCanEdit] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchDescription = async () => {
@@ -95,7 +96,10 @@ function Document({ project_id }: ProjectOverviewProps) {
 
       try {
         const response = await fetch(url, options);
-        if (!response.ok) {
+        if (response.status === 433) {
+          setCanEdit(false);
+        }
+        else if (!response.ok) {
           const errorMessage = await response.text();
           // throw new Error("Failed to assign tag");
           toast({
@@ -150,6 +154,7 @@ function Document({ project_id }: ProjectOverviewProps) {
   return (
     <BlockNoteView
       editor={editor}
+      aria-disabled={!canEdit}
       theme={'light'}
       onChange={() => {
         onChangeBlock();
