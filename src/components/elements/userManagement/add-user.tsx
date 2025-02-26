@@ -1,4 +1,5 @@
 import { toast } from '@/hooks/use-toast';
+import BASE_URL from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { Plus } from 'lucide-react';
 import React, { useState } from 'react';
@@ -12,7 +13,7 @@ const AddUser = () => {
 
   const addUser = async (email: string, userName: string) => {
     try {
-      const response = await fetch('http://localhost:4000/api/v2/users/', {
+      const response = await fetch(`${BASE_URL}/v2/users`, {
         method: 'POST',
         headers: {
           Authorization: auth,
