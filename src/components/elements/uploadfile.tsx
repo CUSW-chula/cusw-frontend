@@ -124,7 +124,7 @@ interface DisplayfileProps {
 }
 
 const handleDelete = async (id: string, auth: string) => {
-  const url = `${BASE_URL}/v2/file/`;
+  const url = `${BASE_URL}/v2/file`;
   const options = {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json', Authorization: auth },
