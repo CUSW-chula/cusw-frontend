@@ -208,23 +208,19 @@ export const ProjectList = () => {
         ).some((tag) => filterTag.includes(tag.name));
       });
     }
-    if (dateRange?.from != null) {
+    if (dateRange?.from && dateRange.to) {
       const fromDate = new Date(dateRange.from);
       const toDate = new Date(dateRange.to);
       filteredProjects = filteredProjects.filter((project) => {
-        const projectStartDate = project.startDate ? project.startDate : null;
-        const projectEndDate = project.endDate ? project.endDate : null;
-
-        if (!projectStartDate) return false;
-        if (!projectEndDate) {
-          return projectStartDate >= fromDate;
+        if (project.startDate && project.endDate) {
+          const projectStartDate = new Date(project.startDate);
+          const projectEndDate = new Date(project.endDate);
+          return (
+            (projectStartDate >= fromDate && projectStartDate <= toDate) ||
+            (projectEndDate >= fromDate && projectEndDate <= toDate) ||
+            (projectStartDate <= fromDate && projectEndDate >= toDate)
+          );
         }
-
-        return (
-          (projectStartDate >= fromDate && projectStartDate <= toDate) ||
-          (projectEndDate >= fromDate && projectEndDate <= toDate) ||
-          (projectStartDate <= fromDate && projectEndDate >= toDate)
-        );
       });
     }
 
