@@ -15,7 +15,7 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
   const [Title, setTitle] = useState<string>('');
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
-  const [canEdit, setCanEdit] = useState<boolean>(false);
+  const [canEdit, setCanEdit] = useState<boolean>(true);
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const pareJsonValues = useCallback((values: any) => {

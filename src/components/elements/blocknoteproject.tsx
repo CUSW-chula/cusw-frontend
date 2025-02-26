@@ -81,11 +81,6 @@ function Document({ project_id }: ProjectOverviewProps) {
 
         if (response.status === 403) {
           setCanEdit(false);
-          toast({
-            title: '🚨 Permission Denied',
-            description: 'You no longer have permission to edit this field.',
-            variant: 'destructive',
-          });
         } else if (!response.ok) {
           const errorMessage = await response.text();
           toast({
