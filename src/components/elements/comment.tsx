@@ -442,7 +442,7 @@ const Comment = ({ task }: { task: TaskProps }) => {
         </ul>
       </div>
       <div className="text-black text-sm font-medium font-Bai Jamjuree leading-[14px]">
-        Your Comment
+        Your comment
       </div>
       <div className="flex flex-col w-full h-[115px] border-[1px] border-[#6b5c56] rounded-lg p-[10px]">
         <form onSubmit={handleSubmit}>

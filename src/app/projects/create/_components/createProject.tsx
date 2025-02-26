@@ -81,7 +81,7 @@ export const CreateProject = () => {
 
   return (
     <div className="h-full px-20 flex flex-col justify-start items-start gap-4 w-full">
-      <h1 className="text-black text-5xl font-semibold font-Anuphan">Create Project</h1>
+      <h1 className="text-black text-5xl font-semibold font-Anuphan">Create project</h1>
       {/* <div className="inline-flex w-full gap-7"> */}
       <form className="w-full h-[348px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start inline-flex">
         <div className="self-stretch h-[82px] flex-col justify-start items-start gap-[18px] flex">
@@ -114,7 +114,7 @@ export const CreateProject = () => {
                 variant="destructive"
                 disabled={inputs.projectTitle === undefined || inputs.projectTitle === ''}
                 className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex">
-                Select Project Template
+                Select project template
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-[920px] max-h-[400px] h-full w-full p-6 bg-white rounded-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.09)] border border-[#6b5c56] flex-col justify-between items-center inline-flex">
@@ -122,10 +122,10 @@ export const CreateProject = () => {
               <Tabs className="w-full px-4">
                 <TabsList className="flex max-w-[400px] w-full justify-evenly mx-auto">
                   <TabsTrigger className="w-full" value="New Task">
-                    New Task
+                    New task
                   </TabsTrigger>
                   <TabsTrigger className="w-full" value="Select Template">
-                    Select Template
+                    Select template
                   </TabsTrigger>
                 </TabsList>
                 <TabsContent value="New Task">

@@ -104,7 +104,7 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
   const handleSelectTag = async (value: string) => {
     const selected = statuses.find((status) => status.name === value);
     if (selected && !selectedTags.some((tag) => tag.id === selected.id)) {
-      const url = `${BASE_URL}/v2/tags/assign${task.id}`;
+      const url = `${BASE_URL}/v2/tags/assign/${task.id}`;
       const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
@@ -201,12 +201,12 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild className=" border-brown text-brown ">
               <Button variant="outline">
-                <p className="p-ui">Add Tag</p>
+                <p className="p-ui">Add tag</p>
               </Button>
             </PopoverTrigger>
             <PopoverContent className="p-0" side="right" align="start">
               <Command>
-                <CommandInput placeholder="Add Tag ..." />
+                <CommandInput placeholder="Add tag ..." />
                 <CommandList>
                   <CommandEmpty>No results found.</CommandEmpty>
                   <CommandGroup>

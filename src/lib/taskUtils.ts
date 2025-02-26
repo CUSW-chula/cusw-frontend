@@ -187,7 +187,20 @@ export const useExportTask = () => {
         };
         try {
           const response = await fetch(url, options);
-          await response.json();
+          if (response.ok) {
+            // Trigger success toast
+            toast({
+              title: 'Export Successful',
+              description: 'The tasks has been exported as a template.',
+              variant: 'default',
+            });
+          } else if (response.status === 403) {
+            toast({
+              title: 'Export Failed',
+              description: 'Unauthorized access to export the tasks.',
+              variant: 'destructive',
+            });
+          }
         } catch (error) {
           console.error('Error saving template:', error);
         }
@@ -200,11 +213,6 @@ export const useExportTask = () => {
       const blob = new Blob([BOM + jsonData], { type: 'application/json' });
       const jsonFile = new File([blob], `${templateName}.json`, { type: 'application/json' });
       uploadTemplate(jsonFile);
-      toast({
-        title: 'Export Successful',
-        description: 'The tasks has been exported as a template.',
-        variant: 'default',
-      });
     } catch (error) {
       // Trigger error toast
       toast({

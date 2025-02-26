@@ -80,7 +80,7 @@ export const MoneyUI = ({ budgetList: initialBudget, handleSubmit }: MoneyProps)
         <div
           className={`h-10 px-4 bg-white rounded-md border justify-center items-center flex min-w-32 font-BaiJamjuree hover:cursor-pointer  border-brown text-brown ${getMoneyColor(budgetList.type)}`}>
           {budgetList.type === TypeMoney.null || Number.isNaN(budgetList.money)
-            ? 'Add Money'
+            ? 'Add money'
             : budgetList.money.toLocaleString()}
         </div>
       </DialogTrigger>
@@ -91,7 +91,7 @@ export const MoneyUI = ({ budgetList: initialBudget, handleSubmit }: MoneyProps)
             <Select value={budgetList.type} onValueChange={handleChangeType}>
               <SelectTrigger
                 className={`w-32 h-10 px-3 rounded-md border border-gray-300 justify-between items-center inline-flex ${getMoneyColor(budgetList.type)}`}>
-                <SelectValue placeholder="Select Type" />
+                <SelectValue placeholder="Select type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem
