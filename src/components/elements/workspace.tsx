@@ -121,7 +121,7 @@ const Workspace = ({ workspace }: Workspace) => {
 
   useEffect(() => {
     if (!Title || !Title.trim()) return;
-    const updateTitle = async () => {
+    const timer = setTimeout(async () => {
       const taskId = task_id;
       const url = `${BASE_URL}/v2/tasks/${taskId}`;
       const options = {
@@ -144,9 +144,10 @@ const Workspace = ({ workspace }: Workspace) => {
       } catch (error) {
         console.error('Error updating Title:', error);
       }
-    };
+    }, 5000); // 5-second delay
 
-    updateTitle();
+    // Cleanup the timer if Description or task_id changes
+    return () => clearTimeout(timer);
   }, [Title, task_id, auth]);
 
   const description: Description = {
