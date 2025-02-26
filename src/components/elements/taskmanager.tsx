@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { getCookie } from 'cookies-next';
 import BASE_URL, { type TaskManageMentOverviewProp } from '@/lib/shared';
-import type { TaskProps, TagProps } from '@/app/types/types';
+import type { TagProps, TaskProps } from '@/app/types/types';
 import { Task, ExportDialog, Filter, Sort, CreateTask } from './taskManagement';
 import { parseJsonValues, statusSections } from '@/lib/taskUtils';
 import { toast } from '@/hooks/use-toast';
@@ -14,7 +14,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   const [tasks, setTasks] = useState<TaskProps[]>([]);
   const [showTasks, setShowTasks] = useState<TaskProps[]>([]);
   const [projectName, setProjectName] = useState<string>('');
-  const [allTags, setAllTags] = useState<TagProps[]>([]);
 
   useEffect(() => {
     //get all data of project from db
@@ -47,37 +46,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         console.error(error);
       }
     };
-    //get all tags of tasks from db
-    const fetchTagData = async () => {
-      const url = `${BASE_URL}/v2/tags`;
-      const options = {
-        method: 'GET',
-        headers: {
-          Authorization: auth,
-        },
-      };
-
-      try {
-        const response = await fetch(url, options);
-        if (!response.ok) {
-          const errorMessage = await response.text();
-          toast({
-            title: '🚨 Error $response.status: $response.statusText',
-            description: `
-        🔥 error: $errorMessage || 'An unexpected error occurred.'
-        
-        🗂️ file: taskmanager.tsx
-            `,
-            variant: 'default',
-          });
-        }
-        const data = (await response.json()) as TagProps[];
-        setAllTags(data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchTagData();
     fetchData();
   }, [project_id]);
 
@@ -85,7 +53,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     return (
       <div className="flex items-center justify-between w-full mb-3">
         <div className="flex items-center gap-4">
-          <Filter tasks={tasks} allTags={allTags} setShowTasks={setShowTasks} />
+          <Filter tasks={tasks} setShowTasks={setShowTasks} />
           <ExportDialog tasks={tasks} />
         </div>
         <div className="flex items-center gap-4">

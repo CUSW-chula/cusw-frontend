@@ -194,8 +194,7 @@ export const useExportTask = () => {
               description: 'The tasks has been exported as a template.',
               variant: 'default',
             });
-          }
-          else if (response.status === 403) {
+          } else if (response.status === 403) {
             toast({
               title: 'Export Failed',
               description: 'Unauthorized access to export the tasks.',

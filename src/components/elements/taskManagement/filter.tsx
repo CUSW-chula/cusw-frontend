@@ -1,59 +1,78 @@
+import BASE_URL from '@/lib/shared';
+import { getCookie } from 'cookies-next';
+import { useEffect, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 import type { TaskProps, TagProps } from '@/app/types/types';
+import { useAuth } from '@/hooks/use-auth';
+import { toast } from '@/hooks/use-toast';
 
 interface FilterProps {
   tasks: TaskProps[];
-  allTags: TagProps[];
   setShowTasks: (prev: TaskProps[]) => void;
 }
 
-export const Filter = ({ tasks, allTags, setShowTasks }: FilterProps) => {
-  const handleFilter = async (tagID: string) => {
-    const filterByTag = async (tasks: TaskProps[], tag: TagProps): Promise<TaskProps[]> => {
-      const filteredTasks: TaskProps[] = [];
+export const Filter = ({ tasks, setShowTasks }: FilterProps) => {
+  const [allTags, setAllTags] = useState<TagProps[]>([]);
+  const [selectedTag, setSelectedTag] = useState<string>('all');
+  const auth = useAuth();
+  useEffect(() => {
+    //get all tags of tasks from db
+    const fetchTagData = async () => {
+      const url = `${BASE_URL}/v2/tags`;
+      const options = {
+        method: 'GET',
+        headers: {
+          Authorization: auth,
+        },
+      };
 
-      // Iterate through all tasks
-      for (const task of tasks) {
-        // Check if the task itself has the matching tag
-        if (task.tags?.some((item) => item.id === tag.id)) {
-          filteredTasks.push(task);
+      try {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          toast({
+            title: '🚨 Error $response.status: $response.statusText',
+            description: `
+        🔥 error: ${errorMessage} || 'An unexpected error occurred.'
+        
+        🗂️ file: taskmanager.tsx
+            `,
+            variant: 'default',
+          });
         }
-
-        // If the task has subtasks, recursively filter them
-        else if (task.subtasks && task.subtasks?.length > 0) {
-          const subtaskResults = await filterByTag(task.subtasks, tag);
-          filteredTasks.push(...subtaskResults); // Append the results
-        }
+        const data = (await response.json()) as TagProps[];
+        setAllTags(data);
+      } catch (error) {
+        console.error(error);
       }
-
-      return filteredTasks;
     };
+    fetchTagData();
+  }, [auth]);
 
-    const tag = allTags.find((tag) => tag.id === tagID) || {
-      id: 'all',
-      name: 'Default',
-    };
-
-    if (tag.id === 'all') {
+  const handleFilter = (tagId: string) => {
+    setSelectedTag(tagId);
+    if (tagId === 'all') {
       setShowTasks(tasks);
-      return;
+    } else {
+      const filteredTasks = tasks.filter((task) => task.tags?.some((tag) => tag.id === tagId));
+      setShowTasks(filteredTasks);
     }
-    // Call the recursive function and update the state
-    const tasksWithTag = await filterByTag(tasks, tag);
-    setShowTasks(tasksWithTag);
   };
+
   return (
     <Select
       onValueChange={(value) => {
         handleFilter(value);
       }}>
-      <SelectTrigger className="w-[150px] border-brown">
-        <SelectValue className="text-brown" placeholder="Filter by: Tag" />
+      <SelectTrigger className="w-40 border-brown">
+        <SelectValue className="text-brown" placeholder="Filter by: Tag">
+          {selectedTag === 'all' ? 'All' : allTags.find((tag) => tag.id === selectedTag)?.name}
+        </SelectValue>
       </SelectTrigger>
 
       <SelectContent>
         <SelectItem key="default" value="all" className="font-BaiJamjuree">
-          Default
+          All
         </SelectItem>
         {allTags.map((tag: TagProps) => (
           <SelectItem key={tag.id} value={tag.id} className="font-BaiJamjuree">
