@@ -212,19 +212,18 @@ export const ProjectList = () => {
       const fromDate = new Date(dateRange.from);
       const toDate = new Date(dateRange.to);
       filteredProjects = filteredProjects.filter((project) => {
-        const projectStartDate = project.startDate ? project.startDate : null;
-        const projectEndDate = project.endDate ? project.endDate : null;
+        const projectStartDate = project.startDate ? new Date(project.startDate) : null;
+        const projectEndDate = project.endDate ? new Date(project.endDate) : null;
+
+        console.log(`start: ${fromDate}, end: ${toDate}`);
+        console.log(`pjstart: ${projectStartDate}, pjend: ${projectEndDate}`);
 
         if (!projectStartDate) return false;
         if (!projectEndDate) {
-          return projectStartDate >= fromDate;
+          return fromDate <= projectStartDate && projectStartDate <= toDate;
         }
 
-        return (
-          (projectStartDate >= fromDate && projectStartDate <= toDate) ||
-          (projectEndDate >= fromDate && projectEndDate <= toDate) ||
-          (projectStartDate <= fromDate && projectEndDate >= toDate)
-        );
+        return !(projectStartDate < fromDate) && !(projectEndDate > toDate);
       });
     }
 
