@@ -32,6 +32,7 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
     const newValue: TagProps = {
       id: values.id,
       name: values.name,
+      isProject: values.isProject,
     };
     return newValue;
   }, []);

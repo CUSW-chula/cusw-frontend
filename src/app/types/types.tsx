@@ -2,6 +2,7 @@ import type { Emojis } from '@/lib/shared';
 export interface TagProps {
   id: string;
   name: string;
+  isProject: boolean;
 }
 export interface TaskProps {
   id: string;

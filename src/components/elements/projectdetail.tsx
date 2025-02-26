@@ -145,10 +145,6 @@ const SumMoney = ({
 };
 
 const MenuBar = ({ project }: { project: Project }) => {
-  const cookie = getCookie('auth');
-  const auth = cookie?.toString() ?? '';
-  const member: UsersProps[] = project.members;
-
   return (
     <div className="min-h-[350px] min-w-[395px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start gap-4 inline-flex">
       <div aria-label="owner" className="h-10 justify-start items-center inline-flex">

@@ -41,7 +41,7 @@ export const Filter = ({ tasks, setShowTasks }: FilterProps) => {
           });
         }
         const data = (await response.json()) as TagProps[];
-        setAllTags(data);
+        setAllTags(data.filter((tag) => tag.isProject === false));
       } catch (error) {
         console.error(error);
       }
