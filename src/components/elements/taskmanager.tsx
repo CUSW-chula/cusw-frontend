@@ -62,7 +62,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         if (!response.ok) {
           const errorMessage = await response.text();
           toast({
-            title: "🚨 Error $response.status: $response.statusText",
+            title: '🚨 Error $response.status: $response.statusText',
             description: `
         🔥 error: $errorMessage || 'An unexpected error occurred.'
         
