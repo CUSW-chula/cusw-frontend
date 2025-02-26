@@ -1,24 +1,27 @@
 import type React from 'react';
 import { useEffect, useState } from 'react';
 import BASE_URL, { type User } from '@/lib/shared';
+import { Switch } from '@/components/ui/switch';
 import { getCookie } from 'cookies-next';
 import { toast } from '@/hooks/use-toast';
+
 interface ManageProps {
   user: User;
 }
-const SelectRole: React.FC<ManageProps> = ({ user }) => {
+
+const Manage: React.FC<ManageProps> = ({ user }) => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
-  const roles = ['Admin', 'User'];
+  const [isActivate, setIsActivate] = useState<boolean>(user.activated);
 
-  const updateisAdmin = async (isAdmin: boolean) => {
+  const updateIsActivate = async (checked: boolean) => {
     const userid = user.id;
-    const url = `${BASE_URL}/v2/users/role/${userid}`;
+    const url = `${BASE_URL}/v2/users/activate/${userid}`;
     const options = {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', Authorization: auth },
       body: JSON.stringify({
-        isAdmin: isAdmin,
+        isActive: checked,
       }),
     };
 
@@ -27,24 +30,21 @@ const SelectRole: React.FC<ManageProps> = ({ user }) => {
       const errorMessage = await response.text();
       toast({
         title: `🚨 Error ${response.status}: ${response.statusText}`,
-        description: `🔥 error: ${errorMessage || 'An unexpected error occurred.'}🗂️ file: select-table.tsx`,
+        description: `🔥 error: ${errorMessage || 'An unexpected error occurred.'}🗂️ file: isadmin.tsx`,
         variant: 'default',
       });
     }
   };
 
   return (
-    <select
-      className="rounded px-3 py-1 border w-fit"
-      defaultValue={`${user.admin ? 'Admin' : 'User'}`}
-      onChange={(e) => updateisAdmin(e.target.value === 'Admin')}>
-      {roles.map((role) => (
-        <option key={role} value={role}>
-          {role}
-        </option>
-      ))}
-    </select>
+    <Switch
+      checked={isActivate}
+      onCheckedChange={(checked) => {
+        setIsActivate(checked);
+        updateIsActivate(checked);
+      }}
+    />
   );
 };
 
-export default SelectRole;
+export default Manage;

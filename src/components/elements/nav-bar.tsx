@@ -7,12 +7,14 @@ import { useEffect, useState } from 'react';
 import BASE_URL from '@/lib/shared';
 import { jwtDecode } from 'jwt-decode';
 import { toast } from '@/hooks/use-toast';
+import { TableOfContents } from 'lucide-react';
 
 export default function NavBar() {
   const url = usePathname();
   const cookie = getCookie('auth');
   const [name, setName] = useState('');
   const [userid, setUserid] = useState('');
+  const [isAdmin, setIsAdmin] = useState<boolean>();
 
   const auth = cookie?.toString() ?? '';
 
@@ -42,17 +44,14 @@ export default function NavBar() {
           const errorMessage = await response.text();
           toast({
             title: `🚨 Error ${response.status}: ${response.statusText}`,
-            description: `
-        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-        
-        🗂️ file: nav-bar.tsx
-            `,
+            description: `🔥 error: ${errorMessage || 'An unexpected error occurred.'}🗂️ file: nav-bar.tsx`,
             variant: 'default',
           });
         }
 
         const data = await response.json();
         setName(data.name);
+        setIsAdmin(data.admin);
       } catch (error) {
         console.error('Error fetching Owner:', error);
       }
@@ -64,11 +63,21 @@ export default function NavBar() {
   return (
     <>
       {url !== '/' && (
-        <div className="flex flex-row min-w-full h-[84px] justify-between items-center">
+        <div className="flex flex-row min-w-full h-[84px] justify-between items-center font-BaiJamjuree">
           <a href="/projects">
             <img src="/asset/logo/Logo_s2.svg" alt="CUSW" />
           </a>
-          <div className="flex flex-row px-5">
+          <div className="flex flex-row px-5 gap-4">
+            {isAdmin && (
+              <button
+                type="button"
+                className="flex justify-center items-center gap-1 h-[40px] bg-white border border-brown rounded-[6px] px-2"
+                onClick={() => window.location.assign('/user-management')}>
+                <TableOfContents />
+                User Management
+              </button>
+            )}
+
             <Profile2 userId={userid} userName={name} />
           </div>
         </div>
