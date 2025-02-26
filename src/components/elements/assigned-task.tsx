@@ -14,7 +14,7 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'; // Import TooltipProvider
 import { Profile } from './profile';
 import BASE_URL, { BASE_SOCKET, Task, User, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
@@ -34,6 +34,8 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
   const [open, setOpen] = React.useState(false);
   const [taskMembers, setTaskMembers] = React.useState<UsersInterfaces[]>([]);
   const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
+  const [owner, setOwner] = React.useState<UsersInterfaces[]>([]);
+  const MAX_VISIBLE_MEMBERS = 3;
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const pareJsonValue = React.useCallback((values: any) => {
@@ -186,16 +188,27 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
             <PopoverTrigger asChild className=" border-brown text-brown">
               <Button variant="outline">
                 {taskMembers.length > 0 ? (
-                  // Display selected users as circles with initials
-                  <div className="flex space-x-2 ">
-                    {taskMembers.map((user) => (
+                  <div className="flex space-x-2 items-center">
+                    {taskMembers.slice(0, MAX_VISIBLE_MEMBERS).map((user) => (
                       <Profile key={user.id} userId={user.id} userName={user.name} />
                     ))}
+                    {taskMembers.length > MAX_VISIBLE_MEMBERS && (
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <div className="w-[24px] h-[24px] bg-gray-100 rounded-xl border border-[#6b5c56] flex-col justify-center items-center gap-2.5 inline-flex text-center text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-3">
+                            +{taskMembers.length - MAX_VISIBLE_MEMBERS}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {taskMembers.slice(MAX_VISIBLE_MEMBERS).map((user) => (
+                            <p key={user.id}>{user.name}</p>
+                          ))}
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                   </div>
                 ) : (
-                  <>
-                    <p className="p-ui ">Assigned</p>
-                  </>
+                  <p className="p-ui">Assigned</p>
                 )}
               </Button>
             </PopoverTrigger>
