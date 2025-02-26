@@ -151,7 +151,7 @@ const MenuBar = ({ project }: { project: Project }) => {
         <div className="w-24 justify-start items-center gap-2 flex">
           <CrownIcon className="w-[24px] h-[24px] text-black" />
 
-          <div className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight">
+          <div className="text-[#6b5c56] text-xs font-medium leading-tight">
             Owner :{' '}
           </div>
         </div>
@@ -161,7 +161,7 @@ const MenuBar = ({ project }: { project: Project }) => {
         <div className="w-24 justify-start items-center gap-2 flex">
           <Users className="w-[24px] h-[24px] text-black" />
 
-          <div className="text-[#6b5c56] text-xs font-medium font-['Bai Jamjuree'] leading-tight">
+          <div className="text-[#6b5c56] text-xs font-medium leading-tight">
             Member :{' '}
           </div>
         </div>
@@ -173,7 +173,7 @@ const MenuBar = ({ project }: { project: Project }) => {
           {/* Icon */}
           <Tag className="w-6 h-6 relative" />
           {/* Description */}
-          <div className="text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-tight">
+          <div className="text-[#6b5c56] text-xs font-medium  leading-tight">
             Tag :{' '}
           </div>
         </div>
@@ -185,12 +185,12 @@ const MenuBar = ({ project }: { project: Project }) => {
         {/* Label Zone */}
         <div className="w-24 justify-start items-center gap-2 flex">
           {/* Icon */}
-          <div className="w-6 text-center text-black text-[30px] font-medium font-BaiJamjuree">
+          <div className="w-6 text-center text-black text-[30px] font-medium">
             ฿
           </div>
 
           {/* Describtion */}
-          <div className="text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-tight">
+          <div className="text-[#6b5c56] text-xs font-medium  leading-tight">
             Money :{' '}
           </div>
         </div>
@@ -202,7 +202,7 @@ const MenuBar = ({ project }: { project: Project }) => {
           {/* Icon */}
           <Calendar className="w-6 h-6 relative" />
           {/* Describtion */}
-          <div className="text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-tight">
+          <div className="text-[#6b5c56] text-xs font-medium  leading-tight">
             Date :{' '}
           </div>
         </div>
