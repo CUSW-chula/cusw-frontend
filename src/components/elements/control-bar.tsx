@@ -305,7 +305,7 @@ export function Createproject() {
       variant="outline"
       onClick={handleCreateProject}
       className="flex items-center text-[#6b5c56] border-[#6b5c56] px-3 py-1 rounded-md font-BaiJamjuree">
-      + New Project
+      + New project
     </Button>
   );
 }

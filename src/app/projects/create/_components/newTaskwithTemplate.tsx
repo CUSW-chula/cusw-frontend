@@ -47,7 +47,7 @@ export const NewTaskwithTemplate: React.FC<NewTaskwithTemplateProps> = ({
           type="submit"
           className="px-4 py-2 bg-brown justify-center items-center flex"
           disabled={!inputs.task?.template}>
-          Select Template
+          Select template
         </Button>
       </div>
     </form>

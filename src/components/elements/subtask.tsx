@@ -60,7 +60,7 @@ const Subtask = ({ task }: { task: TaskProps }) => {
             setIsSubtaskSectionVisible(!isSubtaskSectionVisible);
             // handleCreateSubtask();
           }}>
-          + Add Subtask
+          + New subtask
         </Button>
       </div>
 

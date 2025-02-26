@@ -186,7 +186,7 @@ export function AssignedProjectMember({ project }: { project: Project }) {
             </PopoverTrigger>
             <PopoverContent className="p-0" side="right" align="start">
               <Command>
-                <CommandInput placeholder="Search Member ..." />
+                <CommandInput placeholder="Search member ..." />
                 <CommandList>
                   <CommandEmpty>No members found.</CommandEmpty>
                   <CommandGroup>
