@@ -78,6 +78,7 @@ export type Emojis = {
 export type Tag = {
   id: string;
   name: string;
+  isProject: boolean;
 };
 
 export type User = {

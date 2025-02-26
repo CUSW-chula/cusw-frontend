@@ -17,6 +17,7 @@ import { Profile } from './profile';
 import BASE_URL, { BASE_SOCKET } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import type { Project } from '@/lib/shared';
+import { toast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface UsersInterfaces {
@@ -47,6 +48,18 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
         const response = await fetch(`${BASE_URL}/v2/users`, {
           headers: { Authorization: auth },
         });
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          toast({
+            title: `🚨 Error ${response.status}: ${response.statusText}`,
+            description: `
+                 🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+                 
+                 🗂️ file: assigned-projectowner.tsx
+                     `,
+            variant: 'default',
+          });
+        }
         const data = await response.json();
         setUsersList(data);
       } catch (error) {
@@ -98,21 +111,42 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
     if (!user) return;
 
     try {
-      const response = await fetch(
-        `${BASE_URL}/v2/projects/owner?userId=${user.id}&projectId=${project.id}`,
-        {
-          method: 'PATCH',
-          headers: { Authorization: auth },
-        },
-      );
-
-      if (!response.ok) throw new Error('Update failed');
+      const response = await fetch(`${BASE_URL}/v2/projects/owner/${project.id}`, {
+        method: 'PATCH',
+        headers: { Authorization: auth, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+        }),
+      });
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        toast({
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `
+      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+      
+      🗂️ file: assigned-projectowner.tsx
+          `,
+          variant: 'default',
+        });
+      } else {
+        toast({
+          title: '✅ Success',
+          description: 'Project owner updated successfully.',
+          variant: 'default',
+        });
+      }
 
       setSelectedUser((prev) =>
         prev.some((u) => u.id === user.id) ? prev.filter((u) => u.id !== user.id) : [...prev, user],
       );
     } catch (error) {
       console.error('Error updating owner:', error);
+      toast({
+        title: '🚨 Error',
+        description: 'An unexpected error occurred while updating the project owner.',
+        variant: 'default',
+      });
     }
   };
 

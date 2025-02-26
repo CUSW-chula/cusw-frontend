@@ -24,6 +24,7 @@ import { useAtom } from 'jotai';
 import { tagsListAtom } from '@/atom';
 import Link from 'next/link';
 import { DateText } from './date-feature';
+import { toast } from '@/hooks/use-toast';
 
 export const ProjectList = () => {
   const cookie = getCookie('auth');
@@ -40,7 +41,16 @@ export const ProjectList = () => {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        const errorMessage = await response.text();
+        toast({
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `
+      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+      
+      🗂️ file: projectList.tsx
+          `,
+          variant: 'default',
+        });
       }
 
       const data = await response.json();
@@ -151,10 +161,22 @@ export const ProjectList = () => {
     });
 
     const isCurrentlyStarred = starredProjects[projectId] ?? false;
-    await fetch(`${BASE_URL}/v2/projects/pin/${projectId}`, {
+    const response = await fetch(`${BASE_URL}/v2/projects/pin/${projectId}`, {
       method: isCurrentlyStarred ? 'DELETE' : 'POST',
       headers: { Authorization: auth },
     });
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      toast({
+        title: `🚨 Error ${response.status}: ${response.statusText}`,
+        description: `
+    🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+    
+    🗂️ file: projectList.tsx
+        `,
+        variant: 'default',
+      });
+    }
 
     // 🔄 รีเซ็ตค่า UI กลับถ้า API ล้มเหลว
     setStarredProjects((prevState) => {
@@ -293,7 +315,9 @@ export const ProjectList = () => {
   const handleProjectTags = React.useCallback(() => {
     const tags: Tag[] = [];
     projectList.map((project) =>
-      project.tags.map((tag) => tags.push({ id: tag.id, name: tag.name })),
+      project.tags.map((tag) =>
+        tags.push({ id: tag.id, name: tag.name, isProject: tag.isProject }),
+      ),
     );
     const TagsList = tags.map((tag) => ({
       value: tag.name,
@@ -418,17 +442,17 @@ export const ProjectList = () => {
                           <TooltipTrigger>
                             <div className="ml-1 w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center border border-brown">
                               <span className="text-brown text-xs font-BaiJamjuree">
-                                +{project.members.length - 3}
+                                +{project.owner.length - 3}
                               </span>
                             </div>
                           </TooltipTrigger>
                           <TooltipContent>
                             <div className=" flex flex-col flex-wrap items-start">
-                              {project.members?.map((mem) => (
+                              {project.owner?.map((own) => (
                                 <span
-                                  key={mem?.id}
+                                  key={own?.id}
                                   className="text-xs font-medium font-BaiJamjuree  bg-white  text-brown">
-                                  {mem?.name}
+                                  {own?.name}
                                 </span>
                               ))}
                             </div>

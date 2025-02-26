@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { Circle } from 'lucide-react';
-
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,10 +13,11 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { Profile } from './profile';
 import BASE_URL, { BASE_SOCKET, type Project } from '@/lib/shared';
-import { useAuth } from '@/hooks/use-auth';
+import { getCookie } from 'cookies-next';
+import { toast } from '@/hooks/use-toast';
 
 interface UsersInterfaces {
   id: string;
@@ -26,104 +26,137 @@ interface UsersInterfaces {
 }
 
 export function AssignedProjectMember({ project }: { project: Project }) {
-  const auth = useAuth();
   const [open, setOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<UsersInterfaces[]>([]);
   const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
-  const [owner, setOwner] = React.useState<UsersInterfaces[]>([]);
+  const [auth, setAuth] = React.useState('');
+  const [isMounted, setIsMounted] = React.useState(false);
 
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  const pareJsonValue = React.useCallback((values: any) => {
-    const newValue: UsersInterfaces = {
-      id: values.id,
-      email: values.email,
-      name: values.name,
-    };
-    return newValue;
+  // Client-side only initialization
+  React.useEffect(() => {
+    setIsMounted(true);
+    setAuth(getCookie('auth')?.toString() || '');
   }, []);
 
+  // Safe users fetch
   React.useEffect(() => {
-    const fetchUsers = async () => {
-      const usersData = await fetch(`${BASE_URL}/v2/users`, {
-        headers: {
-          Authorization: auth,
-        },
-      });
-      const userList = await usersData.json();
-      setUsersList(userList);
-    };
-    fetchUsers();
-    setSelectedUser(project.members);
+    if (!isMounted || !auth) return;
 
-    const fetchOwner = async () => {
+    const fetchUsers = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/v2/projects/${project.id}`, {
-          headers: {
-            Authorization: auth,
-          },
+        const response = await fetch(`${BASE_URL}/v2/users`, {
+          headers: { Authorization: auth },
         });
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          toast({
+            title: `🚨 Error ${response.status}: ${response.statusText}`,
+            description: `
+                 🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+                 
+                 🗂️ file: assigned-projectowner.tsx
+                     `,
+            variant: 'default',
+          });
+        }
         const data = await response.json();
-        setOwner(data.owner);
+        console.log('data:', data);
+        setUsersList(data);
       } catch (error) {
-        console.error('Error fetching Owner:', error);
+        console.error('Failed to fetch users:', error);
       }
     };
-    fetchOwner();
+
+    fetchUsers();
+  }, [auth, isMounted]);
+
+  // Initialize selected user safely
+  React.useEffect(() => {
+    if (isMounted && project?.members) {
+      setSelectedUser(project.members);
+    }
+  }, [project, isMounted]);
+
+  // WebSocket connection
+  React.useEffect(() => {
+    if (!isMounted || !auth || !project) return;
 
     const ws = new WebSocket(BASE_SOCKET);
 
-    ws.onopen = () => {};
-
-    ws.onmessage = (event) => {
+    const handleMessage = (event: MessageEvent) => {
       try {
-        const socketEvent = JSON.parse(event.data); // Parse incoming message
-        const eventName = socketEvent.eventName;
+        const { eventName, data } = JSON.parse(event.data);
         if (eventName === `assigned:${project.id}`) {
-          const data = pareJsonValue(socketEvent.data);
-          setSelectedUser((prevList) => (Array.isArray(prevList) ? [...prevList, data] : []));
-        }
-        if (eventName === `unassigned:${project.id}`) {
-          const data = pareJsonValue(socketEvent.data);
-          setSelectedUser((prevList) =>
-            Array.isArray(prevList) ? prevList.filter((item) => item.id !== data.id) : [],
-          );
+          setSelectedUser((prev) => [
+            ...prev.filter((u) => u.id !== data.id),
+            { id: data.id, name: data.name, email: data.email },
+          ]);
+        } else if (eventName === `unassigned:${project.id}`) {
+          setSelectedUser((prev) => [
+            ...prev.filter((u) => u.id !== data.id),
+            { id: data.id, name: data.name, email: data.email },
+          ]);
         }
       } catch (error) {
-        console.error('Error parsing WebSocket message:', error);
+        console.error('WebSocket message error:', error);
       }
     };
 
-    ws.onclose = () => {};
-
+    ws.addEventListener('message', handleMessage);
     return () => {
+      ws.removeEventListener('message', handleMessage);
       ws.close();
     };
-  }, [pareJsonValue, auth, project]);
+  }, [auth, project, isMounted]);
 
-  // Handle user selection and unselection
-  const handleSelectUser = async (value: string) => {
-    const selected = usersList.find((user) => user.name === value);
-    if (selected && !owner.some((o) => o.id === selected.id)) {
-      const isAlreadySelected = selectedUser.some((user) => user.id === selected.id);
+  const handleSelectUser = async (userName: string) => {
+    if (!isMounted || !project) return;
 
-      const url = `${BASE_URL}/v2/projects/assign/${project.id}`; // Assign or unassign user
+    const user = usersList.find((u) => u.name === userName);
+    if (!user) return;
 
-      const options = {
-        method: isAlreadySelected ? 'DELETE' : 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: JSON.stringify({ projectId: project.id, userId: selected.id }),
-      };
-
-      try {
-        const response = await fetch(url, options);
-        if (!response.ok) {
-          console.log('failed');
-        }
-      } catch (error) {
-        console.error(error);
-      }
+    // Check if the user is the project owner
+    if (project.owner.some((owner) => owner.id === user.id)) {
+      toast({
+        title: '🚫 Action not allowed',
+        description: 'The project owner cannot assign themselves to the project.',
+        variant: 'default',
+      });
+      return;
     }
-    setOpen(false);
+
+    try {
+      const method = selectedUser.some((u) => u.id === user.id) ? 'DELETE' : 'POST';
+      const response = await fetch(`${BASE_URL}/v2/projects/assign/${project.id}`, {
+        method,
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
+        body: JSON.stringify({ projectId: project.id, userId: user.id }),
+      });
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        toast({
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `
+        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+        
+        🗂️ file: assigned-projectmember.tsx
+            `,
+          variant: 'default',
+        });
+      } else {
+        toast({
+          title: '✅ Success',
+          description: `User ${user.name} has been ${method === 'POST' ? 'assigned to' : 'removed from'} the project.`,
+          variant: 'default',
+        });
+      }
+
+      setSelectedUser((prev) =>
+        prev.some((u) => u.id === user.id) ? prev.filter((u) => u.id !== user.id) : [...prev, user],
+      );
+    } catch (error) {
+      console.error('Error updating owner:', error);
+    }
   };
 
   return (
@@ -131,19 +164,16 @@ export function AssignedProjectMember({ project }: { project: Project }) {
       <div className="flex flex-row gap-1 flex-wrap">
         <div className="flex items-center space-x-4">
           <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild className=" border-brown text-brown">
+            <PopoverTrigger asChild className="border-brown text-brown">
               <Button variant="outline">
                 {selectedUser.length > 0 ? (
-                  // Display selected users as circles with initials
-                  <div className="flex space-x-2 ">
+                  <div className="flex space-x-2 items-center">
                     {selectedUser.map((user) => (
                       <Profile key={user.id} userId={user.id} userName={user.name} />
                     ))}
                   </div>
                 ) : (
-                  <>
-                    <p className="p-ui ">Assigned</p>
-                  </>
+                  <p className="p-ui">Assigned</p>
                 )}
               </Button>
             </PopoverTrigger>
@@ -151,21 +181,26 @@ export function AssignedProjectMember({ project }: { project: Project }) {
               <Command>
                 <CommandInput placeholder="Search Member ..." />
                 <CommandList>
-                  <CommandEmpty>No results found.</CommandEmpty>
+                  <CommandEmpty>No members found.</CommandEmpty>
                   <CommandGroup>
-                    {usersList.map((user) => (
-                      <CommandItem key={user.id} value={user.name} onSelect={handleSelectUser}>
-                        <Circle
-                          className={cn(
-                            'mr-2 h-4 w-4 fill-greenLight text-greenLight ',
-                            selectedUser?.length > 0 && selectedUser.some((u) => u.id === user.id)
-                              ? 'opacity-100'
-                              : 'opacity-40',
-                          )}
-                        />
-                        <span>{user.name}</span>
-                      </CommandItem>
-                    ))}
+                    {usersList
+                      .filter((user) => !project.owner.some((owner) => owner.id === user.id))
+                      .map((user) => (
+                        <CommandItem
+                          key={user.id}
+                          value={user.name}
+                          onSelect={() => handleSelectUser(user.name)}>
+                          <Circle
+                            className={cn(
+                              'mr-2 h-4 w-4 fill-greenLight text-greenLight',
+                              selectedUser.some((u) => u.id === user.id)
+                                ? 'opacity-100'
+                                : 'opacity-40',
+                            )}
+                          />
+                          <span>{user.name}</span>
+                        </CommandItem>
+                      ))}
                   </CommandGroup>
                 </CommandList>
               </Command>

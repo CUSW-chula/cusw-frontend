@@ -19,6 +19,7 @@ import { Profile } from './profile';
 import BASE_URL, { BASE_SOCKET, Task, User, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import type { TaskProps } from '@/app/types/types';
+import { toast } from '@/hooks/use-toast';
 import { useToast } from '@/hooks/use-toast';
 
 interface UsersInterfaces {
@@ -45,17 +46,30 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
   }, []);
 
   React.useEffect(() => {
-    const fetchUsersList = async () => {
-      const usersData = await fetch(`${BASE_URL}/v2/users`, {
+    const fetchAssignUsers = async () => {
+      const usersData = await fetch(`${BASE_URL}/v2/users/project/${task.projectId}`, {
         headers: {
           Authorization: auth,
         },
       });
+      if (!usersData.ok) {
+        const errorMessage = await usersData.text();
+        // throw new Error("Failed to assign tag");
+        toast({
+          title: `🚨 Error ${usersData.status}: ${usersData.statusText}`,
+          description: `
+                         🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+                         
+                         🗂️ file: assigned-task.tsx
+                             `,
+          variant: 'default',
+        });
+      }
       const userList = await usersData.json();
       setUsersList(userList);
     };
 
-    fetchUsersList();
+    fetchAssignUsers();
 
     const fetchProject = async () => {
       try {
@@ -64,6 +78,19 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
             Authorization: auth,
           },
         });
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          // throw new Error("Failed to assign tag");
+          toast({
+            title: `🚨 Error ${response.status}: ${response.statusText}`,
+            description: `
+        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+        
+        🗂️ file: assigned-task.tsx
+            `,
+            variant: 'default',
+          });
+        }
         const data = await response.json();
       } catch (error) {
         console.error('Error fetching Owner:', error);
@@ -110,13 +137,13 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
       const isAlreadySelected = taskMembers.some((user) => user.id === selected.id);
 
       const url = isAlreadySelected
-        ? `${BASE_URL}/v2/tasks/unassigned` // Unassign user
-        : `${BASE_URL}/v2/tasks/assign`; // Assign user
+        ? `${BASE_URL}/v2/tasks/unassigned/${task.id}` // Unassign user
+        : `${BASE_URL}/v2/tasks/assign/${task.id}`; // Assign user
 
       const options = {
         method: isAlreadySelected ? 'DELETE' : 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: JSON.stringify({ taskId: task.id, userId: selected.id }),
+        body: JSON.stringify({ userId: selected.id }),
       };
 
       try {

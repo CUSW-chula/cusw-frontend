@@ -17,6 +17,7 @@ import { useEffect, useState } from 'react';
 import BASE_URL, { BASE_YSWEET, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { jwtDecode, type JwtPayload } from 'jwt-decode';
+import { toast } from '@/hooks/use-toast';
 
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
@@ -75,7 +76,18 @@ function Document({ description }: Description) {
 
       try {
         const response = await fetch(url, options);
-        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          toast({
+            title: `🚨 Error ${response.status}: ${response.statusText}`,
+            description: `
+               🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+               
+               🗂️ file: blocknote.tsx
+                   `,
+            variant: 'default',
+          });
+        }
         const data = await response.json();
       } catch (error) {
         console.error('Error updating Description:', error);

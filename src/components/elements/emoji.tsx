@@ -9,6 +9,7 @@ import { getCookie } from 'cookies-next';
 import BASE_URL, { BASE_SOCKET, type User, type Emojis } from '@/lib/shared';
 import { jwtDecode } from 'jwt-decode';
 import type { TaskProps } from '@/app/types/types';
+import { toast } from '@/hooks/use-toast';
 
 const Picker = dynamic(() => import('emoji-picker-react'), { ssr: true });
 
@@ -81,25 +82,48 @@ const Emoji = ({ task }: { task: TaskProps }) => {
   const handleEmojiActions = async (emojiData: EmojiClickData) => {
     const emoji = emojiData.emoji;
     const taskId = task_id;
-    const url = `${BASE_URL}/v2/tasks/emoji`;
+    const url = `${BASE_URL}/v2/tasks/emoji/${taskId}`;
 
-    const checkResponse = await fetch(`${BASE_URL}/v2/tasks/emoji/${taskId}/${userid}`, {
+    const checkResponse = await fetch(`${BASE_URL}/v2/tasks/emoji/${taskId}`, {
       headers: { Authorization: auth },
     });
+    if (!checkResponse.ok) {
+      const errorMessage = await checkResponse.text();
+      toast({
+        title: `🚨 Error ${checkResponse.status}: ${checkResponse.statusText}`,
+        description: `
+           🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+           
+           🗂️ file: emoji.tsx
+               `,
+        variant: 'default',
+      });
+    }
 
     const isEmojiAssigned = await checkResponse.json();
     const options = {
       method: isEmojiAssigned ? 'PATCH' : 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: auth },
       body: JSON.stringify({
-        taskId: taskId,
         userId: userid,
         emoji: emoji,
       }),
     };
 
     try {
-      await fetch(url, options);
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        toast({
+          title: `🚨 Error ${checkResponse.status}: ${checkResponse.statusText}`,
+          description: `
+      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+      
+      🗂️ file: emoji.tsx
+          `,
+          variant: 'default',
+        });
+      }
     } catch (error) {}
   };
 

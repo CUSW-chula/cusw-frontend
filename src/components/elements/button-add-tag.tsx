@@ -13,7 +13,7 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
+import BASE_URL, { BASE_SOCKET, type Tag, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { Badge } from '@/components/ui/badge';
 import type { TaskProps, TagProps } from '@/app/types/types';
@@ -38,7 +38,7 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
 
   React.useEffect(() => {
     const fetchTags = async () => {
-      const url = `${BASE_URL}/v2/tags/`;
+      const url = `${BASE_URL}/v2/tags`;
       const options = {
         method: 'GET',
         headers: {
@@ -48,8 +48,21 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
 
       try {
         const response = await fetch(url, options);
-        const data = await response.json();
-        setStatuses(data);
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          // throw new Error("Failed to assign tag");
+          toast({
+            title: `🚨 Error ${response.status}: ${response.statusText}`,
+            description: `
+        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+        
+        🗂️ file: button-add-tag.tsx
+            `,
+            variant: 'default',
+          });
+        }
+        const data: Tag[] = await response.json();
+        setStatuses(data.filter((tag) => !tag.isProject));
       } catch (error) {
         console.error(error);
       }
@@ -69,10 +82,10 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
         const eventName = socketEvent.eventName;
         const data = pareJsonValue(socketEvent.data);
 
-        if (eventName === 'assigned-tags') {
+        if (eventName === `assigned-tags:${task.id}`) {
           // Update selected tags with new tag added
           setSelectedTags((prev) => [data, ...prev]);
-        } else if (eventName === 'unassigned-tag') {
+        } else if (eventName === `unassigned-tag:${task.id}`) {
           // Remove tag from selected tags
           setSelectedTags((prev) => prev.filter((t) => t.id !== data.id));
         }
@@ -91,16 +104,16 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
   const handleSelectTag = async (value: string) => {
     const selected = statuses.find((status) => status.name === value);
     if (selected && !selectedTags.some((tag) => tag.id === selected.id)) {
-      const url = `${BASE_URL}/v2/tags/assign`;
+      const url = `${BASE_URL}/v2/tags/assign${task.id}`;
       const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: JSON.stringify({ taskId: task.id, tagId: selected.id }),
+        body: JSON.stringify({ tagId: selected.id }),
       };
 
       try {
         const response = await fetch(url, options);
-
+        const errorMessage = await response.text();
         // เช็คว่าคำขอสำเร็จหรือไม่
         if (response.ok) {
           // throw new Error("Failed to assign tag");
@@ -112,8 +125,8 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
         } else {
           toast({
             title: 'Error',
-            description: 'Failed to assign tag. Please try again.',
-            variant: 'destructive', // ใช้สีแดงสำหรับ error
+            description: errorMessage || 'An unexpected error occurred.',
+            variant: 'destructive', // หรือใช้ 'success' ถ้ามี custom variant
           });
         }
         // After adding the tag, update the local state
@@ -125,15 +138,28 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
   };
 
   const handleDeleteTag = async (value: string) => {
-    const url = `${BASE_URL}/v2/tags/unassigned`;
+    const url = `${BASE_URL}/v2/tags/unassigned/${task.id}`;
     const options = {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json', Authorization: auth },
-      body: JSON.stringify({ taskId: task.id, tagId: value }),
+      body: JSON.stringify({ tagId: value }),
     };
 
     try {
-      await fetch(url, options);
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        // throw new Error("Failed to assign tag");
+        toast({
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `
+      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+      
+      🗂️ file: button-add-tag.tsx
+          `,
+          variant: 'default',
+        });
+      }
       // Update local state to remove the deleted tag
       setSelectedTags((prev) => prev.filter((tag) => tag.id !== value));
     } catch (error) {

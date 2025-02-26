@@ -297,29 +297,6 @@ export function Searchbar({ onSearchChange }: SearchProp) {
 export function Createproject() {
   const router = useRouter();
   const handleCreateProject = async () => {
-    const url = `${BASE_URL}/v2/projects`;
-    const options = {
-      method: 'POST',
-      headers: { Authorization: auth, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title: '',
-        description: '',
-        startDate: new Date(),
-        endDate: new Date(),
-      }),
-    };
-
-    // try {
-    //   const response = await fetch(url, options);
-    //   const data = await response.json();
-    //   if (data?.id) {
-    //     router.push(`/projects/create/${data.id}`);
-    //   } else {
-    //     console.error('Project ID not found', data);
-    //   }
-    // } catch (error) {
-    //   console.error(error);
-    // }
     router.push('/projects/create');
   };
 
