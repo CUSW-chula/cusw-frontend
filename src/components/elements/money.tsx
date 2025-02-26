@@ -205,7 +205,7 @@ const Money = ({ task }: { task: TaskProps | null }) => {
     <Dialog open={openDialog} onOpenChange={setOpenDialog}>
       <DialogTrigger asChild>
         <div
-          className={`h-10 px-4 bg-white rounded-md border justify-center items-center flex min-w-32 font-BaiJamjuree hover:cursor-pointer  border-brown text-brown ${getMoneyColor(budgetList.type)}`}>
+          className={`h-10 px-4 bg-white rounded-md border justify-center items-center flex p-ui font-BaiJamjuree hover:cursor-pointer  border-brown text-brown ${getMoneyColor(budgetList.type)}`}>
           {budgetList.type === TypeMoney.null || Number.isNaN(budgetList.money)
             ? 'Add money'
             : budgetList.money.toLocaleString()}
