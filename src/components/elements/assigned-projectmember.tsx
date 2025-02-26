@@ -13,7 +13,7 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { TooltipProvider } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Profile } from './profile';
 import BASE_URL, { BASE_SOCKET, type Project } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
@@ -31,14 +31,13 @@ export function AssignedProjectMember({ project }: { project: Project }) {
   const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
   const [auth, setAuth] = React.useState('');
   const [isMounted, setIsMounted] = React.useState(false);
+  const MAX_VISIBLE_MEMBERS = 3;
 
-  // Client-side only initialization
   React.useEffect(() => {
     setIsMounted(true);
     setAuth(getCookie('auth')?.toString() || '');
   }, []);
 
-  // Safe users fetch
   React.useEffect(() => {
     if (!isMounted || !auth) return;
 
@@ -58,9 +57,9 @@ export function AssignedProjectMember({ project }: { project: Project }) {
                      `,
             variant: 'default',
           });
+          return;
         }
         const data = await response.json();
-        console.log('data:', data);
         setUsersList(data);
       } catch (error) {
         console.error('Failed to fetch users:', error);
@@ -70,14 +69,12 @@ export function AssignedProjectMember({ project }: { project: Project }) {
     fetchUsers();
   }, [auth, isMounted]);
 
-  // Initialize selected user safely
   React.useEffect(() => {
     if (isMounted && project?.members) {
       setSelectedUser(project.members);
     }
   }, [project, isMounted]);
 
-  // WebSocket connection
   React.useEffect(() => {
     if (!isMounted || !auth || !project) return;
 
@@ -86,16 +83,8 @@ export function AssignedProjectMember({ project }: { project: Project }) {
     const handleMessage = (event: MessageEvent) => {
       try {
         const { eventName, data } = JSON.parse(event.data);
-        if (eventName === `assigned:${project.id}`) {
-          setSelectedUser((prev) => [
-            ...prev.filter((u) => u.id !== data.id),
-            { id: data.id, name: data.name, email: data.email },
-          ]);
-        } else if (eventName === `unassigned:${project.id}`) {
-          setSelectedUser((prev) => [
-            ...prev.filter((u) => u.id !== data.id),
-            { id: data.id, name: data.name, email: data.email },
-          ]);
+        if ((eventName === 'assigned' || eventName === 'unassigned') && data.projectId === project.id) {
+          setSelectedUser(data.members);
         }
       } catch (error) {
         console.error('WebSocket message error:', error);
@@ -115,7 +104,6 @@ export function AssignedProjectMember({ project }: { project: Project }) {
     const user = usersList.find((u) => u.name === userName);
     if (!user) return;
 
-    // Check if the user is the project owner
     if (project.owner.some((owner) => owner.id === user.id)) {
       toast({
         title: '🚫 Action not allowed',
@@ -130,30 +118,30 @@ export function AssignedProjectMember({ project }: { project: Project }) {
       const response = await fetch(`${BASE_URL}/v2/projects/assign/${project.id}`, {
         method,
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: JSON.stringify({ projectId: project.id, userId: user.id }),
+        body: JSON.stringify({ userId: user.id }),
       });
       if (!response.ok) {
         const errorMessage = await response.text();
         toast({
           title: `🚨 Error ${response.status}: ${response.statusText}`,
           description: `
-        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-        
-        🗂️ file: assigned-projectmember.tsx
-            `,
+            🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+            
+            🗂️ file: assigned-projectmember.tsx
+                `,
           variant: 'default',
         });
       } else {
+        const data = await response.json();
+        setSelectedUser((prev) =>
+          prev.some((u) => u.id === user.id) ? prev.filter((u) => u.id !== user.id) : [...prev, user],
+        );
         toast({
           title: '✅ Success',
           description: `User ${user.name} has been ${method === 'POST' ? 'assigned to' : 'removed from'} the project.`,
           variant: 'default',
         });
       }
-
-      setSelectedUser((prev) =>
-        prev.some((u) => u.id === user.id) ? prev.filter((u) => u.id !== user.id) : [...prev, user],
-      );
     } catch (error) {
       console.error('Error updating owner:', error);
     }
@@ -168,9 +156,23 @@ export function AssignedProjectMember({ project }: { project: Project }) {
               <Button variant="outline">
                 {selectedUser.length > 0 ? (
                   <div className="flex space-x-2 items-center">
-                    {selectedUser.map((user) => (
+                    {selectedUser.slice(0, MAX_VISIBLE_MEMBERS).map((user) => (
                       <Profile key={user.id} userId={user.id} userName={user.name} />
                     ))}
+                    {selectedUser.length > MAX_VISIBLE_MEMBERS && (
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <div className="w-[24px] h-[24px] bg-gray-100 rounded-xl border border-[#6b5c56] flex-col justify-center items-center gap-2.5 inline-flex text-center text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-3">
+                            +{selectedUser.length - MAX_VISIBLE_MEMBERS}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {selectedUser.slice(MAX_VISIBLE_MEMBERS).map((user) => (
+                            <p key={user.id}>{user.name}</p>
+                          ))}
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                   </div>
                 ) : (
                   <p className="p-ui">Assigned</p>
@@ -189,7 +191,8 @@ export function AssignedProjectMember({ project }: { project: Project }) {
                         <CommandItem
                           key={user.id}
                           value={user.name}
-                          onSelect={() => handleSelectUser(user.name)}>
+                          onSelect={() => handleSelectUser(user.name)}
+                        >
                           <Circle
                             className={cn(
                               'mr-2 h-4 w-4 fill-greenLight text-greenLight',

@@ -14,7 +14,7 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { TooltipProvider } from '@/components/ui/tooltip'; // Import TooltipProvider
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'; // Import TooltipProvider
 import { Profile } from './profile';
 import BASE_URL, { BASE_SOCKET, Task, User, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
@@ -35,6 +35,7 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
   const [selectedUser, setSelectedUser] = React.useState<UsersInterfaces[]>([]);
   const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
   const [owner, setOwner] = React.useState<UsersInterfaces[]>([]);
+  const MAX_VISIBLE_MEMBERS = 3;
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const pareJsonValue = React.useCallback((values: any) => {
@@ -194,18 +195,29 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
         <div className="flex items-center space-x-4">
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild className=" border-brown text-brown">
-              <Button variant="outline">
+            <Button variant="outline">
                 {selectedUser.length > 0 ? (
-                  // Display selected users as circles with initials
-                  <div className="flex space-x-2 ">
-                    {selectedUser.map((user) => (
+                  <div className="flex space-x-2 items-center">
+                    {selectedUser.slice(0, MAX_VISIBLE_MEMBERS).map((user) => (
                       <Profile key={user.id} userId={user.id} userName={user.name} />
                     ))}
+                    {selectedUser.length > MAX_VISIBLE_MEMBERS && (
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <div className="w-[24px] h-[24px] bg-gray-100 rounded-xl border border-[#6b5c56] flex-col justify-center items-center gap-2.5 inline-flex text-center text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-3">
+                            +{selectedUser.length - MAX_VISIBLE_MEMBERS}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {selectedUser.slice(MAX_VISIBLE_MEMBERS).map((user) => (
+                            <p key={user.id}>{user.name}</p>
+                          ))}
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                   </div>
                 ) : (
-                  <>
-                    <p className="p-ui ">Assigned</p>
-                  </>
+                  <p className="p-ui">Assigned</p>
                 )}
               </Button>
             </PopoverTrigger>
