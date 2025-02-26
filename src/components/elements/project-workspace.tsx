@@ -15,6 +15,7 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
   const [Title, setTitle] = useState<string>('');
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
+  const [canEdit, setCanEdit] = useState<boolean>(true);
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const pareJsonValues = useCallback((values: any) => {
@@ -71,6 +72,9 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
 
       try {
         const response = await fetch(url, options);
+        if(response.status === 403) {
+          setCanEdit(false);
+        }
         if (!response.ok) {
           const errorMessage = await response.text();
           toast({
@@ -96,6 +100,7 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
       <input
         className="resize-none border-none w-full outline-none placeholder-gray-300 text-[30px] font-semibold font-Anuphan"
         placeholder="Task Title"
+        // disabled={!canEdit}
         value={Title}
         onChange={(e) => {
           setTitle(e.target.value);
