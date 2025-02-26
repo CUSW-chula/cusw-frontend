@@ -104,7 +104,7 @@ const Workspace = ({ workspace }: Workspace) => {
           setFileList((prevFiles) => [...prevFiles, parsedData]);
         } else if (eventName === 'remove-file') {
           setFileList((prevFiles) => prevFiles.filter((file) => file.id !== parsedData.id));
-        } else if (eventName === 'title edited') {
+        } else if (eventName === `title:${task_id}`) {
           setTitle(parsedDatas.title);
         }
       } catch (error) {
