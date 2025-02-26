@@ -201,7 +201,11 @@ export const ProjectList = () => {
     let filteredProjects = [...projectList];
     if (filterTag && filterTag.length > 0) {
       filteredProjects = filteredProjects.filter((project) => {
-        return (project.tags as Tag[]).some((tag) => filterTag.includes(tag.name));
+        return (
+          project.tags.filter((tag) => {
+            return tag.isProject;
+          }) as Tag[]
+        ).some((tag) => filterTag.includes(tag.name));
       });
     }
     if (dateRange?.from != null) {

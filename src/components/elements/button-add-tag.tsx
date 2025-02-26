@@ -104,7 +104,7 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
   const handleSelectTag = async (value: string) => {
     const selected = statuses.find((status) => status.name === value);
     if (selected && !selectedTags.some((tag) => tag.id === selected.id)) {
-      const url = `${BASE_URL}/v2/tags/assign${task.id}`;
+      const url = `${BASE_URL}/v2/tags/assign/${task.id}`;
       const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
