@@ -175,7 +175,7 @@ export const useExportTask = () => {
         return rootTasks;
       };
       const uploadTemplate = async (jsonFile: File) => {
-        const url = `${BASE_URL}/v2/template`;
+        const url = `${BASE_URL}/v2/template/:${tasks[0].projectId}`;
         const formData = new FormData();
         formData.append('file', jsonFile);
         const options = {
