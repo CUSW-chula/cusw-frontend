@@ -36,7 +36,9 @@ export default function Blocknotes({ project_id }: ProjectOverviewProps) {
 
 function getRandomLightColor(): string {
   const getLightValue = () => Math.floor(Math.random() * 128) + 128;
-  return `#${getLightValue().toString(16).padStart(2, '0')}${getLightValue().toString(16).padStart(2, '0')}${getLightValue().toString(16).padStart(2, '0')}`;
+  return `#${getLightValue().toString(16).padStart(2, '0')}${getLightValue()
+    .toString(16)
+    .padStart(2, '0')}${getLightValue().toString(16).padStart(2, '0')}`;
 }
 
 function Document({ project_id }: ProjectOverviewProps) {
@@ -97,7 +99,9 @@ function Document({ project_id }: ProjectOverviewProps) {
   }, [Description, project_id, canEdit]);
 
   const { audio, image, video, file, codeBlock, ...allowedBlockSpecs } = defaultBlockSpecs;
-  const schema = BlockNoteSchema.create({ blockSpecs: { ...allowedBlockSpecs } });
+  const schema = BlockNoteSchema.create({
+    blockSpecs: { ...allowedBlockSpecs },
+  });
 
   const userData = jwtDecode<CustomJwtPayload>(auth);
   const provider = useYjsProvider();
@@ -120,6 +124,7 @@ function Document({ project_id }: ProjectOverviewProps) {
   return (
     <BlockNoteView
       editor={editor}
+      editable={canEdit}
       aria-disabled={!canEdit}
       theme={'light'}
       onChange={onChangeBlock}

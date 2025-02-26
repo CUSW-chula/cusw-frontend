@@ -49,7 +49,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     };
     //get all tags of tasks from db
     const fetchTagData = async () => {
-      const url = `${BASE_URL}/v2/tags/`;
+      const url = `${BASE_URL}/v2/tags`;
       const options = {
         method: 'GET',
         headers: {
@@ -62,9 +62,9 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         if (!response.ok) {
           const errorMessage = await response.text();
           toast({
-            title: `🚨 Error ${response.status}: ${response.statusText}`,
+            title: "🚨 Error $response.status: $response.statusText",
             description: `
-        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+        🔥 error: $errorMessage || 'An unexpected error occurred.'
         
         🗂️ file: taskmanager.tsx
             `,

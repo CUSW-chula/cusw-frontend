@@ -54,5 +54,5 @@ export const addTaskBudget = async (taskId: string, inputs: FormInput) => {
     expense: inputs.taskExpense,
   };
 
-  await fetchData(`${BASE_URL}/v2/tasks/money/`, 'POST', payload, 'Error adding task money');
+  await fetchData(`${BASE_URL}/v2/tasks/money`, 'POST', payload, 'Error adding task money');
 };

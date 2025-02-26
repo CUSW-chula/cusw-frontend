@@ -175,7 +175,7 @@ export const useExportTask = () => {
         return rootTasks;
       };
       const uploadTemplate = async (jsonFile: File) => {
-        const url = `${BASE_URL}/v2/template`;
+        const url = `${BASE_URL}/v2/template/:${tasks[0].projectId}`;
         const formData = new FormData();
         formData.append('file', jsonFile);
         const options = {
@@ -187,7 +187,21 @@ export const useExportTask = () => {
         };
         try {
           const response = await fetch(url, options);
-          await response.json();
+          if (response.ok) {
+            // Trigger success toast
+            toast({
+              title: 'Export Successful',
+              description: 'The tasks has been exported as a template.',
+              variant: 'default',
+            });
+          }
+          else if (response.status === 403) {
+            toast({
+              title: 'Export Failed',
+              description: 'Unauthorized access to export the tasks.',
+              variant: 'destructive',
+            });
+          }
         } catch (error) {
           console.error('Error saving template:', error);
         }
@@ -200,11 +214,6 @@ export const useExportTask = () => {
       const blob = new Blob([BOM + jsonData], { type: 'application/json' });
       const jsonFile = new File([blob], `${templateName}.json`, { type: 'application/json' });
       uploadTemplate(jsonFile);
-      toast({
-        title: 'Export Successful',
-        description: 'The tasks has been exported as a template.',
-        variant: 'default',
-      });
     } catch (error) {
       // Trigger error toast
       toast({
@@ -276,7 +285,7 @@ const ICONS = {
 export const statusSections = [
   { status: 'Unassigned', displayName: 'Unassigned', icon: ICONS.Unassigned },
   { status: 'Assigned', displayName: 'Assigned', icon: ICONS.Assigned },
-  { status: 'InRecheck', displayName: 'In Recheck', icon: ICONS.InRecheck },
-  { status: 'UnderReview', displayName: 'Under Review', icon: ICONS.UnderReview },
+  { status: 'InRecheck', displayName: 'In recheck', icon: ICONS.InRecheck },
+  { status: 'UnderReview', displayName: 'Under review', icon: ICONS.UnderReview },
   { status: 'Done', displayName: 'Done', icon: ICONS.Done },
 ];
