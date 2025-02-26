@@ -195,7 +195,7 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
         <div className="flex items-center space-x-4">
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild className=" border-brown text-brown">
-            <Button variant="outline">
+              <Button variant="outline">
                 {selectedUser.length > 0 ? (
                   <div className="flex space-x-2 items-center">
                     {selectedUser.slice(0, MAX_VISIBLE_MEMBERS).map((user) => (

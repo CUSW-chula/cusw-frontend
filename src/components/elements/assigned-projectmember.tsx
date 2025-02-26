@@ -83,7 +83,10 @@ export function AssignedProjectMember({ project }: { project: Project }) {
     const handleMessage = (event: MessageEvent) => {
       try {
         const { eventName, data } = JSON.parse(event.data);
-        if ((eventName === 'assigned' || eventName === 'unassigned') && data.projectId === project.id) {
+        if (
+          (eventName === 'assigned' || eventName === 'unassigned') &&
+          data.projectId === project.id
+        ) {
           setSelectedUser(data.members);
         }
       } catch (error) {
@@ -134,7 +137,9 @@ export function AssignedProjectMember({ project }: { project: Project }) {
       } else {
         const data = await response.json();
         setSelectedUser((prev) =>
-          prev.some((u) => u.id === user.id) ? prev.filter((u) => u.id !== user.id) : [...prev, user],
+          prev.some((u) => u.id === user.id)
+            ? prev.filter((u) => u.id !== user.id)
+            : [...prev, user],
         );
         toast({
           title: '✅ Success',
@@ -191,8 +196,7 @@ export function AssignedProjectMember({ project }: { project: Project }) {
                         <CommandItem
                           key={user.id}
                           value={user.name}
-                          onSelect={() => handleSelectUser(user.name)}
-                        >
+                          onSelect={() => handleSelectUser(user.name)}>
                           <Circle
                             className={cn(
                               'mr-2 h-4 w-4 fill-greenLight text-greenLight',
