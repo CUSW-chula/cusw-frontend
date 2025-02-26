@@ -33,7 +33,7 @@ export const ProjectTag = ({ value, onChange }: ProjectTagProps) => {
   React.useEffect(() => {
     const fetchTags = async () => {
       const response = await fetchData(
-        `${BASE_URL}/v2/tags/`,
+        `${BASE_URL}/v2/tags`,
         'GET',
         {},
         'Get Tags From Server Fail.',
