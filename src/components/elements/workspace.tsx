@@ -105,7 +105,7 @@ const Workspace = ({ workspace }: Workspace) => {
         } else if (eventName === 'remove-file') {
           setFileList((prevFiles) => prevFiles.filter((file) => file.id !== parsedData.id));
         } else if (eventName === `title:${task_id}`) {
-          setTitle(parsedDatas.title);
+          // setTitle(parsedDatas.title);
         }
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
