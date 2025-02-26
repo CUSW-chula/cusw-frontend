@@ -29,6 +29,15 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           setProjectName(project.title);
           const parsedData = parseJsonValues(project.tasks);
           setTasks(parsedData);
+          parsedData.sort((task1, task2) => {
+            if (task1.startDate && task2.startDate) {
+              const date1 = new Date(task1.startDate).getTime();
+              const date2 = new Date(task2.startDate).getTime();
+              return date1 - date2;
+              // Sort in ascending or descending order
+            }
+            return 1;
+          });
           setShowTasks(parsedData);
         } else {
           const errorMessage = await data.text();
@@ -104,15 +113,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           <div className="w-full block">
             {showTasks
               .filter((item) => groupingStatus(item, 99) === statusToInt(status))
-              .sort((task1, task2) => {
-                if (task1.startDate && task2.startDate) {
-                  const date1 = new Date(task1.startDate).getTime();
-                  const date2 = new Date(task2.startDate).getTime();
-                  return date1 - date2;
-                  // Sort in ascending or descending order
-                }
-                return 1;
-              })
               .map((item) => (
                 <Task key={item.id} item={item} hiddenDate={false} />
               ))}
