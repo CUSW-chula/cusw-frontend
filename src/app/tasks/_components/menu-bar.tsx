@@ -32,9 +32,7 @@ const MenuBar = ({ task }: { task: TaskProps }) => {
           {/* Icon */}
           <CrownIcon className="w-6 h-6 relative text-brown" />
           {/* Describtion */}
-          <div className="text-[#6b5c56] text-xs font-medium  leading-tight">
-            Owner :{' '}
-          </div>
+          <div className="text-[#6b5c56] text-xs font-medium  leading-tight">Owner : </div>
         </div>
         <ProjectOwner task={task} />
       </div>
@@ -45,9 +43,7 @@ const MenuBar = ({ task }: { task: TaskProps }) => {
           {/* Icon */}
           <Users className="w-6 h-6 relative text-brown" />
           {/* Describtion */}
-          <div className="text-brown text-xs font-medium leading-tight">
-            Member :{' '}
-          </div>
+          <div className="text-brown text-xs font-medium leading-tight">Member : </div>
         </div>
         <AssignedTaskToMember task={task} />
       </div>
@@ -58,9 +54,7 @@ const MenuBar = ({ task }: { task: TaskProps }) => {
           <div className="flex w-24 h-10 items-center gap-2">
             {/* Icon & text */}
             <Tag className="w-6 h-6 relative text-brown" />
-            <p className="text-[#6b5c56] text-xs font-medium  leading-tight">
-              Tag :
-            </p>
+            <p className="text-[#6b5c56] text-xs font-medium  leading-tight">Tag :</p>
           </div>
         </div>
         {/* Description */}
@@ -78,9 +72,7 @@ const MenuBar = ({ task }: { task: TaskProps }) => {
             <img src="/asset/icon/budget.svg" alt="Budget Icon " className=" text-brown  " />
           </div>
           {/* Describtion */}
-          <div className="text-[#6b5c56] text-xs font-medium leading-tight">
-            Money :{' '}
-          </div>
+          <div className="text-[#6b5c56] text-xs font-medium leading-tight">Money : </div>
         </div>
         <Money task={task} />
       </div>
@@ -91,9 +83,7 @@ const MenuBar = ({ task }: { task: TaskProps }) => {
           {/* Icon */}
           <Calendar className="w-6 h-6 relative text-brown" />
           {/* Describtion */}
-          <div className="text-[#6b5c56] text-xs font-medium  leading-tight">
-            Date :{' '}
-          </div>
+          <div className="text-[#6b5c56] text-xs font-medium  leading-tight">Date : </div>
         </div>
         <DatePickerWithRange task={task} />
       </div>
