@@ -68,7 +68,7 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
         <div className="h-9 w-45 px-2 py-1.5 bg-red-300 rounded-md border bg-white border-red justify-start items-start gap-[13px] inline-flex hover:bg-red group">
           <Trash2 className="w-6 h-6 text-red group-hover:text-white" />
           <div className="text-base font-semibold font-BaiJamjuree text-red group-hover:text-white">
-            Delete Project
+            Delete project
           </div>
         </div>
       </AlertDialogTrigger>

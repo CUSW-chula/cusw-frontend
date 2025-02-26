@@ -201,12 +201,12 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild className=" border-brown text-brown ">
               <Button variant="outline">
-                <p className="p-ui">Add Tag</p>
+                <p className="p-ui">Add tag</p>
               </Button>
             </PopoverTrigger>
             <PopoverContent className="p-0" side="right" align="start">
               <Command>
-                <CommandInput placeholder="Add Tag ..." />
+                <CommandInput placeholder="Add tag ..." />
                 <CommandList>
                   <CommandEmpty>No results found.</CommandEmpty>
                   <CommandGroup>
