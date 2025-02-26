@@ -32,9 +32,8 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [open, setOpen] = React.useState(false);
-  const [selectedUser, setSelectedUser] = React.useState<UsersInterfaces[]>([]);
+  const [taskMembers, setTaskMembers] = React.useState<UsersInterfaces[]>([]);
   const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
-  const [owner, setOwner] = React.useState<UsersInterfaces[]>([]);
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const pareJsonValue = React.useCallback((values: any) => {
@@ -47,7 +46,7 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
   }, []);
 
   React.useEffect(() => {
-    const fetchAssignAndUsers = async () => {
+    const fetchAssignUsers = async () => {
       const usersData = await fetch(`${BASE_URL}/v2/users/project/${task.projectId}`, {
         headers: {
           Authorization: auth,
@@ -70,11 +69,9 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
       setUsersList(userList);
     };
 
-    fetchAssignAndUsers();
+    fetchAssignUsers();
 
-    setSelectedUser(task.members);
-
-    const fetchOwner = async () => {
+    const fetchProject = async () => {
       try {
         const response = await fetch(`${BASE_URL}/v2/projects/${task.projectId}`, {
           headers: {
@@ -95,12 +92,13 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
           });
         }
         const data = await response.json();
-        setOwner(data.owner);
       } catch (error) {
         console.error('Error fetching Owner:', error);
       }
     };
-    fetchOwner();
+    fetchProject();
+
+    setTaskMembers(task.members);
 
     const ws = new WebSocket(BASE_SOCKET);
 
@@ -112,11 +110,11 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
         const eventName = socketEvent.eventName;
         if (eventName === `assigned:${task.id}`) {
           const data = pareJsonValue(socketEvent.data);
-          setSelectedUser((prevList) => (Array.isArray(prevList) ? [...prevList, data] : []));
+          setTaskMembers((prevList) => (Array.isArray(prevList) ? [...prevList, data] : []));
         }
         if (eventName === `unassigned:${task.id}`) {
           const data = pareJsonValue(socketEvent.data);
-          setSelectedUser((prevList) =>
+          setTaskMembers((prevList) =>
             Array.isArray(prevList) ? prevList.filter((item) => item.id !== data.id) : [],
           );
         }
@@ -135,8 +133,8 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
   // Handle user selection and unselection
   const handleSelectUser = async (value: string) => {
     const selected = usersList.find((user) => user.name === value);
-    if (selected && !owner.some((o) => o.id === selected.id)) {
-      const isAlreadySelected = selectedUser.some((user) => user.id === selected.id);
+    if (selected) {
+      const isAlreadySelected = taskMembers.some((user) => user.id === selected.id);
 
       const url = isAlreadySelected
         ? `${BASE_URL}/v2/tasks/unassigned/${task.id}` // Unassign user
@@ -150,38 +148,30 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
 
       try {
         const response = await fetch(url, options);
-
-        // เช็คว่าคำขอสำเร็จหรือไม่
         if (response.ok) {
-          // throw new Error("Failed to assign tag");
           if (options.method === 'POST')
             toast({
               title: 'Complete',
               description: `You assigned "${selected.name}" to this task`,
-              variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+              variant: 'default',
             });
-          if (options.method === 'DELETE')
+          else if (options.method === 'DELETE')
             toast({
               title: 'Complete',
               description: `You unassigned "${selected.name}" from this task`,
-              variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+              variant: 'default',
             });
         } else {
+          const errorMessage = await response.text();
           toast({
-            title: 'Error',
-            description: 'You cannot assign task to yourself',
-            variant: 'default', // ใช้สีแดงสำหรับ error
+            title: `🚨 Error ${response.status}: ${response.statusText}`,
+            description: `🔥 error: ${errorMessage || 'An unexpected error occurred.'}🗂️ file: assigned-projectmember.tsx`,
+            variant: 'default',
           });
         }
       } catch (error) {
         console.error(error);
       }
-    } else {
-      toast({
-        title: 'Error',
-        description: 'You cannot assign task to the project owner',
-        variant: 'default', // ใช้สีแดงสำหรับ error
-      });
     }
     setOpen(false);
   };
@@ -195,10 +185,10 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild className=" border-brown text-brown">
               <Button variant="outline">
-                {selectedUser.length > 0 ? (
+                {taskMembers.length > 0 ? (
                   // Display selected users as circles with initials
                   <div className="flex space-x-2 ">
-                    {selectedUser.map((user) => (
+                    {taskMembers.map((user) => (
                       <Profile key={user.id} userId={user.id} userName={user.name} />
                     ))}
                   </div>
@@ -211,7 +201,7 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
             </PopoverTrigger>
             <PopoverContent className="p-0" side="right" align="start">
               <Command>
-                <CommandInput placeholder="Search Member ..." />
+                <CommandInput placeholder="Search member ..." />
                 <CommandList>
                   <CommandEmpty>No results found.</CommandEmpty>
                   <CommandGroup>
@@ -220,7 +210,7 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
                         <Circle
                           className={cn(
                             'mr-2 h-4 w-4 fill-greenLight text-greenLight ',
-                            selectedUser?.length > 0 && selectedUser.some((u) => u.id === user.id)
+                            taskMembers?.length > 0 && taskMembers.some((u) => u.id === user.id)
                               ? 'opacity-100'
                               : 'opacity-40',
                           )}
