@@ -12,12 +12,16 @@ export const createSingleTask = async (projectId: string, inputs: FormInput, BAS
     expense: 0,
     status: 'Unassigned',
     parentTaskId: '',
-    projectId: projectId,
     startDate: null,
     endDate: null,
   };
 
-  return await fetchData(`${BASE_URL}/v2/tasks/`, 'POST', taskPayload, 'Error creating task');
+  return await fetchData(
+    `${BASE_URL}/v2/tasks/${projectId}`,
+    'POST',
+    taskPayload,
+    'Error creating task',
+  );
 };
 
 export const createTasksFromTemplate = async (
@@ -50,5 +54,5 @@ export const addTaskBudget = async (taskId: string, inputs: FormInput) => {
     expense: inputs.taskExpense,
   };
 
-  await fetchData(`${BASE_URL}/v2/tasks/money/`, 'POST', payload, 'Error adding task money');
+  await fetchData(`${BASE_URL}/v2/tasks/money`, 'POST', payload, 'Error adding task money');
 };

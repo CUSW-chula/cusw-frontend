@@ -2,54 +2,17 @@
 import { useState, useEffect } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import StatusButton from './status-button';
-import { AssignedTaskToMember } from './assigned-task';
-import { ButtonAddTags } from './button-add-tag';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { BlockNoteView } from '@blocknote/shadcn';
-import { useCreateBlockNote } from '@blocknote/react';
 import { type Block, BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
-import * as Card from '@/components/ui/card';
-import * as DropdownMenu from '@/components/ui/dropdown-menu';
-import * as Form from '@/components/ui/form';
-import * as Input from '@/components/ui/input';
-import * as Label from '@/components/ui/label';
-import * as Popover from '@/components/ui/popover';
-import * as Tabs from '@/components/ui/tabs';
-import * as Toggle from '@/components/ui/toggle';
-import * as Tooltip from '@/components/ui/tooltip';
 import { getCookie } from 'cookies-next';
 import BASE_URL, { BASE_SOCKET } from '@/lib/shared';
-import { Task } from './taskManagement';
+import { Sort, Task } from './taskManagement';
 import type { TaskProps } from '@/app/types/types';
 import { CreateSubtask } from './createSubtask';
-import { toast } from '@/hooks/use-toast';
-
-function TitleInput({ content, onChange }: { content: string; onChange: (value: string) => void }) {
-  const [editedContent, setEditedContent] = useState(content);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputText = e.target.value;
-    setEditedContent(inputText);
-    onChange(inputText);
-  };
-
-  return (
-    <input
-      className="resize-none border-none w-full outline-none pl-[54px] placeholder-gray-300 text-[30px] leading-[36px] font-semibold font-Anuphan"
-      placeholder="Task Title"
-      value={editedContent}
-      onChange={handleInputChange}
-    />
-  );
-}
 
 const Subtask = ({ task }: { task: TaskProps }) => {
   const [isSubtaskSectionVisible, setIsSubtaskSectionVisible] = useState(false);
   const [isSubtaskVisible, setIsSubtaskVisible] = useState(false);
-  const [blocks, setBlocks] = useState<Block[]>([]);
-  const [subtaskTitle, setSubtaskTitle] = useState('');
   const [subtasks, setSubtasks] = useState<TaskProps[]>([]);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
@@ -61,164 +24,13 @@ const Subtask = ({ task }: { task: TaskProps }) => {
     } catch (error) {
       console.error('Error');
     }
-  }, []);
-
-  const handleToggleSubtaskSection = () => {
-    setIsSubtaskSectionVisible(!isSubtaskSectionVisible);
-  };
+  }, [task.subtasks]);
 
   const handleToggleSubtask = () => {
     setIsSubtaskVisible(!isSubtaskVisible);
   };
 
   const { audio, image, video, file, ...allowedBlockSpecs } = defaultBlockSpecs;
-
-  const schema = BlockNoteSchema.create({
-    blockSpecs: {
-      ...allowedBlockSpecs,
-    },
-  });
-
-  const editor = useCreateBlockNote({
-    schema,
-    initialContent: [
-      {
-        type: 'paragraph',
-        content: [
-          {
-            type: 'text',
-            text: '',
-            styles: {},
-          },
-        ],
-      },
-    ],
-  });
-
-  const handleCreateSubtask = async () => {
-    try {
-      const response = await fetch(`${BASE_URL}/v2/tasks/`, {
-        method: 'POST',
-        headers: {
-          Authorization: auth,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: '',
-          description: '',
-          budget: 0,
-          advance: 0,
-          expense: 0,
-          status: 'Unassigned',
-          parentTaskId: task.id,
-          projectId: task.projectId,
-          startDate: new Date(),
-          endDate: new Date(),
-        }),
-      });
-
-      if (!response.ok) {
-        const errorMessage = await response.text();
-        toast({
-          title: `🚨 Error ${response.status}: ${response.statusText}`,
-          description: `
-      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-      
-      🗂️ file: subtask.tsx
-          `,
-          variant: 'default',
-        });
-      }
-
-      const data = await response.json();
-
-      setSubtasks((prevSubtasks) => [...prevSubtasks, data]);
-    } catch (error) {
-      console.error('Error creating subtask:', error);
-    }
-  };
-
-  const handleDeleteSubtask = async () => {
-    try {
-      const latestSubtask = subtasks[subtasks.length - 1];
-      const response = await fetch(`${BASE_URL}/v1/tasks/${latestSubtask.id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: auth,
-        },
-      });
-
-      if (!response.ok) {
-        const errorMessage = await response.text();
-        toast({
-          title: 'Error',
-          description: errorMessage || 'An unexpected error occurred.',
-          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
-        });
-      }
-
-      // Update the subtasks array by removing the deleted subtask
-      setSubtasks((prevSubtasks) => prevSubtasks.filter((task) => task.id !== latestSubtask.id));
-    } catch (error) {
-      console.error('Error deleting subtask:', error);
-    }
-  };
-
-  const handleSubmitSubtask = async () => {
-    const descriptionText = editor.document
-      .map((block) =>
-        Array.isArray(block.content) && block.content[0] && 'text' in block.content[0]
-          ? (block.content[0] as { text: string }).text
-          : '',
-      )
-      .join(' ');
-
-    try {
-      const latestSubtask = subtasks[subtasks.length - 1]; // Get the latest created subtask
-      const response = await fetch(`${BASE_URL}/v1/tasks/`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: auth,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          taskId: latestSubtask.id,
-          title: subtaskTitle,
-          description: descriptionText,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorMessage = await response.text();
-        toast({
-          title: `🚨 Error ${response.status}: ${response.statusText}`,
-          description: `
-      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-      
-      🗂️ file: subtask.tsx
-          `,
-          variant: 'default',
-        });
-      }
-
-      const data = await response.json();
-
-      // Update the subtasks array with the new data
-      setSubtasks((prevSubtasks) =>
-        prevSubtasks.map((task) =>
-          task.id === latestSubtask.id
-            ? { ...task, title: subtaskTitle, description: descriptionText }
-            : task,
-        ),
-      );
-
-      // Clear the input fields after successful update
-      setSubtaskTitle('');
-      setIsSubtaskSectionVisible(false);
-    } catch (error) {
-      console.error('Error updating subtask:', error);
-    }
-  };
 
   return (
     <div>
@@ -239,17 +51,7 @@ const Subtask = ({ task }: { task: TaskProps }) => {
         </div>
         <div className="flex-grow" />
         <div className="relative">
-          <Select>
-            <SelectTrigger className="w-[200px] border-[#6b5c56]">
-              <SelectValue
-                className="font-BaiJamjuree text-[#6b5c56]"
-                placeholder="Sort By: Start Date"
-              />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Start Date">Sort By: Start Date</SelectItem>
-            </SelectContent>
-          </Select>
+          <Sort showTasks={subtasks} setShowTasks={setSubtasks} />
         </div>
         <Button
           variant="outline"

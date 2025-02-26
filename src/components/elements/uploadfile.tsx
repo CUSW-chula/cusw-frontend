@@ -81,9 +81,8 @@ const Uploadfile = ({ task }: { task: TaskProps }) => {
   const auth = cookie?.toString() ?? '';
   const handleFile = async (file: File) => {
     const formData = new FormData();
-    formData.append('taskId', task.id);
     formData.append('file', file);
-    const url = `${BASE_URL}/v2/file/`;
+    const url = `${BASE_URL}/v2/file/${task.id}`;
     const options = {
       method: 'POST',
       body: formData,
@@ -125,7 +124,7 @@ interface DisplayfileProps {
 }
 
 const handleDelete = async (id: string, auth: string) => {
-  const url = `${BASE_URL}/v2/file/`;
+  const url = `${BASE_URL}/v2/file`;
   const options = {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json', Authorization: auth },

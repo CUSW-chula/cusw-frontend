@@ -389,7 +389,7 @@ const Comment = ({ task }: { task: TaskProps }) => {
       return;
     }
 
-    const response = await fetch(`${BASE_URL}/v2/comments/`, {
+    const response = await fetch(`${BASE_URL}/v2/comments/${task.id}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -397,7 +397,6 @@ const Comment = ({ task }: { task: TaskProps }) => {
       },
       body: JSON.stringify({
         content: comment,
-        taskId: task.id,
       }),
     });
     if (!response.ok) {

@@ -81,12 +81,11 @@ const Money = ({ task }: { task: TaskProps | null }) => {
   const handleSubmit = async (budget: Budget) => {
     //sent POST method
     const fetchDataPost = async (budgetList: number[]) => {
-      const url = `${BASE_URL}/v2/tasks/money`;
+      const url = `${BASE_URL}/v2/tasks/money/${task?.id}`;
       const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
         body: JSON.stringify({
-          taskID: task?.id,
           budget: budgetList[0],
           advance: budgetList[1],
           expense: budgetList[2],
@@ -145,11 +144,10 @@ const Money = ({ task }: { task: TaskProps | null }) => {
   const handleClear = async () => {
     //sent DELETE method
     const fetchDataDelete = async () => {
-      const url = `${BASE_URL}/v2/tasks/money`;
+      const url = `${BASE_URL}/v2/tasks/money/${task?.id}`;
       const options = {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: `{"taskID":"${task?.id}"}`,
       };
       try {
         const response = await fetch(url, options);
@@ -274,7 +272,7 @@ const Money = ({ task }: { task: TaskProps | null }) => {
                 Number.isNaN(budgetList.money) ||
                 budgetList.money === 0
               }>
-              Ok
+              OK
             </Button>
           </div>
         </DialogFooter>

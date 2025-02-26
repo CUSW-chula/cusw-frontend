@@ -175,7 +175,7 @@ export const useExportTask = () => {
         return rootTasks;
       };
       const uploadTemplate = async (jsonFile: File) => {
-        const url = `${BASE_URL}/v2/template`;
+        const url = `${BASE_URL}/v2/template/:${tasks[0].projectId}`;
         const formData = new FormData();
         formData.append('file', jsonFile);
         const options = {
@@ -276,7 +276,7 @@ const ICONS = {
 export const statusSections = [
   { status: 'Unassigned', displayName: 'Unassigned', icon: ICONS.Unassigned },
   { status: 'Assigned', displayName: 'Assigned', icon: ICONS.Assigned },
-  { status: 'InRecheck', displayName: 'In Recheck', icon: ICONS.InRecheck },
-  { status: 'UnderReview', displayName: 'Under Review', icon: ICONS.UnderReview },
+  { status: 'InRecheck', displayName: 'In recheck', icon: ICONS.InRecheck },
+  { status: 'UnderReview', displayName: 'Under review', icon: ICONS.UnderReview },
   { status: 'Done', displayName: 'Done', icon: ICONS.Done },
 ];

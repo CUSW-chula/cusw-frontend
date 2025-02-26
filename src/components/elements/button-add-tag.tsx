@@ -13,7 +13,7 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
+import BASE_URL, { BASE_SOCKET, type Tag, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { Badge } from '@/components/ui/badge';
 import type { TaskProps, TagProps } from '@/app/types/types';
@@ -38,7 +38,7 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
 
   React.useEffect(() => {
     const fetchTags = async () => {
-      const url = `${BASE_URL}/v2/tags/`;
+      const url = `${BASE_URL}/v2/tags`;
       const options = {
         method: 'GET',
         headers: {
@@ -61,8 +61,8 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
             variant: 'default',
           });
         }
-        const data = await response.json();
-        setStatuses(data);
+        const data: Tag[] = await response.json();
+        setStatuses(data.filter((tag) => !tag.isProject));
       } catch (error) {
         console.error(error);
       }
@@ -104,11 +104,11 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
   const handleSelectTag = async (value: string) => {
     const selected = statuses.find((status) => status.name === value);
     if (selected && !selectedTags.some((tag) => tag.id === selected.id)) {
-      const url = `${BASE_URL}/v2/tags/assign`;
+      const url = `${BASE_URL}/v2/tags/assign${task.id}`;
       const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: JSON.stringify({ taskId: task.id, tagId: selected.id }),
+        body: JSON.stringify({ tagId: selected.id }),
       };
 
       try {
@@ -138,11 +138,11 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
   };
 
   const handleDeleteTag = async (value: string) => {
-    const url = `${BASE_URL}/v2/tags/unassigned`;
+    const url = `${BASE_URL}/v2/tags/unassigned/${task.id}`;
     const options = {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json', Authorization: auth },
-      body: JSON.stringify({ taskId: task.id, tagId: value }),
+      body: JSON.stringify({ tagId: value }),
     };
 
     try {

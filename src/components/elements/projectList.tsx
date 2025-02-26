@@ -315,7 +315,9 @@ export const ProjectList = () => {
   const handleProjectTags = React.useCallback(() => {
     const tags: Tag[] = [];
     projectList.map((project) =>
-      project.tags.map((tag) => tags.push({ id: tag.id, name: tag.name })),
+      project.tags.map((tag) =>
+        tags.push({ id: tag.id, name: tag.name, isProject: tag.isProject }),
+      ),
     );
     const TagsList = tags.map((tag) => ({
       value: tag.name,

@@ -111,13 +111,13 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
     if (!user) return;
 
     try {
-      const response = await fetch(
-        `${BASE_URL}/v2/projects/owner?userId=${user.id}&projectId=${project.id}`,
-        {
-          method: 'PATCH',
-          headers: { Authorization: auth },
-        },
-      );
+      const response = await fetch(`${BASE_URL}/v2/projects/owner/${project.id}`, {
+        method: 'PATCH',
+        headers: { Authorization: auth, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+        }),
+      });
       if (!response.ok) {
         const errorMessage = await response.text();
         toast({
@@ -129,6 +129,12 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
           `,
           variant: 'default',
         });
+      } else {
+        toast({
+          title: '✅ Success',
+          description: 'Project owner updated successfully.',
+          variant: 'default',
+        });
       }
 
       setSelectedUser((prev) =>
@@ -136,6 +142,11 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
       );
     } catch (error) {
       console.error('Error updating owner:', error);
+      toast({
+        title: '🚨 Error',
+        description: 'An unexpected error occurred while updating the project owner.',
+        variant: 'default',
+      });
     }
   };
 
