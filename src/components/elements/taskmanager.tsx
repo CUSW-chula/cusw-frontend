@@ -2,9 +2,10 @@
 import { useEffect, useState } from 'react';
 import { getCookie } from 'cookies-next';
 import BASE_URL, { type TaskManageMentOverviewProp } from '@/lib/shared';
-import type { TaskProps } from '@/app/types/types';
+import type { TagProps, TaskProps } from '@/app/types/types';
 import { Task, ExportDialog, Filter, Sort, CreateTask } from './taskManagement';
 import { parseJsonValues, statusSections } from '@/lib/taskUtils';
+import { toast } from '@/hooks/use-toast';
 
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
@@ -29,6 +30,17 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           const parsedData = parseJsonValues(project.tasks);
           setTasks(parsedData);
           setShowTasks(parsedData);
+        } else {
+          const errorMessage = await data.text();
+          toast({
+            title: `🚨 Error ${data.status}: ${data.statusText}`,
+            description: `
+        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+        
+        🗂️ file: taskmanager.tsx
+            `,
+            variant: 'default',
+          });
         }
       } catch (error) {
         console.error(error);
@@ -92,6 +104,15 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           <div className="w-full block">
             {showTasks
               .filter((item) => groupingStatus(item, 99) === statusToInt(status))
+              .sort((task1, task2) => {
+                if (task1.startDate && task2.startDate) {
+                  const date1 = new Date(task1.startDate).getTime();
+                  const date2 = new Date(task2.startDate).getTime();
+                  return date1 - date2;
+                  // Sort in ascending or descending order
+                }
+                return 1;
+              })
               .map((item) => (
                 <Task key={item.id} item={item} hiddenDate={false} />
               ))}

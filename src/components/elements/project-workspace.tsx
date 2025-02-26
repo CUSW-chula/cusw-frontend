@@ -9,11 +9,13 @@ import BASE_URL, {
 } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import Blocknoteproject from './blocknoteproject';
+import { toast } from '@/hooks/use-toast';
 
 const Workspace = ({ project_id }: ProjectOverviewProps) => {
   const [Title, setTitle] = useState<string>('');
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
+  const [canEdit, setCanEdit] = useState<boolean>(true);
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const pareJsonValues = useCallback((values: any) => {
@@ -34,6 +36,18 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
             Authorization: auth,
           },
         });
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          toast({
+            title: `🚨 Error ${response.status}: ${response.statusText}`,
+            description: `
+                 🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+                 
+                 🗂️ file: project-workspace.tsx
+                     `,
+            variant: 'default',
+          });
+        }
         const data = await response.json();
         setTitle(data.title);
       } catch (error) {
@@ -58,9 +72,21 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
 
       try {
         const response = await fetch(url, options);
-        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+        if (response.status === 403) {
+          setCanEdit(false);
+        } else if (!response.ok) {
+          const errorMessage = await response.text();
+          toast({
+            title: `🚨 Error ${response.status}: ${response.statusText}`,
+            description: `
+        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+        
+        🗂️ file: project-workspace.tsx
+            `,
+            variant: 'default',
+          });
+        }
         const data = await response.json();
-        console.log('Title updated successfully:', data);
       } catch (error) {
         console.error('Error updating Title:', error);
       }
@@ -73,6 +99,7 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
       <input
         className="resize-none border-none w-full outline-none placeholder-gray-300 text-[30px] font-semibold font-Anuphan"
         placeholder="Task Title"
+        disabled={!canEdit}
         value={Title}
         onChange={(e) => {
           setTitle(e.target.value);

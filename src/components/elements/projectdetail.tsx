@@ -1,12 +1,9 @@
 'use client';
 import { getCookie } from 'cookies-next';
 import type React from 'react';
-import { use, useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import BASE_URL from '@/lib/shared';
-import type { ProjectOverviewProps } from '@/lib/shared';
-import { Calendar, CrownIcon, Redo2, Tag, Trash2, User, Users } from 'lucide-react';
-import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
+import { Calendar, CrownIcon, Redo2, Tag, Trash2, Users } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,6 +21,8 @@ import { ButtonAddTags } from './button-add-projecttag';
 import { DatePickerWithRangeProject } from './date-feature';
 import type { Project } from '@/lib/shared';
 import { AssignedProjectOwner } from './assigned-projectowner';
+import { toast } from '@/hooks/use-toast';
+import { AssignedProjectMember } from './assigned-projectmember';
 
 interface UsersProps {
   id: string;
@@ -44,8 +43,20 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
 
     try {
       const response = await fetch(url, options);
-      const data = await response.json();
-      console.log(data);
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        toast({
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `
+            🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+            
+            🗂️ file: projectdetail.tsx
+          `,
+          variant: 'default',
+        });
+        return; // Exit early if there's an error
+      }
+      // Success: Redirect without parsing the response
       router.push('/projects');
     } catch (error) {
       console.error(error);
@@ -94,33 +105,12 @@ const BackButton = () => {
   );
 };
 
-const formatDate = (startdate: Date | null, enddate: Date | null): string => {
-  // Return an empty string if both dates are not provided
-  if (!startdate || !enddate) return '';
-
-  const format = (date: Date): string => {
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
-
-  // Format startdate and enddate if they are valid
-  const start = startdate ? format(startdate) : '';
-  const end = enddate ? format(enddate) : '';
-
-  return `${start}${start && end ? ' -> ' : ''}${end}`;
-};
-
 const SumMoney = ({
   budget,
   advance,
   expense,
 }: { budget: number; advance: number; expense: number }) => {
   const cookie = getCookie('auth');
-  const auth = cookie?.toString() ?? '';
-
-  const total = budget - expense;
 
   return (
     <div className="h-5 flex items-center justify-start">
@@ -155,25 +145,12 @@ const SumMoney = ({
 };
 
 const MenuBar = ({ project }: { project: Project }) => {
-  const MAX_VISIBLE_MEMBERS = 3;
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const member: UsersProps[] = project.members;
 
-  const getInitials = (name: string) => {
-    if (typeof name !== 'string') return ''; // Handle non-string input
-    const nameParts = name.split(' ');
-    return nameParts.map((part) => part[0]).join(''); // Take the first letter of each part
-  };
-
-  const getFirstName = (name: string) => {
-    if (typeof name !== 'string') return ''; // Handle non-string input
-    const nameParts = name.split(' ');
-    return nameParts[0];
-  };
-
   return (
-    <div className="min-h-[350px] w-[395px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start gap-4 inline-flex">
+    <div className="min-h-[350px] min-w-[395px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start gap-4 inline-flex">
       <div aria-label="owner" className="h-10 justify-start items-center inline-flex">
         <div className="w-24 justify-start items-center gap-2 flex">
           <CrownIcon className="w-[24px] h-[24px] text-black" />
@@ -192,34 +169,7 @@ const MenuBar = ({ project }: { project: Project }) => {
             Member :{' '}
           </div>
         </div>
-        <TooltipProvider>
-          <div className="flex items-center space-x-2 rounded-md border border-brown h-10 px-4">
-            {member.slice(0, MAX_VISIBLE_MEMBERS).map((user) => (
-              <Tooltip key={user.id}>
-                <TooltipTrigger>
-                  <div className="w-[24px] h-[24px] bg-gray-100 rounded-full border border-[#6b5c56] flex-col justify-center items-center gap-2.5 inline-flex text-center text-[#6b5c56] text-sm font-BaiJamjuree ">
-                    {getInitials(user.name)}
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>{user.name}</TooltipContent>
-              </Tooltip>
-            ))}
-            {member.length > MAX_VISIBLE_MEMBERS && (
-              <Tooltip>
-                <TooltipTrigger>
-                  <div className="w-[24px] h-[24px] bg-gray-100 rounded-xl border border-[#6b5c56] flex-col justify-center items-center gap-2.5 inline-flex text-center text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-3">
-                    +{member.length - MAX_VISIBLE_MEMBERS}
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {member.slice(MAX_VISIBLE_MEMBERS).map((user) => (
-                    <p key={user.id}>{user.name}</p>
-                  ))}
-                </TooltipContent>
-              </Tooltip>
-            )}
-          </div>
-        </TooltipProvider>
+        {project && <AssignedProjectMember project={project} />}
       </div>
       <div aria-label="tag" className="justify-start items-center inline-flex flex-wrap w-full">
         {/* Label Zone */}
@@ -277,7 +227,7 @@ export const ProjectDetail = ({ project }: { project: Project }) => {
   };
 
   return (
-    <div className="max-h-[414px] px-20 flex-col justify-start items-start gap-[18px] inline-flex w-full">
+    <div className="max-h-[414px] px-20 flex-col justify-start items-start gap-[18px] inline-flex w-screen">
       <div className="h-12 px-0.5 justify-between items-center inline-flex w-full">
         <div className="text-black text-5xl font-semibold font-Anuphan leading-[48px]">Project</div>
         <div className="justify-start items-center gap-2 inline-flex">
@@ -289,7 +239,7 @@ export const ProjectDetail = ({ project }: { project: Project }) => {
       </div>
       <div className="self-stretch justify-center items-start gap-7 inline-flex">
         <div className="grow shrink basis-0 min-h-[348px] h-auto p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start inline-flex">
-          <div className="self-stretch h-full flex-col justify-start items-start gap-[18px] flex">
+          <div className="self-stretch h-full flex-col justify-start items-start gap-[18px] fle ">
             <ProjectWorkspace project_id={project.id} />
           </div>
           <div className="self-stretch h-[120px] flex-col justify-center items-end gap-3 flex">

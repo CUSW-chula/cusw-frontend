@@ -11,6 +11,8 @@ import React from 'react';
 import { getCookie } from 'cookies-next';
 import { statusSections } from '@/lib/taskUtils';
 import type { TaskProps } from '@/app/types/types';
+import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 const statuses: Status[] = statusSections;
 
@@ -52,8 +54,13 @@ export function StatusButton({ task }: { task: TaskProps }) {
         const eventName = socketEvent.eventName;
         const data = parseJsonValue(socketEvent.data);
 
-        if (eventName === 'status-changed') {
+        if (eventName === `status-changed:${task.id}`) {
           setSelectedStatus(data);
+          toast({
+            title: 'Status Changed',
+            description: `The status has been changed to "${data.status}"`,
+            variant: 'default',
+          });
         }
       } catch (error) {
         console.error('error parsing websocket message: ', error);
@@ -68,23 +75,30 @@ export function StatusButton({ task }: { task: TaskProps }) {
   const handleSelectStatus = async (status: Status) => {
     setSelectedStatus(getStatus(task.status));
     setOpen(false);
-    const url = `${BASE_URL}/v2/tasks/status`;
+    const url = `${BASE_URL}/v2/tasks/status/${task.id}`;
     const options = {
       method: 'PATCH',
       headers: { Authorization: auth, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        taskId: task.id,
         newTaskStatus: status.status,
       }),
     };
 
     try {
       const response = await fetch(url, options);
-      const data = await response.json();
+      if (response.ok) {
+        toast({
+          title: 'Complete',
+          description: `You changed this task status to "${status.status}"`,
+          variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+        });
+      }
     } catch (error) {
       console.error(error);
     }
   };
+
+  const { toast } = useToast();
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

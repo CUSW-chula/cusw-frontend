@@ -19,12 +19,14 @@ import type { TaskProps } from '@/app/types/types';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
 import { statusSections, parseJsonValuesTemplate, useExportTask } from '@/lib/taskUtils';
+import { Input } from '@/components/ui/input';
 
 export const ExportDialog = ({ tasks }: { tasks: TaskProps[] }) => {
   const [exportType, setExportType] = useState<string>(''); // the type of export
   const [visibleExportTasks, setVisibleExportTasks] = useState<Set<string>>(new Set()); //Tracks taskID visible for export
   const [exportedTasks, setExportedTasks] = useState<TaskProps[]>([]); //Stores the list of tasks selected for export
   const { exportAsFile, exportAsTemplate } = useExportTask();
+  const [templateName, setTemplateName] = useState<string>('');
   const recursiveCheck = (task: TaskProps) => {
     setVisibleExportTasks((prev) => {
       const newSet = new Set(prev);
@@ -41,7 +43,7 @@ export const ExportDialog = ({ tasks }: { tasks: TaskProps[] }) => {
     if (value === 'saveFile') {
       exportAsFile(exportedTasks);
     } else if (value === 'saveTemplate') {
-      exportAsTemplate(parseJsonValuesTemplate(tasks), visibleExportTasks);
+      exportAsTemplate(parseJsonValuesTemplate(tasks), visibleExportTasks, templateName);
     }
     setExportType('');
     setExportedTasks([]);
@@ -159,14 +161,22 @@ export const ExportDialog = ({ tasks }: { tasks: TaskProps[] }) => {
             <SelectType />
             {exportType !== '' && (
               <div className="gap-2 inline-flex">
+                <Input
+                  className={`font-BaiJamjuree leading-normal ${exportType === 'saveTemplate' ? 'visible' : 'invisible'}`}
+                  placeholder="template name..."
+                  name="templateName"
+                  value={templateName}
+                  onChange={(e) => setTemplateName(e.target.value)}
+                />
                 <Button
                   onClick={() => handleSaveAs(exportType)}
-                  className="text-green font-bold border-green px-3 py-1 rounded-md bg-[#eefdf7] border hover:bg-slate-100 w-20">
+                  disabled={(!templateName || templateName === '') && exportType === 'saveTemplate'}
+                  className="text-green font-bold border-green px-3 py-1 rounded-md bg-[#eefdf7] border hover:bg-green hover:text-white w-20">
                   Save
                 </Button>
                 <Button
                   onClick={() => handleSaveAs('cancel')}
-                  className="text-red font-bold border-red px-3 py-1 rounded-md bg-[#fde8e8] border hover:bg-slate-100 w-20">
+                  className="text-red font-bold border-red px-3 py-1 rounded-md bg-[#fde8e8] border hover:bg-red hover:text-white w-20">
                   Cancel
                 </Button>
               </div>

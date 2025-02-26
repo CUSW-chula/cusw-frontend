@@ -6,21 +6,17 @@ import { SmilePlus } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import type { EmojiClickData } from 'emoji-picker-react';
 import { getCookie } from 'cookies-next';
-import BASE_URL, { BASE_SOCKET, type Emojis } from '@/lib/shared';
-import { jwtDecode, type JwtPayload } from 'jwt-decode';
+import BASE_URL, { BASE_SOCKET, type User, type Emojis } from '@/lib/shared';
+import { jwtDecode } from 'jwt-decode';
 import type { TaskProps } from '@/app/types/types';
+import { toast } from '@/hooks/use-toast';
 
 const Picker = dynamic(() => import('emoji-picker-react'), { ssr: true });
-
-interface CustomJwtPayload extends JwtPayload {
-  id: string;
-}
 
 interface EmojiTaskUser {
   id: string;
   emoji: string;
-  userId: string;
-  name: string;
+  user: User;
   taskId: string;
 }
 
@@ -29,6 +25,7 @@ const Emoji = ({ task }: { task: TaskProps }) => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const task_id = task.id;
+  const userid = (jwtDecode(auth) as { id: string }).id;
 
   useEffect(() => {
     setEmojis(task.emojis);
@@ -38,41 +35,15 @@ const Emoji = ({ task }: { task: TaskProps }) => {
     return {
       id: values.id,
       emoji: values.emoji,
-      userId: values.userId,
+      user: values.user,
       taskId: values.taskId,
     };
   }, []);
 
-  async function getName(authorId: string) {
-    try {
-      const response = await fetch(`${BASE_URL}/v1/users/${authorId}`, {
-        headers: { Authorization: auth },
-      });
-      if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`);
-      }
-      const data = await response.json();
-      return data.name;
-    } catch (error) {
-      console.error('Failed to fetch user name:', error);
-      return 'Unknown';
-    }
-  }
-
-  const EmojiUser = ({ emoji, id, userId }: EmojiTaskUser) => {
-    const [userName, setUserName] = useState<string>('Loading...');
-
-    useEffect(() => {
-      const fetchUserName = async () => {
-        const name = await getName(userId);
-        setUserName(name);
-      };
-      fetchUserName();
-    }, [userId]);
-
+  const EmojiUser = ({ emoji, id, user }: EmojiTaskUser) => {
     return (
       <div key={id} className="flex py-1 justify-between">
-        <p className="body self-center">{userName}</p>
+        <p className="body self-center">{user.name}</p>
         <p className="text-[24px]">{emoji}</p>
       </div>
     );
@@ -88,7 +59,7 @@ const Emoji = ({ task }: { task: TaskProps }) => {
         const updatedEmoji = {
           id: newEmoji.id,
           emoji: newEmoji.emoji,
-          user: { id: newEmoji.userId, email: '', name: await getName(newEmoji.userId) },
+          user: newEmoji.user,
           taskId: newEmoji.taskId,
         };
 
@@ -100,9 +71,7 @@ const Emoji = ({ task }: { task: TaskProps }) => {
             prevEmoji.id === updatedEmoji.id ? updatedEmoji : prevEmoji,
           );
         });
-      } catch (error) {
-        console.error('Error parsing WebSocket message:', error);
-      }
+      } catch (error) {}
     };
 
     return () => {
@@ -113,38 +82,49 @@ const Emoji = ({ task }: { task: TaskProps }) => {
   const handleEmojiActions = async (emojiData: EmojiClickData) => {
     const emoji = emojiData.emoji;
     const taskId = task_id;
-    const getUserDataFromCookie = () => {
-      const decoded = jwtDecode<CustomJwtPayload>(auth);
-      return decoded;
-    };
-    const userData = getUserDataFromCookie();
-    const url = `${BASE_URL}/v1/tasks/emoji`;
+    const url = `${BASE_URL}/v2/tasks/emoji/${taskId}`;
 
-    const checkResponse = await fetch(`${BASE_URL}/v1/tasks/emoji/${taskId}/${userData.id}`, {
+    const checkResponse = await fetch(`${BASE_URL}/v2/tasks/emoji/${taskId}`, {
       headers: { Authorization: auth },
     });
+    if (!checkResponse.ok) {
+      const errorMessage = await checkResponse.text();
+      toast({
+        title: `🚨 Error ${checkResponse.status}: ${checkResponse.statusText}`,
+        description: `
+           🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+           
+           🗂️ file: emoji.tsx
+               `,
+        variant: 'default',
+      });
+    }
 
     const isEmojiAssigned = await checkResponse.json();
     const options = {
       method: isEmojiAssigned ? 'PATCH' : 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: auth },
       body: JSON.stringify({
-        taskId: taskId,
-        userId: userData.id,
+        userId: userid,
         emoji: emoji,
       }),
     };
 
     try {
       const response = await fetch(url, options);
-      const data = await response.json();
-      console.log(
-        isEmojiAssigned ? 'Emoji updated successfully:' : 'Emoji assigned successfully:',
-        data,
-      );
-    } catch (error) {
-      console.error(isEmojiAssigned ? 'Error updating emoji:' : 'Error assigning emoji:', error);
-    }
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        toast({
+          title: `🚨 Error ${checkResponse.status}: ${checkResponse.statusText}`,
+          description: `
+      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+      
+      🗂️ file: emoji.tsx
+          `,
+          variant: 'default',
+        });
+      }
+    } catch (error) {}
   };
 
   const sortedEmojis = [...emojis].sort((a, b) => b.id.localeCompare(a.id));
@@ -182,10 +162,9 @@ const Emoji = ({ task }: { task: TaskProps }) => {
                 <EmojiUser
                   emoji={emojiData.emoji}
                   id={emojiData.id}
-                  userId={emojiData.user.id}
+                  user={emojiData.user}
                   taskId={emojiData.taskId}
                   key={emojiData.id}
-                  name={''}
                 />
               ))}
             </ul>

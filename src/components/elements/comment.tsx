@@ -29,6 +29,7 @@ import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import type { TaskProps } from '@/app/types/types';
 import { jwtDecode } from 'jwt-decode';
+import { toast } from '@/hooks/use-toast';
 
 interface CommentBoxProp {
   id: string;
@@ -135,10 +136,22 @@ function CommentBox({
 
   const deleteComment = async () => {
     try {
-      await fetch(`${BASE_URL}/v2/comments/${id}`, {
+      const response = await fetch(`${BASE_URL}/v2/comments/${id}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
       });
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        toast({
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `
+      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+      
+      🗂️ file: comment.tsx
+          `,
+          variant: 'default',
+        });
+      }
     } catch (error) {
       console.error('Failed to delete comment:', error);
     }
@@ -146,11 +159,23 @@ function CommentBox({
 
   const saveEditedContent = async (newContent: string) => {
     try {
-      await fetch(`${BASE_URL}/v2/comments/${id}`, {
+      const response = await fetch(`${BASE_URL}/v2/comments/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
         body: JSON.stringify({ content: newContent }),
       });
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        toast({
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `
+      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+      
+      🗂️ file: comment.tsx
+          `,
+          variant: 'default',
+        });
+      }
       setIsEditing(false);
     } catch (error) {
       console.error('Failed to save comment:', error);
@@ -284,7 +309,7 @@ const Comment = ({ task }: { task: TaskProps }) => {
       name: value.author ? value.author.name : '',
       isDeleted: value.isDeleted,
       editTime: value.editTime,
-      authorId: value.author.id,
+      authorId: value.author ? value.author.id : '',
     }),
     [],
   );
@@ -296,9 +321,22 @@ const Comment = ({ task }: { task: TaskProps }) => {
           Authorization: auth,
         },
       });
+      if (!commentData.ok) {
+        const errorMessage = await commentData.text();
+        toast({
+          title: `🚨 Error ${commentData.status}: ${commentData.statusText}`,
+          description: `
+      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+      
+      🗂️ file: comment.tsx
+          `,
+          variant: 'default',
+        });
+      }
       const commentList = await commentData.json();
       setList(parseJsonValues(commentList));
     };
+
     fetchComment();
 
     const ws = new WebSocket(BASE_SOCKET);
@@ -309,29 +347,31 @@ const Comment = ({ task }: { task: TaskProps }) => {
       try {
         const socketEvent = JSON.parse(event.data);
         const eventName = socketEvent.eventName;
-        const data = parseJsonValue(socketEvent.data);
+        if (eventName.includes('comment')) {
+          const data = parseJsonValue(socketEvent.data);
 
-        if (eventName === `comment:${task.id}`) {
-          setList((prevList) => [...prevList, data]);
-        } else if (eventName === 'comment-delete') {
-          setList((prevList) =>
-            prevList.map((item) => (item.id === data.id ? { ...item, isDeleted: true } : item)),
-          );
-        } else if (eventName === 'comment-edit') {
-          setList((prevList) =>
-            prevList.map((item) =>
-              item.id === data.id ? { ...item, content: data.content, editTime: new Date() } : item,
-            ),
-          );
+          if (eventName === `comment:${task.id}`) {
+            setList((prevList) => [...prevList, data]);
+          } else if (eventName === 'comment-delete') {
+            setList((prevList) =>
+              prevList.map((item) => (item.id === data.id ? { ...item, isDeleted: true } : item)),
+            );
+          } else if (eventName === 'comment-edit') {
+            setList((prevList) =>
+              prevList.map((item) =>
+                item.id === data.id
+                  ? { ...item, content: data.content, editTime: new Date() }
+                  : item,
+              ),
+            );
+          }
         }
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
       }
     };
 
-    ws.onclose = () => {
-      console.log('WebSocket connection closed');
-    };
+    ws.onclose = () => {};
 
     return () => {
       ws.close();
@@ -349,7 +389,7 @@ const Comment = ({ task }: { task: TaskProps }) => {
       return;
     }
 
-    await fetch(`${BASE_URL}/v2/comments/`, {
+    const response = await fetch(`${BASE_URL}/v2/comments/${task.id}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -357,9 +397,20 @@ const Comment = ({ task }: { task: TaskProps }) => {
       },
       body: JSON.stringify({
         content: comment,
-        taskId: task.id,
       }),
     });
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      toast({
+        title: `🚨 Error ${response.status}: ${response.statusText}`,
+        description: `
+    🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+    
+    🗂️ file: comment.tsx
+        `,
+        variant: 'default',
+      });
+    }
     setComment('');
   };
 

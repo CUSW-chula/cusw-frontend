@@ -44,7 +44,7 @@ export const CreateSubtask = ({
   };
 
   const handleSubmit = async () => {
-    const url = `${BASE_URL}/v2/tasks/`;
+    const url = `${BASE_URL}/v2/tasks/${task.projectId}`;
     const options = {
       method: 'POST',
       headers: { Authorization: auth, 'Content-Type': 'application/json' },
@@ -56,14 +56,12 @@ export const CreateSubtask = ({
         parentTaskId: task.id,
         expense: 0,
         status: 'Unassigned',
-        projectId: task.projectId,
-        startDate: new Date(),
-        endDate: new Date(),
+        startDate: null,
+        endDate: null,
       }),
     };
     try {
       const response = await fetch(url, options);
-      console.log(options);
       const data = await response.json();
       router.push(`/tasks/${data.id}`);
       toast({
@@ -95,9 +93,6 @@ export const CreateSubtask = ({
     const HTML = await editor.blocksToHTMLLossy(editor.document);
     setDescription(HTML);
   };
-  useEffect(() => {
-    console.log(Description);
-  }, [Description]);
 
   return (
     <div className="min-h-60 w-full p-6 bg-gray-50 rounded-md shadow border border-[#6b5c56] flex-col justify-start items-start gap-4 inline-flex">

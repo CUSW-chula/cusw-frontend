@@ -26,9 +26,7 @@ export const DeleteTask = ({ task }: { task: TaskProps }) => {
     const options = { method: 'DELETE', headers: { Authorization: auth } };
 
     try {
-      const response = await fetch(url, options);
-      const data = await response.json();
-      console.log(data);
+      await fetch(url, options);
       router.push(`/projects/${task.projectId}`);
     } catch (error) {
       console.error(error);
