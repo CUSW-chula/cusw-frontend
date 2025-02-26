@@ -34,7 +34,7 @@ export const createTasksFromTemplate = async (
     const templateFormat = await fetchTemplate(inputs.task.template.filePath);
     if (templateFormat) {
       console.log(templateFormat);
-      console.log("Project ID: ", projectId);
+      console.log('Project ID: ', projectId);
       await fetchData(
         `${BASE_URL}/v2/tasks/template/${projectId}`,
         'POST',
