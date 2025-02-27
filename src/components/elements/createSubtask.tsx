@@ -54,6 +54,7 @@ export const CreateSubtask = ({
         budget: 0,
         advance: 0,
         parentTaskId: task.id,
+        statusBudgets: 'Initial',
         expense: 0,
         status: 'Unassigned',
         startDate: null,
