@@ -4,7 +4,6 @@ import * as React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { getCookie } from 'cookies-next';
-import { Button } from '../ui/button';
 import BASE_URL, {
   type ProjectTagProp,
   type Project,
@@ -25,6 +24,7 @@ import { tagsListAtom } from '@/atom';
 import Link from 'next/link';
 import { DateText } from './date-feature';
 import { toast } from '@/hooks/use-toast';
+import { fetchData } from '@/service/fetchService';
 
 export const ProjectList = () => {
   const cookie = getCookie('auth');
@@ -36,9 +36,12 @@ export const ProjectList = () => {
   // Effect hook to update project list when API data is fetched
   useEffect(() => {
     const fetchAllProjects = async () => {
-      const response = await fetch(`${BASE_URL}/v2/projects`, {
-        headers: { Authorization: auth },
-      });
+      const response = await fetchData(
+        `${BASE_URL}/v2/projects`,
+        'GET',
+        {},
+        'Failed to fetch projects',
+      );
 
       if (!response.ok) {
         const errorMessage = await response.text();
@@ -120,7 +123,7 @@ export const ProjectList = () => {
     return () => {
       ws.close();
     };
-  }, [auth]);
+  }, []);
 
   //owner
   const getInitials = (name: string) => {

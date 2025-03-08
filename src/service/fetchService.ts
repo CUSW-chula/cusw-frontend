@@ -14,6 +14,7 @@ export const fetchData = async (
       headers: {
         'Content-Type': 'application/json',
         Authorization: auth,
+        'Accept-Encoding': 'gzip',
       },
     };
 
