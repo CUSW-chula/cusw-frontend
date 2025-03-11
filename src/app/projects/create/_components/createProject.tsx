@@ -80,14 +80,19 @@ export const CreateProject = () => {
   };
 
   return (
-    <div className="h-full px-20 flex flex-col justify-start items-start gap-4 w-full">
+    <div className="h-full flex flex-col justify-start items-start gap-4 w-full">
       <h1 className="text-black text-5xl font-semibold font-Anuphan">Create project</h1>
       {/* <div className="inline-flex w-full gap-7"> */}
-      <form className="w-full h-[348px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start inline-flex">
+      <form className="w-full h-[348px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start inline-flex relative">
+        <label
+          htmlFor="require part"
+          className="text-red font-semibold text-2xl absolute left-[280px] top-[30px]">
+          {!inputs.projectTitle && <span>*</span>}
+        </label>
         <div className="self-stretch h-[82px] flex-col justify-start items-start gap-[18px] flex">
           <Input
             className="resize-y border-none w-full h-60 outline-none placeholder-black font-semibold text-3xl font-Anuphan leading-[48px]"
-            placeholder="Project title"
+            placeholder="Enter project title"
             name="projectTitle"
             value={inputs.projectTitle || ''}
             onChange={handleChange}
