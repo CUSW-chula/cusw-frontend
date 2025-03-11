@@ -105,41 +105,35 @@ const BackButton = () => {
   );
 };
 
-const SumMoney = ({
-  budget,
-  advance,
-  expense,
-}: { budget: number; advance: number; expense: number }) => {
+const SumBudget = ({ budget }: { budget: number }) => {
   const cookie = getCookie('auth');
 
   return (
-    <div className="h-5 flex items-center justify-start">
-      <div className="px-3 py-2 rounded-md border border-[#6b5c56] flex items-center gap-2">
-        <div className="flex items-center">
-          <span className="text-black text-2xl font-semibold font-BaiJamjuree">฿</span>
-        </div>
-        <div className="flex items-center">
-          <span className="text-black text-base font-medium font-BaiJamjuree">
-            {budget.toLocaleString()}
-          </span>
-        </div>
-        <div className="flex items-center">
-          <span className="text-green text-2xl font-semibold font-BaiJamjuree">฿</span>
-        </div>
-        <div className="flex items-center">
-          <span className="text-green text-base font-medium font-BaiJamjuree">
-            {advance.toLocaleString()}
-          </span>
-        </div>
-        <div className="flex items-center">
-          <span className="text-red text-2xl font-semibold font-BaiJamjuree">฿</span>
-        </div>
-        <div className="flex items-center">
-          <span className="text-red text-base font-medium font-BaiJamjuree">
-            {expense.toLocaleString()}
-          </span>
-        </div>
-      </div>
+    <div className="px-3 py-2 rounded-md flex flex-col items-center gap-2">
+      <span className="text-black text-base font-medium font-BaiJamjuree">
+        {budget.toLocaleString()}
+      </span>
+    </div>
+  );
+};
+const SumAdvance = ({ advance }: { advance: number }) => {
+  const cookie = getCookie('auth');
+
+  return (
+    <div className="px-3 py-2 rounded-md flex flex-col items-center gap-2">
+      <span className="text-green text-base font-medium font-BaiJamjuree">
+        {advance.toLocaleString()}
+      </span>
+    </div>
+  );
+};
+const SumExpense = ({ expense }: { expense: number }) => {
+  const cookie = getCookie('auth');
+  return (
+    <div className="px-3 py-2 rounded-md flex flex-col items-center gap-2">
+      <span className="text-red text-base font-medium font-BaiJamjuree">
+        {expense.toLocaleString()}
+      </span>
     </div>
   );
 };
@@ -175,17 +169,42 @@ const MenuBar = ({ project }: { project: Project }) => {
           {project && <ButtonAddTags project_id={project.id} />}
         </div>
       </div>
-      <div aria-label="money" className="h-10 justify-start items-center inline-flex">
+
+      <div aria-label="Budget" className="h-10 justify-start items-center inline-flex">
         {/* Label Zone */}
         <div className="w-24 justify-start items-center gap-2 flex">
           {/* Icon */}
           <div className="w-6 text-center text-black text-[30px] font-medium">฿</div>
-
           {/* Describtion */}
-          <div className="text-[#6b5c56] text-xs font-medium  leading-tight">Money : </div>
+          <div className="text-[#6b5c56] text-xs font-medium  leading-tight">
+            งบประมาณโครงการ :{' '}
+          </div>
         </div>
-        <SumMoney budget={project.budget} advance={project.advance} expense={project.expense} />
+        <SumBudget budget={project.budget} />
       </div>
+
+      <div aria-label="Advance" className="h-10 justify-start items-center inline-flex">
+        {/* Label Zone */}
+        <div className="w-24 justify-start items-center gap-2 flex">
+          {/* Icon */}
+          <div className="w-6 text-center text-green text-[30px] font-medium">฿</div>
+          {/* Describtion */}
+          <div className="text-green text-xs font-medium  leading-tight">เงินยืมรองจ่าย : </div>
+        </div>
+        <SumAdvance advance={project.advance} />
+      </div>
+
+      <div aria-label="Expense" className="h-10 justify-start items-center inline-flex">
+        {/* Label Zone */}
+        <div className="w-24 justify-start items-center gap-2 flex">
+          {/* Icon */}
+          <div className="w-6 text-center text-red text-[30px] font-medium">฿</div>
+          {/* Describtion */}
+          <div className="text-red text-xs font-medium  leading-tight">รายจ่าย : </div>
+        </div>
+        <SumExpense expense={project.expense} />
+      </div>
+
       <div aria-label="date" className="h-10 justify-start items-center inline-flex">
         {/* Label Zone */}
         <div className="w-24 justify-start items-center gap-2 flex">
