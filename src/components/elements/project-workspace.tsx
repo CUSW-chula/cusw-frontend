@@ -95,7 +95,12 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
     updateTitle();
   }, [Title, project_id, auth]);
   return (
-    <div>
+    <div className="relative">
+      <label
+        htmlFor="require part"
+        className="text-red font-semibold text-2xl absolute left-[134px]">
+        {!Title && <span>*</span>}
+      </label>
       <input
         className="resize-none border-none w-full outline-none placeholder-gray-300 text-[30px] font-semibold font-Anuphan"
         placeholder="Task Title"
