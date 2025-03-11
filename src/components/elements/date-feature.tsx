@@ -6,7 +6,7 @@ import { Calendar as CalendarIcon } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
 
 import { cn } from '@/lib/utils';
-import { Calendar } from '@/components/ui/calendar';
+import { Calendar } from '@/components/ui/calendar2';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
