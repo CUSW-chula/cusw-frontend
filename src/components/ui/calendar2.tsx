@@ -43,7 +43,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
   };
 
   const handleYearChange = (year: string) => {
-    setSelectedYear(parseInt(year));
+    setSelectedYear(Number.parseInt(year));
   };
 
   return (

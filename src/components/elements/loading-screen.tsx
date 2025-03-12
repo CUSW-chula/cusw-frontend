@@ -3,14 +3,13 @@
 import { useState, useEffect } from "react";
 
 const images = [
-  "/asset/loading/Property 1=Default.svg",
-  "/asset/loading/Property 1=Variant2.svg",
-  "/asset/loading/Property 1=Variant3.svg",
-  "/asset/loading/Property 1=Variant4.svg",
-  "/asset/loading/Property 1=Variant5.png",
+  "/asset/loading/1.svg",
+  "/asset/loading/2.svg",
+  "/asset/loading/3.svg",
+  "/asset/loading/4.svg",
+  "/asset/loading/5.png",
 ];
 
-const loadingText = "Loading...";
 const textSequence = [
   "Loading...",
   "LOading...",
