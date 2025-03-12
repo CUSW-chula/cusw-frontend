@@ -25,7 +25,7 @@ export const useCreateProject = (inputs: FormInput, BASE_URL: string) => {
         description: 'Your project has been created and saved successfully.',
         variant: 'default',
       });
-      router.push('/projects');
+      router.push(`/projects/detail/${projectRes.id}`);
       return projectRes;
     } catch (error) {
       console.error(error);

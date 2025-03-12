@@ -6,6 +6,7 @@ import { cookies } from 'next/headers';
 export default async function Page({
   params,
 }: {
+  
   params: Promise<{ project_id: string }>;
 }) {
   const cookieStore = (await cookies()).get('auth')?.value;
