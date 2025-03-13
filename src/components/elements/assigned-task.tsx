@@ -49,7 +49,7 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
 
   React.useEffect(() => {
     const fetchAssignUsers = async () => {
-      const usersData = await fetch(`${BASE_URL}/v2/users/project/${task.projectId}`, {
+      const usersData = await fetch(`${BASE_URL}/v2/users/`, {
         headers: {
           Authorization: auth,
         },

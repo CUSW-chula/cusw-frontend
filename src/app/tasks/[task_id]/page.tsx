@@ -28,7 +28,7 @@ export default async function TasksManageMentPage({
 }: {
   params: Promise<{ task_id: string }>;
 }) {
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  await new Promise((resolve) => setTimeout(resolve, 2000));
   const Workspace = dynamic(() => import('../../../components/elements/workspace'), {
     ssr: true,
   });

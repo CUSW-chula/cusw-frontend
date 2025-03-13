@@ -1,24 +1,24 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
 const images = [
-  "/asset/loading/1.svg",
-  "/asset/loading/2.svg",
-  "/asset/loading/3.svg",
-  "/asset/loading/4.svg",
-  "/asset/loading/5.png",
+  '/asset/loading/1.svg',
+  '/asset/loading/2.svg',
+  '/asset/loading/3.svg',
+  '/asset/loading/4.svg',
+  '/asset/loading/5.png',
 ];
 
 const textSequence = [
-  "Loading...",
-  "LOading...",
-  "LOAding...",
-  "LOADing...",
-  "LOADIng...",
-  "LOADINg...",
-  "LOADING...",
-  "Loading...", // รีเซ็ต
+  'Loading...',
+  'LOading...',
+  'LOAding...',
+  'LOADing...',
+  'LOADIng...',
+  'LOADINg...',
+  'LOADING...',
+  'Loading...', // รีเซ็ต
 ];
 
 export default function LoadingClient() {
@@ -47,12 +47,7 @@ export default function LoadingClient() {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <img
-        src={images[currentImage]}
-        alt="Loading animation"
-        width={300}
-        height={0}
-      />
+      <img src={images[currentImage]} alt="Loading animation" width={300} height={0} />
       <p className="text-base font-BaiJamjuree">{currentText}</p>
     </div>
   );

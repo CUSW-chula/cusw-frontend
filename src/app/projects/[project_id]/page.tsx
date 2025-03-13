@@ -3,7 +3,7 @@ import { TaskManager } from '@/components/elements/taskmanager';
 import { ProjectBackButton } from '@/components/elements/backButton';
 
 export default async function Page({ params }: { params: Promise<{ project_id: string }> }) {
-  await new Promise(resolve => setTimeout(resolve, 300));
+  await new Promise((resolve) => setTimeout(resolve, 300));
   const project_id = (await params).project_id;
 
   return (

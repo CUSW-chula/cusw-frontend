@@ -11,8 +11,8 @@ import React from 'react';
 import { getCookie } from 'cookies-next';
 import { statusSections } from '@/lib/taskUtils';
 import type { TaskProps } from '@/app/types/types';
-import { toast } from '@/hooks/use-toast';
 import { useToast } from '@/hooks/use-toast';
+import { jwtDecode } from 'jwt-decode';
 
 const statuses: Status[] = statusSections;
 
@@ -22,6 +22,8 @@ export function StatusButton({ task }: { task: TaskProps }) {
   const [open, setOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useAtom<Status>(selectedStatusAtom);
   const [isAllSubTaskDone, setIsAllSubTaskDone] = useState(true);
+  const [isTaskOwner, setIsTaskOwner] = useState(false);
+  const [userId, setUserid] = useState('');
 
   const getStatus = (value: string) => {
     const status = statusSections.find((section) => section.status === value);
@@ -37,6 +39,20 @@ export function StatusButton({ task }: { task: TaskProps }) {
       ? newValue
       : { status: 'Unassigned', displayName: 'Unassigned', icon: '/asset/icon/unassigned.svg' };
   }, []);
+
+  useEffect(() => {
+    if (!auth) return; // Don't proceed if there's no auth token
+
+    try {
+      const decoded = jwtDecode<{ id: string }>(auth);
+      const owners = Array.isArray(task.owner) ? task.owner : [task.owner];
+      for (const o of owners) {
+        if (decoded.id === o.id) setIsTaskOwner(true);
+      }
+    } catch (error) {
+      console.error('Invalid token:', error);
+    }
+  }, [auth]);
 
   useEffect(() => {
     setSelectedStatus(getStatus(task.status));
@@ -75,11 +91,12 @@ export function StatusButton({ task }: { task: TaskProps }) {
   const handleSelectStatus = async (status: Status) => {
     setSelectedStatus(getStatus(task.status));
     setOpen(false);
-    const url = `${BASE_URL}/v2/tasks/status/${task.id}`;
+    const url = `${BASE_URL}/v2/tasks/status/`;
     const options = {
       method: 'PATCH',
       headers: { Authorization: auth, 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        taskId: task.id,
         newTaskStatus: status.status,
       }),
     };
@@ -91,6 +108,13 @@ export function StatusButton({ task }: { task: TaskProps }) {
           title: 'Complete',
           description: `You changed this task status to "${status.status}"`,
           variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+        });
+      } else {
+        const errorMessage = await response.text();
+        toast({
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `🔥 error: ${errorMessage || 'An unexpected error occurred.'}🗂️ file: status-button.tsx`,
+          variant: 'default',
         });
       }
     } catch (error) {
@@ -106,7 +130,7 @@ export function StatusButton({ task }: { task: TaskProps }) {
         <Button
           variant="outline"
           size="sm"
-          disabled={selectedStatus.status === 'Unassigned'}
+          disabled={!isTaskOwner && selectedStatus.status === 'Unassigned'}
           className="h-[40px] px-[16px] justify-start font-BaiJamjuree text-base">
           {selectedStatus ? (
             <>
@@ -133,14 +157,15 @@ export function StatusButton({ task }: { task: TaskProps }) {
                   key={status.status}
                   value={status.status}
                   disabled={
-                    (selectedStatus.status === 'Assigned' && status.status !== 'UnderReview') ||
-                    (selectedStatus.status === 'UnderReview' &&
-                      (status.status === 'Unassigned' ||
-                        status.status === 'Assigned' ||
-                        status.status === 'UnderReview' ||
-                        (status.status === 'Done' && !isAllSubTaskDone))) ||
-                    (selectedStatus.status === 'InRecheck' && status.status !== 'UnderReview') ||
-                    (selectedStatus.status === 'Done' && status.status !== 'InRecheck')
+                    !isTaskOwner &&
+                    ((selectedStatus.status === 'Assigned' && status.status !== 'UnderReview') ||
+                      (selectedStatus.status === 'UnderReview' &&
+                        (status.status === 'Unassigned' ||
+                          status.status === 'Assigned' ||
+                          status.status === 'UnderReview' ||
+                          (status.status === 'Done' && !isAllSubTaskDone))) ||
+                      (selectedStatus.status === 'InRecheck' && status.status !== 'UnderReview') ||
+                      (selectedStatus.status === 'Done' && status.status !== 'InRecheck'))
                   }
                   className="pl-[32px] font-BaiJamjuree text-base"
                   onSelect={() => {
