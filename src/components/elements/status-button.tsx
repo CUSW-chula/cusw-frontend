@@ -6,7 +6,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useCallback, useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { selectedStatusAtom } from '@/atom';
-import BASE_URL, { BASE_SOCKET, Task, type Status, type TaskManageMentProp } from '@/lib/shared';
+import BASE_URL, {
+  BASE_SOCKET,
+  Task,
+  type User,
+  type Status,
+  type TaskManageMentProp,
+} from '@/lib/shared';
 import React from 'react';
 import { getCookie } from 'cookies-next';
 import { statusSections } from '@/lib/taskUtils';
@@ -22,8 +28,8 @@ export function StatusButton({ task }: { task: TaskProps }) {
   const [open, setOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useAtom<Status>(selectedStatusAtom);
   const [isAllSubTaskDone, setIsAllSubTaskDone] = useState(true);
+  const [projectOwner, setProjectOwner] = useState<User[]>([]);
   const [isTaskOwner, setIsTaskOwner] = useState(false);
-  const [userId, setUserid] = useState('');
 
   const getStatus = (value: string) => {
     const status = statusSections.find((section) => section.status === value);
@@ -41,24 +47,45 @@ export function StatusButton({ task }: { task: TaskProps }) {
   }, []);
 
   useEffect(() => {
-    if (!auth) return; // Don't proceed if there's no auth token
+    const fetchProjectOwner = async () => {
+      try {
+        const response = await fetch(`${BASE_URL}/v2/projects/${task.projectId}`, {
+          headers: { Authorization: auth },
+        });
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          toast({
+            title: `🚨 Error ${response.status}: ${response.statusText}`,
+            description: `
+        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+        
+        🗂️ file: project-owner.tsx
+            `,
+            variant: 'default',
+          });
+          return;
+        }
+        const data = await response.json();
+        console.log(data.owner);
+        setProjectOwner(data.owner);
 
-    try {
-      const decoded = jwtDecode<{ id: string }>(auth);
-      const owners = Array.isArray(task.owner) ? task.owner : [task.owner];
-      for (const o of owners) {
-        if (decoded.id === o.id) setIsTaskOwner(true);
+        if (!auth) return;
+
+        try {
+          const decoded = jwtDecode<{ id: string }>(auth);
+          const isOwner = data.owner.some((o: User) => o.id === decoded.id);
+          setIsTaskOwner(isOwner);
+        } catch (error) {
+          console.error('Invalid token:', error);
+        }
+      } catch (error) {
+        console.error('Error fetching Owner:', error);
       }
-    } catch (error) {
-      console.error('Invalid token:', error);
-    }
-  }, [auth]);
+    };
 
-  useEffect(() => {
+    fetchProjectOwner();
     setSelectedStatus(getStatus(task.status));
-    task.subtasks
-      ? setIsAllSubTaskDone(task.subtasks.every((subtask) => subtask.status === 'Done'))
-      : setIsAllSubTaskDone(true);
+    setIsAllSubTaskDone(task.subtasks?.every((subtask) => subtask.status === 'Done') ?? true);
 
     const ws = new WebSocket(BASE_SOCKET);
 
@@ -86,12 +113,12 @@ export function StatusButton({ task }: { task: TaskProps }) {
     ws.onclose = () => {};
 
     return () => ws.close();
-  }, [setSelectedStatus, parseJsonValue, task]);
+  }, [setSelectedStatus, parseJsonValue, task, auth]);
 
   const handleSelectStatus = async (status: Status) => {
     setSelectedStatus(getStatus(task.status));
     setOpen(false);
-    const url = `${BASE_URL}/v2/tasks/status/`;
+    const url = `${BASE_URL}/v2/tasks/status/${task.id}`;
     const options = {
       method: 'PATCH',
       headers: { Authorization: auth, 'Content-Type': 'application/json' },
