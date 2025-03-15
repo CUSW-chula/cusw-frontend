@@ -17,6 +17,8 @@ import BASE_URL, { BASE_SOCKET, type Tag, type ProjectOverviewProps } from '@/li
 import { getCookie } from 'cookies-next';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
+import { jwtDecode } from 'jwt-decode';
+import { useEffect } from 'react';
 
 interface Tags {
   id: string;
@@ -27,6 +29,8 @@ interface Tags {
 export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
+  const userid = (jwtDecode(auth) as { id: string }).id;
+  const [isHead, setIsHead] = React.useState<boolean>();
   const [open, setOpen] = React.useState(false);
   const [statuses, setStatuses] = React.useState<Tags[]>([]);
   const [selectedTags, setSelectedTags] = React.useState<Tags[]>([]);
@@ -37,8 +41,36 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
     return newValue;
   }, []);
 
+  useEffect(() => {
+    const fetchOwner = async () => {
+      try {
+        const response = await fetch(`${BASE_URL}/v2/users/${userid}`, {
+          headers: {
+            Authorization: auth,
+          },
+        });
+
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          toast({
+            title: `🚨 Error ${response.status}: ${response.statusText}`,
+            description: `🔥 error: ${errorMessage || 'An unexpected error occurred.'}🗂️ file: nav-bar.tsx`,
+            variant: 'default',
+          });
+        }
+
+        const data = await response.json();
+        setIsHead(data.admin);
+      } catch (error) {
+        console.error('Error fetching Owner:', error);
+      }
+    };
+
+    fetchOwner();
+  }, [auth, userid]);
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchTags = async () => {
       const url = `${BASE_URL}/v2/tags`;
       const options = {
@@ -192,30 +224,43 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
   };
 
   return (
+    // Add this inside your component's return statement
     <>
       <div className="">
-        <div className="flex flex-row flex-wrap items-center   overflow-hidden  ">
+        <div className="flex flex-row flex-wrap items-center overflow-hidden">
           {Array.isArray(selectedTags) && selectedTags.length > 0 ? (
-            selectedTags.map((tag) => (
-              <Badge
-                key={tag.id}
-                variant="destructive"
-                className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0]  mr-1 mt-1 mb-1">
-                <span className="text-base font-medium font-BaiJamjuree">{tag.name}</span>
-                <button
-                  type="button"
-                  onClick={() => handleDeleteTag(tag.id)}
-                  className="text-red-500 ml-1 max-w-20">
-                  <XCircle className="h-4 w-4" />
-                </button>
-              </Badge>
-            ))
+            selectedTags.map((tag) => {
+              // Only show Accept/Rework tags to Head users
+              if (['Accept', 'Rework'].includes(tag.name) && !isHead) return null;
+
+              return (
+                <Badge
+                  key={tag.id}
+                  variant="destructive"
+                  className={cn(
+                    'h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center border-x border-y mr-1 mt-1 mb-1',
+                    tag.name === 'Accept' || tag.name === 'Rework'
+                      ? 'bg-[#eefafd] border-blue text-blue'
+                      : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
+                  )}>
+                  <span className="text-base font-medium font-BaiJamjuree">{tag.name}</span>
+                  {isHead && ( // Only show delete button for Head users
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteTag(tag.id)}
+                      className="text-red-500 ml-1 max-w-20">
+                      <XCircle className="h-4 w-4" />
+                    </button>
+                  )}
+                </Badge>
+              );
+            })
           ) : (
             <div />
           )}
 
           <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild className=" border-brown text-brown ">
+            <PopoverTrigger asChild className="border-brown text-brown">
               <Button variant="outline">
                 <p className="p-ui">Add tag</p>
               </Button>
@@ -226,20 +271,27 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
                 <CommandList>
                   <CommandEmpty>No results found.</CommandEmpty>
                   <CommandGroup>
-                    {statuses.map((status) => (
-                      <CommandItem key={status.id} value={status.name} onSelect={handleSelectTag}>
-                        <Circle
-                          className={cn(
-                            'mr-2 h-4 w-4 fill-greenLight text-greenLight',
-                            Array.isArray(selectedTags) &&
+                    {statuses.map((status) => {
+                      // Hide Accept/Rework from non-Head users
+                      if (['Accept', 'Rework'].includes(status.name) && !isHead) return null;
+
+                      return (
+                        <CommandItem key={status.id} value={status.name} onSelect={handleSelectTag}>
+                          <Circle
+                            className={cn(
+                              'mr-2 h-4 w-4',
+                              status.name === 'Accept' || status.name === 'Rework'
+                                ? 'fill-blue text-blue'
+                                : 'fill-greenLight text-greenLight',
                               selectedTags.some((tag) => tag.id === status.id)
-                              ? 'opacity-100'
-                              : 'opacity-40',
-                          )}
-                        />
-                        <span>{status.name}</span>
-                      </CommandItem>
-                    ))}
+                                ? 'opacity-100'
+                                : 'opacity-40',
+                            )}
+                          />
+                          <span>{status.name}</span>
+                        </CommandItem>
+                      );
+                    })}
                   </CommandGroup>
                 </CommandList>
               </Command>

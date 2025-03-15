@@ -9,7 +9,7 @@ interface ManageProps {
 const SelectRole: React.FC<ManageProps> = ({ user }) => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
-  const roles = ['Admin', 'User'];
+  const roles = ['Admin', 'User', 'Head'];
 
   const updateisAdmin = async (isAdmin: boolean) => {
     const userid = user.id;
@@ -33,11 +33,47 @@ const SelectRole: React.FC<ManageProps> = ({ user }) => {
     }
   };
 
+  const updateisHead = async (isHead: boolean) => {
+    const userid = user.id;
+    const url = `${BASE_URL}/v2/users/head/${userid}`;
+    const options = {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: auth },
+      body: JSON.stringify({
+        isHead: isHead,
+      }),
+    };
+
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      toast({
+        title: `🚨 Error ${response.status}: ${response.statusText}`,
+        description: `🔥 error: ${errorMessage || 'An unexpected error occurred.'}🗂️ file: select-table.tsx`,
+        variant: 'default',
+      });
+    }
+  };
+
   return (
     <select
       className="rounded px-3 py-1 border w-fit"
-      defaultValue={`${user.admin ? 'Admin' : 'User'}`}
-      onChange={(e) => updateisAdmin(e.target.value === 'Admin')}>
+      defaultValue={user.admin ? 'Admin' : user.head ? 'Head' : 'User'}
+      onChange={async (e) => {
+        const value = e.target.value;
+        try {
+          if (value === 'Admin') {
+            await updateisAdmin(true);
+            await updateisHead(false);
+          } else if (value === 'Head') {
+            await updateisAdmin(false);
+            await updateisHead(true);
+          } else {
+            await updateisAdmin(false);
+            await updateisHead(false);
+          }
+        } catch (error) {}
+      }}>
       {roles.map((role) => (
         <option key={role} value={role}>
           {role}

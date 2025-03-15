@@ -1,5 +1,4 @@
-
-import LoadingClient from "@/components/elements/loading-screen";
+import LoadingClient from '@/components/elements/loading-screen';
 
 export default function Loading() {
   return (
@@ -8,5 +7,3 @@ export default function Loading() {
     </div>
   );
 }
-
-
