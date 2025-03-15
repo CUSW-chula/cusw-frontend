@@ -231,7 +231,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
           {Array.isArray(selectedTags) && selectedTags.length > 0 ? (
             selectedTags.map((tag) => {
               // Only show Accept/Rework tags to Head users
-              if (['Accept', 'Rework'].includes(tag.name) && !isHead) return null;
+              if (['Approve', 'Rework'].includes(tag.name) && !isHead) return null;
 
               return (
                 <Badge
@@ -273,14 +273,14 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
                   <CommandGroup>
                     {statuses.map((status) => {
                       // Hide Accept/Rework from non-Head users
-                      if (['Accept', 'Rework'].includes(status.name) && !isHead) return null;
+                      if (['Approve', 'Rework'].includes(status.name) && !isHead) return null;
 
                       return (
                         <CommandItem key={status.id} value={status.name} onSelect={handleSelectTag}>
                           <Circle
                             className={cn(
                               'mr-2 h-4 w-4',
-                              status.name === 'Accept' || status.name === 'Rework'
+                              status.name === 'Approve' || status.name === 'Rework'
                                 ? 'fill-blue text-blue'
                                 : 'fill-greenLight text-greenLight',
                               selectedTags.some((tag) => tag.id === status.id)

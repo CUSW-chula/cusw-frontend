@@ -380,7 +380,7 @@ export const ProjectList = () => {
                     <div className="flex flex-col flex-wrap items-end">
                       {project.tags
                         ?.sort((a, b) => {
-                          const priorityTags = ['Accept', 'Rework'];
+                          const priorityTags = ['Approve', 'Rework'];
                           const aIsPriority = priorityTags.includes(a.name);
                           const bIsPriority = priorityTags.includes(b.name);
                           if (aIsPriority && !bIsPriority) return -1;
@@ -394,7 +394,7 @@ export const ProjectList = () => {
                             variant="destructive"
                             className={cn(
                               'h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center mr-1 mt-1 mb-1',
-                              tag.name === 'Accept' || tag.name === 'Rework'
+                              tag.name === 'Approve' || tag.name === 'Rework'
                                 ? 'bg-[#eefafd] border-blue text-blue'
                                 : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
                             )}>
@@ -419,7 +419,7 @@ export const ProjectList = () => {
                               <div className="flex flex-col flex-wrap items-start">
                                 {project.tags
                                   ?.sort((a, b) => {
-                                    const priorityTags = ['Accept', 'Rework'];
+                                    const priorityTags = ['Approve', 'Rework'];
                                     const aIsPriority = priorityTags.includes(a.name);
                                     const bIsPriority = priorityTags.includes(b.name);
                                     if (aIsPriority && !bIsPriority) return -1;
@@ -433,7 +433,7 @@ export const ProjectList = () => {
                                       variant="destructive"
                                       className={cn(
                                         'h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center mb-1',
-                                        tag.name === 'Accept' || tag.name === 'Rework'
+                                        tag.name === 'Approve' || tag.name === 'Rework'
                                           ? 'bg-[#eefafd] border-blue text-blue'
                                           : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
                                       )}>
