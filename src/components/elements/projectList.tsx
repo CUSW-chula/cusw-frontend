@@ -9,7 +9,6 @@ import BASE_URL, {
   type ProjectTagProp,
   type Project,
   type Tag,
-  type User,
   BASE_SOCKET,
 } from '@/lib/shared';
 import {
@@ -122,35 +121,13 @@ export const ProjectList = () => {
     };
   }, [auth]);
 
-  //owner
+  //get initials name
   const getInitials = (name: string) => {
     const nameParts = name.split(' ');
     return nameParts.map((part) => part[0]).join(''); // Take the first letter of each part
   };
 
-  const getFirstName = (name: string) => {
-    const nameParts = name.split(' ');
-    return nameParts[0];
-  };
-
-  const formatDate = (startdate: Date | null, enddate: Date | null): string => {
-    // Return an empty string if both dates are not provided
-    if (!startdate || !enddate) return '';
-
-    const format = (date: Date | null): string => {
-      if (date == null) return '';
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const year = date.getFullYear();
-      return `${day}/${month}/${year}`;
-    };
-
-    // Format startdate and enddate if they are valid
-    const start = startdate ? format(startdate) : '';
-    const end = enddate ? format(enddate) : '';
-    return `${start}${start && end ? ' -> ' : ''}${end}`;
-  };
-
+  //star 
   const toggleStar = async (projectId: string) => {
     setStarredProjects((prevState) => {
       const isCurrentlyStarred = prevState[projectId] ?? false;
@@ -187,6 +164,19 @@ export const ProjectList = () => {
       };
     });
   };
+  const sortByStarredProjects = React.useCallback(
+    (projects: Project[]) => {
+      return [...projects].sort((a, b) => {
+        const aStarred = starredProjects[a.id] ? 1 : 0;
+        const bStarred = starredProjects[b.id] ? 1 : 0;
+        return bStarred - aStarred; // เรียงโปรเจ็กต์ที่ starred ไว้ก่อน
+      });
+    },
+    [starredProjects],
+  );
+  React.useEffect(() => {
+    setQuery((prevQuery) => sortByStarredProjects(prevQuery));
+  }, [sortByStarredProjects]);
 
   const [dateRange, setDateRange] = React.useState<{ from: string; to: string } | undefined>();
   const [searchText, setSearchText] = React.useState('');
@@ -236,19 +226,7 @@ export const ProjectList = () => {
     // setQuery(filteredProjects);
     setQuery(sortByStarredProjects(filteredProjects));
   };
-  const sortByStarredProjects = React.useCallback(
-    (projects: Project[]) => {
-      return [...projects].sort((a, b) => {
-        const aStarred = starredProjects[a.id] ? 1 : 0;
-        const bStarred = starredProjects[b.id] ? 1 : 0;
-        return bStarred - aStarred; // เรียงโปรเจ็กต์ที่ starred ไว้ก่อน
-      });
-    },
-    [starredProjects],
-  );
-  React.useEffect(() => {
-    setQuery((prevQuery) => sortByStarredProjects(prevQuery));
-  }, [sortByStarredProjects]);
+
 
   const handleDateRangeChange = (dateRange: { from: string; to: string } | undefined) => {
     setDateRange(dateRange);
