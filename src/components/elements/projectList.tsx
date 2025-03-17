@@ -5,12 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { getCookie } from 'cookies-next';
 import { Button } from '../ui/button';
-import BASE_URL, {
-  type ProjectTagProp,
-  type Project,
-  type Tag,
-  BASE_SOCKET,
-} from '@/lib/shared';
+import BASE_URL, { type ProjectTagProp, type Project, type Tag, BASE_SOCKET } from '@/lib/shared';
 import {
   FilterByTags,
   FilterByDateRange,
@@ -127,7 +122,7 @@ export const ProjectList = () => {
     return nameParts.map((part) => part[0]).join(''); // Take the first letter of each part
   };
 
-  //star 
+  //star
   const toggleStar = async (projectId: string) => {
     setStarredProjects((prevState) => {
       const isCurrentlyStarred = prevState[projectId] ?? false;
@@ -226,7 +221,6 @@ export const ProjectList = () => {
     // setQuery(filteredProjects);
     setQuery(sortByStarredProjects(filteredProjects));
   };
-
 
   const handleDateRangeChange = (dateRange: { from: string; to: string } | undefined) => {
     setDateRange(dateRange);

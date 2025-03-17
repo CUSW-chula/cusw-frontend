@@ -1,4 +1,3 @@
-
 import { ProjectList } from '@/components/elements/projectList';
 
 export default async function ProjectLists() {
