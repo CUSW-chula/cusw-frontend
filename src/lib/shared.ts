@@ -86,6 +86,7 @@ export type User = {
   email: string;
   name: string;
   admin: boolean;
+  head: boolean;
   activated: boolean;
 };
 
