@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import { jwtDecode } from 'jwt-decode';
 import { useEffect } from 'react';
+import { set } from 'date-fns';
 
 interface Tags {
   id: string;
@@ -31,6 +32,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
   const auth = cookie?.toString() ?? '';
   const userid = (jwtDecode(auth) as { id: string }).id;
   const [isHead, setIsHead] = React.useState<boolean>();
+  const [isadmin, setIsAdmin] = React.useState<boolean>();
   const [open, setOpen] = React.useState(false);
   const [statuses, setStatuses] = React.useState<Tags[]>([]);
   const [selectedTags, setSelectedTags] = React.useState<Tags[]>([]);
@@ -61,6 +63,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
 
         const data = await response.json();
         setIsHead(data.admin);
+        setIsAdmin(data.admin);
       } catch (error) {
         console.error('Error fetching Owner:', error);
       }
@@ -224,14 +227,13 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
   };
 
   return (
-    // Add this inside your component's return statement
     <>
       <div className="">
         <div className="flex flex-row flex-wrap items-center overflow-hidden">
           {Array.isArray(selectedTags) && selectedTags.length > 0 ? (
             selectedTags.map((tag) => {
-              // Only show Accept/Rework tags to Head users
-              if (['Approve', 'Rework'].includes(tag.name) && !isHead) return null;
+              // Only show Accept tags to Head/Admin users
+              if (['Approve'].includes(tag.name) && (!isHead || !isadmin)) return null;
 
               return (
                 <Badge
@@ -244,7 +246,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
                       : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
                   )}>
                   <span className="text-base font-medium font-BaiJamjuree">{tag.name}</span>
-                  {isHead && ( // Only show delete button for Head users
+                  {(isHead || isadmin) && (
                     <button
                       type="button"
                       onClick={() => handleDeleteTag(tag.id)}
@@ -273,7 +275,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
                   <CommandGroup>
                     {statuses.map((status) => {
                       // Hide Accept/Rework from non-Head users
-                      if (['Approve', 'Rework'].includes(status.name) && !isHead) return null;
+                      if (['Approve'].includes(status.name) && (!isHead || !isadmin)) return null;
 
                       return (
                         <CommandItem key={status.id} value={status.name} onSelect={handleSelectTag}>

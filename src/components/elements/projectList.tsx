@@ -380,11 +380,11 @@ export const ProjectList = () => {
                     <div className="flex flex-col flex-wrap items-end">
                       {project.tags
                         ?.sort((a, b) => {
-                          const priorityTags = ['Approve', 'Rework'];
-                          const aIsPriority = priorityTags.includes(a.name);
-                          const bIsPriority = priorityTags.includes(b.name);
-                          if (aIsPriority && !bIsPriority) return -1;
-                          if (!aIsPriority && bIsPriority) return 1;
+                          // Sort Approve tags to the front
+                          const aIsApprove = a.name === 'Approve';
+                          const bIsApprove = b.name === 'Approve';
+                          if (aIsApprove && !bIsApprove) return -1;
+                          if (!aIsApprove && bIsApprove) return 1;
                           return 0;
                         })
                         .slice(0, 4) // Keep the slice after sorting
@@ -419,11 +419,10 @@ export const ProjectList = () => {
                               <div className="flex flex-col flex-wrap items-start">
                                 {project.tags
                                   ?.sort((a, b) => {
-                                    const priorityTags = ['Approve', 'Rework'];
-                                    const aIsPriority = priorityTags.includes(a.name);
-                                    const bIsPriority = priorityTags.includes(b.name);
-                                    if (aIsPriority && !bIsPriority) return -1;
-                                    if (!aIsPriority && bIsPriority) return 1;
+                                    const aIsApprove = a.name === 'Approve';
+                                    const bIsApprove = b.name === 'Approve';
+                                    if (aIsApprove && !bIsApprove) return -1;
+                                    if (!aIsApprove && bIsApprove) return 1;
                                     return 0;
                                   })
                                   .slice(4) // Show only the overflow tags in tooltip
