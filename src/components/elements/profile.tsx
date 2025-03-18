@@ -1,5 +1,12 @@
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import type React from 'react';
+import { useRouter } from 'next/navigation';
 
 interface ProfileProp {
   userId: string;
@@ -44,24 +51,35 @@ export const Profile = ({ userId, userName }: ProfileProp) => {
 };
 
 export const Profile2 = ({ userId, userName }: ProfileProp) => {
+  const navigate = useRouter();
+
+  const handleSignOut = () => {
+    // Add actual logout logic here (clear auth tokens, etc.)
+    navigate.push('/'); // For Next.js: use router.push('/')
+  };
+
   return (
-    <TooltipProvider>
-      <Tooltip key={userId}>
-        <TooltipTrigger>
-          <div className="flex items-center space-x-2  border-brown text-brown ">
-            {/* Circle with initials */}
-            <div className="w-[40px] h-[40px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown">
-              <span className="  text-brown text-[16px] font-BaiJamjuree">
-                {getInitials(userName)}
-              </span>
-            </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <div className="flex items-center space-x-2 border-brown text-brown cursor-pointer">
+          <div className="w-[40px] h-[40px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown hover:bg-gray-200 transition-colors">
+            <span className="text-brown text-[16px] font-BaiJamjuree">{getInitials(userName)}</span>
           </div>
-        </TooltipTrigger>
-        {/* Tooltip content showing the full name */}
-        <TooltipContent>
-          <span>{userName}</span>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+        </div>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align="end" className="min-w-[200px] p-2">
+        <div className="flex flex-col space-y-2">
+          <div className="px-2 py-1.5">
+            <p className="text-sm font-medium text-gray-900">{userName}</p>
+          </div>
+          <DropdownMenuItem
+            onClick={handleSignOut}
+            className="cursor-pointer text-red-600 hover:bg-red-50 focus:bg-red-50">
+            Sign Out
+          </DropdownMenuItem>
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };

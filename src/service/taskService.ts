@@ -4,12 +4,15 @@ import type { FormInput } from '@/app/types/createProjectType';
 import BASE_URL from '@/lib/shared';
 
 export const createSingleTask = async (projectId: string, inputs: FormInput, BASE_URL: string) => {
+  const budgetAssigned =
+    (inputs.taskBudget ?? 0) > 0 || (inputs.taskAdvance ?? 0) > 0 || (inputs.taskExpense ?? 0) > 0;
   const taskPayload = {
     title: inputs.taskTitle,
     description: inputs.taskDescription ?? '',
-    budget: 0,
-    advance: 0,
-    expense: 0,
+    budget: inputs.taskBudget ?? 0,
+    advance: inputs.taskAdvance ?? 0,
+    expense: inputs.taskExpense ?? 0,
+    statusBudgets: budgetAssigned ? 'Added' : 'Initial',
     status: 'Unassigned',
     parentTaskId: '',
     startDate: null,
@@ -33,7 +36,6 @@ export const createTasksFromTemplate = async (
     if (!inputs.task) throw new Error('Please select template.');
     const templateFormat = await fetchTemplate(inputs.task.template.filePath);
     if (templateFormat) {
-      console.log(templateFormat);
       await fetchData(
         `${BASE_URL}/v2/tasks/template/${projectId}`,
         'POST',
@@ -46,13 +48,13 @@ export const createTasksFromTemplate = async (
   }
 };
 
-export const addTaskBudget = async (taskId: string, inputs: FormInput) => {
-  const payload = {
-    taskID: taskId,
-    budget: inputs.taskBudget,
-    advance: inputs.taskAdvance,
-    expense: inputs.taskExpense,
-  };
+// export const addTaskBudget = async (taskId: string, inputs: FormInput) => {
+//   const payload = {
+//     taskID: taskId,
+//     budget: inputs.taskBudget,
+//     advance: inputs.taskAdvance,
+//     expense: inputs.taskExpense,
+//   };
 
-  await fetchData(`${BASE_URL}/v2/tasks/money`, 'POST', payload, 'Error adding task money');
-};
+//   await fetchData(`${BASE_URL}/v2/tasks/money`, 'POST', payload, 'Error adding task money');
+// };

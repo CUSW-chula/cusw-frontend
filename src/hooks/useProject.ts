@@ -1,5 +1,5 @@
 import { assignProjectTag, createProject } from '@/service/projectService';
-import { addTaskBudget, createSingleTask, createTasksFromTemplate } from '@/service/taskService';
+import { createSingleTask, createTasksFromTemplate } from '@/service/taskService';
 import type { FormInput } from '@/app/types/createProjectType';
 import { useRouter } from 'next/navigation';
 import { toast } from './use-toast';
@@ -15,7 +15,7 @@ export const useCreateProject = (inputs: FormInput, BASE_URL: string) => {
       }
       if (inputs.taskTitle && typeCreation === 'newTaskForm') {
         const task = await createSingleTask(projectRes.id, inputs, BASE_URL);
-        await addTaskBudget(task.id, inputs);
+        // await addTaskBudget(task.id, inputs);
       } else if (typeCreation === 'newTaskwithTemplate')
         await createTasksFromTemplate(projectRes.id, inputs, BASE_URL);
       if (inputs.projectTag) await assignProjectTag(projectRes.id, inputs, BASE_URL);
@@ -25,7 +25,7 @@ export const useCreateProject = (inputs: FormInput, BASE_URL: string) => {
         description: 'Your project has been created and saved successfully.',
         variant: 'default',
       });
-      router.push('/projects');
+      router.push(`/projects/detail/${projectRes.id}`);
       return projectRes;
     } catch (error) {
       console.error(error);

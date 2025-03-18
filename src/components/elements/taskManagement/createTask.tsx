@@ -21,6 +21,7 @@ export const CreateTask = (project: { project_id: string }) => {
         advance: 0,
         parentTaskId: '',
         expense: 0,
+        statusBudgets: 'Initial',
         status: 'Unassigned',
         startDate: new Date(),
         endDate: new Date(),

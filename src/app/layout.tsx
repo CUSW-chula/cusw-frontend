@@ -36,7 +36,7 @@ export default function RootLayout({
             <NavBar />
           </div>
 
-          <div className="w-full px-20 pb-10 flex justify-center">{children}</div>
+          <div className="w-full px-20 flex justify-center">{children}</div>
           <Toaster />
         </body>
       </SessionProvider>

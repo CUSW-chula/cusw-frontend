@@ -25,6 +25,7 @@ import { tagsListAtom } from '@/atom';
 import Link from 'next/link';
 import { DateText } from './date-feature';
 import { toast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 export const ProjectList = () => {
   const cookie = getCookie('auth');
@@ -37,7 +38,7 @@ export const ProjectList = () => {
   useEffect(() => {
     const fetchAllProjects = async () => {
       const response = await fetch(`${BASE_URL}/v2/projects`, {
-        headers: { Authorization: auth },
+        headers: { Authorization: auth, 'Accept-Encoding': 'gzip' },
       });
 
       if (!response.ok) {
@@ -212,15 +213,18 @@ export const ProjectList = () => {
       const fromDate = new Date(dateRange.from);
       const toDate = new Date(dateRange.to);
       filteredProjects = filteredProjects.filter((project) => {
-        if (project.startDate && project.endDate) {
-          const projectStartDate = new Date(project.startDate);
-          const projectEndDate = new Date(project.endDate);
-          return (
-            (projectStartDate >= fromDate && projectStartDate <= toDate) ||
-            (projectEndDate >= fromDate && projectEndDate <= toDate) ||
-            (projectStartDate <= fromDate && projectEndDate >= toDate)
-          );
+        const projectStartDate = project.startDate ? new Date(project.startDate) : null;
+        const projectEndDate = project.endDate ? new Date(project.endDate) : null;
+
+        console.log(`start: ${fromDate}, end: ${toDate}`);
+        console.log(`pjstart: ${projectStartDate}, pjend: ${projectEndDate}`);
+
+        if (!projectStartDate) return false;
+        if (!projectEndDate) {
+          return fromDate <= projectStartDate && projectStartDate <= toDate;
         }
+
+        return !(projectStartDate < fromDate) && !(projectEndDate > toDate);
       });
     }
 
@@ -374,16 +378,31 @@ export const ProjectList = () => {
 
                   <div className="absolute top-[60px] right-[20px]  ">
                     <div className="flex flex-col flex-wrap items-end">
-                      {project.tags?.slice(0, 4).map((tag) => (
-                        <Badge
-                          key={tag?.id}
-                          variant="destructive"
-                          className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mt-1 mb-1">
-                          <span className="text-base font-medium font-BaiJamjuree">
-                            {tag?.name}
-                          </span>
-                        </Badge>
-                      ))}
+                      {project.tags
+                        ?.sort((a, b) => {
+                          // Sort Approve tags to the front
+                          const aIsApprove = a.name === 'Approve';
+                          const bIsApprove = b.name === 'Approve';
+                          if (aIsApprove && !bIsApprove) return -1;
+                          if (!aIsApprove && bIsApprove) return 1;
+                          return 0;
+                        })
+                        .slice(0, 4) // Keep the slice after sorting
+                        .map((tag) => (
+                          <Badge
+                            key={tag?.id}
+                            variant="destructive"
+                            className={cn(
+                              'h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center mr-1 mt-1 mb-1',
+                              tag.name === 'Approve' || tag.name === 'Rework'
+                                ? 'bg-[#eefafd] border-blue text-blue'
+                                : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
+                            )}>
+                            <span className="text-base font-medium font-BaiJamjuree">
+                              {tag?.name}
+                            </span>
+                          </Badge>
+                        ))}
                       {project.tags && project.tags.length > 4 && (
                         <TooltipProvider>
                           <Tooltip>
@@ -398,16 +417,30 @@ export const ProjectList = () => {
                             </TooltipTrigger>
                             <TooltipContent>
                               <div className="flex flex-col flex-wrap items-start">
-                                {project.tags?.map((tag) => (
-                                  <Badge
-                                    key={tag?.id}
-                                    variant="destructive"
-                                    className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mt-1 mb-1">
-                                    <span className="text-xs font-medium font-BaiJamjuree">
-                                      {tag?.name}
-                                    </span>
-                                  </Badge>
-                                ))}
+                                {project.tags
+                                  ?.sort((a, b) => {
+                                    const aIsApprove = a.name === 'Approve';
+                                    const bIsApprove = b.name === 'Approve';
+                                    if (aIsApprove && !bIsApprove) return -1;
+                                    if (!aIsApprove && bIsApprove) return 1;
+                                    return 0;
+                                  })
+                                  .slice(4) // Show only the overflow tags in tooltip
+                                  .map((tag) => (
+                                    <Badge
+                                      key={tag?.id}
+                                      variant="destructive"
+                                      className={cn(
+                                        'h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center mb-1',
+                                        tag.name === 'Approve' || tag.name === 'Rework'
+                                          ? 'bg-[#eefafd] border-blue text-blue'
+                                          : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
+                                      )}>
+                                      <span className="text-xs font-medium font-BaiJamjuree">
+                                        {tag?.name}
+                                      </span>
+                                    </Badge>
+                                  ))}
                               </div>
                             </TooltipContent>
                           </Tooltip>
