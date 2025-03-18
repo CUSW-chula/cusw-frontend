@@ -209,7 +209,7 @@ export const ProjectList = () => {
         ).some((tag) => filterTag.includes(tag.name));
       });
     }
-    if (dateRange?.from && dateRange.to) {
+    if (dateRange?.from != null) {
       const fromDate = new Date(dateRange.from);
       const toDate = new Date(dateRange.to);
       filteredProjects = filteredProjects.filter((project) => {
@@ -318,15 +318,15 @@ export const ProjectList = () => {
   const [, setTagsList] = useAtom<ProjectTagProp[]>(tagsListAtom);
   const handleProjectTags = React.useCallback(() => {
     const tagMap = new Map<string, { value: string; label: string }>();
-  
+
     projectList.filter((project) =>
       project.tags.filter((tag) => {
         if (!tagMap.has(tag.name)) {
           tagMap.set(tag.name, { value: tag.name, label: tag.name });
         }
-      })
+      }),
     );
-  
+
     setTagsList(Array.from(tagMap.values()));
   }, [projectList, setTagsList]);
 
