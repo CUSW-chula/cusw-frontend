@@ -241,7 +241,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
                   variant="destructive"
                   className={cn(
                     'h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center border-x border-y mr-1 mt-1 mb-1',
-                    tag.name === 'Accept' || tag.name === 'Rework'
+                    tag.name === 'Approve'
                       ? 'bg-[#eefafd] border-blue text-blue'
                       : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
                   )}>
@@ -282,7 +282,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
                           <Circle
                             className={cn(
                               'mr-2 h-4 w-4',
-                              status.name === 'Approve' || status.name === 'Rework'
+                              status.name === 'Approve'
                                 ? 'fill-blue text-blue'
                                 : 'fill-greenLight text-greenLight',
                               selectedTags.some((tag) => tag.id === status.id)
