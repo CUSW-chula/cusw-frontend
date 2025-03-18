@@ -25,7 +25,7 @@ export default function Home() {
         <CardContent className="flex flex-col justify-center items-center space-y-4 p-6">
           <p className="text-lg font-BaiJamjuree">เข้าใช้งาน</p>
           <h1 className="text-6xl font-bold font-Anuphan">Login here</h1>
-          <p className="text-lg font-BaiJamjuree">Welcome!!!</p>
+          <p className="text-lg font-BaiJamjuree">Welcome</p>
           <Button
             variant="outline"
             className="w-fit flex items-center justify-center space-x-2 px-10 border-brown bg-cream"
