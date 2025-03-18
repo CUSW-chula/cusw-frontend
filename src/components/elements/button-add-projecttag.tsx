@@ -62,7 +62,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
         }
 
         const data = await response.json();
-        setIsHead(data.admin);
+        setIsHead(data.head);
         setIsAdmin(data.admin);
       } catch (error) {
         console.error('Error fetching Owner:', error);
@@ -233,7 +233,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
           {Array.isArray(selectedTags) && selectedTags.length > 0 ? (
             selectedTags.map((tag) => {
               // Only show Accept tags to Head/Admin users
-              if (['Approve'].includes(tag.name) && (!isHead || !isadmin)) return null;
+              if (tag.name === 'Approved' && !isHead && !isadmin) return null;
 
               return (
                 <Badge
@@ -241,7 +241,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
                   variant="destructive"
                   className={cn(
                     'h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center border-x border-y mr-1 mt-1 mb-1',
-                    tag.name === 'Approve'
+                    tag.name === 'Approved'
                       ? 'bg-[#eefafd] border-blue text-blue'
                       : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
                   )}>
@@ -275,14 +275,14 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
                   <CommandGroup>
                     {statuses.map((status) => {
                       // Hide Accept/Rework from non-Head users
-                      if (['Approve'].includes(status.name) && (!isHead || !isadmin)) return null;
+                      if (['Approved'].includes(status.name) && (!isHead && !isadmin)) return null;
 
                       return (
                         <CommandItem key={status.id} value={status.name} onSelect={handleSelectTag}>
                           <Circle
                             className={cn(
                               'mr-2 h-4 w-4',
-                              status.name === 'Approve'
+                              status.name === 'Approved'
                                 ? 'fill-blue text-blue'
                                 : 'fill-greenLight text-greenLight',
                               selectedTags.some((tag) => tag.id === status.id)
