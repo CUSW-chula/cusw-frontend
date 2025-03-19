@@ -63,11 +63,11 @@ export default function NavBar() {
   return (
     <>
       {url !== '/' && (
-        <div className="flex flex-row min-w-full h-[84px] justify-between items-center font-BaiJamjuree">
+        <div className="flex flex-row min-w-full h-[84px] px-4 justify-between items-center font-BaiJamjuree">
           <a href="/projects">
-            <img src="/asset/logo/Logo_s2.svg" alt="CUSW" />
+            <img src="/asset/logo/s2.svg" alt="CUSW" width={240} />
           </a>
-          <div className="flex flex-row px-5 gap-4">
+          <div className="flex flex-row gap-4">
             {isAdmin && (
               <button
                 type="button"
