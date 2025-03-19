@@ -317,24 +317,22 @@ export const ProjectList = () => {
 
   const [, setTagsList] = useAtom<ProjectTagProp[]>(tagsListAtom);
   const handleProjectTags = React.useCallback(() => {
-    const tags: Tag[] = [];
-    projectList.map((project) =>
-      project.tags.map((tag) =>
-        tags.push({ id: tag.id, name: tag.name, isProject: tag.isProject }),
-      ),
-    );
-    const TagsList = tags.map((tag) => ({
-      value: tag.name,
-      label: tag.name,
-    }));
+    const tagMap = new Map<string, { value: string; label: string }>();
 
-    setTagsList(TagsList);
+    projectList.filter((project) =>
+      project.tags.filter((tag) => {
+        if (!tagMap.has(tag.name)) {
+          tagMap.set(tag.name, { value: tag.name, label: tag.name });
+        }
+      }),
+    );
+
+    setTagsList(Array.from(tagMap.values()));
   }, [projectList, setTagsList]);
 
   React.useEffect(() => {
     handleProjectTags();
-  }, [handleProjectTags]); //dont remove this dependency bro!!!
-
+  }, [handleProjectTags]);
   return (
     <>
       <div className="flex w-full justify-between flex-wrap gap-2">
