@@ -29,7 +29,8 @@ export function StatusButton({ task }: { task: TaskProps }) {
   const [selectedStatus, setSelectedStatus] = useAtom<Status>(selectedStatusAtom);
   const [isAllSubTaskDone, setIsAllSubTaskDone] = useState(true);
   const [projectOwner, setProjectOwner] = useState<User[]>([]);
-  const [isTaskOwner, setIsTaskOwner] = useState(false);
+  const [isBypassAble, setIsBypassAble] = useState(false);
+  const decoded = jwtDecode<{ id: string }>(auth);
 
   const getStatus = (value: string) => {
     const status = statusSections.find((section) => section.status === value);
@@ -66,7 +67,6 @@ export function StatusButton({ task }: { task: TaskProps }) {
           return;
         }
         const data = await response.json();
-        console.log(data.owner);
         setProjectOwner(data.owner);
 
         if (!auth) return;
@@ -74,7 +74,7 @@ export function StatusButton({ task }: { task: TaskProps }) {
         try {
           const decoded = jwtDecode<{ id: string }>(auth);
           const isOwner = data.owner.some((o: User) => o.id === decoded.id);
-          setIsTaskOwner(isOwner);
+          setIsBypassAble(isOwner);
         } catch (error) {
           console.error('Invalid token:', error);
         }
@@ -82,8 +82,27 @@ export function StatusButton({ task }: { task: TaskProps }) {
         console.error('Error fetching Owner:', error);
       }
     };
+    const fetchBypassAble = async () => {
+      try {
+        const responseUser = await fetch(`${BASE_URL}/v2/users/${decoded.id}`, {
+          headers: { Authorization: auth },
+        });
 
-    fetchProjectOwner();
+        const userData = await responseUser.json();
+
+        if (userData.admin || userData.head) {
+          setIsBypassAble(true);
+
+          return;
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+      if (!isBypassAble) fetchProjectOwner();
+    };
+
+    fetchBypassAble();
+
     setSelectedStatus(getStatus(task.status));
     setIsAllSubTaskDone(task.subtasks?.every((subtask) => subtask.status === 'Done') ?? true);
 
@@ -157,7 +176,7 @@ export function StatusButton({ task }: { task: TaskProps }) {
         <Button
           variant="outline"
           size="sm"
-          disabled={!isTaskOwner && selectedStatus.status === 'Unassigned'}
+          disabled={!isBypassAble && selectedStatus.status === 'Unassigned'}
           className="h-[40px] px-[16px] justify-start font-BaiJamjuree text-base">
           {selectedStatus ? (
             <>
@@ -184,7 +203,7 @@ export function StatusButton({ task }: { task: TaskProps }) {
                   key={status.status}
                   value={status.status}
                   disabled={
-                    !isTaskOwner &&
+                    !isBypassAble &&
                     ((selectedStatus.status === 'Assigned' && status.status !== 'UnderReview') ||
                       (selectedStatus.status === 'UnderReview' &&
                         (status.status === 'Unassigned' ||

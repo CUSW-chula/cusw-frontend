@@ -275,7 +275,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
                   <CommandGroup>
                     {statuses.map((status) => {
                       // Hide Accept/Rework from non-Head users
-                      if (['Approved'].includes(status.name) && (!isHead && !isadmin)) return null;
+                      if (['Approved'].includes(status.name) && !isHead && !isadmin) return null;
 
                       return (
                         <CommandItem key={status.id} value={status.name} onSelect={handleSelectTag}>
