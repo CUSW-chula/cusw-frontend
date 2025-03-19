@@ -1,25 +1,37 @@
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@radix-ui/react-tooltip";
+"use client";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@radix-ui/react-tooltip";
 import { DateText } from "../date-feature";
-import {  Calendar, CrownIcon, Link, Star, Users } from "lucide-react";
-import { Badge } from '@/components/ui/badge';
+import { Calendar, CrownIcon, Star, Users } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import type { Project } from "@/lib/shared";
 import { UsePinned } from "./sort-pin-project";
-import BASE_URL, { type Project } from "@/lib/shared";
-import React from "react";
-export const ProjectCard = () => {
-    const { toggleStar, starredProjects } = UsePinned()
-    const [query, setQuery] = React.useState<Project[]>([]);
-      //get initials name
+import Link from 'next/link';
+interface ProjectProps {
+  query: Project[];
+  setQuery: (prev: Project[]) => void;
+  projectList: Project[];
+  setProjectList: (prev: Project[]) => void;
+   starredProjects: Record<string, boolean>;
+      setStarredProjects: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+}
+export const ProjectCard = ({ query, setQuery,projectList,setProjectList,starredProjects,setStarredProjects }: ProjectProps) => {
+   const { toggleStar } = UsePinned(starredProjects, setStarredProjects);
+     //get initials name
   const getInitials = (name: string) => {
     const nameParts = name.split(' ');
     return nameParts.map((part) => part[0]).join(''); // Take the first letter of each part
   };
 
-  
-return (
+  return (
     <>
-      <div className="flex items-start content-start gap-[16px] flex-wrap ">
-        {query.length > 0 ? (
+  <div className={query.length > 0 ? "flex items-start justify-start gap-[16px] w-full flex-wrap" : "flex items-center justify-center w-full"}>
+  {query.length > 0 ? (
           query.map((project, index) => (
             <div key={`${project.id}-${index}`} className="relative">
               <div className="absolute top-[15px] right-[20px] z-50">
@@ -33,7 +45,8 @@ return (
               </div>
               <Link
                 href={`/projects/detail/${project.id}`}
-                className="flex flex-start w-[308px] h-[284px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px] ">
+                className="flex flex-start w-[308px] h-[284px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px] "
+              >
                 <div className="flex flex-col gap-y-[8px]">
                   <div className="h-[56px] w-[204px] self-stretch overflow-hidden">
                     <TooltipProvider>
@@ -55,8 +68,8 @@ return (
                       {project.tags
                         ?.sort((a, b) => {
                           // Sort Approve tags to the front
-                          const aIsApprove = a.name === 'Approve';
-                          const bIsApprove = b.name === 'Approve';
+                          const aIsApprove = a.name === "Approve";
+                          const bIsApprove = b.name === "Approve";
                           if (aIsApprove && !bIsApprove) return -1;
                           if (!aIsApprove && bIsApprove) return 1;
                           return 0;
@@ -67,11 +80,12 @@ return (
                             key={tag?.id}
                             variant="destructive"
                             className={cn(
-                              'h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center mr-1 mt-1 mb-1',
-                              tag.name === 'Approve' || tag.name === 'Rework'
-                                ? 'bg-[#eefafd] border-blue text-blue'
-                                : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
-                            )}>
+                              "h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center mr-1 mt-1 mb-1",
+                              tag.name === "Approve" || tag.name === "Rework"
+                                ? "bg-[#eefafd] border-blue text-blue"
+                                : "bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]"
+                            )}
+                          >
                             <span className="text-base font-medium font-BaiJamjuree">
                               {tag?.name}
                             </span>
@@ -83,7 +97,8 @@ return (
                             <TooltipTrigger>
                               <Badge
                                 variant="destructive"
-                                className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mt-1 mb-1">
+                                className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mt-1 mb-1"
+                              >
                                 <div className="text-base font-medium font-BaiJamjuree">
                                   +{project.tags.length - 4}
                                 </div>
@@ -93,8 +108,8 @@ return (
                               <div className="flex flex-col flex-wrap items-start">
                                 {project.tags
                                   ?.sort((a, b) => {
-                                    const aIsApprove = a.name === 'Approve';
-                                    const bIsApprove = b.name === 'Approve';
+                                    const aIsApprove = a.name === "Approve";
+                                    const bIsApprove = b.name === "Approve";
                                     if (aIsApprove && !bIsApprove) return -1;
                                     if (!aIsApprove && bIsApprove) return 1;
                                     return 0;
@@ -105,11 +120,13 @@ return (
                                       key={tag?.id}
                                       variant="destructive"
                                       className={cn(
-                                        'h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center mb-1',
-                                        tag.name === 'Approve' || tag.name === 'Rework'
-                                          ? 'bg-[#eefafd] border-blue text-blue'
-                                          : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
-                                      )}>
+                                        "h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center mb-1",
+                                        tag.name === "Approve" ||
+                                          tag.name === "Rework"
+                                          ? "bg-[#eefafd] border-blue text-blue"
+                                          : "bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]"
+                                      )}
+                                    >
                                       <span className="text-xs font-medium font-BaiJamjuree">
                                         {tag?.name}
                                       </span>
@@ -132,7 +149,7 @@ return (
                             <TooltipTrigger>
                               <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center border border-brown">
                                 <span className="text-brown text-xs font-BaiJamjuree">
-                                  {getInitials(user?.name || '')}
+                                  {getInitials(user?.name || "")}
                                 </span>
                               </div>
                             </TooltipTrigger>
@@ -158,7 +175,8 @@ return (
                               {project.owner?.map((own) => (
                                 <span
                                   key={own?.id}
-                                  className="text-xs font-medium font-BaiJamjuree  bg-white  text-brown">
+                                  className="text-xs font-medium font-BaiJamjuree  bg-white  text-brown"
+                                >
                                   {own?.name}
                                 </span>
                               ))}
@@ -178,7 +196,7 @@ return (
                             <TooltipTrigger>
                               <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center border border-brown">
                                 <span className="text-brown text-xs font-BaiJamjuree">
-                                  {getInitials(user?.name || '')}
+                                  {getInitials(user?.name || "")}
                                 </span>
                               </div>
                             </TooltipTrigger>
@@ -204,7 +222,8 @@ return (
                               {project.members?.map((mem) => (
                                 <span
                                   key={mem?.id}
-                                  className="text-xs font-medium font-BaiJamjuree  bg-white  text-brown">
+                                  className="text-xs font-medium font-BaiJamjuree  bg-white  text-brown"
+                                >
                                   {mem?.name}
                                 </span>
                               ))}
@@ -257,28 +276,10 @@ return (
             </div>
           ))
         ) : (
-          <div>No projects found</div>
+          <div className="flex w-full items-center justify-center text-center text-lg font-medium">No projects </div>
         )}
       </div>
     </>
-)
+  );
 };
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-const parseJsonValues = (values: any[]) => {
-    return values.map((value) => ({
-      id: value.id,
-      title: value.title,
-      description: value.description,
-      budget: value.budget,
-      advance: value.advance,
-      expense: value.expense,
-      startDate: value.startDate,
-      endDate: value.endDate,
-      createdById: value.cretedById,
-      owner: value.owner,
-      members: value.members,
-      tags: value.tags,
-      isPinned: value.isPinned,
-    }));
-  };

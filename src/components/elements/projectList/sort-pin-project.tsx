@@ -1,18 +1,18 @@
 "use client";
 import * as React from "react";
-
 import { getCookie } from "cookies-next";
-
 import BASE_URL, { type Project } from "@/lib/shared";
-import { SortButton } from "@/components/elements/control-bar";
 import { toast } from "@/hooks/use-toast";
 
-export const UsePinned = () => {
+export const UsePinned = (
+  starredProjects: Record<string, boolean>,
+  setStarredProjects: React.Dispatch<
+    React.SetStateAction<Record<string, boolean>>
+  >
+) => {
   const cookie = getCookie("auth");
   const auth = cookie?.toString() ?? "";
-  const [starredProjects, setStarredProjects] = React.useState<
-    Record<string, boolean>
-  >({});
+
   const toggleStar = async (projectId: string) => {
     setStarredProjects((prevState) => {
       const isCurrentlyStarred = prevState[projectId] ?? false;
@@ -62,9 +62,24 @@ export const UsePinned = () => {
   return { toggleStar, starredProjects, sortByStarredProjects };
 };
 
-export const SortProject = () => {
-  const [query, setQuery] = React.useState<Project[]>([]);
-  const { sortByStarredProjects } = UsePinned();
+interface SortProps {
+  query: Project[];
+  setQuery: React.Dispatch<React.SetStateAction<Project[]>>;
+  starredProjects: Record<string, boolean>;
+  setStarredProjects: React.Dispatch<
+    React.SetStateAction<Record<string, boolean>>
+  >;
+}
+export const SortProject = ({
+  query,
+  setQuery,
+  starredProjects,
+  setStarredProjects,
+}: SortProps) => {
+  const { sortByStarredProjects } = UsePinned(
+    starredProjects,
+    setStarredProjects
+  );
   const sortByStartDate = async (projects: Project[], inOrder: boolean) => {
     const sorted = [...projects].sort((project1, project2) => {
       if (project1.startDate === null) return 1;
@@ -123,10 +138,9 @@ export const SortProject = () => {
         return sortByExpectedBudget(query, true);
     }
   };
-
-  return (
-    <>
-      <SortButton onSelectChange={handleSort} />
-    </>
-  );
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  React.useEffect(() => {
+    setQuery((prevQuery: Project[]) => sortByStarredProjects(prevQuery));
+  }, [sortByStarredProjects]);
+  return { handleSort };
 };

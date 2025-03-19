@@ -1,21 +1,40 @@
+"use client";
 import React from "react";
 import { UsePinned } from "./sort-pin-project";
 import BASE_URL, {
   type ProjectTagProp,
   type Project,
   type Tag,
-  BASE_SOCKET,
 } from "@/lib/shared";
-
-export const Filter = () => {
+import { useAtom } from "jotai";
+import { tagsListAtom } from "@/atom";
+interface FilterProps {
+  query: Project[];
+  setQuery: (prev: Project[]) => void;
+  projectList: Project[];
+  setProjectList: (prev: Project[]) => void;
+  starredProjects: Record<string, boolean>;
+  setStarredProjects: React.Dispatch<
+    React.SetStateAction<Record<string, boolean>>
+  >;
+}
+export const FilterProject = ({
+  query,
+  setQuery,
+  projectList,
+  setProjectList,
+  starredProjects,
+  setStarredProjects,
+}: FilterProps) => {
   const [dateRange, setDateRange] = React.useState<
     { from: string; to: string } | undefined
   >();
   const [searchText, setSearchText] = React.useState("");
   const [filterTag, setfilterTag] = React.useState<string[]>([]);
-  const [projectList, setProjectList] = React.useState<Project[]>([]);
-  const { sortByStarredProjects } = UsePinned();
-  const [query, setQuery] = React.useState<Project[]>([]);
+  const { sortByStarredProjects } = UsePinned(
+    starredProjects,
+    setStarredProjects
+  );
   const handleSearchInputChange = (text: string) => {
     setSearchText(text);
     handleFilterByDateRangeAndSearch(dateRange, text, filterTag);
@@ -79,6 +98,24 @@ export const Filter = () => {
     // setQuery(filteredProjects);
     setQuery(sortByStarredProjects(filteredProjects));
   };
+
+  const [, setTagsList] = useAtom<ProjectTagProp[]>(tagsListAtom);
+  const handleProjectTags = React.useCallback(() => {
+  const tagMap = new Map<string, { value: string; label: string }>();
+
+    projectList.filter((project) =>
+      project.tags.filter((tag) => {
+        if (!tagMap.has(tag.name)) {
+          tagMap.set(tag.name, { value: tag.name, label: tag.name });
+        }
+      }))
+
+      setTagsList(Array.from(tagMap.values()));
+    }, [projectList, setTagsList]);
+
+  React.useEffect(() => {
+    handleProjectTags();
+  }, [handleProjectTags]);
   return {
     handleTagSelection,
     handleDateRangeChange,
