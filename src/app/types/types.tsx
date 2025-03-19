@@ -18,8 +18,22 @@ export interface TaskProps {
   startDate: Date | null;
   endDate: Date | null;
   createdById: string;
-  owner: { id: string; name: string; email: string }[];
-  members: { id: string; name: string; email: string }[];
+  owner: {
+    id: string;
+    name: string;
+    email: string;
+    admin: boolean;
+    head: boolean;
+    activated: boolean;
+  }[];
+  members: {
+    id: string;
+    name: string;
+    email: string;
+    admin: boolean;
+    head: boolean;
+    activated: boolean;
+  }[];
   tags?: TagProps[];
   subtasks?: TaskProps[];
   emojis: Emojis[];
