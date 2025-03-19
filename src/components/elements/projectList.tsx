@@ -1,43 +1,348 @@
 'use client';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@radix-ui/react-tooltip';
-import { DateText } from '../date-feature';
-import { Calendar, CrownIcon, Star, Users } from 'lucide-react';
+import { Calendar, CrownIcon, Users, Star } from 'lucide-react';
+import * as React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import type { Project } from '@/lib/shared';
-import { UsePinned } from './sort-pin-project';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
+import { getCookie } from 'cookies-next';
+import { Button } from '../ui/button';
+import BASE_URL, {
+  type ProjectTagProp,
+  type Project,
+  type Tag,
+  type User,
+  BASE_SOCKET,
+} from '@/lib/shared';
+import {
+  FilterByTags,
+  FilterByDateRange,
+  Createproject,
+  SortButton,
+  Searchbar,
+} from '@/components/elements/control-bar';
+import { useEffect } from 'react';
+import { useAtom } from 'jotai';
+import { tagsListAtom } from '@/atom';
 import Link from 'next/link';
-interface ProjectProps {
-  query: Project[];
-  setQuery: (prev: Project[]) => void;
-  projectList: Project[];
-  setProjectList: (prev: Project[]) => void;
-  starredProjects: Record<string, boolean>;
-  setStarredProjects: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
-}
-export const ProjectCard = ({
-  query,
-  setQuery,
-  projectList,
-  setProjectList,
-  starredProjects,
-  setStarredProjects,
-}: ProjectProps) => {
-  const { toggleStar } = UsePinned(starredProjects, setStarredProjects);
-  //get initials name
+import { DateText } from './date-feature';
+import { toast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
+
+export const ProjectList = () => {
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
+  const [projectList, setProjectList] = React.useState<Project[]>([]);
+  const [query, setQuery] = React.useState<Project[]>([]);
+  const [starredProjects, setStarredProjects] = React.useState<Record<string, boolean>>({});
+
+  // Effect hook to update project list when API data is fetched
+  useEffect(() => {
+    const fetchAllProjects = async () => {
+      const response = await fetch(`${BASE_URL}/v2/projects`, {
+        headers: { Authorization: auth, 'Accept-Encoding': 'gzip' },
+      });
+
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        toast({
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `
+      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+      
+      🗂️ file: projectList.tsx
+          `,
+          variant: 'default',
+        });
+      }
+
+      const data = await response.json();
+      if (!data || !Array.isArray(data)) {
+        throw new Error('Invalid data format received');
+      }
+
+      const temp = parseJsonValues(data);
+      setProjectList(temp ?? []);
+      setQuery(temp ?? []);
+
+      const pinnedProjects = temp?.filter((item) => item?.isPinned) ?? [];
+
+      const updatedStarredProjects = pinnedProjects.reduce(
+        (acc, item) => {
+          if (item?.id) {
+            acc[item.id] = true;
+          }
+          return acc;
+        },
+        {} as Record<string, boolean>,
+      );
+
+      setStarredProjects(updatedStarredProjects);
+    };
+
+    fetchAllProjects();
+
+    const ws = new WebSocket(BASE_SOCKET);
+
+    ws.onopen = () => {};
+
+    ws.onmessage = (event) => {
+      try {
+        const socketEvent = JSON.parse(event.data ?? '{}');
+
+        if (!socketEvent || typeof socketEvent !== 'object') {
+          throw new Error('Invalid WebSocket event format');
+        }
+
+        const { eventName, project } = socketEvent ?? {}; // ✅ ใช้ `project` ได้ตรงๆ เลย
+
+        if (!project?.id) {
+          console.warn('Received event with missing project ID:', socketEvent);
+          return;
+        }
+
+        if (eventName === 'pinProject' || eventName === 'unpinProject') {
+          setProjectList((prevList) =>
+            prevList.map((item) =>
+              item?.id === project?.id ? { ...item, isPinned: eventName === 'pinProject' } : item,
+            ),
+          );
+
+          setStarredProjects((prevStarred) => ({
+            ...prevStarred,
+            [project.id]: eventName === 'pinProject',
+          }));
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    };
+
+    ws.onclose = () => {};
+
+    return () => {
+      ws.close();
+    };
+  }, [auth]);
+
+  //owner
   const getInitials = (name: string) => {
     const nameParts = name.split(' ');
     return nameParts.map((part) => part[0]).join(''); // Take the first letter of each part
   };
 
+  const getFirstName = (name: string) => {
+    const nameParts = name.split(' ');
+    return nameParts[0];
+  };
+
+  const formatDate = (startdate: Date | null, enddate: Date | null): string => {
+    // Return an empty string if both dates are not provided
+    if (!startdate || !enddate) return '';
+
+    const format = (date: Date | null): string => {
+      if (date == null) return '';
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    };
+
+    // Format startdate and enddate if they are valid
+    const start = startdate ? format(startdate) : '';
+    const end = enddate ? format(enddate) : '';
+    return `${start}${start && end ? ' -> ' : ''}${end}`;
+  };
+
+  const toggleStar = async (projectId: string) => {
+    setStarredProjects((prevState) => {
+      const isCurrentlyStarred = prevState[projectId] ?? false;
+      return {
+        ...prevState,
+        [projectId]: !isCurrentlyStarred,
+      };
+    });
+
+    const isCurrentlyStarred = starredProjects[projectId] ?? false;
+    const response = await fetch(`${BASE_URL}/v2/projects/pin/${projectId}`, {
+      method: isCurrentlyStarred ? 'DELETE' : 'POST',
+      headers: { Authorization: auth },
+    });
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      toast({
+        title: `🚨 Error ${response.status}: ${response.statusText}`,
+        description: `
+    🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+    
+    🗂️ file: projectList.tsx
+        `,
+        variant: 'default',
+      });
+    }
+
+    // 🔄 รีเซ็ตค่า UI กลับถ้า API ล้มเหลว
+    setStarredProjects((prevState) => {
+      const wasStarred = prevState[projectId] ?? false;
+      return {
+        ...prevState,
+        [projectId]: wasStarred,
+      };
+    });
+  };
+
+  const [dateRange, setDateRange] = React.useState<{ from: string; to: string } | undefined>();
+  const [searchText, setSearchText] = React.useState('');
+  const [filterTag, setfilterTag] = React.useState<string[]>([]);
+
+  /* filter and Search by daterange zone */
+  const handleFilterByDateRangeAndSearch = (
+    dateRange: { from: string; to: string } | undefined,
+    searchText: string,
+    filterTag: string[],
+  ) => {
+    let filteredProjects = [...projectList];
+    if (filterTag && filterTag.length > 0) {
+      filteredProjects = filteredProjects.filter((project) => {
+        return (
+          project.tags.filter((tag) => {
+            return tag.isProject;
+          }) as Tag[]
+        ).some((tag) => filterTag.includes(tag.name));
+      });
+    }
+    if (dateRange?.from != null) {
+      const fromDate = new Date(dateRange.from);
+      const toDate = new Date(dateRange.to);
+      filteredProjects = filteredProjects.filter((project) => {
+        const projectStartDate = project.startDate ? new Date(project.startDate) : null;
+        const projectEndDate = project.endDate ? new Date(project.endDate) : null;
+
+        console.log(`start: ${fromDate}, end: ${toDate}`);
+        console.log(`pjstart: ${projectStartDate}, pjend: ${projectEndDate}`);
+
+        if (!projectStartDate) return false;
+        if (!projectEndDate) {
+          return fromDate <= projectStartDate && projectStartDate <= toDate;
+        }
+
+        return !(projectStartDate < fromDate) && !(projectEndDate > toDate);
+      });
+    }
+
+    if (searchText.trim() !== '') {
+      filteredProjects = filteredProjects.filter((project) => {
+        const projectTitle = project.title.toLocaleLowerCase().trim();
+        return projectTitle.includes(searchText.toLocaleLowerCase().trim());
+      });
+    }
+    // setQuery(filteredProjects);
+    setQuery(sortByStarredProjects(filteredProjects));
+  };
+  const sortByStarredProjects = React.useCallback(
+    (projects: Project[]) => {
+      return [...projects].sort((a, b) => {
+        const aStarred = starredProjects[a.id] ? 1 : 0;
+        const bStarred = starredProjects[b.id] ? 1 : 0;
+        return bStarred - aStarred; // เรียงโปรเจ็กต์ที่ starred ไว้ก่อน
+      });
+    },
+    [starredProjects],
+  );
+  React.useEffect(() => {
+    setQuery((prevQuery) => sortByStarredProjects(prevQuery));
+  }, [sortByStarredProjects]);
+
+  const handleDateRangeChange = (dateRange: { from: string; to: string } | undefined) => {
+    setDateRange(dateRange);
+    handleFilterByDateRangeAndSearch(dateRange, searchText, filterTag);
+  };
+
+  const handleSearchInputChange = (text: string) => {
+    setSearchText(text);
+    handleFilterByDateRangeAndSearch(dateRange, text, filterTag);
+  };
+
+  const sortByStartDate = async (projects: Project[], inOrder: boolean) => {
+    const sorted = [...projects].sort((project1, project2) => {
+      if (project1.startDate === null) return 1;
+      if (project2.startDate === null) return -1;
+      return inOrder
+        ? new Date(project1.startDate).getTime() - new Date(project2.startDate).getTime()
+        : new Date(project2.startDate).getTime() - new Date(project1.startDate).getTime();
+    });
+    setQuery(sortByStarredProjects(sorted));
+  };
+
+  const sortByEndDate = async (projects: Project[], inOrder: boolean) => {
+    const sorted = [...projects].sort((project1, project2) => {
+      if (project1.endDate === null) return 1;
+      if (project2.endDate === null) return -1;
+      return inOrder
+        ? new Date(project1.endDate).getTime() - new Date(project2.endDate).getTime()
+        : new Date(project2.endDate).getTime() - new Date(project1.endDate).getTime();
+    });
+    setQuery(sortByStarredProjects(sorted));
+  };
+
+  const sortByExpectedBudget = async (projects: Project[], inOrder: boolean) => {
+    const sorted = [...projects].sort((project1, project2) => {
+      if (project1.budget === null) return 1;
+      if (project2.budget === null) return -1;
+      return inOrder
+        ? new Date(project1.budget).getTime() - new Date(project2.budget).getTime()
+        : new Date(project2.budget).getTime() - new Date(project1.budget).getTime();
+    });
+    setQuery(sortByStarredProjects(sorted));
+  };
+
+  const handleSort = (value: string) => {
+    switch (value) {
+      case 'Start Date ↑':
+        return sortByStartDate(query, true);
+      case 'Start Date ↓':
+        return sortByStartDate(query, false);
+      case 'End Date ↑':
+        return sortByEndDate(query, true);
+      case 'End Date ↓':
+        return sortByEndDate(query, false);
+      case 'Highest':
+        return sortByExpectedBudget(query, false);
+      case 'Lowest':
+        return sortByExpectedBudget(query, true);
+    }
+  };
+  const handleTagSelection = (selectedTags: string[]) => {
+    setfilterTag(selectedTags);
+    handleFilterByDateRangeAndSearch(dateRange, searchText, selectedTags);
+  };
+
+  const [, setTagsList] = useAtom<ProjectTagProp[]>(tagsListAtom);
+  const handleProjectTags = React.useCallback(() => {
+    const tagMap = new Map<string, { value: string; label: string }>();
+
+    projectList.filter((project) =>
+      project.tags.filter((tag) => {
+        if (!tagMap.has(tag.name)) {
+          tagMap.set(tag.name, { value: tag.name, label: tag.name });
+        }
+      }),
+    );
+
+    setTagsList(Array.from(tagMap.values()));
+  }, [projectList, setTagsList]);
+
+  React.useEffect(() => {
+    handleProjectTags();
+  }, [handleProjectTags]);
   return (
     <>
-      <div
-        className={
-          query.length > 0
-            ? 'flex items-start justify-start gap-[16px] w-full flex-wrap'
-            : 'flex items-center justify-center w-full'
-        }>
+      <div className="flex w-full justify-between flex-wrap gap-2">
+        <FilterByDateRange onDateChange={handleDateRangeChange} />
+        <FilterByTags onSelectTagChange={handleTagSelection} />
+        <Searchbar onSearchChange={handleSearchInputChange} />
+        <SortButton onSelectChange={handleSort} />
+        <Createproject />
+      </div>
+      <div className="flex items-start content-start gap-[16px] flex-wrap ">
         {query.length > 0 ? (
           query.map((project, index) => (
             <div key={`${project.id}-${index}`} className="relative">
@@ -74,8 +379,8 @@ export const ProjectCard = ({
                       {project.tags
                         ?.sort((a, b) => {
                           // Sort Approve tags to the front
-                          const aIsApprove = a.name === 'Approve';
-                          const bIsApprove = b.name === 'Approve';
+                          const aIsApprove = a.name === 'Approved';
+                          const bIsApprove = b.name === 'Approved';
                           if (aIsApprove && !bIsApprove) return -1;
                           if (!aIsApprove && bIsApprove) return 1;
                           return 0;
@@ -87,7 +392,7 @@ export const ProjectCard = ({
                             variant="destructive"
                             className={cn(
                               'h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center mr-1 mt-1 mb-1',
-                              tag.name === 'Approve' || tag.name === 'Rework'
+                              tag.name === 'Approved'
                                 ? 'bg-[#eefafd] border-blue text-blue'
                                 : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
                             )}>
@@ -112,8 +417,8 @@ export const ProjectCard = ({
                               <div className="flex flex-col flex-wrap items-start">
                                 {project.tags
                                   ?.sort((a, b) => {
-                                    const aIsApprove = a.name === 'Approve';
-                                    const bIsApprove = b.name === 'Approve';
+                                    const aIsApprove = a.name === 'Approved';
+                                    const bIsApprove = b.name === 'Approved';
                                     if (aIsApprove && !bIsApprove) return -1;
                                     if (!aIsApprove && bIsApprove) return 1;
                                     return 0;
@@ -125,7 +430,7 @@ export const ProjectCard = ({
                                       variant="destructive"
                                       className={cn(
                                         'h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center mb-1',
-                                        tag.name === 'Approve' || tag.name === 'Rework'
+                                        tag.name === 'Approved'
                                           ? 'bg-[#eefafd] border-blue text-blue'
                                           : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
                                       )}>
@@ -276,11 +581,27 @@ export const ProjectCard = ({
             </div>
           ))
         ) : (
-          <div className="flex w-full items-center justify-center text-center text-lg font-medium">
-            No projects{' '}
-          </div>
+          <div>No projects found</div>
         )}
       </div>
     </>
   );
+};
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+const parseJsonValues = (values: any[]) => {
+  return values.map((value) => ({
+    id: value.id,
+    title: value.title,
+    description: value.description,
+    budget: value.budget,
+    advance: value.advance,
+    expense: value.expense,
+    startDate: value.startDate,
+    endDate: value.endDate,
+    createdById: value.cretedById,
+    owner: value.owner,
+    members: value.members,
+    tags: value.tags,
+    isPinned: value.isPinned,
+  }));
 };

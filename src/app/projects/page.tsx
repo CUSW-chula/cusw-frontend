@@ -1,5 +1,5 @@
-import { ProjectList } from "@/components/elements/projectList/project-list";
-import React from "react";
+import { ProjectList } from '@/components/elements/projectList/project-list';
+import React from 'react';
 
 export default async function ProjectLists() {
   return (

@@ -1,17 +1,15 @@
-"use client";
-import * as React from "react";
-import { getCookie } from "cookies-next";
-import BASE_URL, { type Project } from "@/lib/shared";
-import { toast } from "@/hooks/use-toast";
+'use client';
+import * as React from 'react';
+import { getCookie } from 'cookies-next';
+import BASE_URL, { type Project } from '@/lib/shared';
+import { toast } from '@/hooks/use-toast';
 
 export const UsePinned = (
   starredProjects: Record<string, boolean>,
-  setStarredProjects: React.Dispatch<
-    React.SetStateAction<Record<string, boolean>>
-  >
+  setStarredProjects: React.Dispatch<React.SetStateAction<Record<string, boolean>>>,
 ) => {
-  const cookie = getCookie("auth");
-  const auth = cookie?.toString() ?? "";
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
 
   const toggleStar = async (projectId: string) => {
     setStarredProjects((prevState) => {
@@ -24,7 +22,7 @@ export const UsePinned = (
 
     const isCurrentlyStarred = starredProjects[projectId] ?? false;
     const response = await fetch(`${BASE_URL}/v2/projects/pin/${projectId}`, {
-      method: isCurrentlyStarred ? "DELETE" : "POST",
+      method: isCurrentlyStarred ? 'DELETE' : 'POST',
       headers: { Authorization: auth },
     });
     if (!response.ok) {
@@ -32,11 +30,11 @@ export const UsePinned = (
       toast({
         title: `🚨 Error ${response.status}: ${response.statusText}`,
         description: `
- 🔥 error: ${errorMessage || "An unexpected error occurred."}
+ 🔥 error: ${errorMessage || 'An unexpected error occurred.'}
  
  🗂️ file: projectList.tsx
      `,
-        variant: "default",
+        variant: 'default',
       });
     }
 
@@ -57,7 +55,7 @@ export const UsePinned = (
         return bStarred - aStarred; // เรียงโปรเจ็กต์ที่ starred ไว้ก่อน
       });
     },
-    [starredProjects]
+    [starredProjects],
   );
   return { toggleStar, starredProjects, sortByStarredProjects };
 };
@@ -66,9 +64,7 @@ interface SortProps {
   query: Project[];
   setQuery: React.Dispatch<React.SetStateAction<Project[]>>;
   starredProjects: Record<string, boolean>;
-  setStarredProjects: React.Dispatch<
-    React.SetStateAction<Record<string, boolean>>
-  >;
+  setStarredProjects: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
 }
 export const SortProject = ({
   query,
@@ -76,19 +72,14 @@ export const SortProject = ({
   starredProjects,
   setStarredProjects,
 }: SortProps) => {
-  const { sortByStarredProjects } = UsePinned(
-    starredProjects,
-    setStarredProjects
-  );
+  const { sortByStarredProjects } = UsePinned(starredProjects, setStarredProjects);
   const sortByStartDate = async (projects: Project[], inOrder: boolean) => {
     const sorted = [...projects].sort((project1, project2) => {
       if (project1.startDate === null) return 1;
       if (project2.startDate === null) return -1;
       return inOrder
-        ? new Date(project1.startDate).getTime() -
-            new Date(project2.startDate).getTime()
-        : new Date(project2.startDate).getTime() -
-            new Date(project1.startDate).getTime();
+        ? new Date(project1.startDate).getTime() - new Date(project2.startDate).getTime()
+        : new Date(project2.startDate).getTime() - new Date(project1.startDate).getTime();
     });
     setQuery(sortByStarredProjects(sorted));
   };
@@ -98,43 +89,36 @@ export const SortProject = ({
       if (project1.endDate === null) return 1;
       if (project2.endDate === null) return -1;
       return inOrder
-        ? new Date(project1.endDate).getTime() -
-            new Date(project2.endDate).getTime()
-        : new Date(project2.endDate).getTime() -
-            new Date(project1.endDate).getTime();
+        ? new Date(project1.endDate).getTime() - new Date(project2.endDate).getTime()
+        : new Date(project2.endDate).getTime() - new Date(project1.endDate).getTime();
     });
     setQuery(sortByStarredProjects(sorted));
   };
 
-  const sortByExpectedBudget = async (
-    projects: Project[],
-    inOrder: boolean
-  ) => {
+  const sortByExpectedBudget = async (projects: Project[], inOrder: boolean) => {
     const sorted = [...projects].sort((project1, project2) => {
       if (project1.budget === null) return 1;
       if (project2.budget === null) return -1;
       return inOrder
-        ? new Date(project1.budget).getTime() -
-            new Date(project2.budget).getTime()
-        : new Date(project2.budget).getTime() -
-            new Date(project1.budget).getTime();
+        ? new Date(project1.budget).getTime() - new Date(project2.budget).getTime()
+        : new Date(project2.budget).getTime() - new Date(project1.budget).getTime();
     });
     setQuery(sortByStarredProjects(sorted));
   };
 
   const handleSort = (value: string) => {
     switch (value) {
-      case "Start Date ↑":
+      case 'Start Date ↑':
         return sortByStartDate(query, true);
-      case "Start Date ↓":
+      case 'Start Date ↓':
         return sortByStartDate(query, false);
-      case "End Date ↑":
+      case 'End Date ↑':
         return sortByEndDate(query, true);
-      case "End Date ↓":
+      case 'End Date ↓':
         return sortByEndDate(query, false);
-      case "Highest":
+      case 'Highest':
         return sortByExpectedBudget(query, false);
-      case "Lowest":
+      case 'Lowest':
         return sortByExpectedBudget(query, true);
     }
   };

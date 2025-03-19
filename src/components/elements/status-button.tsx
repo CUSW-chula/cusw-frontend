@@ -6,13 +6,19 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useCallback, useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { selectedStatusAtom } from '@/atom';
-import BASE_URL, { BASE_SOCKET, Task, type Status, type TaskManageMentProp } from '@/lib/shared';
+import BASE_URL, {
+  BASE_SOCKET,
+  Task,
+  type User,
+  type Status,
+  type TaskManageMentProp,
+} from '@/lib/shared';
 import React from 'react';
 import { getCookie } from 'cookies-next';
 import { statusSections } from '@/lib/taskUtils';
 import type { TaskProps } from '@/app/types/types';
-import { toast } from '@/hooks/use-toast';
 import { useToast } from '@/hooks/use-toast';
+import { jwtDecode } from 'jwt-decode';
 
 const statuses: Status[] = statusSections;
 
@@ -22,6 +28,9 @@ export function StatusButton({ task }: { task: TaskProps }) {
   const [open, setOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useAtom<Status>(selectedStatusAtom);
   const [isAllSubTaskDone, setIsAllSubTaskDone] = useState(true);
+  const [projectOwner, setProjectOwner] = useState<User[]>([]);
+  const [isBypassAble, setIsBypassAble] = useState(false);
+  const decoded = jwtDecode<{ id: string }>(auth);
 
   const getStatus = (value: string) => {
     const status = statusSections.find((section) => section.status === value);
@@ -39,10 +48,63 @@ export function StatusButton({ task }: { task: TaskProps }) {
   }, []);
 
   useEffect(() => {
+    const fetchProjectOwner = async () => {
+      try {
+        const response = await fetch(`${BASE_URL}/v2/projects/${task.projectId}`, {
+          headers: { Authorization: auth },
+        });
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          toast({
+            title: `🚨 Error ${response.status}: ${response.statusText}`,
+            description: `
+        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+        
+        🗂️ file: project-owner.tsx
+            `,
+            variant: 'default',
+          });
+          return;
+        }
+        const data = await response.json();
+        setProjectOwner(data.owner);
+
+        if (!auth) return;
+
+        try {
+          const decoded = jwtDecode<{ id: string }>(auth);
+          const isOwner = data.owner.some((o: User) => o.id === decoded.id);
+          setIsBypassAble(isOwner);
+        } catch (error) {
+          console.error('Invalid token:', error);
+        }
+      } catch (error) {
+        console.error('Error fetching Owner:', error);
+      }
+    };
+    const fetchBypassAble = async () => {
+      try {
+        const responseUser = await fetch(`${BASE_URL}/v2/users/${decoded.id}`, {
+          headers: { Authorization: auth },
+        });
+
+        const userData = await responseUser.json();
+
+        if (userData.admin || userData.head) {
+          setIsBypassAble(true);
+
+          return;
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+      if (!isBypassAble) fetchProjectOwner();
+    };
+
+    fetchBypassAble();
+
     setSelectedStatus(getStatus(task.status));
-    task.subtasks
-      ? setIsAllSubTaskDone(task.subtasks.every((subtask) => subtask.status === 'Done'))
-      : setIsAllSubTaskDone(true);
+    setIsAllSubTaskDone(task.subtasks?.every((subtask) => subtask.status === 'Done') ?? true);
 
     const ws = new WebSocket(BASE_SOCKET);
 
@@ -70,7 +132,7 @@ export function StatusButton({ task }: { task: TaskProps }) {
     ws.onclose = () => {};
 
     return () => ws.close();
-  }, [setSelectedStatus, parseJsonValue, task]);
+  }, [setSelectedStatus, parseJsonValue, task, auth]);
 
   const handleSelectStatus = async (status: Status) => {
     setSelectedStatus(getStatus(task.status));
@@ -80,6 +142,7 @@ export function StatusButton({ task }: { task: TaskProps }) {
       method: 'PATCH',
       headers: { Authorization: auth, 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        taskId: task.id,
         newTaskStatus: status.status,
       }),
     };
@@ -91,6 +154,13 @@ export function StatusButton({ task }: { task: TaskProps }) {
           title: 'Complete',
           description: `You changed this task status to "${status.status}"`,
           variant: 'default', // หรือใช้ 'success' ถ้ามี custom variant
+        });
+      } else {
+        const errorMessage = await response.text();
+        toast({
+          title: `🚨 Error ${response.status}: ${response.statusText}`,
+          description: `🔥 error: ${errorMessage || 'An unexpected error occurred.'}🗂️ file: status-button.tsx`,
+          variant: 'default',
         });
       }
     } catch (error) {
@@ -106,7 +176,7 @@ export function StatusButton({ task }: { task: TaskProps }) {
         <Button
           variant="outline"
           size="sm"
-          disabled={selectedStatus.status === 'Unassigned'}
+          disabled={!isBypassAble && selectedStatus.status === 'Unassigned'}
           className="h-[40px] px-[16px] justify-start font-BaiJamjuree text-base">
           {selectedStatus ? (
             <>
@@ -133,14 +203,15 @@ export function StatusButton({ task }: { task: TaskProps }) {
                   key={status.status}
                   value={status.status}
                   disabled={
-                    (selectedStatus.status === 'Assigned' && status.status !== 'UnderReview') ||
-                    (selectedStatus.status === 'UnderReview' &&
-                      (status.status === 'Unassigned' ||
-                        status.status === 'Assigned' ||
-                        status.status === 'UnderReview' ||
-                        (status.status === 'Done' && !isAllSubTaskDone))) ||
-                    (selectedStatus.status === 'InRecheck' && status.status !== 'UnderReview') ||
-                    (selectedStatus.status === 'Done' && status.status !== 'InRecheck')
+                    !isBypassAble &&
+                    ((selectedStatus.status === 'Assigned' && status.status !== 'UnderReview') ||
+                      (selectedStatus.status === 'UnderReview' &&
+                        (status.status === 'Unassigned' ||
+                          status.status === 'Assigned' ||
+                          status.status === 'UnderReview' ||
+                          (status.status === 'Done' && !isAllSubTaskDone))) ||
+                      (selectedStatus.status === 'InRecheck' && status.status !== 'UnderReview') ||
+                      (selectedStatus.status === 'Done' && status.status !== 'InRecheck'))
                   }
                   className="pl-[32px] font-BaiJamjuree text-base"
                   onSelect={() => {
