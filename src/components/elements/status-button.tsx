@@ -25,12 +25,12 @@ const statuses: Status[] = statusSections;
 export function StatusButton({ task }: { task: TaskProps }) {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
+  const decoded = jwtDecode<{ id: string }>(auth);
   const [open, setOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useAtom<Status>(selectedStatusAtom);
   const [isAllSubTaskDone, setIsAllSubTaskDone] = useState(true);
   const [projectOwner, setProjectOwner] = useState<User[]>([]);
   const [isBypassAble, setIsBypassAble] = useState(false);
-  const decoded = jwtDecode<{ id: string }>(auth);
 
   const getStatus = (value: string) => {
     const status = statusSections.find((section) => section.status === value);

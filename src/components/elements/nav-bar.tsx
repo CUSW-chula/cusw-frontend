@@ -77,6 +77,12 @@ export default function NavBar() {
                 User Management
               </button>
             )}
+            <button
+              type="button"
+              className="flex justify-center items-center gap-1 h-[40px] bg-brown text-white rounded-[6px] px-3"
+              onClick={() => window.location.assign('/my-tasks')}>
+              My task
+            </button>
 
             <Profile2 userId={userid} userName={name} />
           </div>
