@@ -1,9 +1,9 @@
-import { ProjectList } from '@/components/elements/projectList';
+import { ProjectList } from '@/components/elements/projectList/project-list';
+import React from 'react';
 
 export default async function ProjectLists() {
-  await new Promise((resolve) => setTimeout(resolve, 2000));
   return (
-    <div className="flex flex-wrap flex- w-full items-start gap-[16px]  ">
+    <div className="flex flex-col w-full gap-[16px]">
       <ProjectList />
     </div>
   );
