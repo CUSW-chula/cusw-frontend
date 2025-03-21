@@ -61,11 +61,7 @@ export const TaskTitle = ({
             router.push(`/tasks/${item.id}`);
           }
         }}>
-        <img
-          src={getStatusIcon('Unassigned')}
-          alt={'Unassigned Icon'}
-          className="w-6 h-6 mr-2"
-        />
+        <img src={getStatusIcon('Unassigned')} alt={'Unassigned Icon'} className="w-6 h-6 mr-2" />
         <div className="cursor-pointer w-full">
           <span className="flex text-black text-base font-normal font-BaiJamjuree w-11/12">
             {item.title}

@@ -5,17 +5,39 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { type Block, BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
 import { getCookie } from 'cookies-next';
-import BASE_URL, { BASE_SOCKET } from '@/lib/shared';
 import { Sort, Task } from './taskManagement';
 import type { TaskProps } from '@/app/types/types';
 import { CreateSubtask } from './createSubtask';
+
+// Helper functions for localStorage
+const loadExpandedState = (): Set<string> => {
+  if (typeof window === 'undefined') return new Set();
+  const saved = localStorage.getItem('expandedTaskIds');
+  return saved ? new Set(JSON.parse(saved)) : new Set();
+};
+
+const saveExpandedState = (ids: Set<string>) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('expandedTaskIds', JSON.stringify(Array.from(ids)));
+  }
+};
 
 const Subtask = ({ task }: { task: TaskProps }) => {
   const [isSubtaskSectionVisible, setIsSubtaskSectionVisible] = useState(false);
   const [isSubtaskVisible, setIsSubtaskVisible] = useState(false);
   const [subtasks, setSubtasks] = useState<TaskProps[]>([]);
   const cookie = getCookie('auth');
-  const auth = cookie?.toString() ?? '';
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(loadExpandedState);
+
+  const handleToggle = (taskId: string) => {
+    const newIds = new Set(expandedIds);
+    newIds.has(taskId) ? newIds.delete(taskId) : newIds.add(taskId);
+    setExpandedIds(new Set(newIds));
+  };
+
+  useEffect(() => {
+    saveExpandedState(expandedIds);
+  }, [expandedIds]);
 
   useEffect(() => {
     try {
@@ -71,7 +93,13 @@ const Subtask = ({ task }: { task: TaskProps }) => {
       {isSubtaskVisible && (
         <div className="w-full space-y-1">
           {subtasks.map((item) => (
-            <Task item={item} key={item.id} hiddenDate={true} />
+            <Task
+              item={item}
+              onToggle={handleToggle}
+              key={item.id}
+              hiddenDate={true}
+              expandedIds={expandedIds}
+            />
           ))}
         </div>
       )}
