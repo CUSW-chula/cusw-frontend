@@ -37,7 +37,8 @@ export const TaskDate = ({
       {(item.startDate || item.endDate) && (
         <div className={`${hiddenDate ? '' : ''} inline-flex gap-1`} title={DateText(item)}>
           <Calendar className="w-6 h-6" />
-          <span className={`${hiddenDate ? 'hidden' : 'inline'} whitespace-nowrap`}>
+          <span
+            className={`${hiddenDate ? 'hidden' : 'inline'} whitespace-nowrap text-sm font-medium text-gray-800 flex self-center`}>
             {DateText(item)}
           </span>
         </div>
