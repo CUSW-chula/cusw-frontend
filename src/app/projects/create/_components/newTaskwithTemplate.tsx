@@ -1,6 +1,10 @@
 import { Button } from '@/components/ui/button';
-import type { FormEvent } from 'react';
+import { Task } from './taskpreview';
+import { useEffect, type FormEvent } from 'react';
 import type { FormInput, Template } from '@/app/types/createProjectType';
+import { useAtom } from 'jotai';
+import type { TaskProps } from '@/app/types/types';
+import { taskAtom } from '@/atom';
 
 interface NewTaskwithTemplateProps {
   inputs: FormInput;
@@ -15,40 +19,69 @@ export const NewTaskwithTemplate: React.FC<NewTaskwithTemplateProps> = ({
   handleSubmit,
   handleTemplateSelect,
 }) => {
+  const [task, setTask] = useAtom<TaskProps[]>(taskAtom);
+
+  useEffect(() => {
+    console.info("TASK", task);
+  }, [task]);
+
   return (
     <form
-      className="flex flex-col h-full justify-between items-start space-y-2"
+      className="flex flex-col h-full justify-between"
       onSubmit={(event) => handleSubmit(event, 'newTaskwithTemplate')}>
-      <div className="grid grid-cols-3 gap-3 p-3 w-full overflow-auto">
-        {allTemplates?.map((template) => (
-          <Button
-            key={template.id}
-            type="button"
-            variant={'secondary'}
-            className={`${template.id === inputs.task?.template.id ? 'bg-neutral-200' : ''} hover:bg-neutral-200`}
-            onClick={() => handleTemplateSelect(template)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                handleTemplateSelect(template);
-              }
-            }}>
-            <div className="flex items-center gap-3">
-              {/* <span className="text-2xl">{template.icon}</span> */}
-              <span className="text-sm font-medium font-BaiJamjuree">
-                {template.fileName.replace('.json', '')}
-              </span>
-            </div>
-          </Button>
-        ))}
+      
+      <div className="flex w-full flex-1 min-h-0 gap-6 p-6">
+        {/* Templates Column */}
+        <div className="w-1/2 flex flex-col border-r pr-4 overflow-hidden">
+          <h3 className="text-lg font-BaiJamjuree font-semibold mb-4">Templates</h3>
+          <div className="flex flex-wrap gap-3 overflow-y-auto pb-2">
+            {allTemplates?.map((template) => (
+              <Button
+                key={template.id}
+                type="button"
+                variant={'secondary'}
+                className={`${template.id === inputs.task?.template.id ? 'bg-neutral-200' : ''} hover:bg-neutral-200 mb-2 w-full text-left`}
+                onClick={() => handleTemplateSelect(template)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleTemplateSelect(template);
+                  }
+                }}>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium font-BaiJamjuree">
+                    {template.fileName.replace('.json', '')}
+                  </span>
+                </div>
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Preview Column */}
+        <div className="w-1/2 flex flex-col pl-4 overflow-hidden">
+          <h3 className="text-lg font-BaiJamjuree font-semibold mb-4">Preview</h3>
+          <div className="flex flex-col gap-3 overflow-y-auto pb-2">
+            {task && task.length > 0 ? (
+              task.map((item) => (
+                <Task key={item.id} item={item} depth={0} hiddenDate={false} />
+              ))
+            ) : (
+              <p className="text-gray-500 italic">No tasks selected</p>
+            )}
+          </div>
+        </div>
       </div>
-      {/* <div className="flex flex-col overflow-auto h-28 w-full">Client template</div> */}
-      <div className="h-auto w-auto absolute flex gap-3 bottom-6 right-8">
-        <Button
-          type="submit"
-          className="px-4 py-2 bg-brown justify-center items-center flex"
-          disabled={!inputs.task?.template}>
-          Select template
-        </Button>
+
+      {/* Footer */}
+      <div className="border-t p-4 bg-white">
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            className="px-4 py-2 bg-brown justify-center items-center flex"
+            disabled={!inputs.task?.template}>
+            Select template
+          </Button>
+        </div>
       </div>
     </form>
   );

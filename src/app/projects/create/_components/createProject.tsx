@@ -14,6 +14,9 @@ import { useCreateProject } from '@/hooks/useProject';
 import { getAllTemplates } from '@/service/templateService';
 import type { FormInput, Template } from '@/app/types/createProjectType';
 import { type Budget, TypeMoney } from '@/app/types/moneyType';
+import type { TaskProps } from "@/app/types/types";
+import { taskAtom } from '@/atom';
+import { useAtom } from 'jotai';
 
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
@@ -22,6 +25,7 @@ export const CreateProject = () => {
   const router = useRouter();
   const [allTemplates, setAllTemplates] = useState<Template[]>();
   const [inputs, setInputs] = useState<FormInput>({});
+  const [task, setTask] = useAtom<TaskProps[]>(taskAtom);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,6 +39,7 @@ export const CreateProject = () => {
 
     fetchData();
   }, []);
+
   const { handleProjectCreation } = useCreateProject(inputs, BASE_URL);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -73,6 +78,20 @@ export const CreateProject = () => {
       taskTitle: undefined,
       taskDescription: undefined,
     }));
+    const RenderJson = (template: Template) => {
+      const url = template.filePath;
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          setTask(data);
+          return data;
+        })
+        .catch(error => {
+          console.error('Error fetching template:', error);
+        });
+      return null;
+    }
+    RenderJson(template);
   };
 
   const handleCancel = () => {
@@ -82,7 +101,6 @@ export const CreateProject = () => {
   return (
     <div className="h-full flex flex-col justify-start items-start gap-4 w-full">
       <h1 className="text-black text-5xl font-semibold font-Anuphan">Create project</h1>
-      {/* <div className="inline-flex w-full gap-7"> */}
       <form className="w-full h-[348px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start inline-flex relative">
         <label
           htmlFor="require part"
@@ -122,10 +140,10 @@ export const CreateProject = () => {
                 Select project template
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-[920px] max-h-[400px] h-full w-full p-6 bg-white rounded-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.09)] border border-[#6b5c56] flex-col justify-between items-center inline-flex">
+            <DialogContent className="max-w-[920px] h-[60vh] w-full p-0 bg-white rounded-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.09)] border border-[#6b5c56] flex flex-col">
               <DialogTitle className="hidden" />
-              <Tabs className="w-full px-4">
-                <TabsList className="flex max-w-[400px] w-full justify-evenly mx-auto">
+              <Tabs className="flex-1 flex flex-col overflow-hidden">
+                <TabsList className="flex max-w-[400px] w-full justify-evenly mx-auto mt-4">
                   <TabsTrigger className="w-full" value="New Task">
                     New task
                   </TabsTrigger>
@@ -133,7 +151,7 @@ export const CreateProject = () => {
                     Select template
                   </TabsTrigger>
                 </TabsList>
-                <TabsContent value="New Task">
+                <TabsContent value="New Task" className="flex-1 min-h-0 overflow-hidden">
                   <NewSingleTask
                     inputs={inputs}
                     handleChange={handleChange}
@@ -141,7 +159,7 @@ export const CreateProject = () => {
                     handleSubmit={handleSubmit}
                   />
                 </TabsContent>
-                <TabsContent value="Select Template">
+                <TabsContent value="Select Template" className="flex-1 min-h-0 overflow-hidden">
                   <NewTaskwithTemplate
                     inputs={inputs}
                     allTemplates={allTemplates}
@@ -154,8 +172,6 @@ export const CreateProject = () => {
           </Dialog>
         </div>
       </form>
-      {/* <MenuBar inputs={inputs} handleChangeTag={handleChangeTag} owner={owner} /> */}
-      {/* </div> */}
     </div>
   );
 };
