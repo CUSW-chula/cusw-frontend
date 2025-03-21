@@ -19,13 +19,13 @@ export const Tag = ({
                     <Badge
                       key={tag.id}
                       variant="destructive"
-                      className="h-6 w-auto bg-[#eefdf7] rounded-2xl border border-green absolute self-center flex justify-center right-0 transition-transform"
+                      className="h-10 w-28 px-3 py-2 bg-[#eefdf7] rounded-3xl border border-green absolute self-center flex justify-center right-0 transition-transform"
                       style={
                         {
                           transform: `translateX(${index * -28}px)`, // Custom CSS property for group hover
                         } as React.CSSProperties
                       }>
-                      <span className="text-green text-sm font-medium font-BaiJamjuree leading-normal whitespace-nowrap overflow-hidden text-ellipsis">
+                      <span className="text-green text-base font-semibold font-BaiJamjuree leading-normal whitespace-nowrap overflow-hidden text-ellipsis">
                         {tag.name}
                       </span>
                     </Badge>
@@ -39,8 +39,8 @@ export const Tag = ({
                   <div key={tag.id}>
                     <Badge
                       variant="destructive"
-                      className="h-6 w-auto bg-[#eefdf7] rounded-3xl border border-green ">
-                      <span className="text-green text-sm font-medium font-BaiJamjuree leading-normal whitespace-nowrap">
+                      className="h-10 px-3 py-2 bg-[#eefdf7] rounded-3xl border border-green ">
+                      <span className="text-green text-base font-semibold font-BaiJamjuree leading-normal whitespace-nowrap">
                         {tag.name}
                       </span>
                     </Badge>
