@@ -18,9 +18,9 @@ export const Money = ({
             : null;
     const textBaseClass = `font-BaiJamjuree leading-normal ${color}`;
     return (
-      <div className="h-8 w-auto p-2 bg-white rounded-md border border-brown justify-start items-center gap-2 inline-flex">
-        <div className={`text-lg font-semibold ${textBaseClass}`}>฿</div>
-        <div className={`text-sm font-medium ${textBaseClass}`}>{value.toLocaleString()}</div>
+      <div className="h-10 px-3 py-2 bg-white rounded-md border border-brown justify-start items-center gap-2 inline-flex">
+        <div className={`text-2xl font-semibold ${textBaseClass}`}>฿</div>
+        <div className={`text-base font-medium ${textBaseClass}`}>{value.toLocaleString()}</div>
       </div>
     );
   };
