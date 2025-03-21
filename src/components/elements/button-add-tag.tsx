@@ -172,14 +172,14 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
   return (
     <>
       <div className="">
-        <div className="flex flex-row flex-wrap items-center   overflow-hidden  ">
+        <div className="flex flex-row flex-wrap items-center self-center overflow-hidden gap-0.5">
           {Array.isArray(selectedTags) && selectedTags.length > 0 ? (
             selectedTags.map((tag) => (
               <Badge
                 key={tag.id}
                 variant="destructive"
-                className="h-10 min-w-fit flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mb-1">
-                <span className="text-base font-medium font-BaiJamjuree">{tag.name}</span>
+                className="h-6 min-w-fit flex items-center justify-center self-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0]">
+                <span className="text-sm font-medium font-BaiJamjuree">{tag.name}</span>
                 <button
                   type="button"
                   onClick={() => {
