@@ -22,14 +22,13 @@ export const NewTaskwithTemplate: React.FC<NewTaskwithTemplateProps> = ({
   const [task, setTask] = useAtom<TaskProps[]>(taskAtom);
 
   useEffect(() => {
-    console.info("TASK", task);
+    console.info('TASK', task);
   }, [task]);
 
   return (
     <form
       className="flex flex-col h-full justify-between"
       onSubmit={(event) => handleSubmit(event, 'newTaskwithTemplate')}>
-      
       <div className="flex w-full flex-1 min-h-0 gap-6 p-6">
         {/* Templates Column */}
         <div className="w-1/2 flex flex-col border-r pr-4 overflow-hidden">
@@ -62,9 +61,7 @@ export const NewTaskwithTemplate: React.FC<NewTaskwithTemplateProps> = ({
           <h3 className="text-lg font-BaiJamjuree font-semibold mb-4">Preview</h3>
           <div className="flex flex-col gap-3 overflow-y-auto pb-2">
             {task && task.length > 0 ? (
-              task.map((item) => (
-                <Task key={item.id} item={item} depth={0} hiddenDate={false} />
-              ))
+              task.map((item) => <Task key={item.id} item={item} depth={0} hiddenDate={false} />)
             ) : (
               <p className="text-gray-500 italic">No tasks selected</p>
             )}

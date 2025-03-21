@@ -10,13 +10,37 @@ import { toast } from '@/hooks/use-toast';
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
 
+// Helper functions for localStorage
+const loadExpandedState = (): Set<string> => {
+  if (typeof window === 'undefined') return new Set();
+  const saved = localStorage.getItem('expandedTaskIds');
+  return saved ? new Set(JSON.parse(saved)) : new Set();
+};
+
+const saveExpandedState = (ids: Set<string>) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('expandedTaskIds', JSON.stringify(Array.from(ids)));
+  }
+};
+
 export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   const [tasks, setTasks] = useState<TaskProps[]>([]);
   const [showTasks, setShowTasks] = useState<TaskProps[]>([]);
   const [projectName, setProjectName] = useState<string>('');
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(loadExpandedState);
+
+  // Save expanded state to localStorage when it changes
+  useEffect(() => {
+    saveExpandedState(expandedIds);
+  }, [expandedIds]);
+
+  const handleToggle = (taskId: string) => {
+    const newIds = new Set(expandedIds);
+    newIds.has(taskId) ? newIds.delete(taskId) : newIds.add(taskId);
+    setExpandedIds(new Set(newIds));
+  };
 
   useEffect(() => {
-    //get all data of project from db
     const fetchData = async () => {
       try {
         const data = await fetch(`${BASE_URL}/v2/projects/${project_id}`, {
@@ -31,10 +55,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           setTasks(parsedData);
           parsedData.sort((task1, task2) => {
             if (task1.startDate && task2.startDate) {
-              const date1 = new Date(task1.startDate).getTime();
-              const date2 = new Date(task2.startDate).getTime();
-              return date1 - date2;
-              // Sort in ascending or descending order
+              return new Date(task1.startDate).getTime() - new Date(task2.startDate).getTime();
             }
             return 1;
           });
@@ -58,20 +79,18 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     fetchData();
   }, [project_id]);
 
-  const ProjectController = () => {
-    return (
-      <div className="flex items-center justify-between w-full mb-3">
-        <div className="flex items-center gap-4">
-          <Filter tasks={tasks} setShowTasks={setShowTasks} />
-          <ExportDialog tasks={tasks} />
-        </div>
-        <div className="flex items-center gap-4">
-          <Sort showTasks={showTasks} setShowTasks={setShowTasks} />
-          <CreateTask project_id={project_id} />
-        </div>
+  const ProjectController = () => (
+    <div className="flex items-center justify-between w-full mb-3">
+      <div className="flex items-center gap-4">
+        <Filter tasks={tasks} setShowTasks={setShowTasks} />
+        <ExportDialog tasks={tasks} />
       </div>
-    );
-  };
+      <div className="flex items-center gap-4">
+        <Sort showTasks={showTasks} setShowTasks={setShowTasks} />
+        <CreateTask project_id={project_id} />
+      </div>
+    </div>
+  );
 
   const statusToInt = (status: string): number => {
     const statusMap: { [key: string]: number } = {
@@ -86,13 +105,11 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
 
   const groupingStatus = (task: TaskProps, max: number): number => {
     let currentMax = Math.min(max, statusToInt(task.status));
-
     if (task.subtasks) {
-      currentMax = task.subtasks.reduce((acc, subtask) => {
-        return Math.min(acc, groupingStatus(subtask, currentMax));
-      }, currentMax);
+      for (const subtask of task.subtasks) {
+        currentMax = Math.min(currentMax, groupingStatus(subtask, currentMax));
+      }
     }
-
     return currentMax;
   };
 
@@ -104,17 +121,22 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       <ProjectController />
       {statusSections.map(({ status, displayName, icon }) => (
         <div key={status}>
-          {/* Status Title */}
           <div className="flex items-center gap-2 border-b border-gray-300 py-3">
             <img src={icon} alt={`${status} Icon`} className="w-6 h-6" />
             <span className="text-black text-sm font-medium font-BaiJamjuree">{displayName}</span>
           </div>
-          {/* Tasks in there group */}
           <div className="w-full block">
             {showTasks
               .filter((item) => groupingStatus(item, 99) === statusToInt(status))
               .map((item) => (
-                <Task key={item.id} item={item} hiddenDate={false} />
+                <Task
+                  key={item.id}
+                  item={item}
+                  depth={0}
+                  hiddenDate={false}
+                  expandedIds={expandedIds}
+                  onToggle={handleToggle}
+                />
               ))}
           </div>
         </div>

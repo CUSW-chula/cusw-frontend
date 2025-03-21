@@ -3,42 +3,37 @@ import { ChevronRight, ChevronsRight } from 'lucide-react';
 import { statusSections } from '@/lib/taskUtils';
 import { useRouter } from 'next/navigation';
 
-export const TaskTitle = ({
-  item,
-  expandedTaskIds,
-  setExpandedTaskIds,
-}: {
+interface TaskTitleProps {
   item: TaskProps;
-  expandedTaskIds: Set<string>;
-  setExpandedTaskIds: React.Dispatch<React.SetStateAction<Set<string>>>;
-}) => {
+  isExpanded: boolean;
+  onToggle: (taskId: string) => void;
+}
+
+export const TaskTitle = ({ item, isExpanded, onToggle }: TaskTitleProps) => {
   const router = useRouter();
+
   const Chevron = ({ task }: { task: TaskProps }) => {
     const hasChildren = task.subtasks && task.subtasks.length > 0;
-    const isExpanded = expandedTaskIds.has(task.id);
-    //expand subtask
-    const toggleExpand = (id: string) => {
-      setExpandedTaskIds((prev) => {
-        const newSet = new Set(prev);
-        newSet.has(id) ? newSet.delete(id) : newSet.add(id);
-        return newSet;
-      });
+
+    const handleToggle = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onToggle(task.id);
     };
 
     return (
       <button
         type="button"
-        onClick={() => toggleExpand(task.id)}
+        onClick={handleToggle}
         className={`w-6 h-6 mr-1 flex items-center justify-center rounded hover:bg-gray-200 ${
           hasChildren ? 'visible' : 'invisible'
         }`}>
         {task.parentTaskId ? (
           <ChevronRight
-            className={`h-4 w-4 transition-transform${isExpanded ? 'transform rotate-90' : ''}`}
+            className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
           />
         ) : (
           <ChevronsRight
-            className={`h-4 w-4 transition-transform${isExpanded ? 'transform rotate-90' : ''}`}
+            className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
           />
         )}
       </button>
@@ -47,8 +42,9 @@ export const TaskTitle = ({
 
   const getStatusIcon = (status: string) => {
     const section = statusSections.find((section) => section.status === status);
-    return section ? section.icon : '/asset/icon/unassigned.svg'; // Fallback icon if status not found
+    return section ? section.icon : '/asset/icon/unassigned.svg';
   };
+
   return (
     <div className="inline-flex w-7/12 items-center">
       <Chevron task={item} />
@@ -57,10 +53,13 @@ export const TaskTitle = ({
         onClick={() => router.push(`/tasks/${item.id}`)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault(); // Prevent default scroll behavior for space key
+            e.preventDefault();
             router.push(`/tasks/${item.id}`);
           }
-        }}>
+        }}
+        // biome-ignore lint/a11y/useSemanticElements: <explanation>
+        role="button"
+        tabIndex={0}>
         <img
           src={getStatusIcon(item.status)}
           alt={`${item.status} Icon`}

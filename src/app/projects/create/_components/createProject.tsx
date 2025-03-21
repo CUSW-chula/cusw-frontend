@@ -14,7 +14,7 @@ import { useCreateProject } from '@/hooks/useProject';
 import { getAllTemplates } from '@/service/templateService';
 import type { FormInput, Template } from '@/app/types/createProjectType';
 import { type Budget, TypeMoney } from '@/app/types/moneyType';
-import type { TaskProps } from "@/app/types/types";
+import type { TaskProps } from '@/app/types/types';
 import { taskAtom } from '@/atom';
 import { useAtom } from 'jotai';
 
@@ -81,16 +81,16 @@ export const CreateProject = () => {
     const RenderJson = (template: Template) => {
       const url = template.filePath;
       fetch(url)
-        .then(response => response.json())
-        .then(data => {
+        .then((response) => response.json())
+        .then((data) => {
           setTask(data);
           return data;
         })
-        .catch(error => {
+        .catch((error) => {
           console.error('Error fetching template:', error);
         });
       return null;
-    }
+    };
     RenderJson(template);
   };
 

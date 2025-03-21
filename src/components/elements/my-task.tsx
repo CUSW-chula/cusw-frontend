@@ -11,8 +11,32 @@ import { jwtDecode } from 'jwt-decode';
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
 
+// Helper functions for localStorage
+const loadExpandedState = (): Set<string> => {
+  if (typeof window === 'undefined') return new Set();
+  const saved = localStorage.getItem('expandedTaskIds');
+  return saved ? new Set(JSON.parse(saved)) : new Set();
+};
+
+const saveExpandedState = (ids: Set<string>) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('expandedTaskIds', JSON.stringify(Array.from(ids)));
+  }
+};
+
 export const MyTaskManager = () => {
   const [showTasks, setShowTasks] = useState<TaskProps[]>([]);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(loadExpandedState);
+
+  const handleToggle = (taskId: string) => {
+    const newIds = new Set(expandedIds);
+    newIds.has(taskId) ? newIds.delete(taskId) : newIds.add(taskId);
+    setExpandedIds(new Set(newIds));
+  };
+
+  useEffect(() => {
+    saveExpandedState(expandedIds);
+  }, [expandedIds]);
 
   useEffect(() => {
     const decoded = jwtDecode<{ id: string }>(auth);
@@ -89,7 +113,13 @@ export const MyTaskManager = () => {
             {showTasks
               .filter((item) => groupingStatus(item, 99) === statusToInt(status))
               .map((item) => (
-                <Task key={item.id} item={item} hiddenDate={false} />
+                <Task
+                  key={item.id}
+                  item={item}
+                  hiddenDate={false}
+                  expandedIds={expandedIds}
+                  onToggle={handleToggle}
+                />
               ))}
           </div>
         </div>
