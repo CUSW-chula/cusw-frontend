@@ -62,7 +62,7 @@ export default function NavBar() {
 
   return (
     <>
-      {url !== '/' && (
+      {url !== '/login' && (
         <div className="flex flex-row min-w-full h-[84px] px-4 justify-between items-center font-BaiJamjuree">
           <a href="/projects">
             <img src="/asset/logo/s2.svg" alt="CUSW" width={240} />
