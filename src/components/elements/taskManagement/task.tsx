@@ -1,4 +1,4 @@
-import { TaskTitle, Money, TaskDate, Assigned, Tag } from './index';
+import { TaskTitle, Money, TaskDate, Assigned, Tag, TaskActionsMenu } from './index';
 import { useState } from 'react';
 import type { TaskProps } from '@/app/types/types';
 
@@ -26,6 +26,7 @@ export const Task = ({
             <Money item={item} />
             <Assigned item={item} />
             <TaskDate item={item} hiddenDate={hiddenDate} />
+            <TaskActionsMenu task={item} />
           </div>
         </div>
       </div>
