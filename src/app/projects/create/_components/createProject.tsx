@@ -143,11 +143,11 @@ export const CreateProject = () => {
             <DialogContent className="max-w-[920px] h-[60vh] w-full p-0 bg-white rounded-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.09)] border border-[#6b5c56] flex flex-col">
               <DialogTitle className="hidden" />
               <NewTaskwithTemplate
-                    inputs={inputs}
-                    allTemplates={allTemplates}
-                    handleSubmit={handleSubmit}
-                    handleTemplateSelect={handleTemplateSelect}
-                  />
+                inputs={inputs}
+                allTemplates={allTemplates}
+                handleSubmit={handleSubmit}
+                handleTemplateSelect={handleTemplateSelect}
+              />
             </DialogContent>
           </Dialog>
         </div>
