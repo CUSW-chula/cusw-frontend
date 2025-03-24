@@ -50,7 +50,7 @@ export const TaskTitle = ({
     return section ? section.icon : '/asset/icon/unassigned.svg'; // Fallback icon if status not found
   };
   return (
-    <div className="inline-flex w-7/12 items-center">
+    <div className="inline-flex w-full items-center">
       <Chevron task={item} />
       <div
         className="inline-flex hover:cursor-pointer items-center w-full"
@@ -63,7 +63,7 @@ export const TaskTitle = ({
         }}>
         <img src={getStatusIcon('Unassigned')} alt={'Unassigned Icon'} className="w-6 h-6 mr-2" />
         <div className="cursor-pointer w-full">
-          <span className="flex text-black text-base font-normal font-BaiJamjuree w-11/12">
+          <span className="flex text-black text-base font-normal font-BaiJamjuree w-full">
             {item.title}
           </span>
         </div>
