@@ -52,7 +52,7 @@ export default async function TasksManageMentPage({
   };
 
   return (
-    <div className="min-w-full flex-col items-start justify-center gap-8 ">
+    <div className="min-w-full flex-col items-start justify-center gap-8 px-20">
       {/* page nav */}
       <div className="flex flex-row py-4 items-center justify-between">
         <BreadcrumbComponent task={task} />

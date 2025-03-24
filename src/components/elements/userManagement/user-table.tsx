@@ -42,7 +42,7 @@ const Table = () => {
     .sort((a, b) => a.name.localeCompare(b.name));
 
   return (
-    <div className="font-BaiJamjuree">
+    <div className="font-BaiJamjuree w-full h-[690px] bg-white p-4 rounded-lg border border-brown">
       <div className="flex justify-between items-center mb-4">
         <div>
           <h2 className="text-xl font-semibold">All Users</h2>
