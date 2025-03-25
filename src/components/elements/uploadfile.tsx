@@ -123,8 +123,8 @@ interface DisplayfileProps {
   setFileList: React.Dispatch<React.SetStateAction<Files[]>>;
 }
 
-const handleDelete = async (id: string, auth: string) => {
-  const url = `${BASE_URL}/v2/file/${id}`;
+const handleDelete = async (taskId: string, id: string, auth: string) => {
+  const url = `${BASE_URL}/v2/file/${taskId}`;
   const options = {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json', Authorization: auth },
@@ -193,7 +193,7 @@ const Displayfile: React.FC<DisplayfileProps> = ({ fileList }) => {
   );
 };
 
-const FileItem = ({ id, fileName, uploadedBy, filePath, fileSize, createdAt }: Files) => {
+const FileItem = ({ id, fileName, uploadedBy, filePath, fileSize, createdAt, taskId }: Files) => {
   const [name, setName] = useState('');
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
@@ -245,7 +245,7 @@ const FileItem = ({ id, fileName, uploadedBy, filePath, fileSize, createdAt }: F
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
                 className="bg-red text-white"
-                onClick={() => handleDelete(id, auth)}>
+                onClick={() => handleDelete(taskId, id, auth)}>
                 Delete
               </AlertDialogAction>
             </AlertDialogFooter>
