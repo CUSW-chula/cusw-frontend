@@ -30,7 +30,7 @@ export const NewTaskwithTemplate: React.FC<NewTaskwithTemplateProps> = ({
       className="flex flex-col h-full justify-between"
       onSubmit={(event) => handleSubmit(event, 'newTaskwithTemplate')}>
       <h2 className="text-xl font-BaiJamjuree text-center my-4 ">Select Template</h2>
-      <div className="flex w-full flex-1 min-h-0 gap-6 p-6">
+      <div className="flex w-full flex-1 min-h-0 p-6">
         {/* Templates Column */}
         <div className="w-1/3 flex flex-col border-r pr-4 overflow-hidden">
           <h3 className="text-lg font-BaiJamjuree font-semibold mb-4">Templates</h3>
@@ -59,7 +59,7 @@ export const NewTaskwithTemplate: React.FC<NewTaskwithTemplateProps> = ({
 
         {/* Preview Column */}
         <div className="w-2/3 flex flex-col pl-4 overflow-hidden">
-          <h3 className="text-lg font-BaiJamjuree font-semibold mb-4">Preview</h3>
+          <h3 style={{paddingLeft: "2rem"}} className="text-lg font-BaiJamjuree font-semibold mb-4">Preview</h3>
           <div className="flex flex-col gap-3 overflow-y-auto pb-2 px-2">
             {task && task.length > 0 ? (
               task.map((item) => <Task key={item.id} item={item} depth={0} hiddenDate={false} />)

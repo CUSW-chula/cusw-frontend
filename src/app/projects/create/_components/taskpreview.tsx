@@ -14,7 +14,7 @@ export const Task = ({
       <div className="flex items-center hover:bg-gray-50">
         <div
           className="flex items-center w-full h-fit my-1.5"
-          style={{ marginLeft: `${depth * 24 + 24}px` }}>
+          style={{ marginLeft: `${depth * 24}px` }}>
           <TaskTitle
             item={item}
             expandedTaskIds={expandedTaskIds}
