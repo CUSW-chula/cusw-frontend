@@ -33,7 +33,7 @@ const AuthCallbackPage = () => {
           router.push('/projects');
         } catch (error) {
           console.error('Token exchange error:', error);
-          router.push('/contact-admin');
+          router.push('/error');
         }
       }
     };

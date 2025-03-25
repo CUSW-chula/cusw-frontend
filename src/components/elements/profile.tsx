@@ -7,7 +7,6 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import type React from 'react';
 import { useRouter } from 'next/navigation';
-import { deleteCookie } from 'cookies-next/client';
 
 interface ProfileProp {
   userId: string;
@@ -54,9 +53,9 @@ export const Profile = ({ userId, userName }: ProfileProp) => {
 export const Profile2 = ({ userId, userName }: ProfileProp) => {
   const navigate = useRouter();
 
-  const handleSignOut = async () => {
-    deleteCookie('auth');
-    navigate.push('/');
+  const handleSignOut = () => {
+    // Add actual logout logic here (clear auth tokens, etc.)
+    navigate.push('/'); // For Next.js: use router.push('/')
   };
 
   return (

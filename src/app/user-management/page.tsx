@@ -2,7 +2,7 @@ import React from 'react';
 import Table from '@/components/elements/userManagement/user-table';
 const page = () => {
   return (
-    <div className="min-w-full flex-col items-start justify-center gap-8 px-20">
+    <div className="w-full h-[690px] bg-white p-4 rounded-lg border border-brown">
       <Table />
     </div>
   );

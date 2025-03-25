@@ -7,7 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import Image from 'next/image';
 import { Building, Facebook, Mail, Phone } from 'lucide-react';
 
-export default function Login() {
+export default function Home() {
   return (
     <div className="flex flex-col items-center justify-between w-full min-h-screen pt-28 gap-8">
       <Card className="flex flex-row h-[580px] px-32 gap-[40px] items-center justify-center rounded-[20px] border border-brown bg-white">

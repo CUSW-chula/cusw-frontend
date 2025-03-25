@@ -62,30 +62,32 @@ export default function NavBar() {
 
   return (
     <>
-      <div className="flex flex-row min-w-full h-[84px] px-4 justify-between items-center font-BaiJamjuree">
-        <a href="/projects">
-          <img src="/asset/logo/s2.svg" alt="CUSW" width={240} />
-        </a>
-        <div className="flex flex-row gap-4">
-          {isAdmin && (
+      {url !== '/login' && (
+        <div className="flex flex-row min-w-full h-[84px] px-4 justify-between items-center font-BaiJamjuree">
+          <a href="/projects">
+            <img src="/asset/logo/s2.svg" alt="CUSW" width={240} />
+          </a>
+          <div className="flex flex-row gap-4">
+            {isAdmin && (
+              <button
+                type="button"
+                className="flex justify-center items-center gap-1 h-[40px] bg-white border border-brown rounded-[6px] px-2"
+                onClick={() => window.location.assign('/user-management')}>
+                <TableOfContents />
+                User Management
+              </button>
+            )}
             <button
               type="button"
-              className="flex justify-center items-center gap-1 h-[40px] bg-white border border-brown rounded-[6px] px-2"
-              onClick={() => window.location.assign('/user-management')}>
-              <TableOfContents />
-              User Management
+              className="flex justify-center items-center gap-1 h-[40px] bg-brown text-white rounded-[6px] px-3"
+              onClick={() => window.location.assign('/my-tasks')}>
+              My task
             </button>
-          )}
-          <button
-            type="button"
-            className="flex justify-center items-center gap-1 h-[40px] bg-brown text-white rounded-[6px] px-3"
-            onClick={() => window.location.assign('/my-tasks')}>
-            My task
-          </button>
 
-          <Profile2 userId={userid} userName={name} />
+            <Profile2 userId={userid} userName={name} />
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
