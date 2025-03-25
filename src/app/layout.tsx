@@ -6,6 +6,7 @@ import NavBar from '@/components/elements/nav-bar';
 import { SessionProvider } from 'next-auth/react';
 import { Toaster } from '@/components/ui/toaster';
 import { usePathname } from 'next/navigation';
+import { useMemo } from 'react';
 
 const bai_jamjuree = Bai_Jamjuree({
   subsets: ['latin'],
@@ -28,14 +29,20 @@ export default function RootLayout({
 }>) {
   const url = usePathname();
 
+  // Allowed routes where NavBar should be displayed
+  const allowedRoutes = ['/my-task', '/user-management', '/projects'];
+
+  // Use useMemo to avoid unnecessary recalculations on fast refresh
+  const isAllowed = useMemo(() => {
+    return allowedRoutes.includes(url) || url.startsWith('/projects/') || url.startsWith('/tasks/');
+  }, [url]);
+
   return (
     <html lang="en">
       <SessionProvider>
         <body
           className={`min-h-lvh ${bai_jamjuree.variable} ${anuphan.variable} antialiased flex flex-col`}>
-          <div className="flex flex-row justify-between">
-            {(url !== '/login' && url !== '/contact-admin') ?? <NavBar />}
-          </div>
+          <div className="flex flex-row justify-between">{isAllowed && <NavBar />}</div>
 
           <div className="w-full flex justify-center">{children}</div>
           <Toaster />
