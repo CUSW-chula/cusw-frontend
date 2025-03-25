@@ -167,7 +167,10 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
               <div>
                 {' '}
                 {/* Critical wrapper to prevent button nesting */}
-                <Button type="button" variant="outline" className="border-brown text-brown">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="border-brown text-brown h-8 px-2">
                   {selectedUser.length > 0 ? (
                     <div className="flex space-x-2">
                       {selectedUser.map((user) => (
@@ -175,12 +178,12 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
                           key={user.id}
                           userId={user.id}
                           userName={user.name}
-                          fallback={<Skeleton className="h-6 w-6 rounded-full" />}
+                          fallback={<Skeleton className="h-5 w-5 rounded-full" />}
                         />
                       ))}
                     </div>
                   ) : (
-                    <p className="p-ui">Assigned</p>
+                    <p className="p-ui text-sm">Assigned</p>
                   )}
                 </Button>
               </div>

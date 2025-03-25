@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { TaskTitle, Money, TaskDate, Assigned, Tag, TaskActionsMenu } from './index';
+import { TaskTitle, Money, TaskDate, Assigned, Tag } from './index';
 import type { TaskProps } from '@/app/types/types';
 
 // Helper functions for localStorage handling
@@ -42,12 +42,14 @@ export const Task = ({
             onToggle={() => onToggle(item.id)}
           />
 
-          <div className="w-5/12 flex gap-1 relative justify-end items-center">
+          <div className="w-5/12 flex relative justify-end gap-8 items-center">
             <Tag item={item} />
-            <Money item={item} />
-            <Assigned item={item} />
-            <TaskDate item={item} hiddenDate={hiddenDate} />
-            <TaskActionsMenu task={item} />
+            <div className="flex items-center gap-2">
+              <Money item={item} />
+              <TaskDate item={item} hiddenDate={hiddenDate} />
+              <Assigned item={item} />
+            </div>
+            <p>...</p>
           </div>
         </div>
       </div>

@@ -158,7 +158,7 @@ export function AssignedProjectMember({ project }: { project: Project }) {
         <div className="flex items-center space-x-4">
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild className="border-brown text-brown">
-              <Button variant="outline">
+              <Button variant="outline" className="h-8 px-2">
                 {selectedUser.length > 0 ? (
                   <div className="flex space-x-2 items-center">
                     {selectedUser.slice(0, MAX_VISIBLE_MEMBERS).map((user) => (
@@ -180,7 +180,7 @@ export function AssignedProjectMember({ project }: { project: Project }) {
                     )}
                   </div>
                 ) : (
-                  <p className="p-ui">Assigned</p>
+                  <p className="p-ui text-sm">Assigned</p>
                 )}
               </Button>
             </PopoverTrigger>

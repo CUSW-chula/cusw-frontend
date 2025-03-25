@@ -57,17 +57,17 @@ export function ProjectOwner({ task }: { task: TaskProps }) {
       <div className="flex flex-row gap-1 flex-wrap">
         <div className="flex items-center space-x-4">
           <div className="flex space-x-2">
-            <Button variant={'outline'} className="flex gap-x-2 border-brown text-brown">
+            <Button variant={'outline'} className="flex gap-x-2 border-brown text-brown h-8 px-2">
               {owner.length === 1 ? (
                 <Tooltip key={owner[0].id}>
                   <TooltipTrigger>
                     <div className="flex items-center space-x-2 w-auto">
-                      <div className="w-[24px] h-[24px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown">
-                        <span className="text-brown text-[12px] font-BaiJamjuree">
+                      <div className="w-5 h-5 bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown">
+                        <span className="text-brown text-xs font-BaiJamjuree">
                           {getInitials(owner[0].name)}
                         </span>
                       </div>
-                      <p className="text-[16px] font-BaiJamjuree">{getFirstName(owner[0].name)}</p>
+                      <p className="text-sm font-BaiJamjuree">{getFirstName(owner[0].name)}</p>
                     </div>
                   </TooltipTrigger>
                   <TooltipContent>

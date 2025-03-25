@@ -110,7 +110,7 @@ const SumBudget = ({ budget }: { budget: number }) => {
 
   return (
     <div className="px-3 py-2 rounded-md flex flex-col items-center gap-2">
-      <span className="text-black text-base font-medium font-BaiJamjuree">
+      <span className="text-black text-sm font-medium font-BaiJamjuree">
         {budget.toLocaleString()}
       </span>
     </div>
@@ -121,7 +121,7 @@ const SumAdvance = ({ advance }: { advance: number }) => {
 
   return (
     <div className="px-3 py-2 rounded-md flex flex-col items-center gap-2">
-      <span className="text-green text-base font-medium font-BaiJamjuree">
+      <span className="text-green text-sm font-medium font-BaiJamjuree">
         {advance.toLocaleString()}
       </span>
     </div>
@@ -131,7 +131,7 @@ const SumExpense = ({ expense }: { expense: number }) => {
   const cookie = getCookie('auth');
   return (
     <div className="px-3 py-2 rounded-md flex flex-col items-center gap-2">
-      <span className="text-red text-base font-medium font-BaiJamjuree">
+      <span className="text-red text-sm font-medium font-BaiJamjuree">
         {expense.toLocaleString()}
       </span>
     </div>
@@ -174,31 +174,31 @@ const MenuBar = ({ project }: { project: Project }) => {
         {/* Label Zone */}
         <div className="w-24 justify-start items-center gap-2 flex">
           {/* Icon */}
-          <div className="w-6 text-center text-black text-[30px] font-medium">฿</div>
+          <div className="w-6 text-center text-black text-[30px] font-BaiJamjuree font-semibold">฿</div>
           {/* Describtion */}
-          <div className="text-[#6b5c56] text-xs font-medium  leading-tight">
+          <div className="text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-tight">
             งบประมาณโครงการ :{' '}
           </div>
         </div>
         <SumBudget budget={project.budget} />
       </div>
 
-      <div aria-label="Advance" className="h-10 justify-start items-center inline-flex">
+      <div aria-label="Advance" className="h-10 justify-start font-BaiJamjuree items-center inline-flex">
         {/* Label Zone */}
         <div className="w-24 justify-start items-center gap-2 flex">
           {/* Icon */}
-          <div className="w-6 text-center text-green text-[30px] font-medium">฿</div>
+          <div className="w-6 text-center text-green text-[30px] font-semibold">฿</div>
           {/* Describtion */}
           <div className="text-green text-xs font-medium  leading-tight">เงินยืมรองจ่าย : </div>
         </div>
         <SumAdvance advance={project.advance} />
       </div>
 
-      <div aria-label="Expense" className="h-10 justify-start items-center inline-flex">
+      <div aria-label="Expense" className="h-10 justify-start items-center font-BaiJamjuree inline-flex">
         {/* Label Zone */}
         <div className="w-24 justify-start items-center gap-2 flex">
           {/* Icon */}
-          <div className="w-6 text-center text-red text-[30px] font-medium">฿</div>
+          <div className="w-6 text-center text-red text-[30px] font-semibold">฿</div>
           {/* Describtion */}
           <div className="text-red text-xs font-medium  leading-tight">รายจ่าย : </div>
         </div>

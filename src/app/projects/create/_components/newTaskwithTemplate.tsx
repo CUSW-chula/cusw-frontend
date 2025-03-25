@@ -59,7 +59,11 @@ export const NewTaskwithTemplate: React.FC<NewTaskwithTemplateProps> = ({
 
         {/* Preview Column */}
         <div className="w-2/3 flex flex-col pl-4 overflow-hidden">
-          <h3 style={{paddingLeft: "2rem"}} className="text-lg font-BaiJamjuree font-semibold mb-4">Preview</h3>
+          <h3
+            style={{ paddingLeft: '2rem' }}
+            className="text-lg font-BaiJamjuree font-semibold mb-4">
+            Preview
+          </h3>
           <div className="flex flex-col gap-3 overflow-y-auto pb-2 px-2">
             {task && task.length > 0 ? (
               task.map((item) => <Task key={item.id} item={item} depth={0} hiddenDate={false} />)

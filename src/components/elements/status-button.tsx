@@ -177,14 +177,14 @@ export function StatusButton({ task }: { task: TaskProps }) {
           variant="outline"
           size="sm"
           disabled={!isBypassAble && selectedStatus.status === 'Unassigned'}
-          className="h-[40px] px-[16px] justify-start font-BaiJamjuree text-base">
+          className="h-8 px-2 justify-start font-BaiJamjuree text-sm">
           {selectedStatus ? (
             <>
               <div className="flex items-center gap-[8px]">
                 <img
                   src={selectedStatus.icon}
                   alt={`${selectedStatus.status} Icon`}
-                  className="h-6 w-6 shrink-0"
+                  className="max-w-5 shrink-0"
                 />
                 {selectedStatus.displayName}
               </div>

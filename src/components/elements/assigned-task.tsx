@@ -186,9 +186,9 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
         <div className="flex items-center space-x-4">
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild className=" border-brown text-brown">
-              <Button variant="outline">
+              <Button variant="outline" className="h-8 px-2">
                 {taskMembers.length > 0 ? (
-                  <div className="flex space-x-2 items-center">
+                  <div className="flex space-x-2 items-center ">
                     {taskMembers.slice(0, MAX_VISIBLE_MEMBERS).map((user) => (
                       <Profile key={user.id} userId={user.id} userName={user.name} />
                     ))}
@@ -208,7 +208,7 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
                     )}
                   </div>
                 ) : (
-                  <p className="p-ui">Assigned</p>
+                  <p className="p-ui text-sm">Assigned</p>
                 )}
               </Button>
             </PopoverTrigger>

@@ -154,7 +154,7 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
           <Button
             id="date"
             variant={'outline'}
-            className={`justify-start text-left p-ui' ${date && 'text-muted-foreground'}`}>
+            className={`justify-start text-left p-ui text-sm h-8 px-2' ${date && 'text-muted-foreground'}`}>
             {date?.from ? (
               date.to ? (
                 <>{formattedDate}</>
@@ -310,7 +310,7 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
           <Button
             id="date"
             variant={'outline'}
-            className={`justify-start text-left p-ui ${!date && 'text-muted-foreground'}`}>
+            className={`justify-start text-left p-ui h-8 px-2 ${!date && 'text-muted-foreground'}`}>
             {date?.from ? (
               date.to ? (
                 <>{formattedDate}</>
@@ -319,7 +319,7 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
               )
             ) : (
               <>
-                <span className="p-ui">{formattedDate}</span>
+                <span className="p-ui text-sm">{formattedDate}</span>
               </>
             )}
           </Button>

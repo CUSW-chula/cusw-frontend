@@ -250,7 +250,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
                     <button
                       type="button"
                       onClick={() => handleDeleteTag(tag.id)}
-                      className="text-red-500 ml-1 max-w-20">
+                      className="text-red-500 ml-1 max-w-20 ">
                       <XCircle className="h-4 w-4" />
                     </button>
                   )}
@@ -263,8 +263,8 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
 
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild className="border-brown text-brown">
-              <Button variant="outline">
-                <p className="p-ui">Add tag</p>
+              <Button variant="outline" className="h-8 px-2">
+                <p className="p-ui text-sm">Add tag</p>
               </Button>
             </PopoverTrigger>
             <PopoverContent className="p-0" side="right" align="start">

@@ -63,10 +63,10 @@ export const TaskTitle = ({ item, isExpanded, onToggle }: TaskTitleProps) => {
         <img
           src={getStatusIcon(item.status)}
           alt={`${item.status} Icon`}
-          className="w-6 h-6 mr-2"
+          className="max-w-5 mr-2"
         />
         <div className="cursor-pointer w-full">
-          <span className="flex text-black text-base font-normal font-BaiJamjuree w-11/12">
+          <span className="flex text-black text-sm font-normal font-BaiJamjuree w-11/12">
             {item.title}
           </span>
         </div>
