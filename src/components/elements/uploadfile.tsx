@@ -207,49 +207,53 @@ const FileItem = ({ id, fileName, uploadedBy, filePath, fileSize, createdAt, tas
   }, [uploadedBy, auth]);
 
   return (
-    <div
-      className="flex items-center border-2 border-brown bg-gray-50 rounded-[6px] p-2 my-2"
-      key={id}>
-      {/* Cross icon moved to leftmost */}
-      <div className="flex-row mr-2">
+    <div className="flex items-center justify-between border-2 border-brown bg-gray-50 rounded-[6px] p-3 my-2 gap-4">
+      <div className="flex items-center flex-1 min-w-0">
+        <File className="flex-shrink-0 text-brown" />
+        <a
+          href={filePath}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 min-w-0 ml-3">
+          <div className="flex flex-col min-w-0">
+            <p className="font-medium truncate">{fileName}</p>
+            <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+              <span>Uploaded by {name || 'Loading...'}</span>
+              <Circle className="fill-black size-2 mx-1" />
+              <span>{formatDate(createdAt)}</span>
+              <Circle className="fill-black size-2 mx-1" />
+              <span>{Math.round(fileSize / 1024)} KB</span>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      {/* Delete button aligned to right with better spacing */}
+      <div className="flex-shrink-0 ml-4">
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <X className="size-4 cursor-pointer hover:text-red-600 transition-colors" />
+            <button type="button" className="p-1 hover:bg-gray-200 rounded-full transition-colors">
+              <X className="size-5 text-gray-600 hover:text-red-600" />
+            </button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
               <AlertDialogDescription>
-                This action will permanently delete the file.
+                This action cannot be undone. The file will be permanently removed.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
-                className="bg-red text-white"
+                className="bg-red-600 hover:bg-red-700"
                 onClick={() => handleDelete(taskId, id, auth)}>
-                Delete
+                Delete Permanently
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
       </div>
-
-      <File />
-      <a href={filePath} target="_blank" rel="noopener noreferrer" className="flex-1">
-        <div className="flex flex-col w-full justify-between ml-2">
-          <div>
-            <p>{fileName}</p>
-          </div>
-          <div className="flex justify-between gap-4 items-center">
-            <p className="flex">Uploaded by {name || 'Loading...'}</p>
-            <Circle className="fill-black size-2 mx-1" />
-            <p className="flex">{formatDate(createdAt)}</p>
-            <Circle className="fill-black size-2 mx-1" />
-            <p className="flex">{Math.round(fileSize / 1024)} KB</p>
-          </div>
-        </div>
-      </a>
     </div>
   );
 };
