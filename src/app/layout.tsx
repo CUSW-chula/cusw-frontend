@@ -1,12 +1,11 @@
 'use client';
 
-import type { Metadata } from 'next';
 import { Bai_Jamjuree, Anuphan } from 'next/font/google';
 import './globals.css';
 import NavBar from '@/components/elements/nav-bar';
 import { SessionProvider } from 'next-auth/react';
-import { Toast } from '@radix-ui/react-toast';
 import { Toaster } from '@/components/ui/toaster';
+import { usePathname } from 'next/navigation';
 
 const bai_jamjuree = Bai_Jamjuree({
   subsets: ['latin'],
@@ -27,13 +26,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const url = usePathname();
+
   return (
     <html lang="en">
       <SessionProvider>
         <body
           className={`min-h-lvh ${bai_jamjuree.variable} ${anuphan.variable} antialiased flex flex-col`}>
           <div className="flex flex-row justify-between">
-            <NavBar />
+            {(url !== '/login' && url !== '/contact-admin') ?? <NavBar />}
           </div>
 
           <div className="w-full flex justify-center">{children}</div>
