@@ -174,7 +174,9 @@ const MenuBar = ({ project }: { project: Project }) => {
         {/* Label Zone */}
         <div className="w-24 justify-start items-center gap-2 flex">
           {/* Icon */}
-          <div className="w-6 text-center text-black text-[30px] font-BaiJamjuree font-semibold">฿</div>
+          <div className="w-6 text-center text-black text-[30px] font-BaiJamjuree font-semibold">
+            ฿
+          </div>
           {/* Describtion */}
           <div className="text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-tight">
             งบประมาณโครงการ :{' '}
@@ -183,7 +185,9 @@ const MenuBar = ({ project }: { project: Project }) => {
         <SumBudget budget={project.budget} />
       </div>
 
-      <div aria-label="Advance" className="h-10 justify-start font-BaiJamjuree items-center inline-flex">
+      <div
+        aria-label="Advance"
+        className="h-10 justify-start font-BaiJamjuree items-center inline-flex">
         {/* Label Zone */}
         <div className="w-24 justify-start items-center gap-2 flex">
           {/* Icon */}
@@ -194,7 +198,9 @@ const MenuBar = ({ project }: { project: Project }) => {
         <SumAdvance advance={project.advance} />
       </div>
 
-      <div aria-label="Expense" className="h-10 justify-start items-center font-BaiJamjuree inline-flex">
+      <div
+        aria-label="Expense"
+        className="h-10 justify-start items-center font-BaiJamjuree inline-flex">
         {/* Label Zone */}
         <div className="w-24 justify-start items-center gap-2 flex">
           {/* Icon */}

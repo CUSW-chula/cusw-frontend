@@ -74,8 +74,8 @@ export const ProjectCard = ({
                       {project.tags
                         ?.sort((a, b) => {
                           // Sort Approve tags to the front
-                          const aIsApprove = a.name === 'Approve';
-                          const bIsApprove = b.name === 'Approve';
+                          const aIsApprove = a.name === 'Approved';
+                          const bIsApprove = b.name === 'Approved';
                           if (aIsApprove && !bIsApprove) return -1;
                           if (!aIsApprove && bIsApprove) return 1;
                           return 0;
@@ -87,7 +87,7 @@ export const ProjectCard = ({
                             variant="destructive"
                             className={cn(
                               'h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center mr-1 mt-1 mb-1',
-                              tag.name === 'Approve' || tag.name === 'Rework'
+                              tag.name === 'Approved'
                                 ? 'bg-[#eefafd] border-blue text-blue'
                                 : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
                             )}>
@@ -112,8 +112,8 @@ export const ProjectCard = ({
                               <div className="flex flex-col flex-wrap items-start">
                                 {project.tags
                                   ?.sort((a, b) => {
-                                    const aIsApprove = a.name === 'Approve';
-                                    const bIsApprove = b.name === 'Approve';
+                                    const aIsApprove = a.name === 'Approved';
+                                    const bIsApprove = b.name === 'Approved';
                                     if (aIsApprove && !bIsApprove) return -1;
                                     if (!aIsApprove && bIsApprove) return 1;
                                     return 0;
@@ -125,7 +125,7 @@ export const ProjectCard = ({
                                       variant="destructive"
                                       className={cn(
                                         'h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center mb-1',
-                                        tag.name === 'Approve' || tag.name === 'Rework'
+                                        tag.name === 'Approved'
                                           ? 'bg-[#eefafd] border-blue text-blue'
                                           : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
                                       )}>
