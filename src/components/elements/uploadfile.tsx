@@ -201,11 +201,7 @@ const FileItem = ({ id, fileName, uploadedBy, filePath, fileSize, createdAt, tas
   useEffect(() => {
     if (uploadedBy) {
       getName(uploadedBy, auth).then((fetchedName) => {
-        if (fetchedName) {
-          setName(fetchedName);
-        } else {
-          setName('Unknown'); // Fallback for failed API calls
-        }
+        setName(fetchedName || 'Unknown');
       });
     }
   }, [uploadedBy, auth]);
@@ -214,25 +210,11 @@ const FileItem = ({ id, fileName, uploadedBy, filePath, fileSize, createdAt, tas
     <div
       className="flex items-center border-2 border-brown bg-gray-50 rounded-[6px] p-2 my-2"
       key={id}>
-      <File />
-      <a href={filePath} target="_blank" rel="noopener noreferrer">
-        <div className="flex flex-col w-full justify-between ml-2">
-          <div>
-            <p>{fileName}</p>
-          </div>
-          <div className="flex justify-between gap-4 items-center">
-            <p className="flex">Uploaded by {name || 'Loading...'}</p>
-            <Circle className="fill-black size-2 mx-1" />
-            <p className="flex">{formatDate(createdAt)}</p>
-            <Circle className="fill-black size-2 mx-1" />
-            <p className="flex">{Math.round(fileSize / 1024)} KB</p>
-          </div>
-        </div>
-      </a>
-      <div className="flex-row">
+      {/* Cross icon moved to leftmost */}
+      <div className="flex-row mr-2">
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <X className="m-auto mt-[-14px] mr-[-4px] size-4 cursor-pointer" />
+            <X className="size-4 cursor-pointer hover:text-red-600 transition-colors" />
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -252,6 +234,22 @@ const FileItem = ({ id, fileName, uploadedBy, filePath, fileSize, createdAt, tas
           </AlertDialogContent>
         </AlertDialog>
       </div>
+
+      <File />
+      <a href={filePath} target="_blank" rel="noopener noreferrer" className="flex-1">
+        <div className="flex flex-col w-full justify-between ml-2">
+          <div>
+            <p>{fileName}</p>
+          </div>
+          <div className="flex justify-between gap-4 items-center">
+            <p className="flex">Uploaded by {name || 'Loading...'}</p>
+            <Circle className="fill-black size-2 mx-1" />
+            <p className="flex">{formatDate(createdAt)}</p>
+            <Circle className="fill-black size-2 mx-1" />
+            <p className="flex">{Math.round(fileSize / 1024)} KB</p>
+          </div>
+        </div>
+      </a>
     </div>
   );
 };
