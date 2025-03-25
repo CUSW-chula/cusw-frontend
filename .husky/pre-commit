@@ -1,2 +1,3 @@
 bun run lint:fix
 bun run format:fix
+bun run build
