@@ -159,18 +159,6 @@ async function getName(authorId: string, auth: string) {
         Authorization: auth,
       },
     });
-    if (!response.ok) {
-      const errorMessage = await response.text();
-      toast({
-        title: `🚨 Error ${response.status}: ${response.statusText}`,
-        description: `
-    🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-    
-    🗂️ file: uploadfile.tsx
-        `,
-        variant: 'default',
-      });
-    }
     const data = await response.json();
     return data.name;
   } catch (error) {
