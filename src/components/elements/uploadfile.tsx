@@ -199,8 +199,17 @@ const FileItem = ({ id, fileName, uploadedBy, filePath, fileSize, createdAt }: F
   const auth = cookie?.toString() ?? '';
 
   useEffect(() => {
-    getName(uploadedBy, auth).then(setName);
+    if (uploadedBy) {
+      getName(uploadedBy, auth).then((fetchedName) => {
+        if (fetchedName) {
+          setName(fetchedName);
+        } else {
+          setName('Unknown'); // Fallback for failed API calls
+        }
+      });
+    }
   }, [uploadedBy, auth]);
+
   return (
     <div
       className="flex items-center border-2 border-brown bg-gray-50 rounded-[6px] p-2 my-2"
