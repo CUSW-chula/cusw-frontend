@@ -11,12 +11,12 @@ COPY . .
 # Accept environment variables from GitHub Actions (Build-time only)
 ARG GOOGLE_CLIENT_ID
 ARG GOOGLE_CLIENT_SECRET
-ARG AUTH_SECRET
+ARG NEXTAUTH_SECRET
 
 # Persist them into ENV for runtime
 ENV GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
 ENV GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-ENV AUTH_SECRET=${AUTH_SECRET}
+ENV NEXTAUTH_SECRET=${AUTH_SECRET}
 
 RUN bun next build
 
@@ -33,12 +33,12 @@ COPY --from=base /app/package.json ./
 # Accept environment variables again in the production stage
 ARG GOOGLE_CLIENT_ID
 ARG GOOGLE_CLIENT_SECRET
-ARG AUTH_SECRET
+ARG NEXTAUTH_SECRET
 
 # Set them again so they persist
 ENV GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
 ENV GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-ENV AUTH_SECRET=${AUTH_SECRET}
+ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
 
 # Set Node.js environment to production
 ENV NODE_ENV=production
