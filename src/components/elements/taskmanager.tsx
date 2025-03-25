@@ -14,6 +14,7 @@ const auth = cookie?.toString() ?? '';
 const loadExpandedState = (): Set<string> => {
   if (typeof window === 'undefined') return new Set();
   const saved = localStorage.getItem('expandedTaskIds');
+  if (saved === '{}') return new Set();
   return saved ? new Set(JSON.parse(saved)) : new Set();
 };
 
