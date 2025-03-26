@@ -142,7 +142,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
         const data = await response.json();
         setSelectedTags(data.tags);
         setProjectOwner(data.owner);
-        setIsProjectOwner(data.owner.some((owner: { id: string; }) => owner.id === userid));
+        setIsProjectOwner(data.owner.some((owner: { id: string }) => owner.id === userid));
       } catch (error) {
         console.error(error);
       }
@@ -175,7 +175,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
     return () => {
       ws.close();
     };
-  }, [auth, project_id, pareJsonValue, setSelectedTags , setProjectOwner]);
+  }, [auth, project_id, pareJsonValue, setSelectedTags, setProjectOwner]);
 
   const handleSelectTag = async (value: string) => {
     const selected = statuses.find((status) => status.name === value);
