@@ -34,7 +34,12 @@ export default function RootLayout({
 
   // Use useMemo to avoid unnecessary recalculations on fast refresh
   const isAllowed = useMemo(() => {
-    return allowedRoutes.includes(url) || url.startsWith('/projects/') || url.startsWith('/tasks/') || url.startsWith('/admin/');
+    return (
+      allowedRoutes.includes(url) ||
+      url.startsWith('/projects/') ||
+      url.startsWith('/tasks/') ||
+      url.startsWith('/admin/')
+    );
   }, [url]);
 
   return (
