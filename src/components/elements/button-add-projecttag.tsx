@@ -20,19 +20,30 @@ import { toast } from '@/hooks/use-toast';
 import { jwtDecode } from 'jwt-decode';
 import { useEffect } from 'react';
 import { set } from 'date-fns';
+import { ProjectOwner } from './project-owner';
 
 interface Tags {
   id: string;
   name: string;
 }
 
-// Mock data
+interface Owner {
+  id: string;
+  name: string;
+  email: string;
+  head: boolean;
+  admin: boolean;
+  activated: boolean;
+}
+
 export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const userid = (jwtDecode(auth) as { id: string }).id;
   const [isHead, setIsHead] = React.useState<boolean>();
   const [isadmin, setIsAdmin] = React.useState<boolean>();
+  const [isprojectOwner, setIsProjectOwner] = React.useState<boolean>();
+  const [projectOwner, setProjectOwner] = React.useState<Owner[]>([]);
   const [open, setOpen] = React.useState(false);
   const [statuses, setStatuses] = React.useState<Tags[]>([]);
   const [selectedTags, setSelectedTags] = React.useState<Tags[]>([]);
@@ -130,6 +141,8 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
         }
         const data = await response.json();
         setSelectedTags(data.tags);
+        setProjectOwner(data.owner);
+        setIsProjectOwner(data.owner.some((owner: { id: string; }) => owner.id === userid));
       } catch (error) {
         console.error(error);
       }
@@ -162,7 +175,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
     return () => {
       ws.close();
     };
-  }, [auth, project_id, pareJsonValue, setSelectedTags]);
+  }, [auth, project_id, pareJsonValue, setSelectedTags , setProjectOwner]);
 
   const handleSelectTag = async (value: string) => {
     const selected = statuses.find((status) => status.name === value);
@@ -246,7 +259,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
                       : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
                   )}>
                   <span className="text-base font-medium font-BaiJamjuree">{tag.name}</span>
-                  {(isHead || isadmin) && (
+                  {(isHead || isadmin || isprojectOwner) && (
                     <button
                       type="button"
                       onClick={() => handleDeleteTag(tag.id)}

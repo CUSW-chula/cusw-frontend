@@ -54,7 +54,6 @@ export const TaskTitle = ({
       <Chevron task={item} />
       <div
         className="inline-flex hover:cursor-pointer items-center w-full"
-        onClick={() => router.push(`/tasks/${item.id}`)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault(); // Prevent default scroll behavior for space key
