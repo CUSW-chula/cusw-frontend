@@ -48,6 +48,38 @@ function getRandomLightColor(): string {
 }
 
 function Document({ description }: Description) {
+  const [userName, setUserName] = useState<string | null>(null);
+  const userData = getUserDataFromCookie();
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchName = async () => {
+      try {
+        const name = await getName(userData.id, auth);
+        if (isMounted) setUserName(name);
+      } catch (error) {
+        console.error('Failed to fetch user name:', error);
+        if (isMounted) setUserName('Anonymous');
+      }
+    };
+
+    fetchName();
+    return () => {
+      isMounted = false;
+    };
+  }, [userData.id]);
+
+  if (!userName) {
+    return <div className="p-4 text-muted-foreground">Initializing editor...</div>;
+  }
+
+  return <EditorWithName userName={userName} description={description} />;
+}
+
+function EditorWithName({
+  userName,
+  description,
+}: { userName: string; description: { id: string; description: string } }) {
   const [Description, setDescription] = useState<string>('');
   const task_id = description.id;
 
@@ -81,20 +113,17 @@ function Document({ description }: Description) {
           toast({
             title: `🚨 Error ${response.status}: ${response.statusText}`,
             description: `
-               🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-               
-               🗂️ file: blocknote.tsx
-                   `,
-            variant: 'default',
+              🔥 error: ${errorMessage || 'An unexpected error occurred.'}
+              🗂️ file: blocknote.tsx
+            `,
+            variant: 'destructive',
           });
         }
-        const data = await response.json();
       } catch (error) {
         console.error('Error updating Description:', error);
       }
-    }, 5000); // 5-second delay
+    }, 5000);
 
-    // Cleanup the timer if Description or task_id changes
     return () => clearTimeout(timer);
   }, [Description, task_id]);
 
@@ -105,12 +134,6 @@ function Document({ description }: Description) {
     },
   });
 
-  const getUserDataFromCookie = () => {
-    const decoded = jwtDecode<CustomJwtPayload>(auth);
-    return decoded;
-  };
-
-  const userData = getUserDataFromCookie();
   const provider = useYjsProvider();
   const doc = useYDoc();
   const editor = useCreateBlockNote({
@@ -118,8 +141,7 @@ function Document({ description }: Description) {
     collaboration: {
       provider,
       fragment: doc.getXmlFragment('blocknote'),
-      user: { color: getRandomLightColor(), name: userData.id },
-      // showCursorLabels: 'always',
+      user: { color: getRandomLightColor(), name: userName },
     },
   });
 
@@ -132,9 +154,7 @@ function Document({ description }: Description) {
     <BlockNoteView
       editor={editor}
       theme={'light'}
-      onChange={() => {
-        onChangeBlock();
-      }}
+      onChange={onChangeBlock}
       emojiPicker={false}
       shadCNComponents={{
         Card,
@@ -150,4 +170,28 @@ function Document({ description }: Description) {
       <GridSuggestionMenuController triggerCharacter={':'} columns={5} minQueryLength={2} />
     </BlockNoteView>
   );
+}
+
+function getUserDataFromCookie(): CustomJwtPayload {
+  return jwtDecode<CustomJwtPayload>(auth);
+}
+
+async function getName(authorId: string, auth: string): Promise<string> {
+  try {
+    const response = await fetch(`${BASE_URL}/v2/users/${authorId}`, {
+      headers: {
+        Authorization: auth,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.name || 'Anonymous';
+  } catch (error) {
+    console.error('Failed to fetch user name:', error);
+    return 'Anonymous';
+  }
 }
