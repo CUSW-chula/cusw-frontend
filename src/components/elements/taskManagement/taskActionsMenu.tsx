@@ -59,8 +59,7 @@ export const TaskActionsMenu = ({ task }: { task: TaskProps }) => {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your account and remove
-              your data from our servers.
+              This action will permanently delete the task and can't be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
 

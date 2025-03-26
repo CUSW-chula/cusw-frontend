@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { TaskTitle, Money, TaskDate, Assigned, Tag } from './index';
+import { TaskTitle, Money, TaskDate, Assigned, Tag, TaskActionsMenu } from './index';
 import type { TaskProps } from '@/app/types/types';
 
 // Helper functions for localStorage handling
@@ -49,7 +49,7 @@ export const Task = ({
               <TaskDate item={item} hiddenDate={hiddenDate} />
               <Assigned item={item} />
             </div>
-            <p>...</p>
+            <TaskActionsMenu task={item} />
           </div>
         </div>
       </div>
