@@ -13,7 +13,7 @@ import * as Popover from '@/components/ui/popover';
 import * as Tabs from '@/components/ui/tabs';
 import * as Toggle from '@/components/ui/toggle';
 import * as Tooltip from '@/components/ui/tooltip';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import BASE_URL, { BASE_YSWEET, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { jwtDecode, type JwtPayload } from 'jwt-decode';
@@ -50,7 +50,6 @@ function getRandomLightColor(): string {
 function Document({ description }: Description) {
   const [Description, setDescription] = useState<string>('');
   const task_id = description.id;
-  const [userName, setUserName] = useState<string>('');
 
   useEffect(() => {
     const replaceBlocks = async () => {
@@ -106,31 +105,10 @@ function Document({ description }: Description) {
     },
   });
 
-  const getUserDataFromCookie = useCallback(() => {
+  const getUserDataFromCookie = () => {
     const decoded = jwtDecode<CustomJwtPayload>(auth);
     return decoded;
-  }, []);
-
-  const getName = useCallback(async (authorId: string) => {
-    try {
-      const response = await fetch(`${BASE_URL}/v2/users/${authorId}`, {
-        headers: {
-          Authorization: auth,
-        },
-      });
-      const data = await response.json();
-      return data.name;
-    } catch (error) {
-      console.error('Failed to fetch user name:', error);
-      return 'Unknown';
-    }
-  }, []);
-
-  useEffect(() => {
-    getName(getUserDataFromCookie().id).then((name) => {
-      setUserName(name);
-    });
-  }, [getName, getUserDataFromCookie]);
+  };
 
   const userData = getUserDataFromCookie();
   const provider = useYjsProvider();
@@ -140,7 +118,7 @@ function Document({ description }: Description) {
     collaboration: {
       provider,
       fragment: doc.getXmlFragment('blocknote'),
-      user: { color: getRandomLightColor(), name: userName },
+      user: { color: getRandomLightColor(), name: userData.id },
       // showCursorLabels: 'always',
     },
   });
