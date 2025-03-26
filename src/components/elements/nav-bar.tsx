@@ -71,7 +71,7 @@ export default function NavBar() {
             <button
               type="button"
               className="flex justify-center items-center gap-1 h-[40px] bg-white border border-brown rounded-[6px] px-2"
-              onClick={() => window.location.assign('/user-management')}>
+              onClick={() => window.location.assign('/admin/user-management')}>
               <TableOfContents />
               User Management
             </button>

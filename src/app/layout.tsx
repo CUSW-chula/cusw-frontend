@@ -30,11 +30,11 @@ export default function RootLayout({
   const url = usePathname();
 
   // Allowed routes where NavBar should be displayed
-  const allowedRoutes = ['/my-tasks', '/user-management', '/projects'];
+  const allowedRoutes = ['/my-tasks', '/projects'];
 
   // Use useMemo to avoid unnecessary recalculations on fast refresh
   const isAllowed = useMemo(() => {
-    return allowedRoutes.includes(url) || url.startsWith('/projects/') || url.startsWith('/tasks/');
+    return allowedRoutes.includes(url) || url.startsWith('/projects/') || url.startsWith('/tasks/') || url.startsWith('/admin/');
   }, [url]);
 
   return (
