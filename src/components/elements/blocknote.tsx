@@ -140,7 +140,7 @@ function Document({ description }: Description) {
     collaboration: {
       provider,
       fragment: doc.getXmlFragment('blocknote'),
-      user: { color: getRandomLightColor(), name: userData.id },
+      user: { color: getRandomLightColor(), name: userName},
       // showCursorLabels: 'always',
     },
   });
