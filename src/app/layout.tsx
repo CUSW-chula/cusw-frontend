@@ -38,7 +38,7 @@ export default function RootLayout({
       allowedRoutes.includes(url) ||
       url.startsWith('/projects/') ||
       url.startsWith('/tasks/') ||
-      url.startsWith('/admin/')
+      url.startsWith('/admin')
     );
   }, [url]);
 
