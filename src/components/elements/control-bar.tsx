@@ -31,6 +31,7 @@ interface FilterDateRangeProps extends React.HTMLAttributes<HTMLDivElement> {
 
 interface SearchProp {
   onSearchChange?: (search: string) => void;
+  placeholder: string;
 }
 
 interface SortProp {
@@ -274,7 +275,7 @@ export function SortButton({ onSelectChange }: SortProp) {
 }
 
 /* search bar zone */
-export function Searchbar({ onSearchChange }: SearchProp) {
+export function Searchbar({ onSearchChange, placeholder }: SearchProp) {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (onSearchChange) {
       onSearchChange(event.target.value);
@@ -285,7 +286,7 @@ export function Searchbar({ onSearchChange }: SearchProp) {
       <Search className="text-brown" />
       <input
         type="text"
-        placeholder="Search the project.."
+        placeholder={placeholder}
         className="resize-none w-full h-[40px] outline-none placeholder-gray-300 text-sm font-BaiJamjuree bg-transparent"
         onChange={handleInputChange}
       />
