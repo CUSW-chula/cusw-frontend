@@ -1,5 +1,5 @@
 # Base Stage: Install dependencies and build the project
-FROM oven/bun:1.2.2 AS base
+FROM oven/bun:1.2 AS base
 
 WORKDIR /app
 
@@ -21,7 +21,7 @@ ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
 RUN bun next build
 
 # Production Stage: Serve the app
-FROM oven/bun:1.2.2 AS production
+FROM oven/bun:1.2 AS production
 
 WORKDIR /app
 
