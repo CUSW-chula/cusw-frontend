@@ -100,7 +100,7 @@ export const ProjectList = () => {
           <div className="flex w-full justify-between flex-wrap gap-2">
             <FilterByDateRange onDateChange={handleDateRangeChange} />
             <FilterByTags onSelectTagChange={handleTagSelection} />
-            <Searchbar onSearchChange={handleSearchInputChange} placeholder='Search project...'/>
+            <Searchbar onSearchChange={handleSearchInputChange} placeholder="Search project..." />
             <SortButton onSelectChange={handleSort} />
             <Createproject />
           </div>
