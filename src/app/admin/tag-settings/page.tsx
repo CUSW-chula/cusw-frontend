@@ -1,6 +1,12 @@
+'use client';
 import React from 'react';
+import Table from '@/components/elements/tagManagement/table';
 const page = () => {
-  return <div>Hello World, this is tag settings page</div>;
+  return (
+    <div className="w-full px-20">
+      <Table />
+    </div>
+  );
 };
 
 export default page;
