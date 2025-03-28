@@ -48,18 +48,24 @@ const Create = () => {
         const errorMessage = await response.text();
         toast({
           title: `🚨 Error ${response.status}: ${response.statusText}`,
-          description: `🔥 error: ${errorMessage || 'An unexpected error occurred.'}🗂️ file: add-user.tsx`,
+          description: `🔥 error: ${errorMessage || 'An unexpected error occurred.'}🗂️ file: create.tsx`,
           variant: 'default',
         });
       }
+      if (response.ok)
+        toast({
+          title: `➕ Created tag: ${name}`,
+          description: `
+                  The tag "${name}" has been successfully created.
+                `,
+          variant: 'default',
+        });
 
-      alert('User added successfully!');
       setShowPopover(false);
       setName('');
       setIsProject(false);
     } catch (error) {
-      console.error('Failed to add user:', error);
-      alert('Failed to add user. Check console for details.');
+      console.error('Failed to add tag:', error);
     }
   };
 
@@ -77,7 +83,7 @@ const Create = () => {
         <div
           ref={popoverRef}
           className="absolute bg-white h-fit w-72 border shadow-lg p-4 right-0 mt-2 rounded-lg space-y-4 z-50">
-          <h3 className="text-lg font-semibold text-gray-700">Add User</h3>
+          <h3 className="text-lg font-semibold text-gray-700">Add tag</h3>
 
           {/* Name Field */}
           <div className="relative">

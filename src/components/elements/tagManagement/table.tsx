@@ -58,7 +58,7 @@ const Table = () => {
         <table className="w-full border-collapse relative">
           <thead className="sticky top-0 bg-neutral-100 z-10">
             <tr className="border-b text-gray-700">
-              <th className="p-3 text-left w-[80%]">Tag</th>
+              <th className="p-3 text-left">Tag</th>
               <th className="p-3 text-left">IsProject</th>
               <th className="p-3 text-left">Delete</th>
             </tr>
