@@ -46,8 +46,8 @@ const Table = () => {
     <div className="font-BaiJamjuree w-full h-[690px] bg-white p-4 rounded-lg border border-brown">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h2 className="text-xl font-semibold">All Users</h2>
-          <p className="text-sm text-green">Account Management</p>
+          <h2 className="text-xl font-semibold">All Tags</h2>
+          <p className="text-sm text-green">Tag Management</p>
         </div>
         <div className="flex items-center gap-2 justify-between flex-wrap">
           <Searchbar onSearchChange={setSearchTag} placeholder="Search tag..." />
