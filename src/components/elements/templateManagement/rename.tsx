@@ -41,7 +41,7 @@ export function EditTemplate({ template, onSuccess }: EditTemplateProps) {
     const auth = getCookie('auth')?.toString() || ''
 
     try {
-      const response = await fetch(`${BASE_URL}/v2/template/`, {
+      const response = await fetch(`${BASE_URL}/v2/template`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
