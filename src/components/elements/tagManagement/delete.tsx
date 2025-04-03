@@ -40,14 +40,14 @@ const Delete: React.FC<ManageProps> = ({ tag }) => {
         });
         return;
       }
-      if (response.ok)
-        toast({
-          title: `🗑️ Deleted: ${tag.name}`,
-          description: `
+      if (response.ok) window.location.reload();
+      toast({
+        title: `🗑️ Deleted: ${tag.name}`,
+        description: `
             The tag "${tag.name}" has been successfully deleted.
           `,
-          variant: 'default',
-        });
+        variant: 'default',
+      });
     } catch (error) {
       console.error(error);
     }

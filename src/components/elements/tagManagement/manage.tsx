@@ -14,7 +14,7 @@ const Manage: React.FC<ManageProps> = ({ tag }) => {
   const auth = cookie?.toString() ?? '';
   const [isProject, setIsProject] = useState<boolean>(tag.isProject);
 
-  const updateTag = async (checked: boolean) => {
+  const updateTag = async (select: boolean) => {
     const tagid = tag.id;
     const url = `${BASE_URL}/v2/tags/${tagid}`;
     const options = {
@@ -22,7 +22,7 @@ const Manage: React.FC<ManageProps> = ({ tag }) => {
       headers: { 'Content-Type': 'application/json', Authorization: auth },
       body: JSON.stringify({
         name: tag.name,
-        isProject: checked,
+        isProject: select,
       }),
     };
 
@@ -38,13 +38,16 @@ const Manage: React.FC<ManageProps> = ({ tag }) => {
   };
 
   return (
-    <Switch
-      checked={isProject}
-      onCheckedChange={(checked) => {
-        setIsProject(checked);
-        updateTag(checked);
-      }}
-    />
+    <select
+      value={isProject ? 'project' : 'task'}
+      onChange={(e) => {
+        const value = (e.target as HTMLSelectElement).value === 'project';
+        updateTag(value);
+        setIsProject(value);
+      }}>
+      <option value="task">Task</option>
+      <option value="project">Project</option>
+    </select>
   );
 };
 

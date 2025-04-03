@@ -59,8 +59,6 @@ export default function Home() {
               width={240}
               height={0}
             />
-            {/* myCourseVille Logo */}
-            <img src="asset/logo/mcv.webp" alt="myCourseVille Logo" width={240} height={0} />
           </div>
         </div>
 
