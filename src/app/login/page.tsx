@@ -37,44 +37,68 @@ export default function Home() {
       </Card>
 
       {/* footer section */}
-      <footer className="flex w-full bg-green mx-auto px-4 py-8 flex-row justify-evenly items-start text-white">
-        {/* Copyright */}
-        <div className="flex flex-col text-start gap-2">
-          <p>©2025 All rights reserved | Privacy Policy</p>
+      <footer className="flex flex-col w-full">
+        {/* Top Section: Mental Health Care Supported By */}
+        <div className="text-center mb-6">
+          <p className="text-2xl font-extrabold font-Anuphan space-x-2">Supported by</p>
+          <div className="flex justify-center items-center space-x-8 mt-4">
+            {/* Chulalongkorn University Logo and Text */}
+            <img
+              src="asset/logo/chula.webp"
+              alt="Chulalongkorn University Logo"
+              width={240}
+              height={0}
+            />
+            <Image
+              src="asset/logo/l1.svg"
+              alt="Chula Student Wellness Logo"
+              width={240}
+              height={0}
+            />
+          </div>
         </div>
 
-        {/* Contact Us */}
-        <div className="flex flex-col text-start gap-2">
-          <h4 className="text-lg font-semibold">Contact Us</h4>
-          <p className="flex gap-2">
-            <Building className="fill-white text-green" />
-            Chula Student Wellness Room 311,
-            <br />
-            3rd Floor, Chamchuri 9 Building
-            <br />
-            Chulalongkorn University
-          </p>
-          <p className="flex gap-2 items-center">
-            <Phone className="fill-white text-transparent" />
-            <a href="tel:085-042-2626">085-042-2626</a>
-          </p>
-          <p className="flex gap-2 justify-center items-center">
-            <Mail className="fill-white text-green" />
-            <a href="mailto:chulastudentwellness@gmail.com">chulastudentwellness@gmail.com</a>
-          </p>
-        </div>
+        {/* Bottom Section: Copyright, Contact, Social Media */}
+        <div className="bg-green w-full mx-auto px-4 py-8 flex flex-row justify-evenly items-start text-white">
+          {/* Copyright */}
+          <div className="flex flex-col text-start gap-2">
+            <p>©2025 All rights reserved | Privacy Policy</p>
+          </div>
 
-        {/* Social Media */}
-        <div className="flex flex-col text-start gap-2">
-          <h4 className="text-lg font-semibold">Social Media</h4>
-          <p className="flex gap-2 items-center">
-            <Facebook />
-            <a
-              href="https://www.facebook.com/ChulaStudentWellness-CSW"
-              className="underline hover:text-gray-200">
-              Chula Student Wellness - CSW
-            </a>
-          </p>
+          {/* Contact Us */}
+          <div className="flex flex-col text-start gap-2">
+            <h4 className="text-lg font-semibold">Contact Us</h4>
+            <p className="flex gap-2">
+              <Building className="fill-white text-green" />
+              Chula Student Wellness Room 311,
+              <br />
+              3rd Floor, Chamchuri 9 Building
+              <br />
+              Chulalongkorn University
+            </p>
+            <p className="flex gap-2 items-center">
+              <Phone className="fill-white text-transparent" />
+              <a href="tel:085-042-2626">085-042-2626</a>
+            </p>
+            <p className="flex gap-2 justify-center items-center">
+              <Mail className="fill-white text-green" />
+              <a href="mailto:chulastudentwellness@gmail.com">chulastudentwellness@gmail.com</a>
+            </p>
+          </div>
+
+          {/* Social Media */}
+          <div className="flex flex-col text-start gap-2">
+            <h4 className="text-lg font-semibold">Social Media</h4>
+            <p className="flex gap-2 items-center">
+              <Facebook />
+              <a
+                href="https://www.facebook.com/chulastudentwellness"
+                target="_blank"
+                className="underline hover:text-gray-200">
+                Chula Student Wellness - CUSW
+              </a>
+            </p>
+          </div>
         </div>
       </footer>
     </div>
