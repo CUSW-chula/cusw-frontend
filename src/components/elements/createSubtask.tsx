@@ -144,6 +144,7 @@ export const CreateSubtask = ({
             variant="outline"
             type="submit"
             className="bg-[#6b5c56] text-base font-BaiJamjuree font-medium text-white leading-normal"
+            disabled={!inputs.taskTitle}
             onClick={handleSubmit}>
             Create
           </Button>
