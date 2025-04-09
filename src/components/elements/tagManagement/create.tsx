@@ -64,6 +64,7 @@ const Create = () => {
       setShowPopover(false);
       setName('');
       setIsProject(false);
+      window.location.reload();
     } catch (error) {
       console.error('Failed to add tag:', error);
     }
@@ -104,12 +105,11 @@ const Create = () => {
           {/* isProject Field */}
           <div className="relative flex items-center gap-2">
             <p className="px-1 text-black text-[14px]">isProject:</p>
-            <Switch
-              checked={isProject}
-              onCheckedChange={(checked) => {
-                setIsProject(checked);
-              }}
-            />
+            <select
+              onChange={(e) => setIsProject((e.target as HTMLSelectElement).value === 'project')}>
+              <option value="task">Task</option>
+              <option value="project">Project</option>
+            </select>
           </div>
 
           {/* Submit Button */}

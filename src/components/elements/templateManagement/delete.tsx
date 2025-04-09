@@ -29,13 +29,14 @@ const DeleteTemplate: React.FC<ManageProps> = ({ template }) => {
     if (!template) return;
 
     try {
-      const response = await fetch(`${BASE_URL}/v2/template`, { // ลบ / ท้าย URL
+      const response = await fetch(`${BASE_URL}/v2/template`, {
+        // ลบ / ท้าย URL
         method: 'DELETE',
         headers: {
           Authorization: auth, // ใช้ token จริง
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ templateId: template.id })
+        body: JSON.stringify({ templateId: template.id }),
       });
 
       if (!response.ok) {
@@ -71,13 +72,12 @@ const DeleteTemplate: React.FC<ManageProps> = ({ template }) => {
       <AlertDialogTrigger asChild>
         <Button
           className="px-4 py-2 bg-rose-500 hover:bg-rose-700 text-white flex gap-2"
-          disabled={!template}
-        >
+          disabled={!template}>
           <Trash2 className="w-4 h-4" />
           Delete
         </Button>
       </AlertDialogTrigger>
-      
+
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
@@ -85,13 +85,10 @@ const DeleteTemplate: React.FC<ManageProps> = ({ template }) => {
             This will permanently delete the "{template?.fileName}" template.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        
+
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction 
-            onClick={handleDelete}
-            className="bg-rose-500 hover:bg-rose-700"
-          >
+          <AlertDialogAction onClick={handleDelete} className="bg-rose-500 hover:bg-rose-700">
             Confirm Delete
           </AlertDialogAction>
         </AlertDialogFooter>

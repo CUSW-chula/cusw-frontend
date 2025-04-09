@@ -40,11 +40,7 @@ export default function Home() {
       <footer className="flex flex-col w-full">
         {/* Top Section: Mental Health Care Supported By */}
         <div className="text-center mb-6">
-          <p className="text-2xl font-extrabold font-Anuphan space-x-2">
-            <span className="text-green">Mental health</span>
-            <span className="text-orange">care</span>
-            <span>supported by</span>
-          </p>
+          <p className="text-2xl font-extrabold font-Anuphan space-x-2">Supported by</p>
           <div className="flex justify-center items-center space-x-8 mt-4">
             {/* Chulalongkorn University Logo and Text */}
             <img
@@ -59,8 +55,6 @@ export default function Home() {
               width={240}
               height={0}
             />
-            {/* myCourseVille Logo */}
-            <img src="asset/logo/mcv.webp" alt="myCourseVille Logo" width={240} height={0} />
           </div>
         </div>
 
@@ -98,9 +92,10 @@ export default function Home() {
             <p className="flex gap-2 items-center">
               <Facebook />
               <a
-                href="https://www.facebook.com/ChulaStudentWellness-CSW"
+                href="https://www.facebook.com/chulastudentwellness"
+                target="_blank"
                 className="underline hover:text-gray-200">
-                Chula Student Wellness - CSW
+                Chula Student Wellness - CUSW
               </a>
             </p>
           </div>
