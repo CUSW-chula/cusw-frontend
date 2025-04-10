@@ -1,7 +1,7 @@
 'use client';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@radix-ui/react-tooltip';
 import { DateText } from '../date-feature';
-import { Calendar, CrownIcon, Star, Users } from 'lucide-react';
+import { Calendar, CrownIcon, Star, Tag, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { Project } from '@/lib/shared';
@@ -52,7 +52,7 @@ export const ProjectCard = ({
               </div>
               <Link
                 href={`/projects/detail/${project.id}`}
-                className="flex flex-start w-[308px] h-[284px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px] ">
+                className="flex flex-start w-[308px] h-[384px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px] ">
                 <div className="flex flex-col gap-y-[8px]">
                   <div className="h-[56px] w-[204px] self-stretch overflow-hidden">
                     <TooltipProvider>
@@ -69,78 +69,6 @@ export const ProjectCard = ({
                     </TooltipProvider>
                   </div>
 
-                  <div className="absolute top-[60px] right-[20px]  ">
-                    <div className="flex flex-col flex-wrap items-end">
-                      {project.tags
-                        ?.sort((a, b) => {
-                          // Sort Approve tags to the front
-                          const aIsApprove = a.name === 'Approved';
-                          const bIsApprove = b.name === 'Approved';
-                          if (aIsApprove && !bIsApprove) return -1;
-                          if (!aIsApprove && bIsApprove) return 1;
-                          return 0;
-                        })
-                        .slice(0, 4) // Keep the slice after sorting
-                        .map((tag) => (
-                          <Badge
-                            key={tag?.id}
-                            variant="destructive"
-                            className={cn(
-                              'h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center mr-1 mt-1 mb-1',
-                              tag.name === 'Approved'
-                                ? 'bg-[#eefafd] border-blue text-blue'
-                                : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
-                            )}>
-                            <span className="text-base font-medium font-BaiJamjuree">
-                              {tag?.name}
-                            </span>
-                          </Badge>
-                        ))}
-                      {project.tags && project.tags.length > 4 && (
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger>
-                              <Badge
-                                variant="destructive"
-                                className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mt-1 mb-1">
-                                <div className="text-base font-medium font-BaiJamjuree">
-                                  +{project.tags.length - 4}
-                                </div>
-                              </Badge>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <div className="flex flex-col flex-wrap items-start">
-                                {project.tags
-                                  ?.sort((a, b) => {
-                                    const aIsApprove = a.name === 'Approved';
-                                    const bIsApprove = b.name === 'Approved';
-                                    if (aIsApprove && !bIsApprove) return -1;
-                                    if (!aIsApprove && bIsApprove) return 1;
-                                    return 0;
-                                  })
-                                  .slice(4) // Show only the overflow tags in tooltip
-                                  .map((tag) => (
-                                    <Badge
-                                      key={tag?.id}
-                                      variant="destructive"
-                                      className={cn(
-                                        'h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center mb-1',
-                                        tag.name === 'Approved'
-                                          ? 'bg-[#eefafd] border-blue text-blue'
-                                          : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
-                                      )}>
-                                      <span className="text-xs font-medium font-BaiJamjuree">
-                                        {tag?.name}
-                                      </span>
-                                    </Badge>
-                                  ))}
-                              </div>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      )}
-                    </div>
-                  </div>
 
                   <div className="flex flex-row items-center">
                     <CrownIcon className="w-6 h-6 text-black mr-1" />
@@ -271,9 +199,85 @@ export const ProjectCard = ({
                       <span>{DateText(project)}</span>
                     </div>
                   </div>
+
+                  <div className="flex flex-row ">
+                  <Tag className="w-[24px] h-[24px] relative text-black mr-1 flex-shrink-0" />
+                    <div className="flex flex-row flex-wrap items-end">
+                      {project.tags
+                        ?.sort((a, b) => {
+                          // Sort Approve tags to the front
+                          const aIsApprove = a.name === 'Approved';
+                          const bIsApprove = b.name === 'Approved';
+                          if (aIsApprove && !bIsApprove) return -1;
+                          if (!aIsApprove && bIsApprove) return 1;
+                          return 0;
+                        })
+                        .slice(0, 5) // Keep the slice after sorting
+                        .map((tag) => (
+                          <Badge
+                            key={tag?.id}
+                            variant="destructive"
+                            className={cn(
+                              'h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center mr-1 mt-1 mb-1',
+                              tag.name === 'Approved'
+                                ? 'bg-[#eefafd] border-blue text-blue'
+                                : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
+                            )}>
+                            <span className="text-base font-medium font-BaiJamjuree">
+                              {tag?.name}
+                            </span>
+                          </Badge>
+                        ))}
+                      {project.tags && project.tags.length > 5 && (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Badge
+                                variant="destructive"
+                                className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mt-1 mb-1">
+                                <div className="text-base font-medium font-BaiJamjuree">
+                                  +{project.tags.length - 5}
+                                </div>
+                              </Badge>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <div className="flex flex-col flex-wrap items-start">
+                                {project.tags
+                                  ?.sort((a, b) => {
+                                    const aIsApprove = a.name === 'Approved';
+                                    const bIsApprove = b.name === 'Approved';
+                                    if (aIsApprove && !bIsApprove) return -1;
+                                    if (!aIsApprove && bIsApprove) return 1;
+                                    return 0;
+                                  })
+                                  .slice(5) // Show only the overflow tags in tooltip
+                                  .map((tag) => (
+                                    <Badge
+                                      key={tag?.id}
+                                      variant="destructive"
+                                      className={cn(
+                                        'h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center mb-1',
+                                        tag.name === 'Approved'
+                                          ? 'bg-[#eefafd] border-blue text-blue'
+                                          : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
+                                      )}>
+                                      <span className="text-xs font-medium font-BaiJamjuree">
+                                        {tag?.name}
+                                      </span>
+                                    </Badge>
+                                  ))}
+                              </div>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </Link>
             </div>
+
+            
           ))
         ) : (
           <div className="flex w-full items-center justify-center text-center text-lg font-medium">
