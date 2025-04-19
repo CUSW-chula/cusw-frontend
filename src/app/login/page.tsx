@@ -94,7 +94,8 @@ export default function Home() {
               <a
                 href="https://www.facebook.com/chulastudentwellness"
                 target="_blank"
-                className="underline hover:text-gray-200">
+                className="underline hover:text-gray-200"
+                rel="noreferrer">
                 Chula Student Wellness - CUSW
               </a>
             </p>

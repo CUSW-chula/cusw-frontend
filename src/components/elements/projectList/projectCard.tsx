@@ -52,7 +52,7 @@ export const ProjectCard = ({
               </div>
               <Link
                 href={`/projects/detail/${project.id}`}
-                className="flex flex-start w-[308px] h-[384px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px] ">
+                className="flex flex-start w-[308px] h-[348px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px] ">
                 <div className="flex flex-col gap-y-[8px]">
                   <div className="h-[56px] w-[204px] self-stretch overflow-hidden">
                     <TooltipProvider>
@@ -68,7 +68,6 @@ export const ProjectCard = ({
                       </Tooltip>
                     </TooltipProvider>
                   </div>
-
 
                   <div className="flex flex-row items-center">
                     <CrownIcon className="w-6 h-6 text-black mr-1" />
@@ -201,7 +200,7 @@ export const ProjectCard = ({
                   </div>
 
                   <div className="flex flex-row ">
-                  <Tag className="w-[24px] h-[24px] relative text-black mr-1 flex-shrink-0" />
+                    <Tag className="w-[24px] h-[24px] relative text-black mr-1 flex-shrink-0" />
                     <div className="flex flex-row flex-wrap items-end">
                       {project.tags
                         ?.sort((a, b) => {
@@ -212,7 +211,7 @@ export const ProjectCard = ({
                           if (!aIsApprove && bIsApprove) return 1;
                           return 0;
                         })
-                        .slice(0, 5) // Keep the slice after sorting
+                        .slice(0, 4) // Keep the slice after sorting
                         .map((tag) => (
                           <Badge
                             key={tag?.id}
@@ -228,7 +227,7 @@ export const ProjectCard = ({
                             </span>
                           </Badge>
                         ))}
-                      {project.tags && project.tags.length > 5 && (
+                      {project.tags && project.tags.length > 4 && (
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger>
@@ -236,7 +235,7 @@ export const ProjectCard = ({
                                 variant="destructive"
                                 className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mt-1 mb-1">
                                 <div className="text-base font-medium font-BaiJamjuree">
-                                  +{project.tags.length - 5}
+                                  +{project.tags.length - 4}
                                 </div>
                               </Badge>
                             </TooltipTrigger>
@@ -250,7 +249,7 @@ export const ProjectCard = ({
                                     if (!aIsApprove && bIsApprove) return 1;
                                     return 0;
                                   })
-                                  .slice(5) // Show only the overflow tags in tooltip
+                                  .slice(4) // Show only the overflow tags in tooltip
                                   .map((tag) => (
                                     <Badge
                                       key={tag?.id}
@@ -276,8 +275,6 @@ export const ProjectCard = ({
                 </div>
               </Link>
             </div>
-
-            
           ))
         ) : (
           <div className="flex w-full items-center justify-center text-center text-lg font-medium">
