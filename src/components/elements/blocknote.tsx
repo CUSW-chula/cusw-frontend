@@ -159,7 +159,6 @@ function EditorWithName({
       shadCNComponents={{
         Card,
         DropdownMenu,
-        Form,
         Input,
         Label,
         Popover,

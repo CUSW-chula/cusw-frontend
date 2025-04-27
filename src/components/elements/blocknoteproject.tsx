@@ -132,7 +132,6 @@ function Document({ project_id }: ProjectOverviewProps) {
       shadCNComponents={{
         Card,
         DropdownMenu,
-        Form,
         Input,
         Label,
         Popover,
