@@ -1,5 +1,5 @@
 # Base Stage: Install dependencies and build the project
-FROM oven/bun:1.2.2 AS base
+FROM oven/bun:latest AS base
 
 WORKDIR /app
 
