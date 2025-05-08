@@ -40,7 +40,7 @@ export const ProjectList = () => {
     const fetchAllProjects = async () => {
       setIsLoading(true); // เริ่มโหลด
       try {
-        const response = await fetch(`${BASE_URL}/v2/projects`, {
+        const response = await fetch(`${BASE_URL}/v2/projects/`, {
           headers: { Authorization: auth, 'Accept-Encoding': 'gzip' },
         });
 
