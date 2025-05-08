@@ -37,6 +37,7 @@ export const ProjectList = () => {
   // Effect hook to update project list when API data is fetched
   useEffect(() => {
     const fetchAllProjects = async () => {
+      console.info('Fetching all projects...');
       const response = await fetch(`${BASE_URL}/v2/projects/`, {
         headers: { Authorization: auth, 'Accept-Encoding': 'gzip' },
       });
