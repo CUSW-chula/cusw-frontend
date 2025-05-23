@@ -16,7 +16,7 @@ const Table = () => {
 
   useEffect(() => {
     const fetchTag = async () => {
-      const response = await fetch(`${BASE_URL}/v2/tags`, {
+      const response = await fetch(`${BASE_URL}/v2/tags/`, {
         headers: { Authorization: auth },
       });
 

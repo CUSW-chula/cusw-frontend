@@ -115,7 +115,6 @@ export const CreateSubtask = ({
           shadCNComponents={{
             Card,
             DropdownMenu,
-            Form,
             Label,
             Popover,
             Tabs,

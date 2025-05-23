@@ -1,5 +1,5 @@
 # Base Stage: Install dependencies and build the project
-FROM oven/bun:1.2.2 AS base
+FROM oven/bun:latest AS base
 
 WORKDIR /app
 
@@ -18,10 +18,10 @@ ENV GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
 ENV GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
 ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
 
-RUN bun next build
+RUN bun next build --turbopack
 
 # Production Stage: Serve the app
-FROM oven/bun:1.2.2 AS production
+FROM oven/bun:latest AS production
 
 WORKDIR /app
 
