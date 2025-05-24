@@ -5,7 +5,7 @@ import { Calendar, CrownIcon, Star, Tag, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { Project } from '@/lib/shared';
-import { UsePinned } from './sort-pin-project';
+import { SortDefault, UsePinned } from './sort-pin-project';
 import Link from 'next/link';
 interface ProjectProps {
   query: Project[];
@@ -15,6 +15,7 @@ interface ProjectProps {
   starredProjects: Record<string, boolean>;
   setStarredProjects: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
 }
+
 export const ProjectCard = ({
   query,
   setQuery,
@@ -54,7 +55,7 @@ export const ProjectCard = ({
                 href={`/projects/detail/${project.id}`}
                 className="flex flex-start w-[308px] h-[348px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px] ">
                 <div className="flex flex-col gap-y-[8px]">
-                  <div className="h-[56px] w-[204px] self-stretch overflow-hidden">
+                  <div className="h-[40px] w-[240px] self-stretch overflow-hidden">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger>
@@ -62,8 +63,10 @@ export const ProjectCard = ({
                             {project.title}
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{project.title}</p> {/* Full title on hover */}
+                        <TooltipContent
+                          className="bg-white z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md" // Added styling
+                        >
+                          <p>{project.title}</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -83,7 +86,9 @@ export const ProjectCard = ({
                               </div>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>{user?.name}</p>
+                              <p className="bg-white z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md">
+                                {user?.name}
+                              </p>
                             </TooltipContent>
                           </Tooltip>
                         ))}
@@ -99,12 +104,12 @@ export const ProjectCard = ({
                               </span>
                             </div>
                           </TooltipTrigger>
-                          <TooltipContent>
-                            <div className=" flex flex-col flex-wrap items-start">
+                          <TooltipContent className="z-50 overflow-hidden rounded-md border bg-white px-3 py-2 shadow-md">
+                            <div className="flex flex-col flex-wrap items-start gap-1">
                               {project.owner?.map((own) => (
                                 <span
                                   key={own?.id}
-                                  className="text-xs font-medium font-BaiJamjuree  bg-white  text-brown">
+                                  className="text-xs font-medium font-BaiJamjuree text-black">
                                   {own?.name}
                                 </span>
                               ))}
@@ -129,7 +134,9 @@ export const ProjectCard = ({
                               </div>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>{user?.name}</p>
+                              <p className="bg-white z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md">
+                                {user?.name}
+                              </p>
                             </TooltipContent>
                           </Tooltip>
                         ))}
@@ -145,12 +152,12 @@ export const ProjectCard = ({
                               </span>
                             </div>
                           </TooltipTrigger>
-                          <TooltipContent>
-                            <div className=" flex flex-col flex-wrap items-start">
+                          <TooltipContent className="z-50 overflow-hidden rounded-md border bg-white px-3 py-2 shadow-md">
+                            <div className="flex flex-col flex-wrap items-start gap-1">
                               {project.members?.map((mem) => (
                                 <span
                                   key={mem?.id}
-                                  className="text-xs font-medium font-BaiJamjuree  bg-white  text-brown">
+                                  className="text-xs font-medium font-BaiJamjuree text-black">
                                   {mem?.name}
                                 </span>
                               ))}
@@ -167,7 +174,7 @@ export const ProjectCard = ({
                     </div>
 
                     {/* <img src="/asset/icon/budget-black.svg" alt="Budget Icon " /> */}
-                    <div className="font-BaiJamjuree text-[14px] font-medium flex text-center ml-1">
+                    <div className="font-BaiJamjuree text-[14px] font-medium flex text-center ml-3">
                       {project.budget.toLocaleString()}
                     </div>
                   </div>
@@ -177,7 +184,7 @@ export const ProjectCard = ({
                     </div>
 
                     {/* <img src="/asset/icon/budget-red.svg" alt="Budget Icon " /> */}
-                    <div className="font-BaiJamjuree text-[14px] font-medium flex text-center ml-1 text-[#EF4444]">
+                    <div className="font-BaiJamjuree text-[14px] font-medium flex text-center ml-3 text-[#EF4444]">
                       {project.expense.toLocaleString()}
                     </div>
                   </div>
@@ -186,7 +193,7 @@ export const ProjectCard = ({
                       ฿
                     </div>
                     {/* <img src="/asset/icon/budget-green.svg" alt="Budget Icon " /> */}
-                    <div className="font-BaiJamjuree text-[14px] font-medium flex text-center ml-1 text-[#69BCA0]">
+                    <div className="font-BaiJamjuree text-[14px] font-medium flex text-center ml-3 text-[#69BCA0]">
                       {project.advance.toLocaleString()}
                     </div>
                   </div>
@@ -211,31 +218,31 @@ export const ProjectCard = ({
                           if (!aIsApprove && bIsApprove) return 1;
                           return 0;
                         })
-                        .slice(0, 4) // Keep the slice after sorting
+                        .slice(0, 5) // Keep the slice after sorting
                         .map((tag) => (
                           <Badge
                             key={tag?.id}
                             variant="destructive"
                             className={cn(
-                              'h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center mr-1 mt-1 mb-1',
+                              'h-[24px] min-w-fit px-[8px] py-[2px] flex items-center justify-center mr-1 mt-1 mb-1',
                               tag.name === 'Approved'
                                 ? 'bg-[#eefafd] border-blue text-blue'
                                 : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
                             )}>
-                            <span className="text-base font-medium font-BaiJamjuree">
+                            <span className="text-[12px] font-medium font-BaiJamjuree">
                               {tag?.name}
                             </span>
                           </Badge>
                         ))}
-                      {project.tags && project.tags.length > 4 && (
+                      {project.tags && project.tags.length > 5 && (
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger>
                               <Badge
                                 variant="destructive"
-                                className="h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mt-1 mb-1">
-                                <div className="text-base font-medium font-BaiJamjuree">
-                                  +{project.tags.length - 4}
+                                className="h-[24px] min-w-fit px-[8px] py-[2px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mt-1 mb-1">
+                                <div className="text-[12px] font-medium font-BaiJamjuree">
+                                  +{project.tags.length - 5}
                                 </div>
                               </Badge>
                             </TooltipTrigger>
@@ -249,7 +256,7 @@ export const ProjectCard = ({
                                     if (!aIsApprove && bIsApprove) return 1;
                                     return 0;
                                   })
-                                  .slice(4) // Show only the overflow tags in tooltip
+                                  .slice(5) // Show only the overflow tags in tooltip
                                   .map((tag) => (
                                     <Badge
                                       key={tag?.id}
