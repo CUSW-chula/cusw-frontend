@@ -143,18 +143,26 @@ export const useExportTask = () => {
       const cookie = getCookie('auth');
       const auth = cookie?.toString() ?? '';
       const filterTasksByIds = (tasks: TaskProps[], ids: Set<string>): TaskProps[] => {
-        const result: TaskProps[] = [];
+        const taskMap = new Map<string, TaskProps>();
 
         const traverse = (task: TaskProps) => {
-          if (ids.has(task.id)) {
-            result.push(task);
-          }
+          taskMap.set(task.id, task);
           task.subtasks?.forEach(traverse);
         };
 
         tasks.forEach(traverse);
+
+        const result: TaskProps[] = [];
+        for (const id of ids) {
+          const task = taskMap.get(id);
+          if (task) {
+            result.push(task);
+          }
+        }
+
         return result;
       };
+
       const buildTaskTree = (tasks: TaskProps[]): TaskProps[] => {
         const taskMap = new Map<string, TaskProps>();
         const rootTasks: TaskProps[] = [];
