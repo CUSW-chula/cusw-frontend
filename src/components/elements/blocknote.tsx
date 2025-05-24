@@ -80,9 +80,9 @@ function EditorWithName({
   userName,
   description,
 }: { userName: string; description: { id: string; description: string } }) {
-  const [Description, setDescription] = useState<string>('');
+  const [Description, setDescription] = useState('');
   const task_id = description.id;
-
+  const [originalDescription, setOriginalDescription] = useState<string>(description.description);
   useEffect(() => {
     const replaceBlocks = async () => {
       const blocks = await editor.tryParseHTMLToBlocks(description.description);
@@ -94,7 +94,7 @@ function EditorWithName({
   }, [description.description]);
 
   useEffect(() => {
-    if (!Description) return;
+    if (!Description || originalDescription === Description) return;
     const timer = setTimeout(async () => {
       const taskId = task_id;
       const url = `${BASE_URL}/v2/tasks/${taskId}`;
@@ -108,6 +108,7 @@ function EditorWithName({
 
       try {
         const response = await fetch(url, options);
+        setOriginalDescription(Description);
         if (!response.ok) {
           const errorMessage = await response.text();
           toast({
@@ -122,7 +123,7 @@ function EditorWithName({
       } catch (error) {
         console.error('Error updating Description:', error);
       }
-    }, 5000);
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, [Description, task_id]);
