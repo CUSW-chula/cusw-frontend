@@ -55,15 +55,7 @@ export function StatusButton({ task }: { task: TaskProps }) {
         });
         if (!response.ok) {
           const errorMessage = await response.text();
-          toast({
-            title: `🚨 Error ${response.status}: ${response.statusText}`,
-            description: `
-        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-        
-        🗂️ file: project-owner.tsx
-            `,
-            variant: 'default',
-          });
+
           return;
         }
         const data = await response.json();
@@ -157,11 +149,6 @@ export function StatusButton({ task }: { task: TaskProps }) {
         });
       } else {
         const errorMessage = await response.text();
-        toast({
-          title: `🚨 Error ${response.status}: ${response.statusText}`,
-          description: `🔥 error: ${errorMessage || 'An unexpected error occurred.'}🗂️ file: status-button.tsx`,
-          variant: 'default',
-        });
       }
     } catch (error) {
       console.error(error);

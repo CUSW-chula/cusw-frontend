@@ -44,15 +44,6 @@ export const ProjectList = () => {
 
       if (!response.ok) {
         const errorMessage = await response.text();
-        toast({
-          title: `🚨 Error ${response.status}: ${response.statusText}`,
-          description: `
-      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-      
-      🗂️ file: projectList.tsx
-          `,
-          variant: 'default',
-        });
       }
 
       const data = await response.json();
@@ -169,15 +160,6 @@ export const ProjectList = () => {
     });
     if (!response.ok) {
       const errorMessage = await response.text();
-      toast({
-        title: `🚨 Error ${response.status}: ${response.statusText}`,
-        description: `
-    🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-    
-    🗂️ file: projectList.tsx
-        `,
-        variant: 'default',
-      });
     }
 
     // 🔄 รีเซ็ตค่า UI กลับถ้า API ล้มเหลว

@@ -33,15 +33,6 @@ export function ProjectOwner({ task }: { task: TaskProps }) {
         });
         if (!response.ok) {
           const errorMessage = await response.text();
-          toast({
-            title: `🚨 Error ${response.status}: ${response.statusText}`,
-            description: `
-        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-        
-        🗂️ file: project-owner.tsx
-            `,
-            variant: 'default',
-          });
         }
         const data = await response.json();
         setOwner(data.owner);

@@ -142,15 +142,6 @@ function CommentBox({
       });
       if (!response.ok) {
         const errorMessage = await response.text();
-        toast({
-          title: `🚨 Error ${response.status}: ${response.statusText}`,
-          description: `
-      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-      
-      🗂️ file: comment.tsx
-          `,
-          variant: 'default',
-        });
       }
     } catch (error) {
       console.error('Failed to delete comment:', error);
@@ -166,15 +157,6 @@ function CommentBox({
       });
       if (!response.ok) {
         const errorMessage = await response.text();
-        toast({
-          title: `🚨 Error ${response.status}: ${response.statusText}`,
-          description: `
-      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-      
-      🗂️ file: comment.tsx
-          `,
-          variant: 'default',
-        });
       }
       setIsEditing(false);
     } catch (error) {
@@ -323,15 +305,6 @@ const Comment = ({ task }: { task: TaskProps }) => {
       });
       if (!commentData.ok) {
         const errorMessage = await commentData.text();
-        toast({
-          title: `🚨 Error ${commentData.status}: ${commentData.statusText}`,
-          description: `
-      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-      
-      🗂️ file: comment.tsx
-          `,
-          variant: 'default',
-        });
       }
       const commentList = await commentData.json();
       setList(parseJsonValues(commentList));
@@ -401,15 +374,6 @@ const Comment = ({ task }: { task: TaskProps }) => {
     });
     if (!response.ok) {
       const errorMessage = await response.text();
-      toast({
-        title: `🚨 Error ${response.status}: ${response.statusText}`,
-        description: `
-    🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-    
-    🗂️ file: comment.tsx
-        `,
-        variant: 'default',
-      });
     }
     setComment('');
   };

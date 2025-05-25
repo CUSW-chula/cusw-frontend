@@ -41,11 +41,7 @@ const DeleteTemplate: React.FC<ManageProps> = ({ template }) => {
 
       if (!response.ok) {
         const errorMessage = await response.text();
-        toast({
-          title: `🚨 Error ${response.status}`,
-          description: errorMessage || 'Failed to delete template',
-          variant: 'destructive',
-        });
+
         return;
       }
 

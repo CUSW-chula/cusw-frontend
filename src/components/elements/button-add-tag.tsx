@@ -52,15 +52,6 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
         if (!response.ok) {
           const errorMessage = await response.text();
           // throw new Error("Failed to assign tag");
-          toast({
-            title: `🚨 Error ${response.status}: ${response.statusText}`,
-            description: `
-        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-        
-        🗂️ file: button-add-tag.tsx
-            `,
-            variant: 'default',
-          });
         }
         const data: Tag[] = await response.json();
         setStatuses(data.filter((tag) => !tag.isProject));
@@ -151,15 +142,6 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
       if (!response.ok) {
         const errorMessage = await response.text();
         // throw new Error("Failed to assign tag");
-        toast({
-          title: `🚨 Error ${response.status}: ${response.statusText}`,
-          description: `
-      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-      
-      🗂️ file: button-add-tag.tsx
-          `,
-          variant: 'default',
-        });
       }
       // Update local state to remove the deleted tag
       setSelectedTags((prev) => prev.filter((tag) => tag.id !== value));

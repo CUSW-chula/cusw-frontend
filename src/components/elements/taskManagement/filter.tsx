@@ -30,15 +30,6 @@ export const Filter = ({ tasks, setShowTasks }: FilterProps) => {
         const response = await fetch(url, options);
         if (!response.ok) {
           const errorMessage = await response.text();
-          toast({
-            title: '🚨 Error $response.status: $response.statusText',
-            description: `
-        🔥 error: ${errorMessage} || 'An unexpected error occurred.'
-        
-        🗂️ file: taskmanager.tsx
-            `,
-            variant: 'default',
-          });
         }
         const data = (await response.json()) as TagProps[];
         setAllTags(data.filter((tag) => tag.isProject === false));

@@ -45,15 +45,7 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
       const response = await fetch(url, options);
       if (!response.ok) {
         const errorMessage = await response.text();
-        toast({
-          title: `🚨 Error ${response.status}: ${response.statusText}`,
-          description: `
-            🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-            
-            🗂️ file: projectdetail.tsx
-          `,
-          variant: 'default',
-        });
+
         return; // Exit early if there's an error
       }
       // Success: Redirect without parsing the response

@@ -23,15 +23,6 @@ const BackButton = ({ task }: { task: TaskProps }) => {
       if (!response.ok) {
         const errorMessage = await response.text();
         // throw new Error("Failed to assign tag");
-        toast({
-          title: `🚨 Error ${response.status}: ${response.statusText}`,
-          description: `
-      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-      
-      🗂️ file: backButton.tsx
-          `,
-          variant: 'default',
-        });
       }
 
       if (!response.headers.get('content-type')?.includes('application/json')) {
