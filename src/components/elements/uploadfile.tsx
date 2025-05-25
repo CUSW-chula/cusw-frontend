@@ -52,7 +52,7 @@ const FileUploader = ({ handleFile }: { handleFile: (file: File) => void }) => {
         variant="outline"
         onClick={handleClick}>
         <UploadCloud className="text-brown" />
-        <p className="text-brown">Upload</p>
+        <span className="text-brown text-sm">Upload</span>
       </Button>
       <input
         type="file"

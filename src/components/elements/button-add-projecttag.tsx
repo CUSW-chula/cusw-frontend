@@ -241,10 +241,9 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
 
   return (
     <>
-      <div className="">
-        <div className="flex flex-row flex-wrap items-center overflow-hidden">
-          {Array.isArray(selectedTags) && selectedTags.length > 0 ? (
-            selectedTags.map((tag) => {
+      <div className="flex flex-row max-w-[212px] flex-wrap items-center justify-start overflow-hidden gap-x-1.5">
+        {Array.isArray(selectedTags) && selectedTags.length > 0
+          ? selectedTags.map((tag) => {
               // Only show Accept tags to Head/Admin users
               if (tag.name === 'Approved' && !isHead && !isadmin) return null;
 
@@ -253,7 +252,7 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
                   key={tag.id}
                   variant="destructive"
                   className={cn(
-                    'h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center border-x border-y mr-1 mt-1 mb-1',
+                    'h-6 min-w-fit flex items-center my-1 justify-center bg-[#EEFDF7] border border-green text-green',
                     tag.name === 'Approved'
                       ? 'bg-[#eefafd] border-blue text-blue'
                       : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
@@ -270,49 +269,46 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
                 </Badge>
               );
             })
-          ) : (
-            <div />
-          )}
+          : undefined}
 
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild className="border-brown text-brown">
-              <Button variant="outline" className="h-8 px-2">
-                <p className="p-ui text-sm">Add tag</p>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="p-0" side="right" align="start">
-              <Command>
-                <CommandInput placeholder="Add tag ..." />
-                <CommandList>
-                  <CommandEmpty>No results found.</CommandEmpty>
-                  <CommandGroup>
-                    {statuses.map((status) => {
-                      // Hide Accept/Rework from non-Head users
-                      if (['Approved'].includes(status.name) && !isHead && !isadmin) return null;
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild className="border-brown text-brown">
+            <Button variant="outline" className="h-8 px-2">
+              <p className="p-ui text-sm">Add tag</p>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="p-0" side="right" align="start">
+            <Command>
+              <CommandInput placeholder="Add tag ..." />
+              <CommandList>
+                <CommandEmpty>No results found.</CommandEmpty>
+                <CommandGroup>
+                  {statuses.map((status) => {
+                    // Hide Accept/Rework from non-Head users
+                    if (['Approved'].includes(status.name) && !isHead && !isadmin) return null;
 
-                      return (
-                        <CommandItem key={status.id} value={status.name} onSelect={handleSelectTag}>
-                          <Circle
-                            className={cn(
-                              'mr-2 h-4 w-4',
-                              status.name === 'Approved'
-                                ? 'fill-blue text-blue'
-                                : 'fill-greenLight text-greenLight',
-                              selectedTags.some((tag) => tag.id === status.id)
-                                ? 'opacity-100'
-                                : 'opacity-40',
-                            )}
-                          />
-                          <span>{status.name}</span>
-                        </CommandItem>
-                      );
-                    })}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-        </div>
+                    return (
+                      <CommandItem key={status.id} value={status.name} onSelect={handleSelectTag}>
+                        <Circle
+                          className={cn(
+                            'mr-2 h-4 w-4',
+                            status.name === 'Approved'
+                              ? 'fill-blue text-blue'
+                              : 'fill-greenLight text-greenLight',
+                            selectedTags.some((tag) => tag.id === status.id)
+                              ? 'opacity-100'
+                              : 'opacity-40',
+                          )}
+                        />
+                        <span>{status.name}</span>
+                      </CommandItem>
+                    );
+                  })}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
       </div>
     </>
   );

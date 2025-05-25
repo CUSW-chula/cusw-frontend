@@ -149,11 +149,11 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
   return (
     <div className={cn('grid gap-2')}>
       <Popover>
-        <PopoverTrigger asChild className="border-brown text-brown">
+        <PopoverTrigger asChild className="border-brown h-8 px-2">
           <Button
             id="date"
             variant={'outline'}
-            className={`justify-start text-left p-ui text-sm h-8 px-2' ${date && 'text-muted-foreground'}`}>
+            className={`font-BaiJamjuree text-sm text-brown' ${date && 'text-muted-foreground'}`}>
             {date?.from ? (
               date.to ? (
                 <>{formattedDate}</>
@@ -162,12 +162,12 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
               )
             ) : (
               <>
-                <span className="text-brown p-ui">{formattedDate}</span>
+                <span className="text-brown text-sm font-BaiJamjuree">{formattedDate}</span>
               </>
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0 z -1 p-ui" align="start">
+        <PopoverContent className="w-auto p-0 z-1 p-ui" align="start">
           <Calendar
             initialFocus
             mode="range"
@@ -305,11 +305,11 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
   return (
     <div className={cn('grid gap-2')}>
       <Popover>
-        <PopoverTrigger asChild className="border-brown text-brown">
+        <PopoverTrigger asChild className="border-brown h-8 px-2">
           <Button
             id="date"
             variant={'outline'}
-            className={`justify-start text-left p-ui h-8 px-2 ${!date && 'text-muted-foreground'}`}>
+            className={`font-BaiJamjuree text-sm text-brown ${!date && 'text-muted-foreground'}`}>
             {date?.from ? (
               date.to ? (
                 <>{formattedDate}</>
@@ -323,7 +323,7 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0 z -1 p-ui" align="start">
+        <PopoverContent className="w-auto p-0 z-1 p-ui" align="start">
           <Calendar
             initialFocus
             mode="range"

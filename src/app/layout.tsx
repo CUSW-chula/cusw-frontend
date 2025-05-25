@@ -10,14 +10,14 @@ import { useMemo } from 'react';
 
 const bai_jamjuree = Bai_Jamjuree({
   subsets: ['latin'],
-  weight: ['400', '700'],
+  weight: ['200', '300', '400', '500', '600', '700'],
   variable: '--font-bai_jamjuree',
   display: 'swap',
 });
 
 const anuphan = Anuphan({
   subsets: ['latin'],
-  weight: ['400', '700'],
+  weight: ['200', '300', '400', '500', '600', '700'],
   variable: '--font-anuphan',
   display: 'swap',
 });

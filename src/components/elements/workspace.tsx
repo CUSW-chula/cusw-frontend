@@ -157,7 +157,7 @@ const Workspace = ({ workspace }: Workspace) => {
     description: workspace.description,
   };
   return (
-    <div className="relative">
+    <div className="relative w-full">
       <label
         htmlFor="require part"
         className="text-red font-semibold text-2xl absolute left-[134px]">

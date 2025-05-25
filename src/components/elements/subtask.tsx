@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { type Block, BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
@@ -56,7 +56,7 @@ const Subtask = ({ task }: { task: TaskProps }) => {
 
   return (
     <div>
-      <div className="flex items-center py-1">
+      <div className="flex items-center py-1 w-full justify-between">
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -71,19 +71,18 @@ const Subtask = ({ task }: { task: TaskProps }) => {
           </button>
           <span className="text-gray-700 font-medium">Subtask</span>
         </div>
-        <div className="flex-grow" />
-        <div className="relative">
+        <div className="flex gap-2">
           <Sort showTasks={subtasks} setShowTasks={setSubtasks} />
+          <Button
+            variant="outline"
+            className="flex items-center text-brown border-brown font-BaiJamjuree text-sm rounded-md gap-1"
+            onClick={() => {
+              setIsSubtaskSectionVisible(!isSubtaskSectionVisible);
+              // handleCreateSubtask();
+            }}>
+            <Plus /> New subtask
+          </Button>
         </div>
-        <Button
-          variant="outline"
-          className="ml-3 flex items-center text-[#6b5c56] border-[#6b5c56] px-3 py-1 rounded-md"
-          onClick={() => {
-            setIsSubtaskSectionVisible(!isSubtaskSectionVisible);
-            // handleCreateSubtask();
-          }}>
-          + New subtask
-        </Button>
       </div>
 
       {/* Subtask creation section */}
