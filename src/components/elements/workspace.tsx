@@ -34,7 +34,9 @@ const Workspace = ({ workspace }: Workspace) => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const task_id = workspace.id;
+  const [originTitle, setOriginalTitle] = useState('');
   useEffect(() => {
+    setOriginalTitle(workspace.title);
     setTitle(workspace.title);
   }, [workspace.title]);
 
@@ -120,7 +122,7 @@ const Workspace = ({ workspace }: Workspace) => {
   }, [pareJsonValue, pareJsonValues, task_id, auth]);
 
   useEffect(() => {
-    if (!Title || !Title.trim()) return;
+    if (!Title || !Title.trim() || originTitle === Title) return;
     const timer = setTimeout(async () => {
       const taskId = task_id;
       const url = `${BASE_URL}/v2/tasks/${taskId}`;
@@ -134,6 +136,7 @@ const Workspace = ({ workspace }: Workspace) => {
 
       try {
         const response = await fetch(url, options);
+        setOriginalTitle(Title);
         if (!response.ok) {
           const errorDetails = await response.text();
           throw new Error(
@@ -144,9 +147,8 @@ const Workspace = ({ workspace }: Workspace) => {
       } catch (error) {
         console.error('Error updating Title:', error);
       }
-    }, 5000); // 5-second delay
+    }, 1000);
 
-    // Cleanup the timer if Description or task_id changes
     return () => clearTimeout(timer);
   }, [Title, task_id, auth]);
 
