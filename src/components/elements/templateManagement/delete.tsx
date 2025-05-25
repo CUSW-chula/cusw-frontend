@@ -29,7 +29,7 @@ const DeleteTemplate: React.FC<ManageProps> = ({ template }) => {
     if (!template) return;
 
     try {
-      const response = await fetch(`${BASE_URL}/v2/template`, {
+      const response = await fetch(`${BASE_URL}/v2/template/`, {
         // ลบ / ท้าย URL
         method: 'DELETE',
         headers: {
