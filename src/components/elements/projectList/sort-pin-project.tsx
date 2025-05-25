@@ -66,6 +66,27 @@ interface SortProps {
   starredProjects: Record<string, boolean>;
   setStarredProjects: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
 }
+export const SortDefault = ({
+  query,
+  setQuery,
+  starredProjects,
+  setStarredProjects,
+}: SortProps) => {
+  const { sortByStarredProjects } = UsePinned(starredProjects, setStarredProjects);
+
+  const sortDefault = async (projects: Project[], inOrder: boolean) => {
+    const sorted = [...projects].sort((project1, project2) => {
+      if (project1.updatedAt === null) return 1;
+      if (project2.updatedAt === null) return -1;
+      return inOrder
+        ? new Date(project1.updatedAt).getTime() - new Date(project2.updatedAt).getTime()
+        : new Date(project2.updatedAt).getTime() - new Date(project1.updatedAt).getTime();
+    });
+    setQuery(sortByStarredProjects(sorted));
+  };
+
+  return { sortDefault }; // ส่งคืนฟังก์ชัน sortDefault
+};
 export const SortProject = ({
   query,
   setQuery,
