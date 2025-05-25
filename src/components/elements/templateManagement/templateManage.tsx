@@ -23,7 +23,7 @@ const TemplateManage = () => {
   useEffect(() => {
     const fetchTemplate = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/v2/template`, {
+        const response = await fetch(`${BASE_URL}/v2/template/`, {
           headers: { Authorization: auth },
         });
 

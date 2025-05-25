@@ -9,7 +9,7 @@ export const createProject = async (inputs: FormInput, BASE_URL: string) => {
     endDate: null,
   };
 
-  return await fetchData(`${BASE_URL}/v2/projects`, 'POST', projectPayload, 'Create Project Fail');
+  return await fetchData(`${BASE_URL}/v2/projects/`, 'POST', projectPayload, 'Create Project Fail');
 };
 
 export const getProjectOwner = async (userId: string, BASE_URL: string) => {

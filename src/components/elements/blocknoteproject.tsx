@@ -44,6 +44,7 @@ function getRandomLightColor(): string {
 function Document({ project_id }: ProjectOverviewProps) {
   const [Description, setDescription] = useState<string>('');
   const [canEdit, setCanEdit] = useState<boolean>(true);
+  const [originalDescription, setOriginalDescription] = useState<string>('');
 
   useEffect(() => {
     const fetchDescription = async () => {
@@ -62,6 +63,7 @@ function Document({ project_id }: ProjectOverviewProps) {
         }
         const data = await response.json();
         setDescription(data.description);
+        setOriginalDescription(data.description);
         const blocks = await editor.tryParseHTMLToBlocks(data.description);
         editor.replaceBlocks(editor.document, blocks);
       } catch (error) {
@@ -72,7 +74,7 @@ function Document({ project_id }: ProjectOverviewProps) {
   }, [project_id]);
 
   useEffect(() => {
-    if (!Description || !canEdit) return;
+    if (!Description || !canEdit || originalDescription === Description) return;
     const timer = setTimeout(async () => {
       try {
         const response = await fetch(`${BASE_URL}/v2/projects/${project_id}`, {
@@ -80,7 +82,7 @@ function Document({ project_id }: ProjectOverviewProps) {
           headers: { 'Content-Type': 'application/json', Authorization: auth },
           body: JSON.stringify({ description: Description }),
         });
-
+        setOriginalDescription(Description);
         if (response.status === 403) {
           setCanEdit(false);
         } else if (!response.ok) {
@@ -94,7 +96,7 @@ function Document({ project_id }: ProjectOverviewProps) {
       } catch (error) {
         console.error('Error updating description:', error);
       }
-    }, 5000);
+    }, 1000);
     return () => clearTimeout(timer);
   }, [Description, project_id, canEdit]);
 

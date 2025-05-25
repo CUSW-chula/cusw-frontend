@@ -16,7 +16,7 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [canEdit, setCanEdit] = useState<boolean>(true);
-
+  const [originTitle, setOriginalTitle] = useState('');
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const pareJsonValues = useCallback((values: any) => {
     interface Title {
@@ -50,6 +50,7 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
         }
         const data = await response.json();
         setTitle(data.title);
+        setOriginalTitle(data.title);
       } catch (error) {
         console.error('Error fetching Title:', error);
       }
@@ -59,40 +60,44 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
   }, [project_id, auth]);
 
   useEffect(() => {
-    if (!Title || !Title.trim()) return;
-    const updateTitle = async () => {
-      const url = `${BASE_URL}/v2/projects/${project_id}`;
-      const options = {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: JSON.stringify({
-          title: Title,
-        }),
-      };
+    if (!Title || !Title.trim() || originTitle === Title) return;
+    const timer = setTimeout(async () => {
+      const updateTitle = async () => {
+        const url = `${BASE_URL}/v2/projects/${project_id}`;
+        const options = {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', Authorization: auth },
+          body: JSON.stringify({
+            title: Title,
+          }),
+        };
 
-      try {
-        const response = await fetch(url, options);
-        if (response.status === 403) {
-          setCanEdit(false);
-        } else if (!response.ok) {
-          const errorMessage = await response.text();
-          toast({
-            title: `🚨 Error ${response.status}: ${response.statusText}`,
-            description: `
+        try {
+          const response = await fetch(url, options);
+          if (response.status === 403) {
+            setCanEdit(false);
+          } else if (!response.ok) {
+            const errorMessage = await response.text();
+            toast({
+              title: `🚨 Error ${response.status}: ${response.statusText}`,
+              description: `
         🔥 error: ${errorMessage || 'An unexpected error occurred.'}
         
         🗂️ file: project-workspace.tsx
             `,
-            variant: 'default',
-          });
+              variant: 'default',
+            });
+          }
+          const data = await response.json();
+          setOriginalTitle(Title);
+        } catch (error) {
+          console.error('Error updating Title:', error);
         }
-        const data = await response.json();
-      } catch (error) {
-        console.error('Error updating Title:', error);
-      }
-    };
+      };
 
-    updateTitle();
+      updateTitle();
+    }, 1000);
+    return () => clearTimeout(timer);
   }, [Title, project_id, auth]);
   return (
     <div className="relative">
