@@ -15,7 +15,7 @@ const Table = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const response = await fetch(`${BASE_URL}/v2/users`, {
+      const response = await fetch(`${BASE_URL}/v2/users/`, {
         headers: { Authorization: auth },
       });
 
