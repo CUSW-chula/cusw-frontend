@@ -18,7 +18,7 @@ export const Filter = ({ tasks, setShowTasks }: FilterProps) => {
   useEffect(() => {
     //get all tags of tasks from db
     const fetchTagData = async () => {
-      const url = `${BASE_URL}/v2/tags`;
+      const url = `${BASE_URL}/v2/tags/`;
       const options = {
         method: 'GET',
         headers: {

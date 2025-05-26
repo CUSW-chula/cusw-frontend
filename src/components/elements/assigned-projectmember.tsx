@@ -43,7 +43,7 @@ export function AssignedProjectMember({ project }: { project: Project }) {
 
     const fetchUsers = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/v2/users`, {
+        const response = await fetch(`${BASE_URL}/v2/users/`, {
           headers: { Authorization: auth },
         });
         if (!response.ok) {
