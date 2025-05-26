@@ -119,6 +119,7 @@ export const MyTaskManager = () => {
                   hiddenDate={false}
                   expandedIds={expandedIds}
                   onToggle={handleToggle}
+                  showActionsMenu={false}
                 />
               ))}
           </div>
