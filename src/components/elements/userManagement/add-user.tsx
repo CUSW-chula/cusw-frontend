@@ -13,7 +13,7 @@ const AddUser = () => {
 
   const addUser = async (email: string, userName: string) => {
     try {
-      const response = await fetch(`${BASE_URL}/v2/users`, {
+      const response = await fetch(`${BASE_URL}/v2/users/`, {
         method: 'POST',
         headers: {
           Authorization: auth,
