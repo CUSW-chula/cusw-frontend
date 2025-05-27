@@ -10,7 +10,7 @@ import {
   Searchbar,
   SortButton,
 } from '../control-bar';
-import { SortProject } from './sort-pin-project';
+import { SortProject, SortDefault } from './sort-pin-project';
 import { FilterProject } from './filterProject';
 import { ProjectCard } from './projectCard';
 import LoadingClient from '../loading-screen';
@@ -35,7 +35,14 @@ export const ProjectList = () => {
     starredProjects,
     setStarredProjects,
   });
+  const { sortDefault } = SortDefault({
+    query,
+    setQuery,
+    starredProjects,
+    setStarredProjects,
+  });
   // Effect hook to update project list when API data is fetched
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     const fetchAllProjects = async () => {
       setIsLoading(true); // เริ่มโหลด
@@ -54,8 +61,8 @@ export const ProjectList = () => {
         }
 
         const temp = parseJsonValues(data);
-        setProjectList(temp ?? []);
-        setQuery(temp ?? []);
+        setProjectList(temp);
+        setQuery(temp);
 
         const pinnedProjects = temp?.filter((item) => item?.isPinned) ?? [];
 
@@ -70,6 +77,7 @@ export const ProjectList = () => {
         );
 
         setStarredProjects(updatedStarredProjects);
+        await sortDefault(temp || [], false);
       } catch (error) {
         console.error('Fetch error:', error);
       } finally {
@@ -112,7 +120,7 @@ export const ProjectList = () => {
 };
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-const parseJsonValues = (values: any[]) => {
+const parseJsonValues = (values: any[]): Project[] => {
   return values.map((value) => ({
     id: value.id,
     title: value.title,
@@ -122,10 +130,11 @@ const parseJsonValues = (values: any[]) => {
     expense: value.expense,
     startDate: value.startDate,
     endDate: value.endDate,
-    createdById: value.cretedById,
+    createdById: value.createdById,
     owner: value.owner,
     members: value.members,
     tags: value.tags,
     isPinned: value.isPinned,
+    updatedAt: value.updatedAt,
   }));
 };

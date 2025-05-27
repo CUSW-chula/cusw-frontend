@@ -46,6 +46,7 @@ export type Project = {
   members: User[];
   tags: Tag[];
   isPinned: boolean;
+  updatedAt: Date | null;
 };
 
 export type Task = {
@@ -66,6 +67,7 @@ export type Task = {
   advance: number;
   subtasks: Task[];
   emojis: Emojis[];
+  updatedAt: Date | null;
 };
 
 export type Emojis = {
