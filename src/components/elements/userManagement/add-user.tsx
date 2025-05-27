@@ -22,15 +22,6 @@ const AddUser = () => {
         body: JSON.stringify({ name: userName, email }),
       });
 
-      if (!response.ok) {
-        const errorMessage = await response.text();
-        toast({
-          title: `🚨 Error ${response.status}: ${response.statusText}`,
-          description: `🔥 error: ${errorMessage || 'An unexpected error occurred.'}🗂️ file: add-user.tsx`,
-          variant: 'default',
-        });
-      }
-
       alert('User added successfully!');
       setShowPopover(false);
       setEmail('');
