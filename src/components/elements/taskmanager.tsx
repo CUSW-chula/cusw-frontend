@@ -80,19 +80,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     fetchData();
   }, [project_id]);
 
-  const ProjectController = () => (
-    <div className="flex items-center justify-between w-full mb-3">
-      <div className="flex items-center gap-4">
-        <Filter tasks={tasks} setShowTasks={setShowTasks} />
-        <ExportDialog tasks={tasks} />
-      </div>
-      <div className="flex items-center gap-4">
-        <Sort showTasks={showTasks} setShowTasks={setShowTasks} />
-        <CreateTask project_id={project_id} />
-      </div>
-    </div>
-  );
-
   const statusToInt = (status: string): number => {
     const statusMap: { [key: string]: number } = {
       Unassigned: 1,
@@ -119,7 +106,16 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       <header className="h-9 text-black text-3xl font-semibold leading-9 mb-6">
         {projectName}
       </header>
-      <ProjectController />
+      <div className="flex items-center justify-between w-full mb-3">
+        <div className="flex items-center gap-4">
+          <Filter tasks={tasks} setShowTasks={setShowTasks} />
+          <ExportDialog tasks={tasks} />
+        </div>
+        <div className="flex items-center gap-4">
+          <Sort showTasks={showTasks} setShowTasks={setShowTasks} />
+          <CreateTask project_id={project_id} />
+        </div>
+      </div>
       {statusSections.map(({ status, displayName, icon }) => (
         <div key={status}>
           <div className="flex items-center gap-2 border-b border-gray-300 py-3">
