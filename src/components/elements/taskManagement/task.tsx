@@ -21,12 +21,14 @@ export const Task = ({
   hiddenDate,
   expandedIds,
   onToggle,
+  showActionsMenu = true,
 }: {
   item: TaskProps;
   depth?: number;
   hiddenDate: boolean;
   expandedIds: Set<string>;
   onToggle: (taskId: string) => void;
+  showActionsMenu?: boolean; // new optional prop
 }) => {
   const hasChildren = item.subtasks && item.subtasks.length > 0;
 
@@ -46,7 +48,7 @@ export const Task = ({
           <Money item={item} />
           <TaskDate item={item} hiddenDate={hiddenDate} />
           <Assigned item={item} />
-          <TaskActionsMenu task={item} />
+          {showActionsMenu && <TaskActionsMenu task={item} />}
         </div>
       </div>
 
@@ -60,6 +62,7 @@ export const Task = ({
               hiddenDate={hiddenDate}
               expandedIds={expandedIds}
               onToggle={onToggle}
+              showActionsMenu={showActionsMenu} // pass down the same value
             />
           ))}
         </div>

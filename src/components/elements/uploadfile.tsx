@@ -96,15 +96,6 @@ const Uploadfile = ({ task }: { task: TaskProps }) => {
       await response.json();
       if (!response.ok) {
         const errorMessage = await response.text();
-        toast({
-          title: `🚨 Error ${response.status}: ${response.statusText}`,
-          description: `
-      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-      
-      🗂️ file: uploadfile.tsx
-          `,
-          variant: 'default',
-        });
       }
     } catch (error) {
       console.error(error);
@@ -135,15 +126,6 @@ const handleDelete = async (taskId: string, id: string, auth: string) => {
     const response = await fetch(url, options);
     if (!response.ok) {
       const errorMessage = await response.text();
-      toast({
-        title: `🚨 Error ${response.status}: ${response.statusText}`,
-        description: `
-    🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-    
-    🗂️ file: uploadfile.tsx
-        `,
-        variant: 'default',
-      });
     }
     await response.json();
     // setFileList((prevFiles) => prevFiles.filter((file) => file.id !== id));

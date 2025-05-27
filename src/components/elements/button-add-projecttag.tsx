@@ -65,11 +65,6 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
 
         if (!response.ok) {
           const errorMessage = await response.text();
-          toast({
-            title: `🚨 Error ${response.status}: ${response.statusText}`,
-            description: `🔥 error: ${errorMessage || 'An unexpected error occurred.'}🗂️ file: nav-bar.tsx`,
-            variant: 'default',
-          });
         }
 
         const data = await response.json();
@@ -98,15 +93,6 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
         const response = await fetch(url, options);
         if (!response.ok) {
           const errorMessage = await response.text();
-          toast({
-            title: `🚨 Error ${response.status}: ${response.statusText}`,
-            description: `
-                  🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-                  
-                  🗂️ file: button-add-projecttag.tsx
-                      `,
-            variant: 'default',
-          });
         }
         const data: Tag[] = await response.json();
         setStatuses(data.filter((tag) => tag.isProject));
@@ -129,15 +115,6 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
         if (!response.ok) {
           const errorMessage = await response.text();
           // throw new Error("Failed to assign tag");
-          toast({
-            title: `🚨 Error ${response.status}: ${response.statusText}`,
-            description: `
-        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-        
-        🗂️ file: button-add-projecttag.tsx
-            `,
-            variant: 'default',
-          });
         }
         const data = await response.json();
         setSelectedTags(data.tags);
@@ -192,15 +169,6 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
         if (!response.ok) {
           const errorMessage = await response.text();
           // throw new Error("Failed to assign tag");
-          toast({
-            title: `🚨 Error ${response.status}: ${response.statusText}`,
-            description: `
-        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-        
-        🗂️ file: button-add-projecttag.tsx
-            `,
-            variant: 'default',
-          });
         }
         // After adding the tag, update the local state
       } catch (error) {
@@ -222,15 +190,6 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
       const response = await fetch(url, options);
       if (!response.ok) {
         const errorMessage = await response.text();
-        toast({
-          title: `🚨 Error ${response.status}: ${response.statusText}`,
-          description: `
-      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-      
-      🗂️ file: button-add-projecttag.tsx
-          `,
-          variant: 'default',
-        });
       }
       // Update local state to remove the deleted tag
       setSelectedTags((prev) => prev.filter((tag) => tag.id !== value));

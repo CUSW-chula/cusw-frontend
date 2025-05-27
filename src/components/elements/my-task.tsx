@@ -49,15 +49,7 @@ export const MyTaskManager = () => {
         });
         if (!response.ok) {
           const errorMessage = await response.text();
-          toast({
-            title: `🚨 Error ${response.status}: ${response.statusText}`,
-            description: `
-          🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-          
-          🗂️ file: my-task.tsx
-              `,
-            variant: 'default',
-          });
+
           return;
         }
         const data = await response.json();
@@ -119,6 +111,7 @@ export const MyTaskManager = () => {
                   hiddenDate={false}
                   expandedIds={expandedIds}
                   onToggle={handleToggle}
+                  showActionsMenu={false}
                 />
               ))}
           </div>

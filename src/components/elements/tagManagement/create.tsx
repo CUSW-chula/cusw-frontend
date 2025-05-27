@@ -32,7 +32,7 @@ const Create = () => {
 
   const addTag = async (name: string, isProject: boolean) => {
     try {
-      const response = await fetch(`${BASE_URL}/v2/tags`, {
+      const response = await fetch(`${BASE_URL}/v2/tags/`, {
         method: 'POST',
         headers: {
           Authorization: auth,
@@ -46,11 +46,6 @@ const Create = () => {
 
       if (!response.ok) {
         const errorMessage = await response.text();
-        toast({
-          title: `🚨 Error ${response.status}: ${response.statusText}`,
-          description: `🔥 error: ${errorMessage || 'An unexpected error occurred.'}🗂️ file: create.tsx`,
-          variant: 'default',
-        });
       }
       if (response.ok)
         toast({

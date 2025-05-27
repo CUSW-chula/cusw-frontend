@@ -22,11 +22,6 @@ const Table = () => {
 
       if (!response.ok) {
         const errorMessage = await response.text();
-        toast({
-          title: `🚨 Error ${response.status}: ${response.statusText}`,
-          description: `🔥 error: ${errorMessage || 'An unexpected error occurred.'}🗂️ file: user-table.tsx`,
-          variant: 'default',
-        });
       }
       const data = await response.json();
       console.log(data);

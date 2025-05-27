@@ -50,15 +50,6 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
         });
         if (!response.ok) {
           const errorMessage = await response.text();
-          toast({
-            title: `🚨 Error ${response.status}: ${response.statusText}`,
-            description: `
-                 🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-                 
-                 🗂️ file: assigned-projectowner.tsx
-                     `,
-            variant: 'default',
-          });
         }
         const data = await response.json();
         setUsersList(data);
@@ -120,15 +111,6 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
       });
       if (!response.ok) {
         const errorMessage = await response.text();
-        toast({
-          title: `🚨 Error ${response.status}: ${response.statusText}`,
-          description: `
-      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-      
-      🗂️ file: assigned-projectowner.tsx
-          `,
-          variant: 'default',
-        });
       } else {
         toast({
           title: '✅ Success',

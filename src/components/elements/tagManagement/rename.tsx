@@ -43,11 +43,6 @@ const Rename: React.FC<ManageProps> = ({ tag }) => {
       const response = await fetch(url, options);
       if (!response.ok) {
         const errorMessage = await response.text();
-        toast({
-          title: `🚨 Error ${response.status}: ${response.statusText}`,
-          description: `🔥 error: ${errorMessage || 'An unexpected error occurred.'}🗂️ file: manage.tsx`,
-          variant: 'default',
-        });
       } else if (response.ok) {
         toast({
           title: `🛠️ Edited tag name: ${tag.name}`,

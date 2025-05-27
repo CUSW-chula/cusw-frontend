@@ -18,7 +18,7 @@ export const Filter = ({ tasks, setShowTasks }: FilterProps) => {
   useEffect(() => {
     //get all tags of tasks from db
     const fetchTagData = async () => {
-      const url = `${BASE_URL}/v2/tags`;
+      const url = `${BASE_URL}/v2/tags/`;
       const options = {
         method: 'GET',
         headers: {
@@ -28,18 +28,6 @@ export const Filter = ({ tasks, setShowTasks }: FilterProps) => {
 
       try {
         const response = await fetch(url, options);
-        if (!response.ok) {
-          const errorMessage = await response.text();
-          toast({
-            title: '🚨 Error $response.status: $response.statusText',
-            description: `
-        🔥 error: ${errorMessage} || 'An unexpected error occurred.'
-        
-        🗂️ file: taskmanager.tsx
-            `,
-            variant: 'default',
-          });
-        }
         const data = (await response.json()) as TagProps[];
         setAllTags(data.filter((tag) => tag.isProject === false));
       } catch (error) {

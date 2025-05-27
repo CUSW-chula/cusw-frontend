@@ -41,57 +41,71 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     setExpandedIds(new Set(newIds));
   };
 
+const sortByPosition = (a: TaskProps, b: TaskProps): number => {
+  // Handle cases where position is missing
+  if (!a.position && !b.position) return 0;
+  if (!a.position) return 1; // push items without position to the end
+  if (!b.position) return -1; // push items without position to the end
+
+  // Split positions into arrays of numbers for comparison
+  const posA = a.position.split('.').map(Number);
+  const posB = b.position.split('.').map(Number);
+
+  // Compare each level of the position
+  for (let i = 0; i < Math.min(posA.length, posB.length); i++) {
+    // Handle NaN cases (if position contains non-numeric parts)
+    if (Number.isNaN(posA[i]) || Number.isNaN(posB[i])) {
+      // Compare as strings if not numbers
+      const strA = a.position.split('.')[i];
+      const strB = b.position.split('.')[i];
+      if (strA !== strB) return strA.localeCompare(strB);
+    } else if (posA[i] !== posB[i]) {
+      return posA[i] - posB[i];
+    }
+  }
+
+  // If one position is more specific than the other (e.g., "1" vs "1.1")
+  return posA.length - posB.length;
+};
+
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetch(`${BASE_URL}/v2/projects/${project_id}`, {
-          headers: {
-            Authorization: auth,
-          },
-        });
-        if (data.ok) {
-          const project = await data.json();
-          setProjectName(project.title);
-          const parsedData = parseJsonValues(project.tasks);
-          setTasks(parsedData);
-          parsedData.sort((task1, task2) => {
-            if (task1.startDate && task2.startDate) {
-              return new Date(task1.startDate).getTime() - new Date(task2.startDate).getTime();
-            }
-            return 1;
-          });
-          setShowTasks(parsedData);
-        } else {
-          const errorMessage = await data.text();
-          toast({
-            title: `🚨 Error ${data.status}: ${data.statusText}`,
-            description: `
-        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-        
-        🗂️ file: taskmanager.tsx
-            `,
-            variant: 'default',
-          });
+  const fetchData = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/v2/projects/${project_id}`, {
+        headers: {
+          Authorization: auth,
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const project = await response.json();
+      setProjectName(project.title);
+      
+      const parsedData = parseJsonValues(project.tasks);
+      
+      // Recursively sort tasks and their subtasks by position
+      const sortTasksRecursively = (tasks: TaskProps[]) => {
+        tasks.sort(sortByPosition);
+        for (const task of tasks) {
+          if (task.subtasks && task.subtasks.length > 0) {
+            sortTasksRecursively(task.subtasks);
+          }
         }
+      };
+      
+      sortTasksRecursively(parsedData);
+      setTasks(parsedData);
+      setShowTasks(parsedData);
       } catch (error) {
         console.error(error);
       }
     };
     fetchData();
   }, [project_id]);
-
-  const ProjectController = () => (
-    <div className="flex items-center justify-between w-full mb-3">
-      <div className="flex items-center gap-4">
-        <Filter tasks={tasks} setShowTasks={setShowTasks} />
-        <ExportDialog tasks={tasks} />
-      </div>
-      <div className="flex items-center gap-4">
-        <Sort showTasks={showTasks} setShowTasks={setShowTasks} />
-        <CreateTask project_id={project_id} />
-      </div>
-    </div>
-  );
 
   const statusToInt = (status: string): number => {
     const statusMap: { [key: string]: number } = {
@@ -119,7 +133,16 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       <header className="h-9 text-black text-3xl font-semibold leading-9 mb-6">
         {projectName}
       </header>
-      <ProjectController />
+      <div className="flex items-center justify-between w-full mb-3">
+        <div className="flex items-center gap-4">
+          <Filter tasks={tasks} setShowTasks={setShowTasks} />
+          <ExportDialog tasks={tasks} />
+        </div>
+        <div className="flex items-center gap-4">
+          <Sort showTasks={showTasks} setShowTasks={setShowTasks} />
+          <CreateTask project_id={project_id} />
+        </div>
+      </div>
       {statusSections.map(({ status, displayName, icon }) => (
         <div key={status} className="w-full">
           <div className="flex items-center gap-2 border-b border-gray-300 py-3">

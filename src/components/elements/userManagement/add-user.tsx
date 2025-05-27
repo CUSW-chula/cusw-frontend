@@ -13,7 +13,7 @@ const AddUser = () => {
 
   const addUser = async (email: string, userName: string) => {
     try {
-      const response = await fetch(`${BASE_URL}/v2/users`, {
+      const response = await fetch(`${BASE_URL}/v2/users/`, {
         method: 'POST',
         headers: {
           Authorization: auth,
@@ -21,15 +21,6 @@ const AddUser = () => {
         },
         body: JSON.stringify({ name: userName, email }),
       });
-
-      if (!response.ok) {
-        const errorMessage = await response.text();
-        toast({
-          title: `🚨 Error ${response.status}: ${response.statusText}`,
-          description: `🔥 error: ${errorMessage || 'An unexpected error occurred.'}🗂️ file: add-user.tsx`,
-          variant: 'default',
-        });
-      }
 
       alert('User added successfully!');
       setShowPopover(false);
