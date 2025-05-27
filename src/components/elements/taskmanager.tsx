@@ -41,41 +41,65 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     setExpandedIds(new Set(newIds));
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetch(`${BASE_URL}/v2/projects/${project_id}`, {
-          headers: {
-            Authorization: auth,
-          },
-        });
-        if (data.ok) {
-          const project = await data.json();
-          setProjectName(project.title);
-          const parsedData = parseJsonValues(project.tasks);
-          parsedData.sort((a, b) => {
-            // Split positions into arrays of numbers for comparison
-            const posA = a.position?.split('.').map(Number);
-            const posB = b.position?.split('.').map(Number);
-            if (!posA || !posB) {
-              // If either position is null or undefined, sort by task ID
-              return 0;
-            }
-            // Compare each level of the position
-            for (let i = 0; i < Math.min(posA.length, posB.length); i++) {
-              if (posA[i] !== posB[i]) {
-                return posA[i] - posB[i];
-              }
-            }
+const sortByPosition = (a: TaskProps, b: TaskProps): number => {
+  // Handle cases where position is missing
+  if (!a.position && !b.position) return 0;
+  if (!a.position) return 1; // push items without position to the end
+  if (!b.position) return -1; // push items without position to the end
 
-            // If one position is more specific than the other (e.g., "1" vs "1.1")
-            return posA.length - posB.length;
-          });
-          setTasks(parsedData);
-          setShowTasks(parsedData);
-        } else {
-          const errorMessage = await data.text();
+  // Split positions into arrays of numbers for comparison
+  const posA = a.position.split('.').map(Number);
+  const posB = b.position.split('.').map(Number);
+
+  // Compare each level of the position
+  for (let i = 0; i < Math.min(posA.length, posB.length); i++) {
+    // Handle NaN cases (if position contains non-numeric parts)
+    if (Number.isNaN(posA[i]) || Number.isNaN(posB[i])) {
+      // Compare as strings if not numbers
+      const strA = a.position.split('.')[i];
+      const strB = b.position.split('.')[i];
+      if (strA !== strB) return strA.localeCompare(strB);
+    } else if (posA[i] !== posB[i]) {
+      return posA[i] - posB[i];
+    }
+  }
+
+  // If one position is more specific than the other (e.g., "1" vs "1.1")
+  return posA.length - posB.length;
+};
+
+
+  useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/v2/projects/${project_id}`, {
+        headers: {
+          Authorization: auth,
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const project = await response.json();
+      setProjectName(project.title);
+      
+      const parsedData = parseJsonValues(project.tasks);
+      
+      // Recursively sort tasks and their subtasks by position
+      const sortTasksRecursively = (tasks: TaskProps[]) => {
+        tasks.sort(sortByPosition);
+        for (const task of tasks) {
+          if (task.subtasks && task.subtasks.length > 0) {
+            sortTasksRecursively(task.subtasks);
+          }
         }
+      };
+      
+      sortTasksRecursively(parsedData);
+      setTasks(parsedData);
+      setShowTasks(parsedData);
       } catch (error) {
         console.error(error);
       }
