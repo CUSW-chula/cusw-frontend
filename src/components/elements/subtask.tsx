@@ -55,7 +55,7 @@ const Subtask = ({ task }: { task: TaskProps }) => {
   const { audio, image, video, file, ...allowedBlockSpecs } = defaultBlockSpecs;
 
   return (
-    <div>
+    <>
       <div className="flex items-center py-1 w-full justify-between">
         <div className="flex items-center gap-2">
           <button
@@ -75,12 +75,13 @@ const Subtask = ({ task }: { task: TaskProps }) => {
           <Sort showTasks={subtasks} setShowTasks={setSubtasks} />
           <Button
             variant="outline"
-            className="flex items-center text-brown border-brown font-BaiJamjuree text-sm rounded-md gap-1"
+            className="border-brown font-BaiJamjuree text-sm rounded-md gap-1"
             onClick={() => {
               setIsSubtaskSectionVisible(!isSubtaskSectionVisible);
               // handleCreateSubtask();
             }}>
-            <Plus /> New subtask
+            <Plus className="text-brown" />
+            <span className="text-brown text-sm font-BaiJamjuree">New subtask</span>
           </Button>
         </div>
       </div>
@@ -90,7 +91,7 @@ const Subtask = ({ task }: { task: TaskProps }) => {
         <CreateSubtask task={task} setDialog={setIsSubtaskSectionVisible} />
       )}
       {isSubtaskVisible && (
-        <div className="w-full space-y-1">
+        <div className="flex flex-col space-y-1 w-full">
           {subtasks.map((item) => (
             <Task
               item={item}
@@ -102,7 +103,7 @@ const Subtask = ({ task }: { task: TaskProps }) => {
           ))}
         </div>
       )}
-    </div>
+    </>
   );
 };
 

@@ -48,11 +48,11 @@ const FileUploader = ({ handleFile }: { handleFile: (file: File) => void }) => {
   return (
     <div className="w-fit">
       <Button
-        className="bg-white border-brown rounded-[6px] border-[1px] gap-2 "
+        className="bg-white border-brown rounded-md border-[1px] gap-1"
         variant="outline"
         onClick={handleClick}>
         <UploadCloud className="text-brown" />
-        <span className="text-brown text-sm">Upload</span>
+        <span className="text-brown text-sm font-BaiJamjuree">Upload</span>
       </Button>
       <input
         type="file"

@@ -52,7 +52,7 @@ export default async function TasksManageMentPage({
   };
 
   return (
-    <div className="min-w-full flex-col items-start justify-center gap-8 px-20">
+    <div className="w-full flex-col items-start justify-center gap-8 px-20">
       {/* page nav */}
       <div className="flex flex-row py-4 items-center justify-between">
         <BreadcrumbComponent task={task} />
@@ -68,7 +68,7 @@ export default async function TasksManageMentPage({
             <Emoji task={task} />
             <Uploadfile task={task} />
           </div>
-          <div className="flex flex-col gap-4 mt-4">
+          <div className="w-full flex flex-col gap-4 mt-4">
             <Subtask task={task} />
             <ActivityLogs task={task} />
             <Comment task={task} />

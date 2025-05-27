@@ -121,7 +121,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       </header>
       <ProjectController />
       {statusSections.map(({ status, displayName, icon }) => (
-        <div key={status}>
+        <div key={status} className="w-full">
           <div className="flex items-center gap-2 border-b border-gray-300 py-3">
             <img src={icon} alt={`${status} Icon`} className="w-6 h-6" />
             <span className="text-black text-sm font-medium font-BaiJamjuree">{displayName}</span>
