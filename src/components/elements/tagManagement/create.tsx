@@ -32,7 +32,7 @@ const Create = () => {
 
   const addTag = async (name: string, isProject: boolean) => {
     try {
-      const response = await fetch(`${BASE_URL}/v2/tags`, {
+      const response = await fetch(`${BASE_URL}/v2/tags/`, {
         method: 'POST',
         headers: {
           Authorization: auth,
