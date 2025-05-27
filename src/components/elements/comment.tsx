@@ -140,9 +140,6 @@ function CommentBox({
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
       });
-      if (!response.ok) {
-        const errorMessage = await response.text();
-      }
     } catch (error) {
       console.error('Failed to delete comment:', error);
     }
