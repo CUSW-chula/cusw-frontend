@@ -53,13 +53,25 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           const project = await data.json();
           setProjectName(project.title);
           const parsedData = parseJsonValues(project.tasks);
-          setTasks(parsedData);
-          parsedData.sort((task1, task2) => {
-            if (task1.startDate && task2.startDate) {
-              return new Date(task1.startDate).getTime() - new Date(task2.startDate).getTime();
+          parsedData.sort((a, b) => {
+            // Split positions into arrays of numbers for comparison
+            const posA = a.position?.split('.').map(Number);
+            const posB = b.position?.split('.').map(Number);
+            if (!posA || !posB) {
+              // If either position is null or undefined, sort by task ID
+              return 0;
             }
-            return 1;
+            // Compare each level of the position
+            for (let i = 0; i < Math.min(posA.length, posB.length); i++) {
+              if (posA[i] !== posB[i]) {
+                return posA[i] - posB[i];
+              }
+            }
+
+            // If one position is more specific than the other (e.g., "1" vs "1.1")
+            return posA.length - posB.length;
           });
+          setTasks(parsedData);
           setShowTasks(parsedData);
         } else {
           const errorMessage = await data.text();
