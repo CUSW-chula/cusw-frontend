@@ -44,7 +44,7 @@ export const Task = ({
             onToggle={() => onToggle(item.id)}
           />
 
-          <div className="w-5/12 flex relative justify-end gap-8 items-center">
+          <div className="w-5/12 flex relative justify-end gap-2 items-center">
             <Tag item={item} />
             <div className="flex items-center gap-2">
               <Money item={item} />

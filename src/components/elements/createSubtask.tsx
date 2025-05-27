@@ -96,7 +96,7 @@ export const CreateSubtask = ({
   };
 
   return (
-    <div className="w-full p-6 bg-gray-50 rounded-md shadow border border-[#6b5c56] flex-col justify-start items-start gap-4 inline-flex">
+    <div className="w-full p-6 bg-white rounded-md shadow border border-[#6b5c56] flex-col justify-start items-start gap-4 inline-flex">
       <div className="min-h-30 w-full flex flex-col gap-2">
         <Input
           className="resize-none border-none w-full outline-none placeholder-black font-semibold text-3xl font-Anuphan leading-[48px]"

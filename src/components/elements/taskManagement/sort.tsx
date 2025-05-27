@@ -66,12 +66,12 @@ export const Sort = ({ showTasks, setShowTasks }: SortProps) => {
   };
   return (
     <Select onValueChange={(value) => handleSort(value)}>
-      <SelectTrigger className="w-40 border-brown">
-        <SelectValue className="text-brown" placeholder="Sort by: Start date" />
+      <SelectTrigger className="w-[172px] border-brown text-brown font-BaiJamjuree font-medium focus:outline-none focus:ring-0 focus:ring-offset-0">
+        <SelectValue placeholder="Sort by: Start date ↓" />
       </SelectTrigger>
       <SelectContent>
         {sortItem.map(({ value, label }) => (
-          <SelectItem key={value} value={value}>
+          <SelectItem key={value} value={value} className="text-brown font-BaiJamjuree">
             Sort by: {label}
           </SelectItem>
         ))}

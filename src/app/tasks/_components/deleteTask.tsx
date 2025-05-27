@@ -35,9 +35,9 @@ export const DeleteTask = ({ task }: { task: TaskProps }) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger>
-        <div className="h-9 w-40 px-2 py-1.5 bg-red-300 rounded-md border bg-white border-red justify-start items-start gap-[13px] inline-flex hover:bg-red group">
-          <Trash2 className="w-6 h-6 text-red group-hover:text-white" />
-          <div className="text-base font-semibold font-BaiJamjuree text-red group-hover:text-white">
+        <div className="w-fit h-fit py-1 px-2 bg-red-300 rounded-md border bg-white border-red justify-center items-center gap-2 inline-flex hover:bg-red group">
+          <Trash2 className="h-4 w-4 text-red group-hover:text-white" />
+          <div className="text-sm font-medium font-BaiJamjuree text-red group-hover:text-white">
             Delete task
           </div>
         </div>

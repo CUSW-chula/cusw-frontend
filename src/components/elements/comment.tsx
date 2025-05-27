@@ -402,20 +402,18 @@ const Comment = ({ task }: { task: TaskProps }) => {
           <div ref={commentsEndRef} /> {/* Empty div to anchor scroll to bottom */}
         </ul>
       </div>
-      <div className="text-black text-sm font-medium font-Bai Jamjuree leading-[14px]">
-        Your comment
-      </div>
+      <div className="text-black text-sm font-medium font-BaiJamjuree">Your comment</div>
       <div className="flex flex-col w-full h-[115px] border-[1px] border-[#6b5c56] rounded-lg p-[10px]">
         <form onSubmit={handleSubmit}>
           <textarea
-            className="w-full h-[50px] outline-none resize-none"
+            className="w-full h-[50px] outline-none resize-none font-BaiJamjuree text-brown"
             placeholder="Add your comment..."
             value={comment}
             maxLength={200}
             onChange={handleInputChange}
           />
           <div className="flex justify-between items-center mt-[10px]">
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-gray-500 font-BaiJamjuree">
               {comment.length} / {charLimit} characters
             </span>
             <button

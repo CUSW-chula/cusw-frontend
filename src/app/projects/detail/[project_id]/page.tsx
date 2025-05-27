@@ -22,7 +22,7 @@ export default async function Page({
   const project: Project = await response.json();
 
   return (
-    <div className="min-w-full min-h-screen flex flex-col lg:flex-row items-start justify-center mt-10 gap-8">
+    <div className="w-full flex flex-col lg:flex-row items-start justify-center">
       <ProjectDetail project={project} />
     </div>
   );

@@ -153,14 +153,13 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
 
   return (
     <>
-      <div className="">
-        <div className="flex flex-row flex-wrap items-center self-center overflow-hidden gap-0.5">
-          {Array.isArray(selectedTags) && selectedTags.length > 0 ? (
-            selectedTags.map((tag) => (
+      <div className="flex flex-row max-w-[212px] flex-wrap items-center justify-start overflow-hidden gap-x-1.5">
+        {Array.isArray(selectedTags) && selectedTags.length > 0
+          ? selectedTags.map((tag) => (
               <Badge
                 key={tag.id}
                 variant="destructive"
-                className="h-6 mr-1 mb-1 min-w-fit flex items-center justify-center self-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0]">
+                className="h-6 min-w-fit flex items-center my-1 justify-center bg-[#EEFDF7] border border-green text-green">
                 <span className="text-sm font-medium font-BaiJamjuree">{tag.name}</span>
                 <button
                   type="button"
@@ -177,42 +176,39 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
                 </button>
               </Badge>
             ))
-          ) : (
-            <div />
-          )}
+          : undefined}
 
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild className=" border-brown text-brown ">
-              <Button variant="outline" className="h-8 px-2">
-                <p className="p-ui text-sm">Add tag</p>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="p-0" side="right" align="start">
-              <Command>
-                <CommandInput placeholder="Add tag ..." />
-                <CommandList>
-                  <CommandEmpty>No results found.</CommandEmpty>
-                  <CommandGroup>
-                    {statuses.map((status) => (
-                      <CommandItem key={status.id} value={status.name} onSelect={handleSelectTag}>
-                        <Circle
-                          className={cn(
-                            'mr-2 h-4 w-4 fill-greenLight text-greenLight',
-                            Array.isArray(selectedTags) &&
-                              selectedTags.some((tag) => tag.id === status.id)
-                              ? 'opacity-100'
-                              : 'opacity-40',
-                          )}
-                        />
-                        <span>{status.name}</span>
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-        </div>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild className=" border-brown text-brown ">
+            <Button variant="outline" className="h-8 px-2">
+              <p className="p-ui text-sm">Add tag</p>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="p-0" side="right" align="start">
+            <Command>
+              <CommandInput placeholder="Add tag ..." />
+              <CommandList>
+                <CommandEmpty>No results found.</CommandEmpty>
+                <CommandGroup>
+                  {statuses.map((status) => (
+                    <CommandItem key={status.id} value={status.name} onSelect={handleSelectTag}>
+                      <Circle
+                        className={cn(
+                          'mr-2 h-4 w-4 fill-greenLight text-greenLight',
+                          Array.isArray(selectedTags) &&
+                            selectedTags.some((tag) => tag.id === status.id)
+                            ? 'opacity-100'
+                            : 'opacity-40',
+                        )}
+                      />
+                      <span>{status.name}</span>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
       </div>
     </>
   );

@@ -57,9 +57,9 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger>
-        <div className="h-9 w-45 px-2 py-1.5 bg-red-300 rounded-md border bg-white border-red justify-start items-start gap-[13px] inline-flex hover:bg-red group">
-          <Trash2 className="w-6 h-6 text-red group-hover:text-white" />
-          <div className="text-base font-semibold font-BaiJamjuree text-red group-hover:text-white">
+        <div className="w-fit h-fit py-1 px-2 bg-red-300 rounded-md border bg-white border-red justify-center items-center gap-2 inline-flex hover:bg-red group">
+          <Trash2 className="h-4 w-4 text-red group-hover:text-white" />
+          <div className="text-sm font-medium font-BaiJamjuree text-red group-hover:text-white">
             Delete project
           </div>
         </div>
@@ -90,7 +90,7 @@ const BackButton = () => {
     <Button
       variant="link"
       size="sm"
-      className="font-BaiJamjuree bg-white border-2 border-brown text-brown text-sm"
+      className="font-BaiJamjuree bg-white border-[1px] border-brown text-brown text-md"
       onClick={() => router.push('/projects')}>
       <Redo2 className="transform rotate-180 text-brown" /> Back
     </Button>
@@ -132,34 +132,31 @@ const SumExpense = ({ expense }: { expense: number }) => {
 
 const MenuBar = ({ project }: { project: Project }) => {
   return (
-    <div className="min-h-[350px] min-w-[395px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start gap-4 inline-flex">
+    <div className="w-[360px] p-[20px] bg-white rounded-md border border-[#6b5c56] flex-col justify-center items-start gap-2 inline-flex">
       <div aria-label="owner" className="h-10 justify-start items-center inline-flex">
         <div className="w-24 justify-start items-center gap-2 flex">
-          <CrownIcon className="w-[24px] h-[24px] text-black" />
-
-          <div className="text-[#6b5c56] text-xs font-medium leading-tight">Owner : </div>
+          <CrownIcon className="w-[24px] h-[24px] text-brown" />
+          <p className="text-[#6b5c56] text-xs font-medium leading-tight">Owner : </p>
         </div>
         {project && <AssignedProjectOwner project={project} />}
       </div>
       <div aria-label="member" className="h-10 justify-start items-center inline-flex">
         <div className="w-24 justify-start items-center gap-2 flex">
-          <Users className="w-[24px] h-[24px] text-black" />
-
-          <div className="text-[#6b5c56] text-xs font-medium leading-tight">Member : </div>
+          <Users className="w-[24px] h-[24px] text-brown" />
+          <p className="text-brown text-xs font-medium font-BaiJamjuree">Member : </p>
         </div>
         {project && <AssignedProjectMember project={project} />}
       </div>
-      <div aria-label="tag" className="justify-start items-center inline-flex flex-wrap w-full">
+
+      <div aria-label="tag" className="h-fit justify-start items-start inline-flex">
         {/* Label Zone */}
-        <div className="w-24 justify-start items-center gap-2 flex self-start ">
+        <div className="flex w-24 h-[32px] items-center gap-2">
           {/* Icon */}
-          <Tag className="w-6 h-6 relative" />
+          <Tag className="w-6 h-6 relative text-brown" />
           {/* Description */}
-          <div className="text-[#6b5c56] text-xs font-medium  leading-tight">Tag : </div>
+          <p className="text-brown text-xs font-medium font-BaiJamjuree">Tag : </p>
         </div>
-        <div className="flex w-[253.67px] ">
-          {project && <ButtonAddTags project_id={project.id} />}
-        </div>
+        {project && <ButtonAddTags project_id={project.id} />}
       </div>
 
       <div aria-label="Budget" className="h-10 justify-start items-center inline-flex">
@@ -170,9 +167,9 @@ const MenuBar = ({ project }: { project: Project }) => {
             ฿
           </div>
           {/* Describtion */}
-          <div className="text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-tight">
+          <p className="text-black text-xs font-medium font-BaiJamjuree leading-tight">
             งบประมาณโครงการ :{' '}
-          </div>
+          </p>
         </div>
         <SumBudget budget={project.budget} />
       </div>
@@ -185,7 +182,7 @@ const MenuBar = ({ project }: { project: Project }) => {
           {/* Icon */}
           <div className="w-6 text-center text-green text-[30px] font-semibold">฿</div>
           {/* Describtion */}
-          <div className="text-green text-xs font-medium  leading-tight">เงินยืมรองจ่าย : </div>
+          <p className="text-green text-xs font-medium  leading-tight">เงินยืมรองจ่าย : </p>
         </div>
         <SumAdvance advance={project.advance} />
       </div>
@@ -198,7 +195,7 @@ const MenuBar = ({ project }: { project: Project }) => {
           {/* Icon */}
           <div className="w-6 text-center text-red text-[30px] font-semibold">฿</div>
           {/* Describtion */}
-          <div className="text-red text-xs font-medium  leading-tight">รายจ่าย : </div>
+          <p className="text-red text-xs font-medium  leading-tight">รายจ่าย : </p>
         </div>
         <SumExpense expense={project.expense} />
       </div>
@@ -207,9 +204,9 @@ const MenuBar = ({ project }: { project: Project }) => {
         {/* Label Zone */}
         <div className="w-24 justify-start items-center gap-2 flex">
           {/* Icon */}
-          <Calendar className="w-6 h-6 relative" />
+          <Calendar className="w-6 h-6 relative text-brown" />
           {/* Describtion */}
-          <div className="text-[#6b5c56] text-xs font-medium  leading-tight">Date : </div>
+          <p className="text-[#6b5c56] text-xs font-medium  leading-tight">Date : </p>
         </div>
         {project && <DatePickerWithRangeProject project={project} />}
       </div>
@@ -228,21 +225,14 @@ export const ProjectDetail = ({ project }: { project: Project }) => {
   };
 
   return (
-    <div className="max-h-[414px] px-20 flex-col justify-start items-start gap-[18px] inline-flex w-screen">
-      <div className="h-12 px-0.5 justify-between items-center inline-flex w-full">
-        <div className="text-black text-5xl font-semibold font-Anuphan leading-[48px]">Project</div>
-        <div className="justify-start items-center gap-2 inline-flex">
-          <div className="w-6 h-6 relative origin-top-left -rotate-180 overflow-hidden" />
-          <div className="text-[#6b5c56] text-base font-normal font-BaiJamjuree leading-normal">
-            <BackButton />
-          </div>
-        </div>
+    <div className="w-full flex flex-col items-start justify-center gap-4 px-20">
+      <div className="flex justify-between items-center w-full">
+        <h1 className="text-black text-5xl font-semibold font-Anuphan">Project</h1>
+        <BackButton />
       </div>
       <div className="self-stretch justify-center items-start gap-7 inline-flex">
         <div className="grow shrink basis-0 min-h-[348px] h-auto p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start inline-flex">
-          <div className="self-stretch h-full flex-col justify-start items-start gap-[18px] fle ">
-            <ProjectWorkspace project_id={project.id} />
-          </div>
+          <ProjectWorkspace project_id={project.id} />
           <div className="self-stretch h-[120px] flex-col justify-center items-end gap-3 flex">
             <hr className="my-4 w-full border-t-1 border-gray-200" />
             <div className="justify-start items-start gap-1 inline-flex">
