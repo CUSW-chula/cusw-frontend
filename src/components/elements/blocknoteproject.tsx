@@ -54,11 +54,7 @@ function Document({ project_id }: ProjectOverviewProps) {
         });
         if (!response.ok) {
           const errorMessage = await response.text();
-          toast({
-            title: `🚨 Error ${response.status}: ${response.statusText}`,
-            description: errorMessage || 'An unexpected error occurred.',
-            variant: 'default',
-          });
+
           return;
         }
         const data = await response.json();
@@ -87,11 +83,6 @@ function Document({ project_id }: ProjectOverviewProps) {
           setCanEdit(false);
         } else if (!response.ok) {
           const errorMessage = await response.text();
-          toast({
-            title: `🚨 Error ${response.status}: ${response.statusText}`,
-            description: errorMessage || 'An unexpected error occurred.',
-            variant: 'default',
-          });
         }
       } catch (error) {
         console.error('Error updating description:', error);

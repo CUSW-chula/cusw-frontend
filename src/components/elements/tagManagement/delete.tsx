@@ -29,15 +29,7 @@ const Delete: React.FC<ManageProps> = ({ tag }) => {
       const response = await fetch(url, options);
       if (!response.ok) {
         const errorMessage = await response.text();
-        toast({
-          title: `🚨 Error ${response.status}: ${response.statusText}`,
-          description: `
-              🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-              
-              🗂️ file: delete.tsx
-            `,
-          variant: 'default',
-        });
+
         return;
       }
       if (response.ok) window.location.reload();

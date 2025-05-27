@@ -111,14 +111,6 @@ function EditorWithName({
         setOriginalDescription(Description);
         if (!response.ok) {
           const errorMessage = await response.text();
-          toast({
-            title: `🚨 Error ${response.status}: ${response.statusText}`,
-            description: `
-              🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-              🗂️ file: blocknote.tsx
-            `,
-            variant: 'destructive',
-          });
         }
       } catch (error) {
         console.error('Error updating Description:', error);

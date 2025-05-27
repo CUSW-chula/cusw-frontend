@@ -57,15 +57,6 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
       if (!usersData.ok) {
         const errorMessage = await usersData.text();
         // throw new Error("Failed to assign tag");
-        toast({
-          title: `🚨 Error ${usersData.status}: ${usersData.statusText}`,
-          description: `
-                         🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-                         
-                         🗂️ file: assigned-task.tsx
-                             `,
-          variant: 'default',
-        });
       }
       const userList = await usersData.json();
       setUsersList(userList);
@@ -83,15 +74,6 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
         if (!response.ok) {
           const errorMessage = await response.text();
           // throw new Error("Failed to assign tag");
-          toast({
-            title: `🚨 Error ${response.status}: ${response.statusText}`,
-            description: `
-        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-        
-        🗂️ file: assigned-task.tsx
-            `,
-            variant: 'default',
-          });
         }
         const data = await response.json();
       } catch (error) {
@@ -165,11 +147,6 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
             });
         } else {
           const errorMessage = await response.text();
-          toast({
-            title: `🚨 Error ${response.status}: ${response.statusText}`,
-            description: `🔥 error: ${errorMessage || 'An unexpected error occurred.'}🗂️ file: assigned-projectmember.tsx`,
-            variant: 'default',
-          });
         }
       } catch (error) {
         console.error(error);

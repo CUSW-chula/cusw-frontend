@@ -89,15 +89,6 @@ const Emoji = ({ task }: { task: TaskProps }) => {
     });
     if (!checkResponse.ok) {
       const errorMessage = await checkResponse.text();
-      toast({
-        title: `🚨 Error ${checkResponse.status}: ${checkResponse.statusText}`,
-        description: `
-           🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-           
-           🗂️ file: emoji.tsx
-               `,
-        variant: 'default',
-      });
     }
 
     const isEmojiAssigned = await checkResponse.json();
@@ -114,15 +105,6 @@ const Emoji = ({ task }: { task: TaskProps }) => {
       const response = await fetch(url, options);
       if (!response.ok) {
         const errorMessage = await response.text();
-        toast({
-          title: `🚨 Error ${checkResponse.status}: ${checkResponse.statusText}`,
-          description: `
-      🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-      
-      🗂️ file: emoji.tsx
-          `,
-          variant: 'default',
-        });
       }
     } catch (error) {}
   };

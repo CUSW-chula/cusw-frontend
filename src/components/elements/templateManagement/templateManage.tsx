@@ -29,11 +29,7 @@ const TemplateManage = () => {
 
         if (!response.ok) {
           const errorMessage = await response.text();
-          toast({
-            title: `🚨 Error ${response.status}: ${response.statusText}`,
-            description: `🔥 error: ${errorMessage || 'An unexpected error occurred.'}`,
-            variant: 'default',
-          });
+
           return;
         }
 

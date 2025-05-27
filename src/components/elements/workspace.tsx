@@ -75,15 +75,6 @@ const Workspace = ({ workspace }: Workspace) => {
         });
         if (!response.ok) {
           const errorMessage = await response.text();
-          toast({
-            title: `🚨 Error ${response.status}: ${response.statusText}`,
-            description: `
-        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-        
-        🗂️ file: workspace.tsx
-            `,
-            variant: 'default',
-          });
         }
         const data = await response.json();
         setFileList(data);

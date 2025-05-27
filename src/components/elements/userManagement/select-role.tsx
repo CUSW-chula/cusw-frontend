@@ -25,11 +25,6 @@ const SelectRole: React.FC<ManageProps> = ({ user }) => {
     const response = await fetch(url, options);
     if (!response.ok) {
       const errorMessage = await response.text();
-      toast({
-        title: `🚨 Error ${response.status}: ${response.statusText}`,
-        description: `🔥 error: ${errorMessage || 'An unexpected error occurred.'}🗂️ file: select-table.tsx`,
-        variant: 'default',
-      });
     }
   };
 
@@ -47,11 +42,6 @@ const SelectRole: React.FC<ManageProps> = ({ user }) => {
     const response = await fetch(url, options);
     if (!response.ok) {
       const errorMessage = await response.text();
-      toast({
-        title: `🚨 Error ${response.status}: ${response.statusText}`,
-        description: `🔥 error: ${errorMessage || 'An unexpected error occurred.'}🗂️ file: select-table.tsx`,
-        variant: 'default',
-      });
     }
   };
 

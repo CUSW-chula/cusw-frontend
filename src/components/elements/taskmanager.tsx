@@ -63,15 +63,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
           setShowTasks(parsedData);
         } else {
           const errorMessage = await data.text();
-          toast({
-            title: `🚨 Error ${data.status}: ${data.statusText}`,
-            description: `
-        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-        
-        🗂️ file: taskmanager.tsx
-            `,
-            variant: 'default',
-          });
         }
       } catch (error) {
         console.error(error);

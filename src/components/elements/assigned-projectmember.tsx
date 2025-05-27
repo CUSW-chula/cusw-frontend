@@ -112,15 +112,6 @@ export function AssignedProjectMember({ project }: { project: Project }) {
       });
       if (!response.ok) {
         const errorMessage = await response.text();
-        toast({
-          title: `🚨 Error ${response.status}: ${response.statusText}`,
-          description: `
-            🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-            
-            🗂️ file: assigned-projectmember.tsx
-                `,
-          variant: 'default',
-        });
       } else {
         const data = await response.json();
         setSelectedUser((prev) =>

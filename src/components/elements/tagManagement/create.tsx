@@ -46,11 +46,6 @@ const Create = () => {
 
       if (!response.ok) {
         const errorMessage = await response.text();
-        toast({
-          title: `🚨 Error ${response.status}: ${response.statusText}`,
-          description: `🔥 error: ${errorMessage || 'An unexpected error occurred.'}🗂️ file: create.tsx`,
-          variant: 'default',
-        });
       }
       if (response.ok)
         toast({

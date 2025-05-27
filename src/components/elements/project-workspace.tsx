@@ -38,15 +38,6 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
         });
         if (!response.ok) {
           const errorMessage = await response.text();
-          toast({
-            title: `🚨 Error ${response.status}: ${response.statusText}`,
-            description: `
-                 🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-                 
-                 🗂️ file: project-workspace.tsx
-                     `,
-            variant: 'default',
-          });
         }
         const data = await response.json();
         setTitle(data.title);
@@ -78,15 +69,6 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
             setCanEdit(false);
           } else if (!response.ok) {
             const errorMessage = await response.text();
-            toast({
-              title: `🚨 Error ${response.status}: ${response.statusText}`,
-              description: `
-        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-        
-        🗂️ file: project-workspace.tsx
-            `,
-              variant: 'default',
-            });
           }
           const data = await response.json();
           setOriginalTitle(Title);

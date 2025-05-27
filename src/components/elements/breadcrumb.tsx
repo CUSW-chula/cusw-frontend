@@ -34,15 +34,6 @@ export function BreadcrumbComponent({ task }: { task: TaskProps }) {
         });
         if (!response.ok) {
           const errorMessage = await response.text();
-          toast({
-            title: `🚨 Error ${response.status}: ${response.statusText}`,
-            description: `
-        🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-        
-        🗂️ file: breadcrunb.tsx
-            `,
-            variant: 'default',
-          });
         }
         const data = await response.json();
         setTasks(data);
@@ -57,15 +48,6 @@ export function BreadcrumbComponent({ task }: { task: TaskProps }) {
           if (!projectResponse.ok) {
             const errorMessage = await projectResponse.text();
             // throw new Error("Failed to assign tag");
-            toast({
-              title: `🚨 Error ${projectResponse.status}: ${projectResponse.statusText}`,
-              description: `
-          🔥 error: ${errorMessage || 'An unexpected error occurred.'}
-          
-          🗂️ file: breadcrunb.tsx
-              `,
-              variant: 'default',
-            });
           }
           const projectData = await projectResponse.json();
           setProject(projectData);
