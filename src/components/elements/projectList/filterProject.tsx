@@ -60,15 +60,16 @@ export const FilterProject = ({
         const projectStartDate = project.startDate ? new Date(project.startDate) : null;
         const projectEndDate = project.endDate ? new Date(project.endDate) : null;
 
-        console.log(`start: ${fromDate}, end: ${toDate}`);
-        console.log(`pjstart: ${projectStartDate}, pjend: ${projectEndDate}`);
-
         if (!projectStartDate) return false;
         if (!projectEndDate) {
           return fromDate <= projectStartDate && projectStartDate <= toDate;
         }
 
-        return !(projectStartDate < fromDate) && !(projectEndDate > toDate);
+        if (projectStartDate > toDate || projectEndDate < fromDate) {
+          return false;
+        }
+
+        return true;
       });
     }
 
