@@ -91,7 +91,7 @@ const Subtask = ({ task }: { task: TaskProps }) => {
         <CreateSubtask task={task} setDialog={setIsSubtaskSectionVisible} />
       )}
       {isSubtaskVisible && (
-        <div className="flex flex-col space-y-1 w-full">
+        <div className="flex flex-col space-y-1 w-full overflow-scroll">
           {subtasks.map((item) => (
             <Task
               item={item}
