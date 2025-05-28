@@ -231,7 +231,7 @@ export const ProjectDetail = ({ project }: { project: Project }) => {
         <BackButton />
       </div>
       <div className="self-stretch justify-center items-start gap-7 inline-flex">
-        <div className="grow shrink basis-0 min-h-[348px] h-auto p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start inline-flex">
+        <div className="grow shrink basis-0 min-h-[348px] max-w-[calc(100%-388px)] h-auto p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start inline-flex">
           <ProjectWorkspace project_id={project.id} />
           <div className="self-stretch h-[120px] flex-col justify-center items-end gap-3 flex">
             <hr className="my-4 w-full border-t-1 border-gray-200" />

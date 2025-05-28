@@ -60,11 +60,11 @@ export default async function TasksManageMentPage({
       </div>
 
       {/* page content */}
-      <div className="flex-row flex w-full gap-[28px] ">
+      <div className="flex flex-row w-full gap-[28px]">
         {/* Left Section */}
-        <div className="w-full rounded-[6px] p-5 border-brown border-[1px] bg-white">
+        <div className="flex flex-col w-full max-w-[calc(100%-388px)] rounded-[6px] p-5 border-brown border-[1px] bg-white">
           <Workspace workspace={workspace} />
-          <div className="flex justify-between">
+          <div className="w-full flex justify-between">
             <Emoji task={task} />
             <Uploadfile task={task} />
           </div>
@@ -76,12 +76,9 @@ export default async function TasksManageMentPage({
         </div>
 
         {/* Right Section */}
-        <div className="flex flex-col w-fit gap-4">
+        <div className="flex flex-col gap-4 items-end">
           <MenuBar task={task} />
-          <div className="inline-flex justify-end">
-            {' '}
-            <DeleteTask task={task} />
-          </div>
+          <DeleteTask task={task} />
         </div>
       </div>
     </div>
