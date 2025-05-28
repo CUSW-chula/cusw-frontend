@@ -11,7 +11,7 @@ export interface TaskProps {
   status: 'Unassigned' | 'Assigned' | 'UnderReview' | 'InRecheck' | 'Done';
   projectId: string;
   parentTaskId: string; //fix to type initial,subtaskAdded,...
-  position?: string; 
+  position?: string;
   statusBudget: string; //Name not mathch the db 'Budgets / Budget'
   budget: number;
   advance: number;
