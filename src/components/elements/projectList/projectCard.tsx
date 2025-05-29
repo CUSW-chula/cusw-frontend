@@ -1,19 +1,27 @@
-'use client';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@radix-ui/react-tooltip';
-import { DateText } from '../date-feature';
-import { Calendar, CrownIcon, Star, Tag, Users } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import type { Project } from '@/lib/shared';
-import { SortDefault, UsePinned } from './sort-pin-project';
-import Link from 'next/link';
+"use client";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipPortal,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@radix-ui/react-tooltip";
+import { DateText } from "../date-feature";
+import { Calendar, CrownIcon, Star, Tag, Users } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import type { Project } from "@/lib/shared";
+import { SortDefault, UsePinned } from "./sort-pin-project";
+import Link from "next/link";
 interface ProjectProps {
   query: Project[];
   setQuery: (prev: Project[]) => void;
   projectList: Project[];
   setProjectList: (prev: Project[]) => void;
   starredProjects: Record<string, boolean>;
-  setStarredProjects: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+  setStarredProjects: React.Dispatch<
+    React.SetStateAction<Record<string, boolean>>
+  >;
 }
 
 export const ProjectCard = ({
@@ -27,8 +35,8 @@ export const ProjectCard = ({
   const { toggleStar } = UsePinned(starredProjects, setStarredProjects);
   //get initials name
   const getInitials = (name: string) => {
-    const nameParts = name.split(' ');
-    return nameParts.map((part) => part[0]).join(''); // Take the first letter of each part
+    const nameParts = name.split(" ");
+    return nameParts.map((part) => part[0]).join(""); // Take the first letter of each part
   };
 
   return (
@@ -36,9 +44,10 @@ export const ProjectCard = ({
       <div
         className={
           query.length > 0
-            ? 'flex items-start justify-start gap-[16px] w-full flex-wrap'
-            : 'flex items-center justify-center w-full'
-        }>
+            ? "flex items-start justify-start gap-[16px] w-full flex-wrap"
+            : "flex items-center justify-center w-full"
+        }
+      >
         {query.length > 0 ? (
           query.map((project, index) => (
             <div key={`${project.id}-${index}`} className="relative">
@@ -53,13 +62,14 @@ export const ProjectCard = ({
               </div>
               <Link
                 href={`/projects/detail/${project.id}`}
-                className="flex flex-start w-[308px] h-[348px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px] ">
+                className="flex flex-start w-[308px] h-[348px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px] "
+              >
                 <div className="flex flex-col gap-y-[8px]">
                   <div className="h-[40px] w-[240px] self-stretch overflow-hidden">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger>
-                          <div className="font-BaiJamjuree text-[16px] text-base font-medium leading-[1.75] truncate w-full">
+                          <div className="font-BaiJamjuree text-[16px] text-base font-medium leading-[1.75] text-ellipsis truncate w-full">
                             {project.title}
                           </div>
                         </TooltipTrigger>
@@ -81,7 +91,7 @@ export const ProjectCard = ({
                             <TooltipTrigger>
                               <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center border border-brown">
                                 <span className="text-brown text-xs font-BaiJamjuree">
-                                  {getInitials(user?.name || '')}
+                                  {getInitials(user?.name || "")}
                                 </span>
                               </div>
                             </TooltipTrigger>
@@ -109,7 +119,8 @@ export const ProjectCard = ({
                               {project.owner?.map((own) => (
                                 <span
                                   key={own?.id}
-                                  className="text-xs font-medium font-BaiJamjuree text-black">
+                                  className="text-xs font-medium font-BaiJamjuree text-black"
+                                >
                                   {own?.name}
                                 </span>
                               ))}
@@ -129,7 +140,7 @@ export const ProjectCard = ({
                             <TooltipTrigger>
                               <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center border border-brown">
                                 <span className="text-brown text-xs font-BaiJamjuree">
-                                  {getInitials(user?.name || '')}
+                                  {getInitials(user?.name || "")}
                                 </span>
                               </div>
                             </TooltipTrigger>
@@ -157,7 +168,8 @@ export const ProjectCard = ({
                               {project.members?.map((mem) => (
                                 <span
                                   key={mem?.id}
-                                  className="text-xs font-medium font-BaiJamjuree text-black">
+                                  className="text-xs font-medium font-BaiJamjuree text-black"
+                                >
                                   {mem?.name}
                                 </span>
                               ))}
@@ -212,68 +224,88 @@ export const ProjectCard = ({
                       {project.tags
                         ?.sort((a, b) => {
                           // Sort Approve tags to the front
-                          const aIsApprove = a.name === 'Approved';
-                          const bIsApprove = b.name === 'Approved';
+                          const aIsApprove = a.name === "Approved";
+                          const bIsApprove = b.name === "Approved";
                           if (aIsApprove && !bIsApprove) return -1;
                           if (!aIsApprove && bIsApprove) return 1;
                           return 0;
                         })
-                        .slice(0, 5) // Keep the slice after sorting
+                        .slice(0, 4) // Keep the slice after sorting
                         .map((tag) => (
-                          <Badge
-                            key={tag?.id}
-                            variant="destructive"
-                            className={cn(
-                              'h-[24px] min-w-fit px-[8px] py-[2px] flex items-center justify-center mr-1 mt-1 mb-1',
-                              tag.name === 'Approved'
-                                ? 'bg-[#eefafd] border-blue text-blue'
-                                : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
-                            )}>
-                            <span className="text-[12px] font-medium font-BaiJamjuree">
-                              {tag?.name}
-                            </span>
-                          </Badge>
+                          <TooltipProvider key={tag?.id}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Badge
+                                  key={tag.id}
+                                  className={cn(
+                                    "h-[24px] min-w-fit px-[8px] py-[2px] flex items-center justify-center mr-1 mt-1 mb-1",
+                                    tag.name === "Approved"
+                                      ? "bg-[#eefafd]  hover:bg-[#eefafd] border-blue text-blue"
+                                      : "bg-[#EEFDF7] hover:bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]"
+                                  )}
+                                >
+                                  <span className="truncate max-w-[80px] text-[12px] font-medium font-BaiJamjuree">
+                                    {tag.name}
+                                  </span>
+                                </Badge>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" align="center">
+                                <span className="z-50 bg-white border border-gray-300 rounded-md px-2 py-1 text-sm">
+                                  {tag.name}
+                                </span>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         ))}
-                      {project.tags && project.tags.length > 5 && (
+                      {project.tags && project.tags.length > 4 && (
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger>
                               <Badge
                                 variant="destructive"
-                                className="h-[24px] min-w-fit px-[8px] py-[2px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mt-1 mb-1">
+                                className="h-[24px] min-w-fit px-[8px] py-[2px] flex items-center justify-center bg-[#EEFDF7] border-x border-y border-[#69BCA0] text-[#69BCA0] mr-1 mt-1 mb-1"
+                              >
                                 <div className="text-[12px] font-medium font-BaiJamjuree">
-                                  +{project.tags.length - 5}
+                                  +{project.tags.length - 4}
                                 </div>
                               </Badge>
                             </TooltipTrigger>
-                            <TooltipContent>
-                              <div className="flex flex-col flex-wrap items-start">
-                                {project.tags
-                                  ?.sort((a, b) => {
-                                    const aIsApprove = a.name === 'Approved';
-                                    const bIsApprove = b.name === 'Approved';
-                                    if (aIsApprove && !bIsApprove) return -1;
-                                    if (!aIsApprove && bIsApprove) return 1;
-                                    return 0;
-                                  })
-                                  .slice(5) // Show only the overflow tags in tooltip
-                                  .map((tag) => (
-                                    <Badge
-                                      key={tag?.id}
-                                      variant="destructive"
-                                      className={cn(
-                                        'h-7 min-w-fit px-[8px] py-[12px] flex items-center justify-center mb-1',
-                                        tag.name === 'Approved'
-                                          ? 'bg-[#eefafd] border-blue text-blue'
-                                          : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
-                                      )}>
-                                      <span className="text-xs font-medium font-BaiJamjuree">
-                                        {tag?.name}
-                                      </span>
-                                    </Badge>
-                                  ))}
-                              </div>
-                            </TooltipContent>
+
+                            <TooltipPortal>
+                              <TooltipContent
+                                side="top"
+                                align="center"
+                                className="z-50 overflow-visible "
+                              >
+                                <div className=" flex flex-col flex-wrap items-start">
+                                  {project.tags
+                                    ?.sort((a, b) => {
+                                      const aIsApprove = a.name === "Approved";
+                                      const bIsApprove = b.name === "Approved";
+                                      if (aIsApprove && !bIsApprove) return -1;
+                                      if (!aIsApprove && bIsApprove) return 1;
+                                      return 0;
+                                    })
+                                    .slice(4) // Show only the overflow tags in tooltip
+                                    .map((tag) => (
+                                      <Badge
+                                        key={tag?.id}
+                                        variant="destructive"
+                                        className={cn(
+                                          " h-[24px] min-w-fit px-[8px] py-[12px] flex items-center justify-center mb-1",
+                                          tag.name === "Approved"
+                                            ? "bg-[#eefafd] border-blue text-blue"
+                                            : "bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]"
+                                        )}
+                                      >
+                                        <span className=" text-xs font-medium font-BaiJamjuree">
+                                          {tag?.name}
+                                        </span>
+                                      </Badge>
+                                    ))}
+                                </div>
+                              </TooltipContent>
+                            </TooltipPortal>
                           </Tooltip>
                         </TooltipProvider>
                       )}
@@ -285,7 +317,7 @@ export const ProjectCard = ({
           ))
         ) : (
           <div className="flex w-full items-center justify-center text-center text-lg font-medium">
-            No projects{' '}
+            No projects{" "}
           </div>
         )}
       </div>
