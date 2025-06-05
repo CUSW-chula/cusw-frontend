@@ -116,7 +116,7 @@ export const CreateProject = () => {
             onChange={handleChange}
           />
           <Textarea
-            className="resize-none border-none w-full outline-none text-black text-xl font-Anuphan leading-7"
+            className="resize-none border-none w-full outline-none text-black text-xl font-BaiJamjuree leading-7"
             placeholder="Project description"
             name="projectDescription"
             value={inputs.projectDescription || ''}
@@ -127,7 +127,7 @@ export const CreateProject = () => {
           <Button
             variant="outline"
             type="button"
-            className="px-4 py-2 bg-white border-[#6b5c56] justify-center items-center gap-2.5 flex"
+            className="px-4 py-2 bg-white border-[#6b5c56] justify-center items-center gap-2.5 flex font-BaiJamjuree text-brown"
             onClick={handleCancel}>
             Cancel
           </Button>

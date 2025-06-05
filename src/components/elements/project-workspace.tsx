@@ -82,7 +82,7 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
     return () => clearTimeout(timer);
   }, [Title, project_id, auth]);
   return (
-    <div className="relative">
+    <div className="relative w-full">
       <label
         htmlFor="require part"
         className="text-red font-semibold text-2xl absolute left-[134px]">

@@ -24,7 +24,7 @@ export const TaskTitle = ({ item, isExpanded, onToggle }: TaskTitleProps) => {
       <button
         type="button"
         onClick={handleToggle}
-        className={`w-6 h-6 mr-1 flex items-center justify-center rounded hover:bg-gray-200 ${
+        className={`w-6 h-6 flex flex-shrink-0 items-center justify-center rounded-md hover:bg-gray-200 ${
           hasChildren ? 'visible' : 'invisible'
         }`}>
         {task.parentTaskId ? (
@@ -46,31 +46,20 @@ export const TaskTitle = ({ item, isExpanded, onToggle }: TaskTitleProps) => {
   };
 
   return (
-    <div className="inline-flex w-7/12 items-center">
+    <div className="flex flex-1 w-full min-w-[200px] items-center gap-1">
       <Chevron task={item} />
-      <div
-        className="inline-flex hover:cursor-pointer items-center w-full"
+      <img src={getStatusIcon(item.status)} alt={`${item.status} Icon`} className="w-5" />
+      <p
+        className="text-black text-sm font-normal font-BaiJamjuree w-full overflow-hidden text-ellipsis"
         onClick={() => router.push(`/tasks/${item.id}`)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             router.push(`/tasks/${item.id}`);
           }
-        }}
-        // biome-ignore lint/a11y/useSemanticElements: <explanation>
-        role="button"
-        tabIndex={0}>
-        <img
-          src={getStatusIcon(item.status)}
-          alt={`${item.status} Icon`}
-          className="max-w-5 mr-2"
-        />
-        <div className="cursor-pointer w-full">
-          <span className="flex text-black text-sm font-normal font-BaiJamjuree w-11/12">
-            {item.title}
-          </span>
-        </div>
-      </div>
+        }}>
+        {item.title}
+      </p>
     </div>
   );
 };

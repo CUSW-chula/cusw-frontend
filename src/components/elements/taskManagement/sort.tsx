@@ -66,7 +66,7 @@ export const Sort = ({ showTasks, setShowTasks }: SortProps) => {
   };
   return (
     <Select onValueChange={(value) => handleSort(value)}>
-      <SelectTrigger className="w-[172px] border-brown text-brown font-BaiJamjuree font-medium focus:outline-none focus:ring-0 focus:ring-offset-0">
+      <SelectTrigger className="w-[172px] border-brown text-brown font-BaiJamjuree font-normal focus:outline-none focus:ring-0 focus:ring-offset-0">
         <SelectValue placeholder="Sort by: Start date ↓" />
       </SelectTrigger>
       <SelectContent>

@@ -159,8 +159,10 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
               <Badge
                 key={tag.id}
                 variant="destructive"
-                className="h-6 min-w-fit flex items-center my-1 justify-center bg-[#EEFDF7] border border-green text-green">
-                <span className="text-sm font-medium font-BaiJamjuree">{tag.name}</span>
+                className="h-6 w-fit max-w-[212px] flex items-center my-1 justify-center bg-[#EEFDF7] border border-green text-green gap-1">
+                <span className="text-sm font-BaiJamjuree font-medium text-ellipsis overflow-hidden max-w-[180px]">
+                  {tag.name}
+                </span>
                 <button
                   type="button"
                   onClick={() => {
@@ -171,7 +173,7 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
                       variant: 'default',
                     });
                   }}
-                  className="text-red-500 ml-1 max-w-20">
+                  className="cursor-pointer">
                   <XCircle className="h-4 w-4" />
                 </button>
               </Badge>
@@ -181,7 +183,7 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild className=" border-brown text-brown ">
             <Button variant="outline" className="h-8 px-2">
-              <p className="p-ui text-sm">Add tag</p>
+              <p className="font-BaiJamjuree text-sm">Add tag</p>
             </Button>
           </PopoverTrigger>
           <PopoverContent className="p-0" side="right" align="start">
