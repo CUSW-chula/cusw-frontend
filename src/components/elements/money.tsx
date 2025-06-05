@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import BASE_URL from '@/lib/shared';
+import BASE_URL, { type Project } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { useSetAtom } from 'jotai';
 import { moneyAtom } from '@/atom';
@@ -77,9 +77,40 @@ const Money = ({ task }: { task: TaskProps | null }) => {
     }
   }, [task]);
 
+  const [project, setProject] = useState<Project>();
+
+  useEffect(() => {
+    const fetchProject = async () => {
+      const option = {
+        headers: { Authorization: auth },
+      };
+      const response = await fetch(`${BASE_URL}/v2/projects/${task?.projectId}`, option);
+      const project = await response.json();
+      setProject(project);
+    };
+    fetchProject();
+  }, [task?.projectId]);
+
   //submit input budget
   const handleSubmit = async (budget: Budget) => {
     //sent POST method
+    if (
+      budget.type === 'expense' &&
+      project &&
+      task &&
+      budget.money > project.budget - project.expense + task.expense
+    )
+      return toast({
+        description: (
+          <div className="flex flex-col">
+            <p className="font-BaiJamjuree">⚠️ งบประมาณไม่พอ</p>
+            <p className="font-BaiJamjuree">
+              งบประมาณของโปรเจคคงเหลือ: {project.budget - project.expense + task.expense} บาท
+            </p>
+          </div>
+        ),
+      });
+
     const fetchDataPost = async (budgetList: number[]) => {
       const url = `${BASE_URL}/v2/tasks/money/${task?.id}`;
       const options = {
