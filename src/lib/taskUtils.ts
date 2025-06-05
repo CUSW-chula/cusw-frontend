@@ -3,10 +3,18 @@ import { getCookie } from 'cookies-next';
 import BASE_URL from './shared';
 import { useToast } from '@/hooks/use-toast';
 
+type DATE = {
+  year: number;
+  month: number;
+  day: number;
+};
+
 type csvDataType = {
   index: string;
   title: string;
-  month: string;
+  startDate?: DATE;
+  endDate?: DATE;
+  doneDate?: DATE;
   budget: number;
   expense: number;
   remaining: number;
@@ -15,17 +23,65 @@ export const useExportTask = () => {
   const { toast } = useToast();
   const exportAsFile = (tasks: TaskProps[]) => {
     try {
-      const moneyToString = (money: number): string => {
-        return money === 0 ? '-' : money.toString();
-      };
-
       // Converts CSV data array to a CSV string format
       const convertToCSV = (item: csvDataType[]) => {
-        const header = ['ลำดับที่', 'รายการ', 'เดือน', 'งบประมาณที่ได้รับอนุมัติ ', 'เบิกจ่ายจริง', 'คงเหลือ'];
+        // const header = ['ลำดับที่', 'รายการ', 'ปีเริ่มต้น', 'เดือนเริ่มต้น', 'วันเริ่มต้น', 'ปีสิ้นสุด', 'เดือนสิ้นสุด', 'วันสิ้นสุด', 'ปีเสร็จสิ้น', 'เดือนเสร็จสิ้น', 'วันเสร็จสิ้น', 'งบประมาณที่ได้รับอนุมัติ ', 'เบิกจ่ายจริง', 'คงเหลือ'];
+        // Main headers
+        const mainHeaders = [
+          'ลำดับที่',
+          'รายการ',
+          'เริ่มต้น',
+          '',
+          '',
+          'สิ้นสุด',
+          '',
+          '',
+          'เสร็จสิ้น',
+          '',
+          '',
+          'งบประมาณที่ได้รับอนุมัติ',
+          'เบิกจ่ายจริง',
+          'คงเหลือ',
+        ];
+
+        // Sub-headers
+        const subHeaders = [
+          '',
+          '', // Empty for first two columns
+          'วัน',
+          'เดือน',
+          'ปี', // Sub-headers for start date
+          'วัน',
+          'เดือน',
+          'ปี', // Sub-headers for end date
+          'วัน',
+          'เดือน',
+          'ปี', // Sub-headers for done date
+          '',
+          '',
+          '', // Empty for last three columns
+        ];
+
         const rows = item.map((item) => {
-          return [item.index, item.title, item.month, item.budget, item.expense, item.remaining];
+          return [
+            item.index,
+            item.title,
+            item.startDate?.day,
+            item.startDate?.month,
+            item.startDate?.year,
+            item.endDate?.day,
+            item.endDate?.month,
+            item.endDate?.year,
+            item.doneDate?.day,
+            item.doneDate?.month,
+            item.doneDate?.year,
+            item.budget,
+            item.expense,
+            item.remaining,
+          ];
         });
-        return [header, ...rows].map((row) => row.join(',')).join('\n');
+
+        return [mainHeaders, subHeaders, ...rows].map((row) => row.join(',')).join('\n');
       };
 
       // Triggers a CSV file download
@@ -54,15 +110,15 @@ export const useExportTask = () => {
         let csvData: csvDataType[] = [];
         for (const subtask of task.subtasks) {
           totalRemainingBudget -= subtask.expense;
-          const assignedMonth = subtask.tags ? getTag(subtask.tags) : '';
-
           const index = `${indexData}.${task.subtasks.indexOf(subtask) + 1}`;
 
           // Push the current subtask's formatted data into the CSV array
           csvData.push({
             index: index,
             title: subtask.title,
-            month: assignedMonth,
+            startDate: getDateTime(subtask.startDate),
+            endDate: getDateTime(subtask.startDate),
+            doneDate: getDateTime(subtask.startDate),
             budget: subtask.budget,
             expense: subtask.expense,
             remaining: totalRemainingBudget,
@@ -75,25 +131,15 @@ export const useExportTask = () => {
         return csvData;
       };
 
-      // Extracts the first matching month tag from a list of tags
-      const getTag = (tags: TagProps[]) => {
-        const months = new Set([
-          'มกราคม',
-          'กุมภาพันธ์',
-          'มีนาคม',
-          'เมษายน',
-          'พฤษภาคม',
-          'มิถุนายน',
-          'กรกฎาคม',
-          'สิงหาคม',
-          'กันยายน',
-          'ตุลาคม',
-          'พฤศจิกายน',
-          'ธันวาคม',
-        ]);
-
-        const foundTag = tags.find((tag) => months.has(tag.name));
-        return foundTag ? foundTag.name : '';
+      // create a function get date time from task and return year, month, day in DATE type
+      const getDateTime = (date: Date | null): DATE | undefined => {
+        if (!date) return undefined;
+        console.log('getDateTime', date, date.getFullYear(), date.getMonth() + 1, date.getDate());
+        return {
+          year: date.getFullYear(),
+          month: date.getMonth() + 1, // Months are zero-based in JavaScript
+          day: date.getDate(),
+        };
       };
 
       let csvData: csvDataType[] = [];
@@ -101,7 +147,6 @@ export const useExportTask = () => {
       let indexData = 0;
 
       for (const task of tasks) {
-        const assignedMonth = task.tags ? getTag(task.tags) : '';
         totalRemainingBudget += task.budget;
         totalRemainingBudget -= task.expense;
         indexData++;
@@ -109,14 +154,17 @@ export const useExportTask = () => {
         csvData.push({
           index: indexData.toString(),
           title: task.title,
-          month: assignedMonth,
+          startDate: getDateTime(task.startDate),
+          endDate: getDateTime(task.startDate),
+          doneDate: getDateTime(task.startDate),
           budget: task.budget,
           expense: task.expense,
           remaining: totalRemainingBudget,
         });
 
         const result =
-          task.budget !== 0 ? [] : recursiveGenerateCSVData(task, indexData.toString());
+          // task.budget !== 0 ? [] : recursiveGenerateCSVData(task, indexData.toString());
+          task.subtasks ? recursiveGenerateCSVData(task, indexData.toString()) : [];
         csvData = csvData.concat(result);
       }
       const csv = convertToCSV(csvData);
@@ -244,6 +292,7 @@ export const parseJsonValues = (values: any[]): TaskProps[] => {
     advance: value.advance,
     expense: value.expense,
     status: value.status,
+    doneAt: value.doneAt ? new Date(value.doneAt) : null,
     parentTaskId: value.parentTaskId,
     projectId: value.projectId,
     createdById: value.createdById,
