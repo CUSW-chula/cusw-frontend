@@ -111,7 +111,10 @@ const Money = ({ task }: { task: TaskProps | null }) => {
       budget.type === 'expense' &&
       project &&
       task &&
-      budget.money > project.budget - project.expense + task.expense
+      (() => {
+        const remainingBudget = project.budget - project.expense + task.expense;
+        return budget.money > remainingBudget;
+      })()
     )
       return toast({
         description: (
