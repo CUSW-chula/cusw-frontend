@@ -97,7 +97,7 @@ const Money = ({ task }: { task: TaskProps | null }) => {
         toast({
           title: 'Error',
           description: 'Failed to fetch project details. Please try again later.',
-          status: 'error',
+          variant: 'destructive',
         });
       }
     };
