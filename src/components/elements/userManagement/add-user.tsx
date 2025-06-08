@@ -3,6 +3,7 @@ import BASE_URL from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { Plus } from 'lucide-react';
 import React, { useState } from 'react';
+import { Switch } from '@/components/ui/switch';
 
 const AddUser = () => {
   const cookie = getCookie('auth');
@@ -10,8 +11,17 @@ const AddUser = () => {
   const [showPopover, setShowPopover] = useState(false);
   const [email, setEmail] = useState<string>();
   const [userName, setUserName] = useState<string>();
+  const [organization, setOrganization] = useState<string>();
+  const [position, setPosition] = useState<string>();
+  const [isOutsource, setIsOutsource] = useState<boolean>(false);
 
-  const addUser = async (email: string, userName: string) => {
+  const addUser = async (
+    email: string,
+    userName: string,
+    organization: string,
+    position: string,
+    isOutsource: boolean,
+  ) => {
     try {
       const response = await fetch(`${BASE_URL}/v2/users/`, {
         method: 'POST',
@@ -19,13 +29,16 @@ const AddUser = () => {
           Authorization: auth,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name: userName, email }),
+        body: JSON.stringify({ name: userName, email, organization, position, isOutsource }),
       });
 
       alert('User added successfully!');
       setShowPopover(false);
       setEmail('');
       setUserName('');
+      setOrganization('');
+      setPosition('');
+      setIsOutsource(false);
     } catch (error) {
       console.error('Failed to add user:', error);
       alert('Failed to add user. Check console for details.');
@@ -80,11 +93,61 @@ const AddUser = () => {
             </label>
           </div>
 
+          {/* Organization Field */}
+          <div className="relative">
+            <input
+              type="text"
+              required
+              className="peer w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+              onChange={(e) => {
+                setOrganization(e.target.value);
+              }}
+            />
+            <label
+              htmlFor="Organization Field"
+              className="absolute left-3 top-[-8px] bg-white px-1 text-black text-[10px]">
+              Organization <span className="text-red">*</span>
+            </label>
+          </div>
+
+          {/* Position Field */}
+          <div className="relative">
+            <input
+              type="text"
+              required
+              className="peer w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+              onChange={(e) => {
+                setPosition(e.target.value);
+              }}
+            />
+            <label
+              htmlFor="Position Field"
+              className="absolute left-3 top-[-8px] bg-white px-1 text-black text-[10px]">
+              Position <span className="text-red">*</span>
+            </label>
+          </div>
+
+          {/* Outsourced Checkbox */}
+          <div className="flex items-center space-x-2">
+            <Switch
+              checked={isOutsource}
+              onCheckedChange={(checked) => setIsOutsource(checked)}
+              className="h-6 w-11 bg-brown rounded-full relative transition-colors focus:outline-none focus:ring-2 focus:ring-brown-500"
+            />
+            <div className="text-sm text-gray-700">Outsourced</div>
+          </div>
+
           {/* Submit Button */}
           <button
             type="button"
             className="w-full bg-brown text-white py-2 rounded-md hover:bg-brown-700 transition"
-            onClick={() => email && userName && addUser(email, userName)}>
+            onClick={() =>
+              email &&
+              userName &&
+              organization &&
+              position &&
+              addUser(email, userName, organization, position, isOutsource)
+            }>
             Submit
           </button>
         </div>
