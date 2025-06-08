@@ -80,6 +80,7 @@ const Money = ({ task }: { task: TaskProps | null }) => {
   const [project, setProject] = useState<Project>();
 
   useEffect(() => {
+    if (!task?.projectId) return;
     const fetchProject = async () => {
       const option = {
         headers: { Authorization: auth },
