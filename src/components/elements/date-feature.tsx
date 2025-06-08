@@ -379,8 +379,6 @@ function DateText(date: DateInterface): string {
     return `${start}${start && end ? ' -> ' : ''}${end}`;
   };
 
-  console.log('result:', formatDate(date));
-
   return formatDate(date);
 }
 

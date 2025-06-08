@@ -46,11 +46,9 @@ export const FilterProject = ({
     let filteredProjects = [...projectList];
     if (filterTag && filterTag.length > 0) {
       filteredProjects = filteredProjects.filter((project) => {
-        return (
-          project.tags.filter((tag) => {
-            return tag.isProject;
-          }) as Tag[]
-        ).some((tag) => filterTag.includes(tag.name));
+        const projectTagNames = project.tags.filter((tag) => tag.isProject).map((tag) => tag.name);
+
+        return filterTag.every((tagName) => projectTagNames.includes(tagName));
       });
     }
     if (dateRange?.from != null) {
