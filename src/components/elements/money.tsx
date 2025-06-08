@@ -85,9 +85,21 @@ const Money = ({ task }: { task: TaskProps | null }) => {
       const option = {
         headers: { Authorization: auth },
       };
-      const response = await fetch(`${BASE_URL}/v2/projects/${task?.projectId}`, option);
-      const project = await response.json();
-      setProject(project);
+      try {
+        const response = await fetch(`${BASE_URL}/v2/projects/${task?.projectId}`, option);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch project: ${response.statusText}`);
+        }
+        const project = await response.json();
+        setProject(project);
+      } catch (error) {
+        console.error('Error fetching project:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to fetch project details. Please try again later.',
+          status: 'error',
+        });
+      }
     };
     fetchProject();
   }, [task?.projectId]);
