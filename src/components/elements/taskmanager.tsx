@@ -129,7 +129,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
 
   return (
     <div className="h-auto w-full p-11 font-BaiJamjuree bg-white rounded-md border border-brown flex flex-col">
-      <header className="h-9 text-black text-3xl font-semibold leading-9 mb-6">
+      <header className="h-9 text-black text-3xl font-Anuphan font-semibold leading-9 mb-6">
         {projectName}
       </header>
       <div className="flex items-center justify-between w-full mb-3">
@@ -143,12 +143,12 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         </div>
       </div>
       {statusSections.map(({ status, displayName, icon }) => (
-        <div key={status}>
+        <div key={status} className="w-full">
           <div className="flex items-center gap-2 border-b border-gray-300 py-3">
             <img src={icon} alt={`${status} Icon`} className="w-6 h-6" />
             <span className="text-black text-sm font-medium font-BaiJamjuree">{displayName}</span>
           </div>
-          <div className="w-full block">
+          <div className="w-full block overflow-scroll">
             {showTasks
               .filter((item) => groupingStatus(item, 99) === statusToInt(status))
               .map((item) => (

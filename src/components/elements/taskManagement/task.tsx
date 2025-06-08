@@ -34,25 +34,21 @@ export const Task = ({
 
   return (
     <>
-      <div className="flex items-center hover:bg-gray-50">
-        <div
-          className="flex items-center w-full h-fit my-1.5"
-          style={{ marginLeft: `${depth * 24 + 24}px` }}>
-          <TaskTitle
-            item={item}
-            isExpanded={expandedIds.has(item.id)}
-            onToggle={() => onToggle(item.id)}
-          />
+      <div
+        className="flex items-center w-full h-fit py-1.5 hover:bg-gray-50 justify-between"
+        style={{ paddingLeft: `${depth * 24 + 24}px` }}>
+        <TaskTitle
+          item={item}
+          isExpanded={expandedIds.has(item.id)}
+          onToggle={() => onToggle(item.id)}
+        />
 
-          <div className="w-5/12 flex relative justify-end gap-2 items-center">
-            <Tag item={item} />
-            <div className="flex items-center gap-2">
-              <Money item={item} />
-              <TaskDate item={item} hiddenDate={hiddenDate} />
-              <Assigned item={item} />
-            </div>
-            {showActionsMenu && <TaskActionsMenu task={item} />}
-          </div>
+        <div className="w-fit flex items-center justify-end gap-2">
+          <Tag item={item} />
+          <Money item={item} />
+          <TaskDate item={item} hiddenDate={hiddenDate} />
+          <Assigned item={item} />
+          {showActionsMenu && <TaskActionsMenu task={item} />}
         </div>
       </div>
 

@@ -211,17 +211,16 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
                   key={tag.id}
                   variant="destructive"
                   className={cn(
-                    'h-6 min-w-fit flex items-center my-1 justify-center bg-[#EEFDF7] border border-green text-green',
+                    'h-6 w-fit max-w-[212px] flex items-center my-1 justify-center gap-1',
                     tag.name === 'Approved'
                       ? 'bg-[#eefafd] border-blue text-blue'
                       : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
                   )}>
-                  <span className="text-base font-medium font-BaiJamjuree">{tag.name}</span>
+                  <span className="text-sm font-BaiJamjuree font-medium text-ellipsis overflow-hidden max-w-[180px]">
+                    {tag.name}
+                  </span>
                   {(isHead || isadmin || isprojectOwner) && (
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteTag(tag.id)}
-                      className="text-red-500 ml-1 max-w-20 ">
+                    <button type="button" onClick={() => handleDeleteTag(tag.id)}>
                       <XCircle className="h-4 w-4" />
                     </button>
                   )}

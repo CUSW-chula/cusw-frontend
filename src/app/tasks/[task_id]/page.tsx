@@ -52,7 +52,7 @@ export default async function TasksManageMentPage({
   };
 
   return (
-    <div className="min-w-full flex-col items-start justify-center gap-8 px-20">
+    <div className="w-full flex-col items-start justify-center gap-8 px-20">
       {/* page nav */}
       <div className="flex flex-row py-4 items-center justify-between">
         <BreadcrumbComponent task={task} />
@@ -60,15 +60,15 @@ export default async function TasksManageMentPage({
       </div>
 
       {/* page content */}
-      <div className="flex-row flex w-full gap-[28px] ">
+      <div className="flex flex-row w-full gap-[28px]">
         {/* Left Section */}
-        <div className="w-full rounded-[6px] p-5 border-brown border-[1px] bg-white">
+        <div className="flex flex-col w-full max-w-[calc(100%-388px)] rounded-[6px] p-5 border-brown border-[1px] bg-white">
           <Workspace workspace={workspace} />
-          <div className="flex justify-between">
+          <div className="w-full flex justify-between">
             <Emoji task={task} />
             <Uploadfile task={task} />
           </div>
-          <div className="flex flex-col gap-4 mt-4">
+          <div className="w-full flex flex-col gap-4 mt-4">
             <Subtask task={task} />
             <ActivityLogs task={task} />
             <Comment task={task} />
@@ -76,12 +76,9 @@ export default async function TasksManageMentPage({
         </div>
 
         {/* Right Section */}
-        <div className="flex flex-col w-fit gap-4">
+        <div className="flex flex-col gap-4 items-end">
           <MenuBar task={task} />
-          <div className="inline-flex justify-end">
-            {' '}
-            <DeleteTask task={task} />
-          </div>
+          <DeleteTask task={task} />
         </div>
       </div>
     </div>
