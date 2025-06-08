@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Displayfile, Uploadfile } from './uploadfile';
 import Emoji from './emoji';
 import BASE_URL, {
@@ -81,6 +81,20 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
     }, 1000);
     return () => clearTimeout(timer);
   }, [Title, project_id, auth]);
+
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    if (textAreaRef.current) {
+      // We need to reset the height momentarily to get the correct scrollHeight for the textarea
+      textAreaRef.current.style.height = '0px';
+      const scrollHeight = textAreaRef.current.scrollHeight;
+
+      // We then set the height directly, outside of the render loop
+      // Trying to set this with state or a ref will product an incorrect value.
+      textAreaRef.current.style.height = `${scrollHeight}px`;
+    }
+  }, [textAreaRef, Title]);
+
   return (
     <div className="relative w-full">
       <label
@@ -88,7 +102,7 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
         className="text-red font-semibold text-2xl absolute left-[134px]">
         {!Title && <span>*</span>}
       </label>
-      <input
+      <textarea
         className="resize-none border-none w-full outline-none placeholder-gray-300 text-[30px] font-semibold font-Anuphan"
         placeholder="Task Title"
         disabled={!canEdit}
@@ -96,6 +110,7 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
         onChange={(e) => {
           setTitle(e.target.value);
         }}
+        ref={textAreaRef}
       />
       <Blocknoteproject project_id={project_id} />
     </div>

@@ -6,7 +6,6 @@ import type { TagProps, TaskProps } from '@/app/types/types';
 import { Task, ExportDialog, Filter, Sort, CreateTask } from './taskManagement';
 import { parseJsonValues, statusSections } from '@/lib/taskUtils';
 import { toast } from '@/hooks/use-toast';
-
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
 

@@ -9,26 +9,45 @@ export const Tag = ({
   item: TaskProps;
 }) => {
   return (
-    <div>
+    <div className="flex gap-1 cursor-pointer">
+      <div className="flex w-fit group gap-[2px]">
+        {item.tags && item.tags.length > 0 ? (
+          <>
+            {item.tags.slice(0, 3).map((tag, index) => {
+              const mlClass = ['', '-ml-[28px]', '-ml-[56px]'];
+              return (
+                <Badge
+                  key={tag.id}
+                  variant="destructive"
+                  className={`h-6 w-fit bg-[#eefdf7] border border-green flex justify-center
+                  transition-all ${mlClass[index]} group-hover:ml-0 duration-200`}>
+                  <span className="text-green text-sm font-medium font-BaiJamjuree whitespace-nowrap overflow-hidden text-ellipsis max-w-20">
+                    {tag.name}
+                  </span>
+                </Badge>
+              );
+            })}
+          </>
+        ) : null}
+      </div>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="flex w-fit cursor-pointer">
-              {item.tags?.length !== 0
-                ? item.tags?.slice(0, 3).map((tag, index) => (
+              {item.tags && item.tags.length > 0 ? (
+                <>
+                  {item.tags.length > 3 && (
                     <Badge
-                      key={tag.id}
+                      key="more-tags"
                       variant="destructive"
-                      className="h-6 w-fit bg-[#eefdf7] border border-green flex justify-center transition-transform"
-                      style={{
-                        marginLeft: `${index * -28}px`,
-                      }}>
+                      className="h-6 w-fit bg-[#eefdf7] border border-green flex justify-center transition-transform">
                       <span className="text-green text-sm font-medium font-BaiJamjuree whitespace-nowrap overflow-hidden text-ellipsis max-w-20">
-                        {tag.name}
+                        +{item.tags.length - 3}
                       </span>
                     </Badge>
-                  ))
-                : null}
+                  )}
+                </>
+              ) : null}
             </div>
           </TooltipTrigger>
           <TooltipContent className="flex flex-col gap-1">
