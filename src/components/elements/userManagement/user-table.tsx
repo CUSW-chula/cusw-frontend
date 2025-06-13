@@ -3,15 +3,24 @@ import React, { useEffect, useState } from 'react';
 import { Searchbar } from '../control-bar';
 import Adduser from './add-user';
 import BASE_URL, { type User } from '@/lib/shared';
-import { toast } from '@/hooks/use-toast';
 import { getCookie } from 'cookies-next';
-import Manage from './isadmin';
-import SelectRole from './select-role';
+import { UserEditDialog, type UserData } from './editUser';
 const Table = () => {
   const [searchUser, setSearchUser] = useState('');
   const [user, setUser] = useState<User[]>([]);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
+
+  const heading = [
+    'User Name',
+    'Role',
+    'Email',
+    'Organization',
+    'Position',
+    'Hiring',
+    'Status',
+    ' ',
+  ];
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -19,11 +28,7 @@ const Table = () => {
         headers: { Authorization: auth },
       });
 
-      if (!response.ok) {
-        const errorMessage = await response.text();
-      }
       const data = await response.json();
-      console.log(data);
       setUser(data);
       if (!data || !Array.isArray(data)) {
         throw new Error('Invalid data format received');
@@ -53,22 +58,50 @@ const Table = () => {
         <table className="w-full border-collapse relative">
           <thead className="sticky top-0 bg-neutral-100 z-10">
             <tr className="border-b text-gray-700">
-              <th className="p-3 text-left">User Name</th>
-              <th className="p-3 text-left">Role</th>
-              <th className="p-3 text-left">Email</th>
-              <th className="p-3 text-left">IsActivate</th>
+              {heading.map((head) => (
+                <th key={head} className="p-3 text-left">
+                  <span className="font-semibold">{head}</span>
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {filteredUsers.map((user) => (
-              <tr key={user.id} className="border-b text-gray-900">
-                <td className="p-3">{user.name}</td>
-                <td className="p-3">
-                  <SelectRole user={user} />
-                </td>
-                <td className="p-3">{user.email}</td>
-                <td className="p-3">
-                  <Manage user={user} />
+            {filteredUsers.map((u) => (
+              <tr key={u.id} className="border-b text-gray-900">
+                <td className="p-3">{u.name}</td>
+                <td className="p-3">{u.admin ? 'Admin' : u.head ? 'Head' : 'User'}</td>
+                <td className="p-3">{u.email}</td>
+                <td className="p-3">{u.organization}</td>
+                <td className="p-3">{u.position}</td>
+                <td className="p-3">{u.isOutsource ? 'Outsource' : 'Employee'}</td>
+                <td className="p-3">{u.activated ? 'Active' : 'Inactive'}</td>
+                <td className="pr-3">
+                  <UserEditDialog
+                    user={user}
+                    initialData={{
+                      id: u.id,
+                      userName: u.name,
+                      role: u.admin ? 'Admin' : u.head ? 'Head' : 'User',
+                      organization: u.organization,
+                      position: u.position,
+                      outsource: u.isOutsource,
+                      activated: u.activated,
+                    }}
+                    onSave={(data) => {
+                      const userId = data.id;
+                      const body: Partial<UserData> = {
+                        userName: data.userName,
+                        role: data.role,
+                        organization: data.organization,
+                        position: data.position,
+                        outsource: data.outsource,
+                        activated: data.activated,
+                      };
+                      setUser((prevUsers) =>
+                        prevUsers.map((u) => (u.id === userId ? { ...u, ...body } : u)),
+                      );
+                    }}
+                  />
                 </td>
               </tr>
             ))}
