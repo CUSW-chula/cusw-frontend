@@ -9,6 +9,7 @@ export interface TaskProps {
   title: string;
   description: string;
   status: 'Unassigned' | 'Assigned' | 'UnderReview' | 'InRecheck' | 'Done';
+  doneAt: Date | null;
   projectId: string;
   parentTaskId: string; //fix to type initial,subtaskAdded,...
   position: number;
