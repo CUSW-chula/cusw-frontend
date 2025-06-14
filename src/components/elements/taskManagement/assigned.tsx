@@ -11,7 +11,7 @@ export const Assigned = ({
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <User className="h-8 w-8 p-1 text-brown border border-brown rounded-full hover:cursor-pointer" />
+          <User className="h-8 w-8 p-1 flex-shrink-0 text-brown border border-brown rounded-full hover:cursor-pointer" />
         </TooltipTrigger>
         <TooltipContent>
           {item.members?.length !== 0 ? (

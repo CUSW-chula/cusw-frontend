@@ -4,6 +4,7 @@ import { getCookie } from 'cookies-next';
 
 import BASE_URL from '@/lib/shared';
 import { toast } from '@/hooks/use-toast';
+import { Plus } from 'lucide-react';
 
 export const CreateTask = (project: { project_id: string }) => {
   const cookie = getCookie('auth');
@@ -50,8 +51,9 @@ export const CreateTask = (project: { project_id: string }) => {
     <Button
       variant="outline"
       onClick={handleCreateTask}
-      className="flex items-center text-brown border-brown px-3 py-1 rounded-md">
-      + New task
+      className="border-brown font-BaiJamjuree text-sm rounded-md gap-1">
+      <Plus className="text-brown" />
+      <span className="text-brown text-sm font-BaiJamjuree font-normal">New task</span>
     </Button>
   );
 };

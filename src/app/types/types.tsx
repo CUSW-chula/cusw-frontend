@@ -9,9 +9,10 @@ export interface TaskProps {
   title: string;
   description: string;
   status: 'Unassigned' | 'Assigned' | 'UnderReview' | 'InRecheck' | 'Done';
+  doneAt: Date | null;
   projectId: string;
   parentTaskId: string; //fix to type initial,subtaskAdded,...
-  position?: string;
+  position: number;
   statusBudget: string; //Name not mathch the db 'Budgets / Budget'
   budget: number;
   advance: number;

@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import BASE_URL from '@/lib/shared';
+import BASE_URL, { type Project } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { useSetAtom } from 'jotai';
 import { moneyAtom } from '@/atom';
@@ -77,9 +77,56 @@ const Money = ({ task }: { task: TaskProps | null }) => {
     }
   }, [task]);
 
+  const [project, setProject] = useState<Project>();
+
+  useEffect(() => {
+    if (!task?.projectId) return;
+    const fetchProject = async () => {
+      const option = {
+        headers: { Authorization: auth },
+      };
+      try {
+        const response = await fetch(`${BASE_URL}/v2/projects/${task?.projectId}`, option);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch project: ${response.statusText}`);
+        }
+        const project = await response.json();
+        setProject(project);
+      } catch (error) {
+        console.error('Error fetching project:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to fetch project details. Please try again later.',
+          variant: 'destructive',
+        });
+      }
+    };
+    fetchProject();
+  }, [task?.projectId]);
+
   //submit input budget
   const handleSubmit = async (budget: Budget) => {
     //sent POST method
+    if (
+      budget.type === 'expense' &&
+      project &&
+      task &&
+      (() => {
+        const remainingBudget = project.budget - project.expense + task.expense;
+        return budget.money > remainingBudget;
+      })()
+    )
+      return toast({
+        description: (
+          <div className="flex flex-col">
+            <p className="font-BaiJamjuree">⚠️ งบประมาณไม่พอ</p>
+            <p className="font-BaiJamjuree">
+              งบประมาณของโปรเจคคงเหลือ: {project.budget - project.expense + task.expense} บาท
+            </p>
+          </div>
+        ),
+      });
+
     const fetchDataPost = async (budgetList: number[]) => {
       const url = `${BASE_URL}/v2/tasks/money/${task?.id}`;
       const options = {

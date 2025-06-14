@@ -90,6 +90,9 @@ export type User = {
   admin: boolean;
   head: boolean;
   activated: boolean;
+  organization: string;
+  position: string;
+  isOutsource: boolean;
 };
 
 export const BASE_SOCKET =

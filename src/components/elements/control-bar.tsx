@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { addDays, format } from 'date-fns';
-import { Calendar as CalendarIcon, CheckIcon, Search } from 'lucide-react';
+import { Calendar as CalendarIcon, CheckIcon, Plus, Search } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -70,10 +70,10 @@ export function FilterByDateRange({ className, onDateChange }: FilterDateRangePr
             id="date"
             variant={'outline'}
             className={cn(
-              'w-[240px] justify-start text-left font-BaiJamjuree border-[1px] border-brown',
+              'w-[240px] justify-start text-left font-BaiJamjuree border-[1px] border-brown font-bold text-brown text-sm',
               !date && 'text-muted-foreground',
             )}>
-            <CalendarIcon />
+            <CalendarIcon className="text-brown" />
             {date?.from ? (
               date.to ? (
                 <>
@@ -83,11 +83,15 @@ export function FilterByDateRange({ className, onDateChange }: FilterDateRangePr
                 format(date.from, 'LLL dd, y')
               )
             ) : (
-              <span>Filter by date</span>
+              <span className="text-brown text-sm font-normal font-BaiJamjuree">
+                Filter by date
+              </span>
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0 flex flex-col " align="center">
+        <PopoverContent
+          className="w-auto p-0 flex flex-col text-brown text-sm font-normal font-BaiJamjuree"
+          align="center">
           <Calendar
             initialFocus
             mode="range"
@@ -176,20 +180,20 @@ export function FilterByTags({ onSelectTagChange }: FilterTagsProp) {
               : 'bg-white hover:bg-white',
           )}>
           <span
-            className={`text-[14px] font-BaiJamjuree ${selectedValues.length !== 0 ? 'text-black font-bold' : 'text-brown'}`}>
+            className={`text-sm font-BaiJamjuree ${selectedValues.length !== 0 ? 'text-black font-bold' : 'text-brown font-normal'}`}>
             Filter {selectedValues.length} tag(s)
           </span>
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-auto p-0"
+        className="w-auto p-0 relative"
         align="start"
         onEscapeKeyDown={() => setIsPopoverOpen(false)}>
         <Command>
           <CommandInput placeholder="Search..." onKeyDown={handleInputKeyDown} />
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup>
+            <CommandGroup className="mb-10">
               <CommandItem key="all" onSelect={toggleAll} className="cursor-pointer">
                 <div
                   className={cn(
@@ -224,7 +228,7 @@ export function FilterByTags({ onSelectTagChange }: FilterTagsProp) {
               })}
             </CommandGroup>
             <CommandSeparator />
-            <CommandGroup>
+            <CommandGroup className="absolute bottom-0 w-full bg-white">
               <div className="flex items-center justify-between">
                 {selectedValues.length > 0 && (
                   <>
@@ -287,7 +291,7 @@ export function Searchbar({ onSearchChange, placeholder }: SearchProp) {
       <input
         type="text"
         placeholder={placeholder}
-        className="resize-none w-full h-[40px] outline-none placeholder-gray-300 text-sm font-BaiJamjuree bg-transparent"
+        className="resize-none w-full h-[40px] outline-none placeholder-gray-300 text-sm font-BaiJamjuree bg-transparent placeholder:text-[#9a928d] text-brown"
         onChange={handleInputChange}
       />
     </div>
@@ -305,8 +309,9 @@ export function Createproject() {
     <Button
       variant="outline"
       onClick={handleCreateProject}
-      className="flex items-center text-[#6b5c56] border-[#6b5c56] px-3 py-1 rounded-md font-BaiJamjuree">
-      + New project
+      className="border-brown font-BaiJamjuree text-sm rounded-md gap-1">
+      <Plus className="text-brown" />
+      <span className="text-brown text-sm font-normal font-BaiJamjuree">New project</span>
     </Button>
   );
 }
