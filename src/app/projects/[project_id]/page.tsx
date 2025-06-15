@@ -6,7 +6,7 @@ export default async function Page({ params }: { params: Promise<{ project_id: s
   const project_id = (await params).project_id;
 
   return (
-    <div className="min-w-full flex flex-col items-start justify-center gap-4 px-20">
+    <div className="min-w-full flex flex-col items-start justify-center gap-4 px-20 ">
       <div className="flex w-full items-center justify-end">
         <ProjectBackButton project_id={project_id} />
       </div>

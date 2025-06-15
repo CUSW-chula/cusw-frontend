@@ -32,9 +32,7 @@ const page = () => {
         <AdminCard title="Tag Settings" path="/admin/tag-settings" />
         <AdminCard title="Template Management" path="/admin/template-management" />
       </div>
-      <p className="text-center text-brown/60 font-Anuphan">
-        Platform Version: 1.0.0 | Secure Admin Session
-      </p>
+  
     </div>
   );
 };

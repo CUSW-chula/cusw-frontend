@@ -86,7 +86,7 @@ export const TaskList = ({ tasks }: { tasks: TaskProps[] }) => {
   };
 
   return (
-    <div>
+    <div className="overflow-x-hidden n">
       {tasks.map((task) => (
         <Task
           key={task.id}

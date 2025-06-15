@@ -103,12 +103,12 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         </div>
       </div>
       {statusSections.map(({ status, displayName, icon }) => (
-        <div key={status} className="w-full">
+        <div key={status} className="w-full ">
           <div className="flex items-center gap-2 border-b border-gray-300 py-3">
             <img src={icon} alt={`${status} Icon`} className="w-6 h-6" />
             <span className="text-black text-sm font-medium font-BaiJamjuree">{displayName}</span>
           </div>
-          <div className="w-full block overflow-scroll">
+          <div className="w-full block overflow-hidden">
             {showTasks
               .filter((item) => groupingStatus(item, 99) === statusToInt(status))
               .map((item) => (
