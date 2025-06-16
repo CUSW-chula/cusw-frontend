@@ -108,7 +108,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
             <img src={icon} alt={`${status} Icon`} className="w-6 h-6" />
             <span className="text-black text-sm font-medium font-BaiJamjuree">{displayName}</span>
           </div>
-          <div className="w-full block overflow-scroll">
+          <div className="w-full block overflow-x-auto">
             {showTasks
               .filter((item) => groupingStatus(item, 99) === statusToInt(status))
               .map((item) => (

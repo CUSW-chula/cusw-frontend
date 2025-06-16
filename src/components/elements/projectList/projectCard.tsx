@@ -174,35 +174,73 @@ export const ProjectCard = ({
                     )}
                   </div>
 
-                  <div className="w-[24px] h-[24px] flex flex-row  ">
-                    <div className="flex items-center justify-center font-BaiJamjuree text-[24px] text-center h-full w-full font-semibold">
-                      ฿
+                  <TooltipProvider>
+                    <div className="flex flex-row items-center">
+                      <div className="flex items-center justify-center font-BaiJamjuree text-[24px] w-6 h-6 font-semibold -ml-1">
+                        ฿
+                      </div>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="font-BaiJamjuree text-[14px] font-medium ml-2 truncate max-w-[250px]">
+                            {project.budget.toLocaleString()}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="top"
+                          align="center"
+                          className="z-50 overflow-visible ">
+                          <p className="z-50 font-BaiJamjuree font-medium bg-white border border-gray-300 rounded-md px-2 py-1 text-sm">
+                            {project.budget.toLocaleString()}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
                     </div>
+                  </TooltipProvider>
+                  <TooltipProvider>
+                    <div className="flex flex-row items-center">
+                      <div className="flex items-center justify-center font-BaiJamjuree text-[24px] w-6 h-6 font-semibold -ml-1 text-[#EF4444] ">
+                        ฿
+                      </div>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="font-BaiJamjuree text-[14px] font-medium ml-2 truncate max-w-[250px] text-[#EF4444] ">
+                            {project.expense.toLocaleString()}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="top"
+                          align="center"
+                          className="z-50 overflow-visible ">
+                          <p className="z-50 font-BaiJamjuree font-medium bg-white border border-gray-300 rounded-md px-2 py-1 text-sm text-[#EF4444] ">
+                            {project.expense.toLocaleString()}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </TooltipProvider>
 
-                    {/* <img src="/asset/icon/budget-black.svg" alt="Budget Icon " /> */}
-                    <div className="font-BaiJamjuree text-[14px] font-medium flex text-center ml-3">
-                      {project.budget.toLocaleString()}
+                  <TooltipProvider>
+                    <div className="flex flex-row items-center">
+                      <div className="flex items-center justify-center font-BaiJamjuree text-[24px] w-6 h-6 font-semibold -ml-1 text-[#69BCA0]">
+                        ฿
+                      </div>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="font-BaiJamjuree text-[14px] font-medium ml-2 truncate max-w-[250px] text-[#69BCA0]">
+                            {project.advance.toLocaleString()}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="top"
+                          align="center"
+                          className="z-50 overflow-visible ">
+                          <p className="z-50 font-BaiJamjuree font-medium bg-white border border-gray-300 rounded-md px-2 py-1 text-sm text-[#69BCA0]">
+                            {project.advance.toLocaleString()}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
                     </div>
-                  </div>
-                  <div className="w-[24px] h-[24px] flex flex-row  ">
-                    <div className="flex items-center justify-center font-BaiJamjuree text-[24px] text-center h-full w-full text-[#EF4444] font-semibold">
-                      ฿
-                    </div>
-
-                    {/* <img src="/asset/icon/budget-red.svg" alt="Budget Icon " /> */}
-                    <div className="font-BaiJamjuree text-[14px] font-medium flex text-center ml-3 text-[#EF4444]">
-                      {project.expense.toLocaleString()}
-                    </div>
-                  </div>
-                  <div className="w-[24px] h-[24px] flex flex-row  ">
-                    <div className="flex items-center justify-center font-BaiJamjuree text-[24px] text-center h-full w-full text-[#69BCA0] font-semibold">
-                      ฿
-                    </div>
-                    {/* <img src="/asset/icon/budget-green.svg" alt="Budget Icon " /> */}
-                    <div className="font-BaiJamjuree text-[14px] font-medium flex text-center ml-3 text-[#69BCA0]">
-                      {project.advance.toLocaleString()}
-                    </div>
-                  </div>
+                  </TooltipProvider>
 
                   <div className="flex flex-row">
                     <Calendar className="w-[24px] h-[24px] relative text-black mr-1" />
