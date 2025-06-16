@@ -32,7 +32,6 @@ const page = () => {
         <AdminCard title="Tag Settings" path="/admin/tag-settings" />
         <AdminCard title="Template Management" path="/admin/template-management" />
       </div>
- 
     </div>
   );
 };
