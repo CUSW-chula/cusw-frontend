@@ -65,7 +65,7 @@ export const MyTaskManager = () => {
       }
     };
     fetchTask();
-  });
+  }, [auth]);
 
   const statusToInt = (status: string): number => {
     const statusMap: { [key: string]: number } = {
