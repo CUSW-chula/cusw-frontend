@@ -95,6 +95,41 @@ export type User = {
   isOutsource: boolean;
 };
 
+export type UserWorkload = {
+  userId: string;
+  name: string;
+  metrics: {
+    taskCount: number;
+    rechecked: number;
+    breakdown: {
+      assigned: number;
+      inRecheck: number;
+      underReview: number;
+      done: number;
+      perAssigned: number;
+      perInRecheck: number;
+      perUnderReview: number;
+      perDone: number;
+    };
+  };
+  projects: {
+    id: string;
+    title: string;
+    startDate: string | null;
+    endDate: string | null;
+    tags: string[];
+    tasks: {
+      taskId: string;
+      name: string;
+      acceptanceStatus: string;
+      taskStatus: string;
+      rechecked: number;
+    }[];
+  }[];
+};
+
+
+
 export const BASE_SOCKET =
   process.env.NODE_ENV === 'production'
     ? 'wss://cusw-workspace.sa.chula.ac.th/socket'

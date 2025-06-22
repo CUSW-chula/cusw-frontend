@@ -31,6 +31,7 @@ const page = () => {
         <AdminCard title="User Management" path="/admin/user-management" />
         <AdminCard title="Tag Settings" path="/admin/tag-settings" />
         <AdminCard title="Template Management" path="/admin/template-management" />
+        <AdminCard title="Workload Management" path="/admin/workload" />
       </div>
     </div>
   );
