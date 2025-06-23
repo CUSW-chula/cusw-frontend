@@ -295,6 +295,7 @@ export const parseJsonValues = (values: any[]): TaskProps[] => {
     doneAt: value.doneAt ? new Date(value.doneAt) : null,
     parentTaskId: value.parentTaskId,
     projectId: value.projectId,
+    position: value.position,
     createdById: value.createdById,
     startDate: value.startDate ? new Date(value.startDate) : null,
     endDate: value.endDate ? new Date(value.endDate) : null,

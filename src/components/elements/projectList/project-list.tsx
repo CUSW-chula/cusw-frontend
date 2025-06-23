@@ -103,16 +103,14 @@ export const ProjectList = () => {
             <SortButton onSelectChange={handleSort} />
             <Createproject />
           </div>
-          <div className="flex items-start content-start gap-[16px] flex-wrap ">
-            <ProjectCard
-              query={query}
-              setQuery={setQuery}
-              projectList={projectList}
-              setProjectList={setProjectList}
-              starredProjects={starredProjects}
-              setStarredProjects={setStarredProjects}
-            />
-          </div>
+          <ProjectCard
+            query={query}
+            setQuery={setQuery}
+            projectList={projectList}
+            setProjectList={setProjectList}
+            starredProjects={starredProjects}
+            setStarredProjects={setStarredProjects}
+          />
         </>
       )}
     </>

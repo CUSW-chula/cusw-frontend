@@ -11,19 +11,19 @@ export const Sort = ({ showTasks, setShowTasks }: SortProps) => {
   const sortItem = [
     {
       value: 'StartDate123',
-      label: 'Start date ↓',
-    },
-    {
-      value: 'StartDate321',
       label: 'Start date ↑',
     },
     {
+      value: 'StartDate321',
+      label: 'Start date ↓',
+    },
+    {
       value: 'EndDate123',
-      label: 'End date ↓',
+      label: 'End date ↑',
     },
     {
       value: 'EndDate321',
-      label: 'End date ↑',
+      label: 'End date ↓',
     },
   ];
   const handleSort = (value: string) => {
@@ -67,7 +67,7 @@ export const Sort = ({ showTasks, setShowTasks }: SortProps) => {
   return (
     <Select onValueChange={(value) => handleSort(value)}>
       <SelectTrigger className="w-[172px] border-brown text-brown font-BaiJamjuree font-normal focus:outline-none focus:ring-0 focus:ring-offset-0">
-        <SelectValue placeholder="Sort by: Start date ↓" />
+        <SelectValue placeholder="Sort by: Start date ↑" />
       </SelectTrigger>
       <SelectContent>
         {sortItem.map(({ value, label }) => (

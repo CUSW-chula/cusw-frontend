@@ -6,7 +6,6 @@ import type { TagProps, TaskProps } from '@/app/types/types';
 import { Task, ExportDialog, Filter, Sort, CreateTask } from './taskManagement';
 import { parseJsonValues, statusSections } from '@/lib/taskUtils';
 import { toast } from '@/hooks/use-toast';
-
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
 
@@ -41,33 +40,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     setExpandedIds(new Set(newIds));
   };
 
-  const sortByPosition = (a: TaskProps, b: TaskProps): number => {
-    // Handle cases where position is missing
-    if (!a.position && !b.position) return 0;
-    if (!a.position) return 1; // push items without position to the end
-    if (!b.position) return -1; // push items without position to the end
-
-    // Split positions into arrays of numbers for comparison
-    const posA = a.position.split('.').map(Number);
-    const posB = b.position.split('.').map(Number);
-
-    // Compare each level of the position
-    for (let i = 0; i < Math.min(posA.length, posB.length); i++) {
-      // Handle NaN cases (if position contains non-numeric parts)
-      if (Number.isNaN(posA[i]) || Number.isNaN(posB[i])) {
-        // Compare as strings if not numbers
-        const strA = a.position.split('.')[i];
-        const strB = b.position.split('.')[i];
-        if (strA !== strB) return strA.localeCompare(strB);
-      } else if (posA[i] !== posB[i]) {
-        return posA[i] - posB[i];
-      }
-    }
-
-    // If one position is more specific than the other (e.g., "1" vs "1.1")
-    return posA.length - posB.length;
-  };
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -85,18 +57,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         setProjectName(project.title);
 
         const parsedData = parseJsonValues(project.tasks);
-
-        // Recursively sort tasks and their subtasks by position
-        const sortTasksRecursively = (tasks: TaskProps[]) => {
-          tasks.sort(sortByPosition);
-          for (const task of tasks) {
-            if (task.subtasks && task.subtasks.length > 0) {
-              sortTasksRecursively(task.subtasks);
-            }
-          }
-        };
-
-        sortTasksRecursively(parsedData);
         setTasks(parsedData);
         setShowTasks(parsedData);
       } catch (error) {
@@ -148,7 +108,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
             <img src={icon} alt={`${status} Icon`} className="w-6 h-6" />
             <span className="text-black text-sm font-medium font-BaiJamjuree">{displayName}</span>
           </div>
-          <div className="w-full block overflow-scroll">
+          <div className="w-full block overflow-x-auto">
             {showTasks
               .filter((item) => groupingStatus(item, 99) === statusToInt(status))
               .map((item) => (

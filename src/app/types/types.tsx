@@ -12,7 +12,7 @@ export interface TaskProps {
   doneAt: Date | null;
   projectId: string;
   parentTaskId: string; //fix to type initial,subtaskAdded,...
-  position?: string;
+  position: number;
   statusBudget: string; //Name not mathch the db 'Budgets / Budget'
   budget: number;
   advance: number;

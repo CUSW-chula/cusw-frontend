@@ -53,7 +53,7 @@ export const CreateTask = (project: { project_id: string }) => {
       onClick={handleCreateTask}
       className="border-brown font-BaiJamjuree text-sm rounded-md gap-1">
       <Plus className="text-brown" />
-      <span className="text-brown text-sm font-BaiJamjuree font-normal">New subtask</span>
+      <span className="text-brown text-sm font-BaiJamjuree font-normal">New task</span>
     </Button>
   );
 };

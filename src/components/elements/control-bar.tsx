@@ -186,14 +186,14 @@ export function FilterByTags({ onSelectTagChange }: FilterTagsProp) {
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-auto p-0"
+        className="w-auto p-0 relative"
         align="start"
         onEscapeKeyDown={() => setIsPopoverOpen(false)}>
         <Command>
           <CommandInput placeholder="Search..." onKeyDown={handleInputKeyDown} />
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup>
+            <CommandGroup className="mb-10">
               <CommandItem key="all" onSelect={toggleAll} className="cursor-pointer">
                 <div
                   className={cn(
@@ -228,7 +228,7 @@ export function FilterByTags({ onSelectTagChange }: FilterTagsProp) {
               })}
             </CommandGroup>
             <CommandSeparator />
-            <CommandGroup>
+            <CommandGroup className="absolute bottom-0 w-full bg-white">
               <div className="flex items-center justify-between">
                 {selectedValues.length > 0 && (
                   <>

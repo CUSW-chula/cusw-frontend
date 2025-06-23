@@ -1,11 +1,11 @@
-import BASE_URL from '@/lib/shared';
+import BASE_URL, { type ProjectTagProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
-import { useEffect, useState } from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
+import { useCallback, useEffect, useState } from 'react';
 import type { TaskProps, TagProps } from '@/app/types/types';
 import { useAuth } from '@/hooks/use-auth';
-import { toast } from '@/hooks/use-toast';
-
+import { FilterByTags } from '@/components/elements/control-bar';
+import { useAtom } from 'jotai';
+import { tagsListAtom } from '@/atom';
 interface FilterProps {
   tasks: TaskProps[];
   setShowTasks: (prev: TaskProps[]) => void;
@@ -13,8 +13,8 @@ interface FilterProps {
 
 export const Filter = ({ tasks, setShowTasks }: FilterProps) => {
   const [allTags, setAllTags] = useState<TagProps[]>([]);
-  const [selectedTag, setSelectedTag] = useState<string>('all');
   const auth = useAuth();
+
   useEffect(() => {
     //get all tags of tasks from db
     const fetchTagData = async () => {
@@ -37,37 +37,40 @@ export const Filter = ({ tasks, setShowTasks }: FilterProps) => {
     fetchTagData();
   }, [auth]);
 
-  const handleFilter = (tagId: string) => {
-    setSelectedTag(tagId);
-    if (tagId === 'all') {
+  /* setTagsList on filter */
+  const [, setTagsList] = useAtom<ProjectTagProp[]>(tagsListAtom);
+
+  const handleTagSelection = useCallback(() => {
+    const tagMap = allTags.reduce((tags, tag) => {
+      tags.set(tag.id, { value: tag.id, label: tag.name });
+      return tags;
+    }, new Map());
+
+    setTagsList(Array.from(tagMap.values()));
+  }, [tasks, setTagsList, setShowTasks]);
+
+  useEffect(() => {
+    handleTagSelection();
+  }, [handleTagSelection]);
+
+  /* setTask and handleTagSelected */
+  const handleTagSelected = (selectedTags: string[]) => {
+    if (selectedTags.length === 0) {
       setShowTasks(tasks);
-    } else {
-      const filteredTasks = tasks.filter((task) => task.tags?.some((tag) => tag.id === tagId));
-      setShowTasks(filteredTasks);
+      return;
     }
+
+    const filteredTasks = tasks.filter((task) => {
+      const subtaskTagIds =
+        task.subtasks?.flatMap((subtask) => subtask.tags?.map((tag) => tag.id) ?? []) ?? [];
+      const taskTagIds = task.tags?.map((tag) => tag.id) ?? [];
+
+      const allTagIds = [...taskTagIds, ...subtaskTagIds];
+      return selectedTags.every((id) => allTagIds.includes(id));
+    });
+
+    setShowTasks(filteredTasks);
   };
 
-  return (
-    <Select
-      onValueChange={(value) => {
-        handleFilter(value);
-      }}>
-      <SelectTrigger className="w-40 border-brown">
-        <SelectValue className="text-brown" placeholder="Filter by: Tag">
-          {selectedTag === 'all' ? 'All' : allTags.find((tag) => tag.id === selectedTag)?.name}
-        </SelectValue>
-      </SelectTrigger>
-
-      <SelectContent>
-        <SelectItem key="default" value="all" className="font-BaiJamjuree">
-          All
-        </SelectItem>
-        {allTags.map((tag: TagProps) => (
-          <SelectItem key={tag.id} value={tag.id} className="font-BaiJamjuree">
-            {tag.name}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  );
+  return <FilterByTags onSelectTagChange={handleTagSelected} />;
 };

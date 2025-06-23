@@ -36,7 +36,7 @@ export const Task = ({
     <>
       <div
         className="flex items-center w-full h-fit py-1.5 hover:bg-gray-50 justify-between"
-        style={{ paddingLeft: `${depth * 24 + 24}px` }}>
+        style={{ paddingLeft: `${depth * 24}px` }}>
         <TaskTitle
           item={item}
           isExpanded={expandedIds.has(item.id)}
