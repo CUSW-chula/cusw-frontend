@@ -2,19 +2,19 @@
   "users": [
     {
       "userId": "user1",
-      "name": "User 1",
+      "name": "Siwadol Rungmart",
       "metrics": {
         "taskCount": 58,
         "rechecked": 30,
         "breakdown": {
-          "assigned": 1,
+          "assigned": 10,
           "inRecheck": 9,
-          "underReview": 15,
-          "done": 11,
-          "perAssigned": 10,
+          "underReview": 1,
+          "done": 1,
+          "perAssigned": 16,
           "perInRecheck": 15,
           "perUnderReview": 9,
-          "perDone": 24
+          "perDone": 45
         }
       },
       "projects": [

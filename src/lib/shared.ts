@@ -115,8 +115,8 @@ export type UserWorkload = {
   projects: {
     id: string;
     title: string;
-    startDate: string | null;
-    endDate: string | null;
+    startDate: Date | null;
+    endDate: Date | null;
     tags: string[];
     tasks: {
       taskId: string;
@@ -127,8 +127,6 @@ export type UserWorkload = {
     }[];
   }[];
 };
-
-
 
 export const BASE_SOCKET =
   process.env.NODE_ENV === 'production'
