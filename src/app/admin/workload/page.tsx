@@ -1,5 +1,5 @@
 import { FilterByDateRange, FilterByTags } from '@/components/elements/control-bar';
-import WorkloadUser from '@/components/elements/workload/workload-user';
+import WorkloadUser from '@/components/elements/workload/AllUsers/workload-user';
 import React from 'react';
 const page = () => {
   return (
