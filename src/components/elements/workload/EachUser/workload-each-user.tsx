@@ -6,7 +6,7 @@ import LoadingClient from "../../loading-screen";
 import type { UserWorkload } from "@/lib/shared";
 import React from "react";
 import { FilterByDateRange, FilterByTags } from "../../control-bar";
-import { WorkloadEachUserTable } from "../each-user-table";
+import { WorkloadEachUserTable } from "./each-user-table";
 import {
   Tooltip,
   TooltipContent,
@@ -14,31 +14,15 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@radix-ui/react-tooltip";
+interface WorkloadEachUserProps {
+  userData: UserWorkload[];
+}
 
-export function WorkloadEachUser() {
-  const cookie = getCookie("auth");
-  const auth = cookie?.toString() ?? "";
-
-  const [isLoading, setIsLoading] = useState(true);
+export function WorkloadEachUser({ userData }: WorkloadEachUserProps) {
   const [eachUserWorkload, setEachUserWorkload] = useState<UserWorkload[]>([]);
   useEffect(() => {
-    const fetchEachUserWorkload = async () => {
-      try {
-        const response = await fetch("/eachuserdata.json");
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        console.log("dataeach", data); // จะเห็นว่าเป็น { users: [...] }
-
-        setEachUserWorkload(data.users); // <-- ตรงนี้!!
-      } catch (error) {
-        console.error("Fetch error:", error);
-      }
-    };
-
-    fetchEachUserWorkload(); // <-- เรียกตรงนี้ครั้งเดียวใน useEffect
-  }, []);
+    setEachUserWorkload(userData ?? []);
+  }, [userData]);
 
   function handleDateRangeChange(
     dateRange: { from: string; to: string } | undefined
@@ -56,18 +40,7 @@ export function WorkloadEachUser() {
   };
   return (
     <>
-      {/* {isLoading ? (
-        <div className="flex justify-center items-center w-full h-screen">
-          <LoadingClient />
-        </div>
-      ) : (
-        <>
-          <div>
-          <WorkloadChart userWorkload={userWorkload} setUserWorkload={setUserWorkload}/>
-          </div>
-        </>
-      )} */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-[18px]">
         <div className="flex flex-row ">
           <div className="justify-start text-black text-5xl font-semibold font-['Anuphan'] leading-[48px]">
             Workload :
@@ -75,25 +48,25 @@ export function WorkloadEachUser() {
           <div className=" ml-4 flex flex-row gap-1 items-center">
             {eachUserWorkload.length > 0 && (
               <>
-              <div className="w-[36px] h-[36px]">
-                    <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <div className="w-[36px] h-[36px] bg-gray-100 rounded-full flex items-center justify-center border border-brown">
-                        <span className="text-brown text-[18px] font-BaiJamjuree font-medium">
-                          {getInitials(eachUserWorkload[0].name || "")}
-                        </span>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="bg-white z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md">
-                        {eachUserWorkload[0].name}
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-                
+                <div className="w-[36px] h-[36px]">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <div className="w-[36px] h-[36px] bg-gray-100 rounded-full flex items-center justify-center border border-brown">
+                          <span className="text-brown text-[18px] font-BaiJamjuree font-medium">
+                            {getInitials(eachUserWorkload[0].name || "")}
+                          </span>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="bg-white z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md">
+                          {eachUserWorkload[0].name}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+
                 <span className="text-[21px] font-BaiJamjuree font-normal text-center">
                   {eachUserWorkload[0].name}
                 </span>

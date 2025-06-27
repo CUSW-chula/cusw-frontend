@@ -29,7 +29,7 @@
               "taskId": "task_1",
               "name": "Task 1",
               "acceptanceStatus": "In time",
-              "taskStatus": "Under Review",
+              "taskStatus": "UnAssigned",
               "rechecked": 6
             },
             {

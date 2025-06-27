@@ -46,12 +46,11 @@ const UnderReviewIcon = () => (
   <img src="/asset/icon/underreview.svg" alt="Under Review Icon" className="w-4 h-4" />
 );
 const DoneIcon = () => <img src="/asset/icon/done.svg" alt="Done Icon" className="w-4 h-4" />;
-   const getInitials = (name: string) => {
-    const nameParts = name.split(' ');
-    return nameParts.map((part) => part[0]).join(''); // Take the first letter of each part
-  };
+const getInitials = (name: string) => {
+  const nameParts = name.split(' ');
+  return nameParts.map((part) => part[0]).join(''); // Take the first letter of each part
+};
 
-  
 export function WorkloadChart({ userWorkload, setUserWorkload }: UserWorkloadProps) {
   const chartData = userWorkload.map((user) => ({
     name: user.name,
@@ -107,58 +106,52 @@ export function WorkloadChart({ userWorkload, setUserWorkload }: UserWorkloadPro
 }
 export default WorkloadChart;
 
-
-
 export function WorkloadAllUserTable({ userWorkload, setUserWorkload }: UserWorkloadProps) {
   const router = useRouter();
 
   return (
     <div className="p-7 bg-white rounded-md">
       <Table className="w-full bg-white h-[570px] rounded-md border-0 border-b-0">
-
-   
         <TableHeader>
           <TableRow className="flex w-full items-center border-0 border-b-0 rounded-sm bg-[#F9FAFB] ">
-             <TableHead className="w-[450px] py-3">
-            <div className="font-BaiJamjuree text-sm text-black font-bold ">User</div>
-          </TableHead>
-          <TableHead className="w-[112px] ml-5 text-center py-3">
-            <div className="font-BaiJamjuree text-sm text-black font-bold ">Task Count</div>
-          </TableHead>
-          <TableHead className="w-[112px] ml-5 text-center py-3">
-            <div className="font-BaiJamjuree text-sm text-black font-bold">Rechecked</div>
-          </TableHead>
-          <TableHead className="w-[112px] ml-5 text-center py-3">
-            <div className="flex flex-row items-center gap-2 text-sm font-BaiJamjuree text-black font-bold">
-              <AssignIcon /> Assigned
-            </div>
-          </TableHead>
-          <TableHead className="w-[130px] ml-5 text-center py-3">
-            <div className="flex flex-row items-center gap-2 text-sm font-BaiJamjuree  text-black font-bold">
-              <InrecheckIcon /> In recheck
-            </div>
-          </TableHead>
-          <TableHead className="w-[150px] ml-5 text-center py-3">
-            <div className="flex flex-row items-center gap-2 text-sm font-BaiJamjuree text-black font-bold">
-              <UnderReviewIcon /> Under Review
-            </div>
-          </TableHead>
-          <TableHead className="w-[112px] ml-5 text-center py-3">
-            <div className="flex flex-row items-center gap-2 text-sm font-BaiJamjuree text-black font-bold">
-              <DoneIcon /> Done
-            </div>
-          </TableHead>
+            <TableHead className="w-[450px] py-3">
+              <div className="font-BaiJamjuree text-sm text-black font-bold ">User</div>
+            </TableHead>
+            <TableHead className="w-[112px] ml-5 text-center py-3">
+              <div className="font-BaiJamjuree text-sm text-black font-bold ">Task Count</div>
+            </TableHead>
+            <TableHead className="w-[112px] ml-5 text-center py-3">
+              <div className="font-BaiJamjuree text-sm text-black font-bold">Rechecked</div>
+            </TableHead>
+            <TableHead className="w-[112px] ml-5 text-center py-3">
+              <div className="flex flex-row items-center gap-2 text-sm font-BaiJamjuree text-black font-bold">
+                <AssignIcon /> Assigned
+              </div>
+            </TableHead>
+            <TableHead className="w-[130px] ml-5 text-center py-3">
+              <div className="flex flex-row items-center gap-2 text-sm font-BaiJamjuree  text-black font-bold">
+                <InrecheckIcon /> In recheck
+              </div>
+            </TableHead>
+            <TableHead className="w-[150px] ml-5 text-center py-3">
+              <div className="flex flex-row items-center gap-2 text-sm font-BaiJamjuree text-black font-bold">
+                <UnderReviewIcon /> Under Review
+              </div>
+            </TableHead>
+            <TableHead className="w-[112px] ml-5 text-center py-3">
+              <div className="flex flex-row items-center gap-2 text-sm font-BaiJamjuree text-black font-bold">
+                <DoneIcon /> Done
+              </div>
+            </TableHead>
           </TableRow>
         </TableHeader>
 
-     
         <TableBody className="block overflow-y-auto h-[500px] w-full">
           {userWorkload.map((user) => (
             <TableRow
               key={user.userId}
               className="flex w-full border-0 cursor-pointer"
-              onClick={() => router.push(`/admin/workload/each/${user.userId}`)}
-            >
+              onClick={() => router.push(`/admin/workload/each/${user.userId}`)}>
               <TableCell className="w-[450px] text-start">
                 <div className="flex flex-row gap-1">
                   <TooltipProvider>
@@ -180,24 +173,24 @@ export function WorkloadAllUserTable({ userWorkload, setUserWorkload }: UserWork
                   {user.name}
                 </div>
               </TableCell>
-               <TableCell className="w-[112px]  ml-5 text-center">
-                  {user.metrics.taskCount}
-                </TableCell>
-                <TableCell className="w-[112px]  ml-5 text-center">
-                  {user.metrics.rechecked}
-                </TableCell>
-                <TableCell className="w-[112px]  ml-5 text-center">
-                  {user.metrics.breakdown.assigned}
-                </TableCell>
-                <TableCell className="w-[130px]  ml-5 text-center">
-                  {user.metrics.breakdown.inRecheck}
-                </TableCell>
-                <TableCell className="w-[150px]  ml-5 text-center">
-                  {user.metrics.breakdown.underReview}
-                </TableCell>
-                <TableCell className="w-[112px]  ml-5 text-center">
-                  {user.metrics.breakdown.done}
-                </TableCell>
+              <TableCell className="w-[112px]  ml-5 text-center">
+                {user.metrics.taskCount}
+              </TableCell>
+              <TableCell className="w-[112px]  ml-5 text-center">
+                {user.metrics.rechecked}
+              </TableCell>
+              <TableCell className="w-[112px]  ml-5 text-center">
+                {user.metrics.breakdown.assigned}
+              </TableCell>
+              <TableCell className="w-[130px]  ml-5 text-center">
+                {user.metrics.breakdown.inRecheck}
+              </TableCell>
+              <TableCell className="w-[150px]  ml-5 text-center">
+                {user.metrics.breakdown.underReview}
+              </TableCell>
+              <TableCell className="w-[112px]  ml-5 text-center">
+                {user.metrics.breakdown.done}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -205,5 +198,3 @@ export function WorkloadAllUserTable({ userWorkload, setUserWorkload }: UserWork
     </div>
   );
 }
-
-

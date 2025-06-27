@@ -217,13 +217,13 @@ const ChartTooltipContent = React.forwardRef<
                           {itemConfig?.label || item.name}
                         </span>
                       </div>
-                      {item.value && (
+                      {item.value !== undefined && item.value !== null &&  (
                         <div className="flex flex-row- font-BaiJamjuree  font-medium tabular-nums ">
                           <>
                             <div className="text-black w-[15px] text-center ml-1 ">
                               {item.value.toLocaleString()}
                             </div>
-                            <div className="text-neutral-500 dark:text-neutral-400 ml-1 text-right w-[40px]">
+                            <div className="text-neutral-500 dark:text-neutral-400 ml-1 text-right w-[50px]">
                               {(() => {
                                 const p = item.payload;
                                 const dataKey =
