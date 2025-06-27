@@ -9,12 +9,18 @@ interface FilterWorkloadProps {
   setUserWorkload: (prev: UserWorkload[]) => void;
 }
 
-export const useFilterProjectWorkload = ({ userWorkload, setUserWorkload }: FilterWorkloadProps) => {
+export const useFilterProjectWorkload = ({
+  userWorkload,
+  setUserWorkload,
+}: FilterWorkloadProps) => {
   const [dateRange, setDateRange] = React.useState<{ from: string; to: string } | undefined>();
   const [searchText, setSearchText] = React.useState('');
   const [filterTag, setFilterTag] = React.useState<string[]>([]);
 
-  const projectList = React.useMemo(() => userWorkload.flatMap(user => user.projects), [userWorkload]);
+  const projectList = React.useMemo(
+    () => userWorkload.flatMap((user) => user.projects),
+    [userWorkload],
+  );
 
   const handleSearchInputChange = (text: string) => {
     setSearchText(text);
@@ -39,15 +45,15 @@ export const useFilterProjectWorkload = ({ userWorkload, setUserWorkload }: Filt
     let filteredProjects = [...projectList];
 
     if (filterTag.length > 0) {
-      filteredProjects = filteredProjects.filter(project => {
-        return filterTag.every(tagName => project.tags.includes(tagName));
+      filteredProjects = filteredProjects.filter((project) => {
+        return filterTag.every((tagName) => project.tags.includes(tagName));
       });
     }
 
     if (dateRange?.from && dateRange?.to) {
       const fromDate = new Date(dateRange.from);
       const toDate = new Date(dateRange.to);
-      filteredProjects = filteredProjects.filter(project => {
+      filteredProjects = filteredProjects.filter((project) => {
         if (!project.startDate) return false;
         const projectStartDate = new Date(project.startDate);
         const projectEndDate = project.endDate ? new Date(project.endDate) : null;
@@ -64,18 +70,18 @@ export const useFilterProjectWorkload = ({ userWorkload, setUserWorkload }: Filt
     }
 
     if (searchText.trim() !== '') {
-      filteredProjects = filteredProjects.filter(project =>
-        project.title.toLowerCase().includes(searchText.toLowerCase().trim())
+      filteredProjects = filteredProjects.filter((project) =>
+        project.title.toLowerCase().includes(searchText.toLowerCase().trim()),
       );
     }
 
     // map filteredProjects กลับ userWorkload structure
     const filteredUserWorkload = userWorkload
-      .map(user => ({
+      .map((user) => ({
         ...user,
-        projects: filteredProjects.filter(p => user.projects.some(up => up.id === p.id)),
+        projects: filteredProjects.filter((p) => user.projects.some((up) => up.id === p.id)),
       }))
-      .filter(user => user.projects.length > 0);
+      .filter((user) => user.projects.length > 0);
 
     setUserWorkload(filteredUserWorkload);
   };
@@ -95,7 +101,7 @@ export const useFilterProjectWorkload = ({ userWorkload, setUserWorkload }: Filt
 
     const newTagsList = Array.from(tagMap.values());
 
-    setTagsList(prevTagsList => {
+    setTagsList((prevTagsList) => {
       const isSame =
         prevTagsList.length === newTagsList.length &&
         prevTagsList.every((t, i) => t.value === newTagsList[i].value);

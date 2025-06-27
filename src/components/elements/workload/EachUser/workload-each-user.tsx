@@ -1,19 +1,19 @@
-"use client";
-import { useEffect, useState } from "react";
-import { getCookie } from "cookies-next";
-import BASE_URL from "@/lib/shared";
-import LoadingClient from "../../loading-screen";
-import type { UserWorkload } from "@/lib/shared";
-import React from "react";
-import { FilterByDateRange, FilterByTags } from "../../control-bar";
-import { WorkloadEachUserTable } from "./each-user-table";
+'use client';
+import { useEffect, useState } from 'react';
+import { getCookie } from 'cookies-next';
+import BASE_URL from '@/lib/shared';
+import LoadingClient from '../../loading-screen';
+import type { UserWorkload } from '@/lib/shared';
+import React from 'react';
+import { FilterByDateRange, FilterByTags } from '../../control-bar';
+import { WorkloadEachUserTable } from './each-user-table';
 import {
   Tooltip,
   TooltipContent,
   TooltipPortal,
   TooltipProvider,
   TooltipTrigger,
-} from "@radix-ui/react-tooltip";
+} from '@radix-ui/react-tooltip';
 interface WorkloadEachUserProps {
   userData: UserWorkload[];
 }
@@ -24,19 +24,17 @@ export function WorkloadEachUser({ userData }: WorkloadEachUserProps) {
     setEachUserWorkload(userData ?? []);
   }, [userData]);
 
-  function handleDateRangeChange(
-    dateRange: { from: string; to: string } | undefined
-  ): void {
-    throw new Error("Function not implemented.");
+  function handleDateRangeChange(dateRange: { from: string; to: string } | undefined): void {
+    throw new Error('Function not implemented.');
   }
 
   function handleTagSelection(selectedValues: string[]): void {
-    throw new Error("Function not implemented.");
+    throw new Error('Function not implemented.');
   }
 
   const getInitials = (name: string) => {
-    const nameParts = name.split(" ");
-    return nameParts.map((part) => part[0]).join(""); // Take the first letter of each part
+    const nameParts = name.split(' ');
+    return nameParts.map((part) => part[0]).join(''); // Take the first letter of each part
   };
   return (
     <>
@@ -54,7 +52,7 @@ export function WorkloadEachUser({ userData }: WorkloadEachUserProps) {
                       <TooltipTrigger>
                         <div className="w-[36px] h-[36px] bg-gray-100 rounded-full flex items-center justify-center border border-brown">
                           <span className="text-brown text-[18px] font-BaiJamjuree font-medium">
-                            {getInitials(eachUserWorkload[0].name || "")}
+                            {getInitials(eachUserWorkload[0].name || '')}
                           </span>
                         </div>
                       </TooltipTrigger>

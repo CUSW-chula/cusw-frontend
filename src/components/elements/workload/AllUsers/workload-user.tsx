@@ -13,9 +13,10 @@ export function WorkloadUser() {
   const auth = cookie?.toString() ?? '';
   const [userWorkload, setUserWorkload] = useState<UserWorkload[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { handleTagSelection, handleDateRangeChange, handleSearchInputChange } = useFilterProjectWorkload({
-    userWorkload,
-    setUserWorkload
+  const { handleTagSelection, handleDateRangeChange, handleSearchInputChange } =
+    useFilterProjectWorkload({
+      userWorkload,
+      setUserWorkload,
     });
 
   useEffect(() => {
@@ -41,24 +42,21 @@ export function WorkloadUser() {
     fetchAllUserWorkload();
   }, [auth]);
 
-
-
   return (
     <>
-      <div className='flex flex-col gap-[18px]'>
-         <div className="justify-start text-black text-5xl font-semibold font-['Anuphan'] leading-[48px]">
-        Workload
+      <div className="flex flex-col gap-[18px]">
+        <div className="justify-start text-black text-5xl font-semibold font-['Anuphan'] leading-[48px]">
+          Workload
+        </div>
+        <div className="flex w-full flex-row gap-2 py-4">
+          <FilterByDateRange onDateChange={handleDateRangeChange} />
+          <FilterByTags onSelectTagChange={handleTagSelection} />
+        </div>
+        <div>
+          <WorkloadChart userWorkload={userWorkload} setUserWorkload={setUserWorkload} />
+          <WorkloadAllUserTable userWorkload={userWorkload} setUserWorkload={setUserWorkload} />
+        </div>
       </div>
-      <div className="flex w-full flex-row gap-2 py-4">
-        <FilterByDateRange onDateChange={handleDateRangeChange} />
-        <FilterByTags onSelectTagChange={handleTagSelection} />
-      </div>
-      <div>
-        <WorkloadChart userWorkload={userWorkload} setUserWorkload={setUserWorkload} />
-        <WorkloadAllUserTable userWorkload={userWorkload} setUserWorkload={setUserWorkload} />
-      </div>
-      </div>
-     
     </>
   );
 }

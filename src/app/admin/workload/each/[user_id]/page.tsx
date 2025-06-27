@@ -9,8 +9,8 @@ export default async function Page({
 }: {
   params: Promise<{ user_id: string }>;
 }) {
-  const cookieStore = (await cookies()).get("auth")?.value;
-  const auth: string = cookieStore?.toString() ?? "";
+  const cookieStore = (await cookies()).get('auth')?.value;
+  const auth: string = cookieStore?.toString() ?? '';
   const userId = (await params).user_id;
 
   const response = await fetch(`${BASE_URL}/v2/dashboard/workload/${userId}`, {
@@ -19,12 +19,12 @@ export default async function Page({
   if (!response.ok) {
     throw new Error();
   }
-const userData: UserWorkload = await response.json();
-const userArray = [userData];
-  console.log("userdata",userData)
+  const userData: UserWorkload = await response.json();
+  const userArray = [userData];
+  console.log('userdata', userData);
   return (
     <div className="w-full flex flex-col lg:flex-row items-start justify-center">
-      <WorkloadEachUser  userData={userArray} />
+      <WorkloadEachUser userData={userArray} />
     </div>
   );
 }

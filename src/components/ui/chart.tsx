@@ -217,7 +217,7 @@ const ChartTooltipContent = React.forwardRef<
                           {itemConfig?.label || item.name}
                         </span>
                       </div>
-                      {item.value !== undefined && item.value !== null &&  (
+                      {item.value !== undefined && item.value !== null && (
                         <div className="flex flex-row- font-BaiJamjuree  font-medium tabular-nums ">
                           <>
                             <div className="text-black w-[15px] text-center ml-1 ">
