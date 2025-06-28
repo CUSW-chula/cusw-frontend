@@ -33,7 +33,7 @@ import {
 import { useRouter } from 'next/navigation';
 interface UserWorkloadProps {
   userWorkload: UserWorkload[];
-  setUserWorkload: React.Dispatch<React.SetStateAction<UserWorkload[]>>;
+
 }
 
 const AssignIcon = () => (
@@ -51,7 +51,7 @@ const getInitials = (name: string) => {
   return nameParts.map((part) => part[0]).join(''); // Take the first letter of each part
 };
 
-export function WorkloadChart({ userWorkload, setUserWorkload }: UserWorkloadProps) {
+export function WorkloadChart({ userWorkload}: UserWorkloadProps) {
   const chartData = userWorkload.map((user) => ({
     name: user.name,
     assigned: user.metrics.breakdown.assigned,
@@ -106,7 +106,7 @@ export function WorkloadChart({ userWorkload, setUserWorkload }: UserWorkloadPro
 }
 export default WorkloadChart;
 
-export function WorkloadAllUserTable({ userWorkload, setUserWorkload }: UserWorkloadProps) {
+export function WorkloadAllUserTable({ userWorkload}: UserWorkloadProps) {
   const router = useRouter();
 
   return (

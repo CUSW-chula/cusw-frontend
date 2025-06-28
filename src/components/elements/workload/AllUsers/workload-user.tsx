@@ -6,19 +6,18 @@ import { WorkloadAllUserTable, WorkloadChart } from './chart';
 import type { UserWorkload } from '@/lib/shared';
 import React from 'react';
 import { FilterByDateRange, FilterByTags } from '../../control-bar';
-import { useFilterProjectWorkload } from '../filter-user-workload';
+import { FilterTagWorkload } from './filter-user-workload';
 
 export function WorkloadUser() {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [userWorkload, setUserWorkload] = useState<UserWorkload[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { handleTagSelection, handleDateRangeChange, handleSearchInputChange } =
-    useFilterProjectWorkload({
-      userWorkload,
-      setUserWorkload,
-    });
+  const [originalUserWorkload, setOriginalUserWorkload] = useState<UserWorkload[]>([]);
 
+  function sortUserWorkloadByProjectCount(workloads: UserWorkload[]) {
+  return workloads.sort((a, b) => b.projects.length - a.projects.length);
+}
   useEffect(() => {
     const fetchAllUserWorkload = async () => {
       setIsLoading(true); // เริ่มโหลด
@@ -32,7 +31,11 @@ export function WorkloadUser() {
         }
         const data = await response.json();
         console.log('Fetched user workload data:', data);
-        setUserWorkload(data);
+        const sortedData = sortUserWorkloadByProjectCount(data);
+        setUserWorkload(sortedData);
+setOriginalUserWorkload(sortedData);
+
+       
       } catch (error) {
         console.error('Fetch error:', error);
       } finally {
@@ -49,12 +52,14 @@ export function WorkloadUser() {
           Workload
         </div>
         <div className="flex w-full flex-row gap-2 py-4">
-          <FilterByDateRange onDateChange={handleDateRangeChange} />
-          <FilterByTags onSelectTagChange={handleTagSelection} />
+        <FilterTagWorkload
+ originalUserWorkload={originalUserWorkload}
+  setUserWorkload={setUserWorkload}
+/>
         </div>
         <div>
-          <WorkloadChart userWorkload={userWorkload} setUserWorkload={setUserWorkload} />
-          <WorkloadAllUserTable userWorkload={userWorkload} setUserWorkload={setUserWorkload} />
+          <WorkloadChart userWorkload={userWorkload} />
+          <WorkloadAllUserTable userWorkload={userWorkload}  />
         </div>
       </div>
     </>

@@ -14,24 +14,28 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@radix-ui/react-tooltip';
+import { FilterTagWorkloadEachUser } from './filter-each-user-workload';
 interface WorkloadEachUserProps {
   userData: UserWorkload[];
 }
 
 export function WorkloadEachUser({ userData }: WorkloadEachUserProps) {
   const [eachUserWorkload, setEachUserWorkload] = useState<UserWorkload[]>([]);
+  const [originalEachUserWorkload, setOriginalUserWorkloadEachUser] = useState<UserWorkload[]>([]);
+  function sortProjectsByTaskCount(workloads: UserWorkload[]) {
+  return workloads.map((user) => ({
+    ...user,
+    projects: user.projects.sort(
+      (a, b) => b.tasks.length - a.tasks.length
+    ),
+  }));
+}
   useEffect(() => {
-    setEachUserWorkload(userData ?? []);
+    setEachUserWorkload(sortProjectsByTaskCount(userData) ?? []);
+    setOriginalUserWorkloadEachUser(sortProjectsByTaskCount(userData) ?? []);
   }, [userData]);
 
-  function handleDateRangeChange(dateRange: { from: string; to: string } | undefined): void {
-    throw new Error('Function not implemented.');
-  }
-
-  function handleTagSelection(selectedValues: string[]): void {
-    throw new Error('Function not implemented.');
-  }
-
+ 
   const getInitials = (name: string) => {
     const nameParts = name.split(' ');
     return nameParts.map((part) => part[0]).join(''); // Take the first letter of each part
@@ -74,8 +78,9 @@ export function WorkloadEachUser({ userData }: WorkloadEachUserProps) {
         </div>
 
         <div className="flex w-full flex-row gap-2 py-4">
-          <FilterByDateRange onDateChange={handleDateRangeChange} />
-          <FilterByTags onSelectTagChange={handleTagSelection} />
+          
+          <FilterTagWorkloadEachUser originalEachUserWorkload={originalEachUserWorkload} setEachUserWorkload={setEachUserWorkload} />
+                 
         </div>
         <div>
           <WorkloadEachUserTable
