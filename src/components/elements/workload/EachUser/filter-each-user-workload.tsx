@@ -1,25 +1,40 @@
-import BASE_URL, {type UserWorkload, type ProjectTagProp } from '@/lib/shared';
-import { getCookie } from 'cookies-next';
-import { useCallback, useEffect, useState } from 'react';
-import type { TaskProps, TagProps } from '@/app/types/types';
-import { useAuth } from '@/hooks/use-auth';
-import { FilterByTags } from '@/components/elements/control-bar';
-import { useAtom } from 'jotai';
-import { tagsListAtom } from '@/atom';
+"use client";
+
+import BASE_URL, { type UserWorkload, type ProjectTagProp } from "@/lib/shared";
+import { useCallback, useEffect, useState } from "react";
+import type { TagProps } from "@/app/types/types";
+import { useAuth } from "@/hooks/use-auth";
+import {
+  FilterByDateRange,
+  FilterByTags,
+} from "@/components/elements/control-bar";
+import { useAtom } from "jotai";
+import { tagsListAtom } from "@/atom";
+
 interface FilterProps {
-  originalEachUserWorkload: UserWorkload[];
-  setEachUserWorkload: React.Dispatch<React.SetStateAction<UserWorkload[]>>;
+  originalUserWorkload: UserWorkload[];
+  setUserWorkload: React.Dispatch<React.SetStateAction<UserWorkload[]>>;
 }
-export const FilterTagWorkloadEachUser = ({  originalEachUserWorkload, setEachUserWorkload}: FilterProps) => {
+
+export const FilterTagWorkloadEachUser = ({
+  originalUserWorkload,
+  setUserWorkload,
+}: FilterProps) => {
   const [allTags, setAllTags] = useState<TagProps[]>([]);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const [dateRange, setDateRange] = useState<
+    { from: string; to: string } | undefined
+  >();
+
   const auth = useAuth();
-  
+  const [, setTagsList] = useAtom<ProjectTagProp[]>(tagsListAtom);
+
+  // ดึง tag จาก db
   useEffect(() => {
-    //get all tags of tasks from db
     const fetchTagData = async () => {
       const url = `${BASE_URL}/v2/tags/`;
       const options = {
-        method: 'GET',
+        method: "GET",
         headers: {
           Authorization: auth,
         },
@@ -33,12 +48,11 @@ export const FilterTagWorkloadEachUser = ({  originalEachUserWorkload, setEachUs
         console.error(error);
       }
     };
+
     fetchTagData();
   }, [auth]);
 
-  /* setTagsList on filter */
-  const [, setTagsList] = useAtom<ProjectTagProp[]>(tagsListAtom);
-
+  // เซต tag dropdown
   const handleTagSelection = useCallback(() => {
     const tagMap = allTags.reduce((tags, tag) => {
       tags.set(tag.id, { value: tag.id, label: tag.name });
@@ -46,45 +60,85 @@ export const FilterTagWorkloadEachUser = ({  originalEachUserWorkload, setEachUs
     }, new Map());
 
     setTagsList(Array.from(tagMap.values()));
-  }, [allTags,setTagsList]);
+  }, [allTags, setTagsList]);
 
   useEffect(() => {
     handleTagSelection();
   }, [handleTagSelection]);
 
-  /* setTask and handleTagSelected */
-const handleTagSelected = (selectedTagIds: string[]) => {
-  if (selectedTagIds.length === 0) {
-    setEachUserWorkload(originalEachUserWorkload);
-    return;
-  }
+  // รวม filter tag + date
+  const handleFilter = useCallback(
+    (
+      selectedTagIds: string[],
+      dateRange: { from: string; to: string } | undefined
+    ) => {
+      let filteredUsers = originalUserWorkload.map((user) => {
+        // Filter projects by tags
+        let filteredProjects = [...user.projects];
 
-  // แปลงจาก ID → ชื่อแท็ก
-  const selectedTagNames = selectedTagIds
-    .map(id => allTags.find(tag => tag.id === id)?.name)
-    .filter((name): name is string => !!name);
+        if (selectedTagIds.length > 0) {
+          const selectedTagNames = selectedTagIds
+            .map((id) => allTags.find((tag) => tag.id === id)?.name)
+            .filter((name): name is string => !!name);
 
-  const filteredUsers = originalEachUserWorkload
-    .map(user => {
-      // filter โปรเจกต์ของ user ตาม tag ที่เลือก
-      const filteredProjects = user.projects.filter(project =>
-        selectedTagNames.every(tagName => project.tags.includes(tagName))
-      );
+          filteredProjects = filteredProjects.filter((project) =>
+            selectedTagNames.every((tagName) => project.tags.includes(tagName))
+          );
+        }
 
-      // คืน user พร้อมโปรเจกต์ที่เหลือ
-      return {
-        ...user,
-        projects: filteredProjects
-      };
-    })
-    // เอาเฉพาะ user ที่ยังมีโปรเจกต์เหลือหลังจาก filter
-    .filter(user => user.projects.length > 0);
+        // Filter projects by date
+        if (dateRange?.from && dateRange?.to) {
+          const fromDate = new Date(dateRange.from);
+          const toDate = new Date(dateRange.to);
 
-  setEachUserWorkload(filteredUsers);
-};
+          filteredProjects = filteredProjects.filter((project) => {
+            const projectStart = project.startDate
+              ? new Date(project.startDate)
+              : null;
+            const projectEnd = project.endDate
+              ? new Date(project.endDate)
+              : null;
 
+            if (!projectStart) return false;
+            if (!projectEnd)
+              return fromDate <= projectStart && projectStart <= toDate;
 
+            return !(projectStart > toDate || projectEnd < fromDate);
+          });
+        }
 
+        return {
+          ...user,
+          projects: filteredProjects,
+        };
+      });
 
-  return <FilterByTags onSelectTagChange={handleTagSelected} />;
+      // Remove users with no remaining projects
+      filteredUsers = filteredUsers.filter((user) => user.projects.length > 0);
+
+      setUserWorkload(filteredUsers);
+    },
+    [originalUserWorkload, allTags, setUserWorkload]
+  );
+
+  // เมื่อเลือก tag ใหม่
+  const handleTagSelected = (selectedIds: string[]) => {
+    setSelectedTagIds(selectedIds);
+    handleFilter(selectedIds, dateRange);
+  };
+
+  // เมื่อเลือก date ใหม่
+  const handleDateRangeChange = (
+    range: { from: string; to: string } | undefined
+  ) => {
+    setDateRange(range);
+    handleFilter(selectedTagIds, range);
+  };
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      <FilterByDateRange onDateChange={handleDateRangeChange} />
+      <FilterByTags onSelectTagChange={handleTagSelected} />
+    </div>
+  );
 };

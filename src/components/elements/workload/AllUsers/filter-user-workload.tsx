@@ -1,25 +1,40 @@
-import BASE_URL, {type UserWorkload, type ProjectTagProp } from '@/lib/shared';
-import { getCookie } from 'cookies-next';
-import { useCallback, useEffect, useState } from 'react';
-import type { TaskProps, TagProps } from '@/app/types/types';
-import { useAuth } from '@/hooks/use-auth';
-import { FilterByTags } from '@/components/elements/control-bar';
-import { useAtom } from 'jotai';
-import { tagsListAtom } from '@/atom';
+"use client";
+
+import BASE_URL, { type UserWorkload, type ProjectTagProp } from "@/lib/shared";
+import { useCallback, useEffect, useState } from "react";
+import type { TagProps } from "@/app/types/types";
+import { useAuth } from "@/hooks/use-auth";
+import {
+  FilterByDateRange,
+  FilterByTags,
+} from "@/components/elements/control-bar";
+import { useAtom } from "jotai";
+import { tagsListAtom } from "@/atom";
+
 interface FilterProps {
   originalUserWorkload: UserWorkload[];
   setUserWorkload: React.Dispatch<React.SetStateAction<UserWorkload[]>>;
 }
-export const FilterTagWorkload = ({  originalUserWorkload, setUserWorkload}: FilterProps) => {
-  const [allTags, setAllTags] = useState<TagProps[]>([]);
-  const auth = useAuth();
 
+export const FilterAllUserWorkload = ({
+  originalUserWorkload,
+  setUserWorkload,
+}: FilterProps) => {
+  const [allTags, setAllTags] = useState<TagProps[]>([]);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const [dateRange, setDateRange] = useState<
+    { from: string; to: string } | undefined
+  >();
+
+  const auth = useAuth();
+  const [, setTagsList] = useAtom<ProjectTagProp[]>(tagsListAtom);
+
+  // ดึง tag จาก db
   useEffect(() => {
-    //get all tags of tasks from db
     const fetchTagData = async () => {
       const url = `${BASE_URL}/v2/tags/`;
       const options = {
-        method: 'GET',
+        method: "GET",
         headers: {
           Authorization: auth,
         },
@@ -33,12 +48,11 @@ export const FilterTagWorkload = ({  originalUserWorkload, setUserWorkload}: Fil
         console.error(error);
       }
     };
+
     fetchTagData();
   }, [auth]);
 
-  /* setTagsList on filter */
-  const [, setTagsList] = useAtom<ProjectTagProp[]>(tagsListAtom);
-
+  // เซต tag dropdown
   const handleTagSelection = useCallback(() => {
     const tagMap = allTags.reduce((tags, tag) => {
       tags.set(tag.id, { value: tag.id, label: tag.name });
@@ -46,41 +60,80 @@ export const FilterTagWorkload = ({  originalUserWorkload, setUserWorkload}: Fil
     }, new Map());
 
     setTagsList(Array.from(tagMap.values()));
-  }, [allTags,setTagsList]);
+  }, [allTags, setTagsList]);
 
   useEffect(() => {
     handleTagSelection();
   }, [handleTagSelection]);
 
-  /* setTask and handleTagSelected */
-const handleTagSelected = (selectedTagIds: string[]) => {
-  // ถ้าไม่ได้เลือก จะรีเซ็ตกลับไป
-  if (selectedTagIds.length === 0) {
-    setUserWorkload(originalUserWorkload);
-    return;
-  }
+  // รวม filter tag + date
+  const handleFilter = useCallback(
+    (
+      selectedTagIds: string[],
+      dateRange: { from: string; to: string } | undefined
+    ) => {
+      let filteredUsers = [...originalUserWorkload];
 
-  // แปลงจาก ID → ชื่อแท็ก
-  const selectedTagNames = selectedTagIds
-    .map(id => allTags.find(tag => tag.id === id)?.name)
-    .filter((name): name is string => !!name);
+      // Filter by tags
+      if (selectedTagIds.length > 0) {
+        const selectedTagNames = selectedTagIds
+          .map((id) => allTags.find((tag) => tag.id === id)?.name)
+          .filter((name): name is string => !!name);
 
-  const filteredUsers = originalUserWorkload.filter(user => {
-    // สร้างเซตจากทุกแท็กของทุกโปรเจ็กด้วย flatMap
-    const tagSet = new Set<string>(
-      user.projects.flatMap(project => project.tags)
-    );
+        filteredUsers = filteredUsers.filter((user) => {
+          const tagSet = new Set<string>(
+            user.projects.flatMap((project) => project.tags)
+          );
+          return selectedTagNames.every((name) => tagSet.has(name));
+        });
+      }
 
-    // เช็คว่าในเซตมีแท็กที่เลือกครบทุกตัวหรือไม่ (AND)
-    return selectedTagNames.every(name => tagSet.has(name));
-  });
+      // Filter by date
+      if (dateRange?.from && dateRange?.to) {
+        const fromDate = new Date(dateRange.from);
+        const toDate = new Date(dateRange.to);
 
-  setUserWorkload(filteredUsers);
+        filteredUsers = filteredUsers.filter((user) =>
+          user.projects.some((project) => {
+            const projectStart = project.startDate
+              ? new Date(project.startDate)
+              : null;
+            const projectEnd = project.endDate
+              ? new Date(project.endDate)
+              : null;
+
+            if (!projectStart) return false;
+            if (!projectEnd)
+              return fromDate <= projectStart && projectStart <= toDate;
+
+            return !(projectStart > toDate || projectEnd < fromDate);
+          })
+        );
+      }
+
+      setUserWorkload(filteredUsers);
+    },
+    [originalUserWorkload, allTags, setUserWorkload]
+  );
+
+  // เมื่อเลือก tag ใหม่
+  const handleTagSelected = (selectedIds: string[]) => {
+    setSelectedTagIds(selectedIds);
+    handleFilter(selectedIds, dateRange);
+  };
+
+  // เมื่อเลือก date ใหม่
+  const handleDateRangeChange = (
+    range: { from: string; to: string } | undefined
+  ) => {
+    setDateRange(range);
+    handleFilter(selectedTagIds, range);
+  };
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      <FilterByDateRange onDateChange={handleDateRangeChange} />
+      <FilterByTags onSelectTagChange={handleTagSelected} />
+    </div>
+  );
 };
-
-
-
-  return <FilterByTags onSelectTagChange={handleTagSelected} />;
-};
-
-

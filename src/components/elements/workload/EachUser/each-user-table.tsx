@@ -3,7 +3,6 @@ import type { UserWorkload } from '@/lib/shared';
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -41,7 +40,7 @@ export function WorkloadEachUserTable({
   setEachUserWorkload,
 }: EachUserWorkloadProps) {
   return (
-    <div className="p-7 bg-white rounded-md">
+    <div className="p-7 bg-white rounded-md   outline outline-1 outline-stone-600">
       <Table className="w-full bg-white  rounded-md border-0 border-b-0">
         <TableHeader>
           <TableRow className="flex w-full items-center border-0 !border-b-0 rounded-sm  hover:bg-transparent cursor-default  ">
@@ -59,7 +58,7 @@ export function WorkloadEachUserTable({
             </TableHead>
             <TableHead className="w-[130px] ml-5 text-center py-3">
               <div className="flex flex-row items-center gap-2 text-sm font-BaiJamjuree  text-black font-bold">
-                <InrecheckIcon /> In recheck
+                <InrecheckIcon /> Rechecked
               </div>
             </TableHead>
           </TableRow>

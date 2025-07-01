@@ -1,57 +1,57 @@
-'use client';
-import { useEffect, useState } from 'react';
-import { getCookie } from 'cookies-next';
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-import type { FC } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+"use client";
+import { Bar, BarChart, XAxis } from "recharts";
 import {
-  type ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from '@/components/ui/chart';
-import type { UserWorkload } from '@/lib/shared';
-
-import { Circle } from 'lucide-react';
+} from "@/components/ui/chart";
+import type { UserWorkload } from "@/lib/shared";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import Link from 'next/link';
+} from "@/components/ui/table";
 import {
   Tooltip,
   TooltipContent,
-  TooltipPortal,
   TooltipProvider,
   TooltipTrigger,
-} from '@radix-ui/react-tooltip';
-import { useRouter } from 'next/navigation';
+} from "@radix-ui/react-tooltip";
+import { useRouter } from "next/navigation";
+import { CardContentCustom } from "@/components/ui/card-custom";
 interface UserWorkloadProps {
   userWorkload: UserWorkload[];
-
 }
 
 const AssignIcon = () => (
   <img src="/asset/icon/assigned.svg" alt="Assigned Icon" className="w-4 h-4" />
 );
 const InrecheckIcon = () => (
-  <img src="/asset/icon/inrecheck.svg" alt="In Recheck Icon" className="w-4 h-4" />
+  <img
+    src="/asset/icon/inrecheck.svg"
+    alt="In Recheck Icon"
+    className="w-4 h-4"
+  />
 );
 const UnderReviewIcon = () => (
-  <img src="/asset/icon/underreview.svg" alt="Under Review Icon" className="w-4 h-4" />
+  <img
+    src="/asset/icon/underreview.svg"
+    alt="Under Review Icon"
+    className="w-4 h-4"
+  />
 );
-const DoneIcon = () => <img src="/asset/icon/done.svg" alt="Done Icon" className="w-4 h-4" />;
+const DoneIcon = () => (
+  <img src="/asset/icon/done.svg" alt="Done Icon" className="w-4 h-4" />
+);
 const getInitials = (name: string) => {
-  const nameParts = name.split(' ');
-  return nameParts.map((part) => part[0]).join(''); // Take the first letter of each part
+  const nameParts = name.split(" ");
+  return nameParts.map((part) => part[0]).join(""); // Take the first letter of each part
 };
 
-export function WorkloadChart({ userWorkload}: UserWorkloadProps) {
+export function WorkloadChart({ userWorkload }: UserWorkloadProps) {
   const chartData = userWorkload.map((user) => ({
     name: user.name,
     assigned: user.metrics.breakdown.assigned,
@@ -65,10 +65,10 @@ export function WorkloadChart({ userWorkload}: UserWorkloadProps) {
   }));
 
   const chartConfig = {
-    done: { label: 'Done', icon: DoneIcon },
-    underReview: { label: 'Under Review', icon: UnderReviewIcon },
-    inrecheck: { label: 'In Recheck', icon: InrecheckIcon },
-    assigned: { label: 'Assigned', icon: AssignIcon },
+    done: { label: "Done", icon: DoneIcon },
+    underReview: { label: "Under Review", icon: UnderReviewIcon },
+    inrecheck: { label: "In Recheck", icon: InrecheckIcon },
+    assigned: { label: "Assigned", icon: AssignIcon },
   };
 
   const barSize = 80;
@@ -77,51 +77,74 @@ export function WorkloadChart({ userWorkload}: UserWorkloadProps) {
 
   return (
     <>
-      <CardContent>
-        <div className="w-full overflow-x-auto ">
-          <div style={{ minWidth: `${chartWidth}px`, height: '500px' }}>
-            <ChartContainer config={chartConfig} className="max-h-[500px] w-full">
+      <CardContentCustom>
+        <div className="w-full overflow-x-auto bg-white py-[30px] px-[15px] rounded-md  outline outline-1 outline-stone-600">
+          <div style={{ minWidth: `${chartWidth}px`, height: "500px" }}>
+            <ChartContainer
+              config={chartConfig}
+              className="max-h-[500px] w-full"
+            >
               <BarChart
                 width={chartWidth}
                 height={300}
                 data={chartData}
                 barSize={barSize}
                 barCategoryGap={barCategoryGap}
-                barGap={0}>
-                <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={true} />
+                barGap={0}
+              >
+                <XAxis
+                  dataKey="name"
+                  tickLine={false}
+                  tickMargin={10}
+                  axisLine={true}
+                />
 
                 <Bar dataKey="done" fill="#489CFF" stackId="a" />
                 <Bar dataKey="underReview" fill="#69BCA0" stackId="a" />
                 <Bar dataKey="inrecheck" fill="#F4BE38" stackId="a" />
-                <Bar dataKey="assigned" fill="#F79939" stackId="a" radius={[4, 4, 0, 0]} />
+                <Bar
+                  dataKey="assigned"
+                  fill="#F79939"
+                  stackId="a"
+                  radius={[4, 4, 0, 0]}
+                />
 
-                <ChartTooltip content={<ChartTooltipContent />} cursor={false} />
+                <ChartTooltip
+                  content={<ChartTooltipContent />}
+                  cursor={false}
+                />
               </BarChart>
             </ChartContainer>
           </div>
         </div>
-      </CardContent>
+      </CardContentCustom>
     </>
   );
 }
 export default WorkloadChart;
 
-export function WorkloadAllUserTable({ userWorkload}: UserWorkloadProps) {
+export function WorkloadAllUserTable({ userWorkload }: UserWorkloadProps) {
   const router = useRouter();
 
   return (
-    <div className="p-7 bg-white rounded-md">
+    <div className="p-[30px] bg-white rounded-md   outline outline-1 outline-stone-600">
       <Table className="w-full bg-white h-[570px] rounded-md border-0 border-b-0">
         <TableHeader>
           <TableRow className="flex w-full items-center border-0 border-b-0 rounded-sm bg-[#F9FAFB] ">
             <TableHead className="w-[450px] py-3">
-              <div className="font-BaiJamjuree text-sm text-black font-bold ">User</div>
+              <div className="font-BaiJamjuree text-sm text-black font-bold ">
+                User
+              </div>
             </TableHead>
             <TableHead className="w-[112px] ml-5 text-center py-3">
-              <div className="font-BaiJamjuree text-sm text-black font-bold ">Task Count</div>
+              <div className="font-BaiJamjuree text-sm text-black font-bold ">
+                Task Count
+              </div>
             </TableHead>
             <TableHead className="w-[112px] ml-5 text-center py-3">
-              <div className="font-BaiJamjuree text-sm text-black font-bold">Rechecked</div>
+              <div className="font-BaiJamjuree text-sm text-black font-bold">
+                Rechecked
+              </div>
             </TableHead>
             <TableHead className="w-[112px] ml-5 text-center py-3">
               <div className="flex flex-row items-center gap-2 text-sm font-BaiJamjuree text-black font-bold">
@@ -151,7 +174,8 @@ export function WorkloadAllUserTable({ userWorkload}: UserWorkloadProps) {
             <TableRow
               key={user.userId}
               className="flex w-full border-0 cursor-pointer"
-              onClick={() => router.push(`/admin/workload/each/${user.userId}`)}>
+              onClick={() => router.push(`/admin/workload/each/${user.userId}`)}
+            >
               <TableCell className="w-[450px] text-start">
                 <div className="flex flex-row gap-1">
                   <TooltipProvider>
@@ -159,7 +183,7 @@ export function WorkloadAllUserTable({ userWorkload}: UserWorkloadProps) {
                       <TooltipTrigger>
                         <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center border border-brown">
                           <span className="text-brown text-xs font-BaiJamjuree">
-                            {getInitials(user?.name || '')}
+                            {getInitials(user?.name || "")}
                           </span>
                         </div>
                       </TooltipTrigger>
