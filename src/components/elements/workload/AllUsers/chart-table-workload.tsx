@@ -34,8 +34,8 @@ const getInitials = (name: string) => {
 
 export function WorkloadChart({ userWorkload }: UserWorkloadProps) {
   const chartData = userWorkload.map((user) => ({
-    name: user.name.split(' ')[0],  // <--- label ใต้กราฟแท่ง
-    fullName: user.name, 
+    name: user.name.split(' ')[0], // <--- label ใต้กราฟแท่ง
+    fullName: user.name,
     assigned: user.metrics.breakdown.assigned,
     inrecheck: user.metrics.breakdown.inRecheck,
     underReview: user.metrics.breakdown.underReview,
@@ -74,7 +74,7 @@ export function WorkloadChart({ userWorkload }: UserWorkloadProps) {
                 <Bar dataKey="done" fill="#489CFF" stackId="a" />
                 <Bar dataKey="underReview" fill="#69BCA0" stackId="a" />
                 <Bar dataKey="inrecheck" fill="#F4BE38" stackId="a" />
-                <Bar dataKey="assigned" fill="#F79939" stackId="a" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="assigned" fill="#F79939" stackId="a"  />
 
                 <ChartTooltip content={<ChartTooltipContent />} cursor={false} />
               </BarChart>
