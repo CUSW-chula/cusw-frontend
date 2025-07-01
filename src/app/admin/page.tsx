@@ -26,12 +26,15 @@ const page = () => {
 
   return (
     <div className="flex flex-col max-w-7xl mx-auto gap-8 w-full h-full">
-      <h1 className="text-5xl font-bold text-brown mb-4 font-BaiJamjuree w-full">Dashboard</h1>
+      <h1 className="text-5xl font-bold text-brown mb-4 font-BaiJamjuree w-full">Admin</h1>
       <div className="grid w-full justify-center items-center grid-cols-[repeat(auto-fit,_minmax(200px,_310px))] gap-8">
         <AdminCard title="User Management" path="/admin/user-management" />
         <AdminCard title="Tag Settings" path="/admin/tag-settings" />
         <AdminCard title="Template Management" path="/admin/template-management" />
-        <AdminCard title="Workload Management" path="/admin/workload" />
+      </div>
+      <h1 className="text-5xl font-bold text-brown mb-4 font-BaiJamjuree w-full">Dashboard</h1>
+      <div className="grid w-full justify-center items-center grid-cols-[repeat(auto-fit,_minmax(200px,_310px))] gap-8">
+        <AdminCard title="Workload Distribution" path="/admin/workload" />
       </div>
     </div>
   );

@@ -32,12 +32,13 @@ export function WorkloadEachUser({ userData }: WorkloadEachUserProps) {
       <div className="flex flex-col gap-[18px]">
         <div className="flex flex-row ">
           <div className="justify-start text-black text-5xl font-semibold font-['Anuphan'] leading-[48px]">
-            Workload :
+            Workload Distribution :
           </div>
           <div className=" ml-4 flex flex-row gap-1 items-center">
             {eachUserWorkload.length > 0 && (
               <>
-                <div className="w-[36px] h-[36px]">
+           
+                <div className="w-[36px] h-[36px] items-">
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger>

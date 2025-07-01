@@ -7,7 +7,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/tableCustom';
 import { statusSectionsWorkload } from '@/lib/taskUtils';
 import React from 'react';
 interface EachUserWorkloadProps {
@@ -40,23 +40,23 @@ export function WorkloadEachUserTable({
   setEachUserWorkload,
 }: EachUserWorkloadProps) {
   return (
-    <div className="p-7 bg-white rounded-md   outline outline-1 outline-stone-600">
+    <div className="p-[30px] bg-white rounded-md   outline outline-1 outline-stone-600 ">
       <Table className="w-full bg-white  rounded-md border-0 border-b-0">
         <TableHeader>
-          <TableRow className="flex w-full items-center border-0 !border-b-0 rounded-sm  hover:bg-transparent cursor-default  ">
-            <TableHead className="w-[830px] py-3">
-              <div className="font-BaiJamjuree text-sm text-black font-bold ">Project/Task</div>
+          <TableRow className="flex w-full items-center border-0 !border-b-0 rounded-sm  hover:bg-transparent cursor-default  p-0 ">
+            <TableHead className="w-[830px] ">
+              {/* <div className="font-BaiJamjuree text-sm text-black font-bold ">Project/Task</div> */}
             </TableHead>
 
-            <TableHead className="w-[170px] ml-5 text-center py-3">
+            <TableHead className="w-[170px] ml-5 text-center ">
               <div className="font-BaiJamjuree text-sm text-black font-bold ">
                 Acceptance Status
               </div>
             </TableHead>
-            <TableHead className="w-[150px] ml-5 text-center py-3">
+            <TableHead className="w-[150px] ml-5 text-center ">
               <div className="font-BaiJamjuree text-sm text-black font-bold">Task Status</div>
             </TableHead>
-            <TableHead className="w-[130px] ml-5 text-center py-3">
+            <TableHead className="w-[130px] ml-5 text-center ">
               <div className="flex flex-row items-center gap-2 text-sm font-BaiJamjuree  text-black font-bold">
                 <InrecheckIcon /> Rechecked
               </div>
@@ -69,20 +69,21 @@ export function WorkloadEachUserTable({
             user.projects.map((project) => (
               <React.Fragment key={`project-group-${project.id}`}>
                 <TableRow className="hover:bg-transparent cursor-default">
-                  <TableCell colSpan={4} className="font-BaiJamjuree font-bold py-2">
-                    Project Title: {project.title}
+                  <TableCell colSpan={4} className="flex flex-row font-BaiJamjuree font-bold py-[6px] px-0">
+                    Project title:  
+                    <div className='ml-1 font-medium'>{project.title} </div>
                   </TableCell>
                 </TableRow>
 
                 {project.tasks.map((task) => (
-                  <TableRow key={`task-${task.taskId}`} className="flex w-full border-0">
-                    <TableCell className="font-BaiJamjuree w-[830px] ml-0">{task.name}</TableCell>
-                    <TableCell className="font-BaiJamjuree w-[170px] text-center ml-5">
+                  <TableRow key={`task-${task.taskId}`} className="flex w-full border-0   ">
+                    <TableCell className="font-BaiJamjuree w-[830px] ml-0 pt-1 pb-1">{task.name}</TableCell>
+                    <TableCell className="font-BaiJamjuree w-[170px] text-center ml-5 pt-1 pb-1">
                       <span className={getAcceptanceStatusColor(task.acceptanceStatus)}>
                         {task.acceptanceStatus}
                       </span>
                     </TableCell>
-                    <TableCell className="font-BaiJamjuree w-[150px] text-center ml-5">
+                    <TableCell className="font-BaiJamjuree w-[150px] text-center ml-5 pt-1 pb-1">
                       <div className="flex flex-row items-center justify-center">
                         <img
                           src={getStatusIcon(task.taskStatus)}
@@ -92,7 +93,7 @@ export function WorkloadEachUserTable({
                         {task.taskStatus}
                       </div>
                     </TableCell>
-                    <TableCell className="font-BaiJamjuree w-[130px] text-center ml-5 font-bold">
+                    <TableCell className="font-BaiJamjuree w-[130px] text-center ml-5 font-bold pt-1 pb-1">
                       {task.rechecked}
                     </TableCell>
                   </TableRow>

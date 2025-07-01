@@ -4,7 +4,7 @@ import BASE_URL, { type UserWorkload, type ProjectTagProp } from '@/lib/shared';
 import { useCallback, useEffect, useState } from 'react';
 import type { TagProps } from '@/app/types/types';
 import { useAuth } from '@/hooks/use-auth';
-import { FilterByDateRange, FilterByTags } from '@/components/elements/control-bar';
+import { FilterByDateRange, FilterByTags, SelectByTags } from '@/components/elements/control-bar';
 import { useAtom } from 'jotai';
 import { tagsListAtom } from '@/atom';
 
@@ -73,9 +73,9 @@ export const FilterTagWorkloadEachUser = ({
             .map((id) => allTags.find((tag) => tag.id === id)?.name)
             .filter((name): name is string => !!name);
 
-          filteredProjects = filteredProjects.filter((project) =>
-            selectedTagNames.every((tagName) => project.tags.includes(tagName)),
-          );
+       filteredProjects = filteredProjects.filter((project) =>
+  selectedTagNames.some((tagName) => project.tags.includes(tagName)),
+);
         }
 
         // Filter projects by date
@@ -123,7 +123,7 @@ export const FilterTagWorkloadEachUser = ({
   return (
     <div className="flex flex-wrap gap-2">
       <FilterByDateRange onDateChange={handleDateRangeChange} />
-      <FilterByTags onSelectTagChange={handleTagSelected} />
+      <SelectByTags onSelectTagChange={handleTagSelected} />
     </div>
   );
 };

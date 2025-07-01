@@ -4,7 +4,7 @@ import BASE_URL, { type UserWorkload, type ProjectTagProp } from '@/lib/shared';
 import { useCallback, useEffect, useState } from 'react';
 import type { TagProps } from '@/app/types/types';
 import { useAuth } from '@/hooks/use-auth';
-import { FilterByDateRange, FilterByTags } from '@/components/elements/control-bar';
+import { FilterByDateRange, FilterByTags, SelectByTags } from '@/components/elements/control-bar';
 import { useAtom } from 'jotai';
 import { tagsListAtom } from '@/atom';
 
@@ -63,17 +63,16 @@ export const FilterAllUserWorkload = ({ originalUserWorkload, setUserWorkload }:
     (selectedTagIds: string[], dateRange: { from: string; to: string } | undefined) => {
       let filteredUsers = [...originalUserWorkload];
 
-      // Filter by tags
       if (selectedTagIds.length > 0) {
-        const selectedTagNames = selectedTagIds
-          .map((id) => allTags.find((tag) => tag.id === id)?.name)
-          .filter((name): name is string => !!name);
+  const selectedTagNames = selectedTagIds
+    .map((id) => allTags.find((tag) => tag.id === id)?.name)
+    .filter((name): name is string => !!name);
 
-        filteredUsers = filteredUsers.filter((user) => {
-          const tagSet = new Set<string>(user.projects.flatMap((project) => project.tags));
-          return selectedTagNames.every((name) => tagSet.has(name));
-        });
-      }
+  filteredUsers = filteredUsers.filter((user) => {
+    const tagSet = new Set<string>(user.projects.flatMap((project) => project.tags));
+    return selectedTagNames.some((name) => tagSet.has(name)); // <- เปลี่ยนตรงนี้จาก every เป็น some
+  });
+}
 
       // Filter by date
       if (dateRange?.from && dateRange?.to) {
@@ -113,7 +112,7 @@ export const FilterAllUserWorkload = ({ originalUserWorkload, setUserWorkload }:
   return (
     <div className="flex flex-wrap gap-2">
       <FilterByDateRange onDateChange={handleDateRangeChange} />
-      <FilterByTags onSelectTagChange={handleTagSelected} />
+      <SelectByTags onSelectTagChange={handleTagSelected} />
     </div>
   );
 };

@@ -74,7 +74,7 @@ export function WorkloadChart({ userWorkload }: UserWorkloadProps) {
                 <Bar dataKey="done" fill="#489CFF" stackId="a" />
                 <Bar dataKey="underReview" fill="#69BCA0" stackId="a" />
                 <Bar dataKey="inrecheck" fill="#F4BE38" stackId="a" />
-                <Bar dataKey="assigned" fill="#F79939" stackId="a"  />
+                <Bar dataKey="assigned" fill="#F79939" stackId="a" />
 
                 <ChartTooltip content={<ChartTooltipContent />} cursor={false} />
               </BarChart>

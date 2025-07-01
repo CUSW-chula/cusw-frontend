@@ -61,7 +61,7 @@ export function WorkloadUser() {
     <>
       <div className="flex flex-col gap-y-[18px]">
         <div className="justify-start text-black text-5xl font-semibold font-['Anuphan'] leading-[48px]">
-          Workload
+          Workload Distribution
         </div>
         <div className="flex w-full flex-row ">
           <FilterAllUserWorkload
