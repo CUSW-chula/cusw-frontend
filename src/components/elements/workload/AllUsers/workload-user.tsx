@@ -1,20 +1,18 @@
-"use client";
-import { useEffect, useState } from "react";
-import { getCookie } from "cookies-next";
-import BASE_URL from "@/lib/shared";
-import { WorkloadAllUserTable, WorkloadChart } from "./chart";
-import type { UserWorkload } from "@/lib/shared";
-import React from "react";
-import { FilterAllUserWorkload } from "./filter-user-workload";
+'use client';
+import { useEffect, useState } from 'react';
+import { getCookie } from 'cookies-next';
+import BASE_URL from '@/lib/shared';
+import { WorkloadAllUserTable, WorkloadChart } from './chart-table-workload';
+import type { UserWorkload } from '@/lib/shared';
+import React from 'react';
+import { FilterAllUserWorkload } from './filter-user-workload';
 
 export function WorkloadUser() {
-  const cookie = getCookie("auth");
-  const auth = cookie?.toString() ?? "";
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
   const [userWorkload, setUserWorkload] = useState<UserWorkload[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [originalUserWorkload, setOriginalUserWorkload] = useState<
-    UserWorkload[]
-  >([]);
+  const [originalUserWorkload, setOriginalUserWorkload] = useState<UserWorkload[]>([]);
 
   function sortUserWorkloadByProjectCount(workloads: UserWorkload[]) {
     return workloads.sort((a, b) => b.projects.length - a.projects.length);
@@ -28,14 +26,8 @@ export function WorkloadUser() {
         return projectCountB - projectCountA; // มากไปน้อย
       }
 
-      const taskCountA = a.projects.reduce(
-        (sum, project) => sum + project.tasks.length,
-        0
-      );
-      const taskCountB = b.projects.reduce(
-        (sum, project) => sum + project.tasks.length,
-        0
-      );
+      const taskCountA = a.projects.reduce((sum, project) => sum + project.tasks.length, 0);
+      const taskCountB = b.projects.reduce((sum, project) => sum + project.tasks.length, 0);
 
       return taskCountB - taskCountA; // มากไปน้อย
     });
@@ -46,7 +38,7 @@ export function WorkloadUser() {
       setIsLoading(true); // เริ่มโหลด
       try {
         const response = await fetch(`${BASE_URL}/v2/dashboard/workload`, {
-          headers: { Authorization: auth, "Accept-Encoding": "gzip" },
+          headers: { Authorization: auth, 'Accept-Encoding': 'gzip' },
         });
 
         if (!response.ok) {
@@ -57,7 +49,7 @@ export function WorkloadUser() {
         setUserWorkload(sortedData);
         setOriginalUserWorkload(sortedData);
       } catch (error) {
-        console.error("Fetch error:", error);
+        console.error('Fetch error:', error);
       } finally {
         setIsLoading(false);
       }

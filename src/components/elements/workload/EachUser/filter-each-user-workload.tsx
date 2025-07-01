@@ -1,15 +1,12 @@
-"use client";
+'use client';
 
-import BASE_URL, { type UserWorkload, type ProjectTagProp } from "@/lib/shared";
-import { useCallback, useEffect, useState } from "react";
-import type { TagProps } from "@/app/types/types";
-import { useAuth } from "@/hooks/use-auth";
-import {
-  FilterByDateRange,
-  FilterByTags,
-} from "@/components/elements/control-bar";
-import { useAtom } from "jotai";
-import { tagsListAtom } from "@/atom";
+import BASE_URL, { type UserWorkload, type ProjectTagProp } from '@/lib/shared';
+import { useCallback, useEffect, useState } from 'react';
+import type { TagProps } from '@/app/types/types';
+import { useAuth } from '@/hooks/use-auth';
+import { FilterByDateRange, FilterByTags } from '@/components/elements/control-bar';
+import { useAtom } from 'jotai';
+import { tagsListAtom } from '@/atom';
 
 interface FilterProps {
   originalUserWorkload: UserWorkload[];
@@ -22,9 +19,7 @@ export const FilterTagWorkloadEachUser = ({
 }: FilterProps) => {
   const [allTags, setAllTags] = useState<TagProps[]>([]);
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
-  const [dateRange, setDateRange] = useState<
-    { from: string; to: string } | undefined
-  >();
+  const [dateRange, setDateRange] = useState<{ from: string; to: string } | undefined>();
 
   const auth = useAuth();
   const [, setTagsList] = useAtom<ProjectTagProp[]>(tagsListAtom);
@@ -34,7 +29,7 @@ export const FilterTagWorkloadEachUser = ({
     const fetchTagData = async () => {
       const url = `${BASE_URL}/v2/tags/`;
       const options = {
-        method: "GET",
+        method: 'GET',
         headers: {
           Authorization: auth,
         },
@@ -68,10 +63,7 @@ export const FilterTagWorkloadEachUser = ({
 
   // รวม filter tag + date
   const handleFilter = useCallback(
-    (
-      selectedTagIds: string[],
-      dateRange: { from: string; to: string } | undefined
-    ) => {
+    (selectedTagIds: string[], dateRange: { from: string; to: string } | undefined) => {
       let filteredUsers = originalUserWorkload.map((user) => {
         // Filter projects by tags
         let filteredProjects = [...user.projects];
@@ -82,7 +74,7 @@ export const FilterTagWorkloadEachUser = ({
             .filter((name): name is string => !!name);
 
           filteredProjects = filteredProjects.filter((project) =>
-            selectedTagNames.every((tagName) => project.tags.includes(tagName))
+            selectedTagNames.every((tagName) => project.tags.includes(tagName)),
           );
         }
 
@@ -92,16 +84,11 @@ export const FilterTagWorkloadEachUser = ({
           const toDate = new Date(dateRange.to);
 
           filteredProjects = filteredProjects.filter((project) => {
-            const projectStart = project.startDate
-              ? new Date(project.startDate)
-              : null;
-            const projectEnd = project.endDate
-              ? new Date(project.endDate)
-              : null;
+            const projectStart = project.startDate ? new Date(project.startDate) : null;
+            const projectEnd = project.endDate ? new Date(project.endDate) : null;
 
             if (!projectStart) return false;
-            if (!projectEnd)
-              return fromDate <= projectStart && projectStart <= toDate;
+            if (!projectEnd) return fromDate <= projectStart && projectStart <= toDate;
 
             return !(projectStart > toDate || projectEnd < fromDate);
           });
@@ -118,7 +105,7 @@ export const FilterTagWorkloadEachUser = ({
 
       setUserWorkload(filteredUsers);
     },
-    [originalUserWorkload, allTags, setUserWorkload]
+    [originalUserWorkload, allTags, setUserWorkload],
   );
 
   // เมื่อเลือก tag ใหม่
@@ -128,9 +115,7 @@ export const FilterTagWorkloadEachUser = ({
   };
 
   // เมื่อเลือก date ใหม่
-  const handleDateRangeChange = (
-    range: { from: string; to: string } | undefined
-  ) => {
+  const handleDateRangeChange = (range: { from: string; to: string } | undefined) => {
     setDateRange(range);
     handleFilter(selectedTagIds, range);
   };

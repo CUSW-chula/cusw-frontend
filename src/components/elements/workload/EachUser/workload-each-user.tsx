@@ -1,24 +1,17 @@
-"use client";
-import { useEffect, useState } from "react";
-import type { UserWorkload } from "@/lib/shared";
-import React from "react";
-import { WorkloadEachUserTable } from "./each-user-table";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@radix-ui/react-tooltip";
-import { FilterTagWorkloadEachUser } from "./filter-each-user-workload";
+'use client';
+import { useEffect, useState } from 'react';
+import type { UserWorkload } from '@/lib/shared';
+import React from 'react';
+import { WorkloadEachUserTable } from './each-user-table';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@radix-ui/react-tooltip';
+import { FilterTagWorkloadEachUser } from './filter-each-user-workload';
 interface WorkloadEachUserProps {
   userData: UserWorkload[];
 }
 
 export function WorkloadEachUser({ userData }: WorkloadEachUserProps) {
   const [eachUserWorkload, setEachUserWorkload] = useState<UserWorkload[]>([]);
-  const [originalEachUserWorkload, setOriginalUserWorkloadEachUser] = useState<
-    UserWorkload[]
-  >([]);
+  const [originalEachUserWorkload, setOriginalUserWorkloadEachUser] = useState<UserWorkload[]>([]);
   function sortProjectsByTaskCount(workloads: UserWorkload[]) {
     return workloads.map((user) => ({
       ...user,
@@ -31,8 +24,8 @@ export function WorkloadEachUser({ userData }: WorkloadEachUserProps) {
   }, [userData]);
 
   const getInitials = (name: string) => {
-    const nameParts = name.split(" ");
-    return nameParts.map((part) => part[0]).join(""); // Take the first letter of each part
+    const nameParts = name.split(' ');
+    return nameParts.map((part) => part[0]).join(''); // Take the first letter of each part
   };
   return (
     <>
@@ -50,7 +43,7 @@ export function WorkloadEachUser({ userData }: WorkloadEachUserProps) {
                       <TooltipTrigger>
                         <div className="w-[36px] h-[36px] bg-gray-100 rounded-full flex items-center justify-center border border-brown">
                           <span className="text-brown text-[18px] font-BaiJamjuree font-medium">
-                            {getInitials(eachUserWorkload[0].name || "")}
+                            {getInitials(eachUserWorkload[0].name || '')}
                           </span>
                         </div>
                       </TooltipTrigger>

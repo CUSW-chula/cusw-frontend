@@ -1,30 +1,22 @@
-"use client";
+'use client';
 
-import BASE_URL, { type UserWorkload, type ProjectTagProp } from "@/lib/shared";
-import { useCallback, useEffect, useState } from "react";
-import type { TagProps } from "@/app/types/types";
-import { useAuth } from "@/hooks/use-auth";
-import {
-  FilterByDateRange,
-  FilterByTags,
-} from "@/components/elements/control-bar";
-import { useAtom } from "jotai";
-import { tagsListAtom } from "@/atom";
+import BASE_URL, { type UserWorkload, type ProjectTagProp } from '@/lib/shared';
+import { useCallback, useEffect, useState } from 'react';
+import type { TagProps } from '@/app/types/types';
+import { useAuth } from '@/hooks/use-auth';
+import { FilterByDateRange, FilterByTags } from '@/components/elements/control-bar';
+import { useAtom } from 'jotai';
+import { tagsListAtom } from '@/atom';
 
 interface FilterProps {
   originalUserWorkload: UserWorkload[];
   setUserWorkload: React.Dispatch<React.SetStateAction<UserWorkload[]>>;
 }
 
-export const FilterAllUserWorkload = ({
-  originalUserWorkload,
-  setUserWorkload,
-}: FilterProps) => {
+export const FilterAllUserWorkload = ({ originalUserWorkload, setUserWorkload }: FilterProps) => {
   const [allTags, setAllTags] = useState<TagProps[]>([]);
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
-  const [dateRange, setDateRange] = useState<
-    { from: string; to: string } | undefined
-  >();
+  const [dateRange, setDateRange] = useState<{ from: string; to: string } | undefined>();
 
   const auth = useAuth();
   const [, setTagsList] = useAtom<ProjectTagProp[]>(tagsListAtom);
@@ -34,7 +26,7 @@ export const FilterAllUserWorkload = ({
     const fetchTagData = async () => {
       const url = `${BASE_URL}/v2/tags/`;
       const options = {
-        method: "GET",
+        method: 'GET',
         headers: {
           Authorization: auth,
         },
@@ -68,10 +60,7 @@ export const FilterAllUserWorkload = ({
 
   // รวม filter tag + date
   const handleFilter = useCallback(
-    (
-      selectedTagIds: string[],
-      dateRange: { from: string; to: string } | undefined
-    ) => {
+    (selectedTagIds: string[], dateRange: { from: string; to: string } | undefined) => {
       let filteredUsers = [...originalUserWorkload];
 
       // Filter by tags
@@ -81,9 +70,7 @@ export const FilterAllUserWorkload = ({
           .filter((name): name is string => !!name);
 
         filteredUsers = filteredUsers.filter((user) => {
-          const tagSet = new Set<string>(
-            user.projects.flatMap((project) => project.tags)
-          );
+          const tagSet = new Set<string>(user.projects.flatMap((project) => project.tags));
           return selectedTagNames.every((name) => tagSet.has(name));
         });
       }
@@ -95,25 +82,20 @@ export const FilterAllUserWorkload = ({
 
         filteredUsers = filteredUsers.filter((user) =>
           user.projects.some((project) => {
-            const projectStart = project.startDate
-              ? new Date(project.startDate)
-              : null;
-            const projectEnd = project.endDate
-              ? new Date(project.endDate)
-              : null;
+            const projectStart = project.startDate ? new Date(project.startDate) : null;
+            const projectEnd = project.endDate ? new Date(project.endDate) : null;
 
             if (!projectStart) return false;
-            if (!projectEnd)
-              return fromDate <= projectStart && projectStart <= toDate;
+            if (!projectEnd) return fromDate <= projectStart && projectStart <= toDate;
 
             return !(projectStart > toDate || projectEnd < fromDate);
-          })
+          }),
         );
       }
 
       setUserWorkload(filteredUsers);
     },
-    [originalUserWorkload, allTags, setUserWorkload]
+    [originalUserWorkload, allTags, setUserWorkload],
   );
 
   // เมื่อเลือก tag ใหม่
@@ -123,9 +105,7 @@ export const FilterAllUserWorkload = ({
   };
 
   // เมื่อเลือก date ใหม่
-  const handleDateRangeChange = (
-    range: { from: string; to: string } | undefined
-  ) => {
+  const handleDateRangeChange = (range: { from: string; to: string } | undefined) => {
     setDateRange(range);
     handleFilter(selectedTagIds, range);
   };

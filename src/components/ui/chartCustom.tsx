@@ -148,7 +148,7 @@ const ChartTooltipContent = React.forwardRef<
         return null;
       }
 
-      return <div className={cn('font-semibold font-BaiJamjuree ', labelClassName)}>{value}</div>;
+      return <div className={cn('font-semibold font-BaiJamjuree ', labelClassName)}>{item.payload.fullName}</div>;
     }, [label, labelFormatter, payload, hideLabel, labelClassName, config, labelKey]);
 
     if (!active || !payload?.length) {

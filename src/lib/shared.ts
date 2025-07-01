@@ -98,8 +98,8 @@ export type User = {
 export type UserWorkload = {
   userId: string;
   name: string;
-  startDateUser: Date |null;
-  endDateUser: Date | null
+  startDateUser: Date | null;
+  endDateUser: Date | null;
   metrics: {
     taskCount: number;
     rechecked: number;
