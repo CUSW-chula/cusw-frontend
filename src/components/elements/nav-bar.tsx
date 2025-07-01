@@ -15,7 +15,7 @@ export default function NavBar() {
   const [name, setName] = useState('');
   const [userid, setUserid] = useState('');
   const [isAdmin, setIsAdmin] = useState<boolean>();
-    const [isHead, setIsHead] = useState<boolean>();
+  const [isHead, setIsHead] = useState<boolean>();
   const auth = cookie?.toString() ?? '';
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export default function NavBar() {
 
         const data = await response.json();
         setName(data.name);
-        setIsHead(data.head)
+        setIsHead(data.head);
         setIsAdmin(data.admin);
       } catch (error) {
         console.error('Error fetching Owner:', error);
@@ -78,10 +78,10 @@ export default function NavBar() {
               className="flex justify-center items-center gap-1 h-[40px] bg-white border border-brown rounded-[6px] px-2"
               onClick={() => window.location.assign('/admin')}>
               <TableOfContents />
-              Head
+              Dashboard
             </button>
           )}
-                 
+
           <button
             type="button"
             className="flex justify-center items-center gap-1 h-[40px] bg-brown text-white rounded-[6px] px-3"

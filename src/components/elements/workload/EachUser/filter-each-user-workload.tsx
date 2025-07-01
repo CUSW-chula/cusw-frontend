@@ -73,9 +73,9 @@ export const FilterTagWorkloadEachUser = ({
             .map((id) => allTags.find((tag) => tag.id === id)?.name)
             .filter((name): name is string => !!name);
 
-       filteredProjects = filteredProjects.filter((project) =>
-  selectedTagNames.some((tagName) => project.tags.includes(tagName)),
-);
+          filteredProjects = filteredProjects.filter((project) =>
+            selectedTagNames.some((tagName) => project.tags.includes(tagName)),
+          );
         }
 
         // Filter projects by date

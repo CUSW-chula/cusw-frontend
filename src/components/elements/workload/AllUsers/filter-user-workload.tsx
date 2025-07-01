@@ -64,15 +64,15 @@ export const FilterAllUserWorkload = ({ originalUserWorkload, setUserWorkload }:
       let filteredUsers = [...originalUserWorkload];
 
       if (selectedTagIds.length > 0) {
-  const selectedTagNames = selectedTagIds
-    .map((id) => allTags.find((tag) => tag.id === id)?.name)
-    .filter((name): name is string => !!name);
+        const selectedTagNames = selectedTagIds
+          .map((id) => allTags.find((tag) => tag.id === id)?.name)
+          .filter((name): name is string => !!name);
 
-  filteredUsers = filteredUsers.filter((user) => {
-    const tagSet = new Set<string>(user.projects.flatMap((project) => project.tags));
-    return selectedTagNames.some((name) => tagSet.has(name)); // <- เปลี่ยนตรงนี้จาก every เป็น some
-  });
-}
+        filteredUsers = filteredUsers.filter((user) => {
+          const tagSet = new Set<string>(user.projects.flatMap((project) => project.tags));
+          return selectedTagNames.some((name) => tagSet.has(name)); // <- เปลี่ยนตรงนี้จาก every เป็น some
+        });
+      }
 
       // Filter by date
       if (dateRange?.from && dateRange?.to) {

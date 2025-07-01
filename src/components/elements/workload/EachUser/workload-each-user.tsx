@@ -37,7 +37,6 @@ export function WorkloadEachUser({ userData }: WorkloadEachUserProps) {
           <div className=" ml-4 flex flex-row gap-1 items-center">
             {eachUserWorkload.length > 0 && (
               <>
-           
                 <div className="w-[36px] h-[36px] items-">
                   <TooltipProvider>
                     <Tooltip>

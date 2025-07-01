@@ -121,8 +121,6 @@ export function FilterByDateRange({ className, onDateChange }: FilterDateRangePr
   );
 }
 
-
-
 export function FilterByTags({ onSelectTagChange }: FilterTagsProp) {
   const [selectedValues, setSelectedValues] = React.useState<string[]>([]);
   const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);

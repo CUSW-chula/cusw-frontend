@@ -69,15 +69,19 @@ export function WorkloadEachUserTable({
             user.projects.map((project) => (
               <React.Fragment key={`project-group-${project.id}`}>
                 <TableRow className="hover:bg-transparent cursor-default">
-                  <TableCell colSpan={4} className="flex flex-row font-BaiJamjuree font-bold py-[6px] px-0">
-                    Project title:  
-                    <div className='ml-1 font-medium'>{project.title} </div>
+                  <TableCell
+                    colSpan={4}
+                    className="flex flex-row font-BaiJamjuree font-bold py-[6px] px-0">
+                    Project title:
+                    <div className="ml-1 font-medium">{project.title} </div>
                   </TableCell>
                 </TableRow>
 
                 {project.tasks.map((task) => (
                   <TableRow key={`task-${task.taskId}`} className="flex w-full border-0   ">
-                    <TableCell className="font-BaiJamjuree w-[830px] ml-0 pt-1 pb-1">{task.name}</TableCell>
+                    <TableCell className="font-BaiJamjuree w-[830px] ml-0 pt-1 pb-1">
+                      {task.name}
+                    </TableCell>
                     <TableCell className="font-BaiJamjuree w-[170px] text-center ml-5 pt-1 pb-1">
                       <span className={getAcceptanceStatusColor(task.acceptanceStatus)}>
                         {task.acceptanceStatus}
