@@ -346,3 +346,11 @@ export const statusSections = [
   { status: 'UnderReview', displayName: 'Under review', icon: ICONS.UnderReview },
   { status: 'Done', displayName: 'Done', icon: ICONS.Done },
 ];
+
+export const statusSectionsWorkload = [
+  { status: 'Unassigned', displayName: 'Unassigned', icon: ICONS.Unassigned },
+  { status: 'Assigned', displayName: 'Assigned', icon: ICONS.Assigned },
+  { status: 'InRecheck', displayName: 'In recheck', icon: ICONS.InRecheck },
+  { status: 'UnderReview', displayName: 'Under review', icon: ICONS.UnderReview },
+  { status: 'Done', displayName: 'Done', icon: ICONS.Done },
+];
