@@ -17,9 +17,10 @@ import {
 } from '@/components/ui/dialog';
 import type { TaskProps } from '@/app/types/types';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { statusSections, parseJsonValuesTemplate, useExportTask } from '@/lib/taskUtils';
 import { Input } from '@/components/ui/input';
+import { getUserRole } from '@/service/userService';
 
 export const ExportDialog = ({ tasks }: { tasks: TaskProps[] }) => {
   const [exportType, setExportType] = useState<string>(''); // the type of export
@@ -27,6 +28,17 @@ export const ExportDialog = ({ tasks }: { tasks: TaskProps[] }) => {
   const [exportedTasks, setExportedTasks] = useState<TaskProps[]>([]); //Stores the list of tasks selected for export
   const { exportAsFile, exportAsTemplate } = useExportTask();
   const [templateName, setTemplateName] = useState<string>('');
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      const { isAdmin } = await getUserRole();
+      setIsAdmin(isAdmin);
+    };
+
+    fetchUserRole();
+  }, []);
+
   const recursiveCheck = (task: TaskProps) => {
     setVisibleExportTasks((prev) => {
       const newSet = new Set(prev);
@@ -71,9 +83,11 @@ export const ExportDialog = ({ tasks }: { tasks: TaskProps[] }) => {
               <SelectItem key="saveFile" value="saveFile">
                 .CSV
               </SelectItem>
-              <SelectItem key="saveTemplate" value="saveTemplate">
-                Template
-              </SelectItem>
+              {isAdmin && (
+                <SelectItem key="saveTemplate" value="saveTemplate">
+                  Template
+                </SelectItem>
+              )}
             </SelectGroup>
           </SelectContent>
         </Select>
@@ -162,7 +176,9 @@ export const ExportDialog = ({ tasks }: { tasks: TaskProps[] }) => {
             {exportType !== '' && (
               <div className="gap-2 inline-flex">
                 <Input
-                  className={`font-BaiJamjuree leading-normal ${exportType === 'saveTemplate' ? 'visible' : 'invisible'}`}
+                  className={`font-BaiJamjuree leading-normal ${
+                    exportType === 'saveTemplate' ? 'visible' : 'invisible'
+                  }`}
                   placeholder="template name..."
                   name="templateName"
                   value={templateName}
