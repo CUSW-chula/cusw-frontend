@@ -35,7 +35,15 @@ export const NewTaskwithTemplate: React.FC<NewTaskwithTemplateProps> = ({
         <div className="w-1/3 flex flex-col border-r pr-4 overflow-hidden">
           <h3 className="text-lg font-BaiJamjuree font-semibold mb-4">Templates</h3>
           <div className="flex flex-wrap gap-3 overflow-y-auto pb-2">
-            {allTemplates?.map((template) => (
+            {allTemplates?.sort((a, b) => {
+              // Put Default template at the top
+              const aIsDefault = a.fileName.replace('.json', '') === 'Default';
+              const bIsDefault = b.fileName.replace('.json', '') === 'Default';
+              
+              if (aIsDefault && !bIsDefault) return -1;
+              if (!aIsDefault && bIsDefault) return 1;
+              return 0;
+            }).map((template) => (
               <Button
                 key={template.id}
                 type="button"
