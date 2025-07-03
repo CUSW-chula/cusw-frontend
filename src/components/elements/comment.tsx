@@ -168,7 +168,7 @@ function CommentBox({
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2 mb-2">
               <TooltipProvider>
-                <Profile2 userId="test" userName={name ?? '?'} />
+                <Profile userId="test" userName={name ?? '?'} />
               </TooltipProvider>
               <div className="text-slate-900 font-BaiJamjuree font-semibold">
                 {formatName(name ?? '') || 'Loading...'}
