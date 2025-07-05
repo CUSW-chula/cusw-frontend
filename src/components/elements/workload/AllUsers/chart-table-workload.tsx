@@ -95,7 +95,7 @@ export function WorkloadAllUserTable({ userWorkload }: UserWorkloadProps) {
       <Table className="w-full bg-white h-[570px] rounded-md border-0 border-b-0">
         <TableHeader>
           <TableRow className="flex w-full items-center border-0 border-b-0 rounded-sm bg-[#F9FAFB] ">
-            <TableHead className="w-[450px] py-3">
+            <TableHead className="w-[600px] py-3">
               <div className="font-BaiJamjuree text-sm text-black font-bold ">User</div>
             </TableHead>
             <TableHead className="w-[112px] ml-5 text-center py-3">
@@ -133,7 +133,7 @@ export function WorkloadAllUserTable({ userWorkload }: UserWorkloadProps) {
               key={user.userId}
               className="flex w-full border-0 cursor-pointer"
               onClick={() => router.push(`/admin/workload/${user.userId}`)}>
-              <TableCell className="w-[450px] text-start">
+              <TableCell className="w-[600px] text-start">
                 <div className="flex flex-row gap-1">
                   <TooltipProvider>
                     <Tooltip>

@@ -76,4 +76,18 @@ const AdminBackButton = () => {
   );
 };
 
-export { BackButton, ProjectBackButton, AdminBackButton };
+const WorkloadBackButton = () => {
+  const router = useRouter();
+
+  return (
+    <Button
+      variant="link"
+      size="sm"
+      onClick={() => router.push('/admin/workload')}
+      className="font-BaiJamjuree bg-white border-x border-y border-brown text-brown text-md">
+      <Redo2 className="transform rotate-180 text-brown" /> Back
+    </Button>
+  );
+};
+
+export { BackButton, ProjectBackButton, AdminBackButton ,WorkloadBackButton};
