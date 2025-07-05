@@ -44,7 +44,7 @@ export function WorkloadEachUserTable({
       <Table className="w-full bg-white  rounded-md border-0 border-b-0">
         <TableHeader>
           <TableRow className="flex w-full items-center border-0 !border-b-0 rounded-sm  hover:bg-transparent cursor-default  p-0 ">
-            <TableHead className="w-[830px] ">
+            <TableHead className="w-[960px] ">
               {/* <div className="font-BaiJamjuree text-sm text-black font-bold ">Project/Task</div> */}
             </TableHead>
 
@@ -79,7 +79,7 @@ export function WorkloadEachUserTable({
 
                 {project.tasks.map((task) => (
                   <TableRow key={`task-${task.taskId}`} className="flex w-full border-0   ">
-                    <TableCell className="font-BaiJamjuree w-[830px] ml-0 pt-1 pb-1">
+                    <TableCell className="font-BaiJamjuree w-[960px] ml-0 pt-1 pb-1">
                       {task.name}
                     </TableCell>
                     <TableCell className="font-BaiJamjuree w-[170px] text-center ml-5 pt-1 pb-1">
