@@ -6,6 +6,7 @@ import { WorkloadAllUserTable, WorkloadChart } from './chart-table-workload';
 import type { UserWorkload } from '@/lib/shared';
 import React from 'react';
 import { FilterAllUserWorkload } from './filter-user-workload';
+import { AdminBackButton } from '../../backButton';
 
 export function WorkloadUser() {
   const cookie = getCookie('auth');
@@ -63,11 +64,15 @@ export function WorkloadUser() {
         <div className="justify-start text-black text-5xl font-semibold font-['Anuphan'] leading-[48px]">
           Workload Distribution
         </div>
-        <div className="flex w-full flex-row ">
+
+        <div className="flex w-full flex-row  justify-between">
           <FilterAllUserWorkload
             originalUserWorkload={originalUserWorkload}
             setUserWorkload={setUserWorkload}
           />
+          <div className="flex items-center">
+            <AdminBackButton />
+          </div>
         </div>
         <WorkloadChart userWorkload={userWorkload} />
         <WorkloadAllUserTable userWorkload={userWorkload} />

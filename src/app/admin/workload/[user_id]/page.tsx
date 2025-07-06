@@ -23,7 +23,7 @@ export default async function Page({
   const userArray = [userData];
   console.log('userdata', userData);
   return (
-    <div className="w-full flex flex-col lg:flex-row items-start justify-center">
+    <div className="min-w-full flex-col items-start justify-center  px-20 pb-20">
       <WorkloadEachUser userData={userArray} />
     </div>
   );

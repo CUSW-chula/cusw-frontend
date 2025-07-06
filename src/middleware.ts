@@ -36,6 +36,10 @@ export async function middleware(request: NextRequest) {
       }
 
       const data = await response.json();
+      if (data.head === true) {
+        console.log('You are a head');
+        return NextResponse.redirect(new URL('/dashboard/project', request.url));
+      }
       if (data.admin !== true) {
         console.log('You are not an admin');
         return NextResponse.redirect(new URL('/login', request.url));

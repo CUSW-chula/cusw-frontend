@@ -60,8 +60,8 @@ export function WorkloadChart({ userWorkload }: UserWorkloadProps) {
     <>
       <CardContentCustom>
         <div className="w-full overflow-x-auto bg-white py-[30px] px-[15px] rounded-md  outline outline-1 outline-stone-600">
-          <div style={{ minWidth: `${chartWidth}px`, height: '500px' }}>
-            <ChartContainer config={chartConfig} className="max-h-[500px] w-full">
+          <div className="relative h-[500px]" style={{ minWidth: `${chartWidth}px` }}>
+            <ChartContainer config={chartConfig} className="h-[500px] w-full">
               <BarChart
                 width={chartWidth}
                 height={300}
@@ -95,7 +95,7 @@ export function WorkloadAllUserTable({ userWorkload }: UserWorkloadProps) {
       <Table className="w-full bg-white h-[570px] rounded-md border-0 border-b-0">
         <TableHeader>
           <TableRow className="flex w-full items-center border-0 border-b-0 rounded-sm bg-[#F9FAFB] ">
-            <TableHead className="w-[450px] py-3">
+            <TableHead className="w-[600px] py-3">
               <div className="font-BaiJamjuree text-sm text-black font-bold ">User</div>
             </TableHead>
             <TableHead className="w-[112px] ml-5 text-center py-3">
@@ -133,7 +133,7 @@ export function WorkloadAllUserTable({ userWorkload }: UserWorkloadProps) {
               key={user.userId}
               className="flex w-full border-0 cursor-pointer"
               onClick={() => router.push(`/admin/workload/${user.userId}`)}>
-              <TableCell className="w-[450px] text-start">
+              <TableCell className="w-[600px] text-start">
                 <div className="flex flex-row gap-1">
                   <TooltipProvider>
                     <Tooltip>

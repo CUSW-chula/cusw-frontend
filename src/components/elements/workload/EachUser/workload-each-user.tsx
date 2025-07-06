@@ -5,6 +5,7 @@ import React from 'react';
 import { WorkloadEachUserTable } from './each-user-table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@radix-ui/react-tooltip';
 import { FilterTagWorkloadEachUser } from './filter-each-user-workload';
+import { WorkloadBackButton } from '../../backButton';
 interface WorkloadEachUserProps {
   userData: UserWorkload[];
 }
@@ -34,7 +35,7 @@ export function WorkloadEachUser({ userData }: WorkloadEachUserProps) {
           <div className="justify-start text-black text-5xl font-semibold font-['Anuphan'] leading-[48px]">
             Workload Distribution :
           </div>
-          <div className=" ml-4 flex flex-row gap-1 items-center">
+          <div className=" ml-4 flex flex-row gap-1 items-end">
             {eachUserWorkload.length > 0 && (
               <>
                 <div className="w-[36px] h-[36px] items-">
@@ -64,11 +65,14 @@ export function WorkloadEachUser({ userData }: WorkloadEachUserProps) {
           </div>
         </div>
 
-        <div className="flex w-full flex-row gap-2 py-4">
+        <div className="flex w-full flex-row gap-2 justify-between">
           <FilterTagWorkloadEachUser
             originalUserWorkload={originalEachUserWorkload}
             setUserWorkload={setEachUserWorkload}
           />
+          <div className="flex items-center">
+            <WorkloadBackButton />
+          </div>
         </div>
         <div>
           <WorkloadEachUserTable
