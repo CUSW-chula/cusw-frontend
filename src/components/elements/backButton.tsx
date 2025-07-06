@@ -83,11 +83,25 @@ const WorkloadBackButton = () => {
     <Button
       variant="link"
       size="sm"
-      onClick={() => router.push('/admin/workload')}
+      onClick={() => router.push('/dashboard/workload')}
       className="font-BaiJamjuree bg-white border-x border-y border-brown text-brown text-md">
       <Redo2 className="transform rotate-180 text-brown" /> Back
     </Button>
   );
 };
 
-export { BackButton, ProjectBackButton, AdminBackButton, WorkloadBackButton };
+const DashboardBackButton = () => {
+  const router = useRouter();
+
+  return (
+    <Button
+      variant="link"
+      size="sm"
+      onClick={() => router.push('/dashboard')}
+      className="font-BaiJamjuree bg-white border-x border-y border-brown text-brown text-md">
+      <Redo2 className="transform rotate-180 text-brown" /> Back
+    </Button>
+  );
+};
+
+export { BackButton, ProjectBackButton, AdminBackButton, WorkloadBackButton,DashboardBackButton };

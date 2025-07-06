@@ -6,7 +6,7 @@ import { WorkloadAllUserTable, WorkloadChart } from './chart-table-workload';
 import type { UserWorkload } from '@/lib/shared';
 import React from 'react';
 import { FilterAllUserWorkload } from './filter-user-workload';
-import { AdminBackButton } from '../../backButton';
+import {  DashboardBackButton } from '../../backButton';
 
 export function WorkloadUser() {
   const cookie = getCookie('auth');
@@ -15,9 +15,7 @@ export function WorkloadUser() {
   const [isLoading, setIsLoading] = useState(true);
   const [originalUserWorkload, setOriginalUserWorkload] = useState<UserWorkload[]>([]);
 
-  function sortUserWorkloadByProjectCount(workloads: UserWorkload[]) {
-    return workloads.sort((a, b) => b.projects.length - a.projects.length);
-  }
+
   function sortUserWorkloadByProjectAndTaskCount(workloads: UserWorkload[]) {
     return workloads.sort((a, b) => {
       const projectCountA = a.projects.length;
@@ -71,7 +69,7 @@ export function WorkloadUser() {
             setUserWorkload={setUserWorkload}
           />
           <div className="flex items-center">
-            <AdminBackButton />
+            <DashboardBackButton />
           </div>
         </div>
         <WorkloadChart userWorkload={userWorkload} />
