@@ -90,4 +90,4 @@ const WorkloadBackButton = () => {
   );
 };
 
-export { BackButton, ProjectBackButton, AdminBackButton ,WorkloadBackButton};
+export { BackButton, ProjectBackButton, AdminBackButton, WorkloadBackButton };

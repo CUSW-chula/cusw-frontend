@@ -1,18 +1,29 @@
 'use client';
 
+import * as React from 'react';
 import { usePathname } from 'next/navigation';
-import { Profile2 } from './profile';
+import { Profile2, type ProfileProp } from './profile';
 import { getCookie } from 'cookies-next';
 import { useEffect, useState } from 'react';
 import BASE_URL from '@/lib/shared';
 import { jwtDecode } from 'jwt-decode';
 import { toast } from '@/hooks/use-toast';
 import { TableOfContents } from 'lucide-react';
+import { parseProfileJsonValues } from './profile';
 
 export default function NavBar() {
   const url = usePathname();
   const cookie = getCookie('auth');
   const [name, setName] = useState('');
+  const [profile, setProfile] = useState<ProfileProp>({
+    userId: '',
+    userName: '',
+    email: '',
+    organization: '',
+    position: '',
+    isOutsourced: false,
+    fallback: <span>Loading...</span>,
+  });
   const [userid, setUserid] = useState('');
   const [isAdmin, setIsAdmin] = useState<boolean>();
   const [isHead, setIsHead] = useState<boolean>();
@@ -45,9 +56,11 @@ export default function NavBar() {
         }
 
         const data = await response.json();
+        const json = parseProfileJsonValues(data);
         setName(data.name);
         setIsHead(data.head);
         setIsAdmin(data.admin);
+        setProfile(json);
       } catch (error) {
         console.error('Error fetching Owner:', error);
       }
@@ -80,7 +93,7 @@ export default function NavBar() {
             My task
           </button>
 
-          <Profile2 userId={userid} userName={name} />
+          <Profile2 profile={profile} />
         </div>
       </div>
     </>

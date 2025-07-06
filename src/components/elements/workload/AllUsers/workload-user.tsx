@@ -62,17 +62,17 @@ export function WorkloadUser() {
     <>
       <div className="flex flex-col gap-y-[18px]">
         <div className="justify-start text-black text-5xl font-semibold font-['Anuphan'] leading-[48px]">
-          Workload Distribution 
-        </div>  
-        
+          Workload Distribution
+        </div>
+
         <div className="flex w-full flex-row  justify-between">
           <FilterAllUserWorkload
             originalUserWorkload={originalUserWorkload}
             setUserWorkload={setUserWorkload}
           />
           <div className="flex items-center">
-                <AdminBackButton />
-              </div>
+            <AdminBackButton />
+          </div>
         </div>
         <WorkloadChart userWorkload={userWorkload} />
         <WorkloadAllUserTable userWorkload={userWorkload} />

@@ -60,8 +60,7 @@ export function WorkloadChart({ userWorkload }: UserWorkloadProps) {
     <>
       <CardContentCustom>
         <div className="w-full overflow-x-auto bg-white py-[30px] px-[15px] rounded-md  outline outline-1 outline-stone-600">
-          <div  className="relative h-[500px]"
-  style={{ minWidth: `${chartWidth}px` }}>
+          <div className="relative h-[500px]" style={{ minWidth: `${chartWidth}px` }}>
             <ChartContainer config={chartConfig} className="h-[500px] w-full">
               <BarChart
                 width={chartWidth}

@@ -9,11 +9,29 @@ import type React from 'react';
 import { useRouter } from 'next/navigation';
 import { deleteCookie } from 'cookies-next/client';
 
-interface ProfileProp {
+export interface ProfileProp {
   userId: string;
   userName?: string; // Made optional to handle loading states
+  email?: string; // Optional email prop
+  organization?: string; // Optional organization prop
+  position?: string; // Optional position prop
+  isOutsourced?: boolean; // Optional isOutsourced prop
   fallback?: React.ReactNode;
 }
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+export const parseProfileJsonValues = (data: any): ProfileProp => {
+  const json: ProfileProp = {
+    userId: data.id,
+    userName: data.name ?? '',
+    email: data.email ?? '',
+    organization: data.organization ?? '',
+    position: data.position ?? '',
+    isOutsourced: data.isOutsource ?? false,
+    fallback: <span>Loading...</span>, // or keep existing fallback
+  };
+  return json;
+};
 
 const getInitials = (name?: string) => {
   if (!name) return '';
@@ -51,7 +69,7 @@ export const Profile = ({ userId, userName }: ProfileProp) => {
   );
 };
 
-export const Profile2 = ({ userId, userName }: ProfileProp) => {
+export const Profile2 = ({ profile }: { profile: ProfileProp }) => {
   const navigate = useRouter();
 
   const handleSignOut = async () => {
@@ -64,16 +82,23 @@ export const Profile2 = ({ userId, userName }: ProfileProp) => {
       <DropdownMenuTrigger asChild>
         <div className="flex items-center space-x-2 border-brown text-brown cursor-pointer">
           <div className="w-[40px] h-[40px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown hover:bg-gray-200 transition-colors">
-            <span className="text-brown text-[16px] font-BaiJamjuree">{getInitials(userName)}</span>
+            <span className="text-brown text-[16px] font-BaiJamjuree">
+              {getInitials(profile.userName)}
+            </span>
           </div>
         </div>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="min-w-[200px] p-2">
         <div className="flex flex-col space-y-2">
-          <div className="px-2 py-1.5">
-            <p className="text-sm font-medium text-gray-900">{userName}</p>
+          <div className="px-2 py-1.5 text-sm font-medium text-gray-900">
+            <p>{profile.userName}</p>
+            <p>{profile.email || 'No email provided'}</p>
+            <p>{profile.organization || 'No organization provided'}</p>
+            <p>{profile.position || 'No position provided'}</p>
+            <p>{profile.isOutsourced ? 'Outsourced' : 'In-house'}</p>
           </div>
+
           <DropdownMenuItem
             onClick={handleSignOut}
             className="cursor-pointer text-red-600 hover:bg-red-50 focus:bg-red-50">

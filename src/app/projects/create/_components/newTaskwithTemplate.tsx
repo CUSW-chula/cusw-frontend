@@ -35,33 +35,35 @@ export const NewTaskwithTemplate: React.FC<NewTaskwithTemplateProps> = ({
         <div className="w-1/3 flex flex-col border-r pr-4 overflow-hidden">
           <h3 className="text-lg font-BaiJamjuree font-semibold mb-4">Templates</h3>
           <div className="flex flex-wrap gap-3 overflow-y-auto pb-2">
-            {allTemplates?.sort((a, b) => {
-              // Put Default template at the top
-              const aIsDefault = a.fileName.replace('.json', '') === 'Default';
-              const bIsDefault = b.fileName.replace('.json', '') === 'Default';
-              
-              if (aIsDefault && !bIsDefault) return -1;
-              if (!aIsDefault && bIsDefault) return 1;
-              return 0;
-            }).map((template) => (
-              <Button
-                key={template.id}
-                type="button"
-                variant={'secondary'}
-                className={`${template.id === inputs.task?.template.id ? 'bg-neutral-200' : ''} hover:bg-neutral-200 mb-2 w-full text-left`}
-                onClick={() => handleTemplateSelect(template)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleTemplateSelect(template);
-                  }
-                }}>
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium font-BaiJamjuree">
-                    {template.fileName.replace('.json', '')}
-                  </span>
-                </div>
-              </Button>
-            ))}
+            {allTemplates
+              ?.sort((a, b) => {
+                // Put Default template at the top
+                const aIsDefault = a.fileName.replace('.json', '') === 'Default';
+                const bIsDefault = b.fileName.replace('.json', '') === 'Default';
+
+                if (aIsDefault && !bIsDefault) return -1;
+                if (!aIsDefault && bIsDefault) return 1;
+                return 0;
+              })
+              .map((template) => (
+                <Button
+                  key={template.id}
+                  type="button"
+                  variant={'secondary'}
+                  className={`${template.id === inputs.task?.template.id ? 'bg-neutral-200' : ''} hover:bg-neutral-200 mb-2 w-full text-left`}
+                  onClick={() => handleTemplateSelect(template)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleTemplateSelect(template);
+                    }
+                  }}>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-medium font-BaiJamjuree">
+                      {template.fileName.replace('.json', '')}
+                    </span>
+                  </div>
+                </Button>
+              ))}
           </div>
         </div>
 

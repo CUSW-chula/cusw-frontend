@@ -29,9 +29,10 @@ const Delete: React.FC<ManageProps> = ({ tag }) => {
       const response = await fetch(url, options);
       if (!response.ok) {
         const errorMessage = await response.text();
-       toast({
+        toast({
           title: `❌ Failed to delete tag: ${tag.name}`,
-          description:  'Unable to delete this tag. It might be currently in use. Please check and try again.',
+          description:
+            'Unable to delete this tag. It might be currently in use. Please check and try again.',
           variant: 'default',
         });
         return;
