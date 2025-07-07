@@ -132,7 +132,7 @@ export function WorkloadAllUserTable({ userWorkload }: UserWorkloadProps) {
             <TableRow
               key={user.userId}
               className="flex w-full border-0 cursor-pointer"
-              onClick={() => router.push(`/admin/workload/${user.userId}`)}>
+              onClick={() => router.push(`/dashboard/workload/${user.userId}`)}>
               <TableCell className="w-[600px] text-start">
                 <div className="flex flex-row gap-1">
                   <TooltipProvider>

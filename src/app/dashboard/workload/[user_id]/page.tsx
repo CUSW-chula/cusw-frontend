@@ -1,6 +1,5 @@
 import BASE_URL, { type UserWorkload, type Project } from '@/lib/shared';
 import { cookies } from 'next/headers';
-import { WorkloadEachUserTable } from '@/components/elements/workload/EachUser/each-user-table';
 import React from 'react';
 import WorkloadEachUser from '@/components/elements/workload/EachUser/workload-each-user';
 
