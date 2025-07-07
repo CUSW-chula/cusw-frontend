@@ -1,8 +1,10 @@
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
 } from '../ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import type React from 'react';
@@ -16,6 +18,8 @@ export interface ProfileProp {
   organization?: string; // Optional organization prop
   position?: string; // Optional position prop
   isOutsourced?: boolean; // Optional isOutsourced prop
+  isAdmin: boolean;
+  isHead: boolean;
   fallback?: React.ReactNode;
 }
 
@@ -28,6 +32,8 @@ export const parseProfileJsonValues = (data: any): ProfileProp => {
     organization: data.organization ?? '',
     position: data.position ?? '',
     isOutsourced: data.isOutsource ?? false,
+    isAdmin: data.admin ?? false,
+    isHead: data.head ?? false,
     fallback: <span>Loading...</span>, // or keep existing fallback
   };
   return json;
@@ -76,6 +82,7 @@ export const Profile2 = ({ profile }: { profile: ProfileProp }) => {
     deleteCookie('auth');
     navigate.push('/');
   };
+  console.info(profile);
 
   return (
     <DropdownMenu>
@@ -88,23 +95,32 @@ export const Profile2 = ({ profile }: { profile: ProfileProp }) => {
           </div>
         </div>
       </DropdownMenuTrigger>
-
-      <DropdownMenuContent align="end" className="min-w-[200px] p-2">
-        <div className="flex flex-col space-y-2">
-          <div className="px-2 py-1.5 text-sm font-medium text-gray-900">
-            <p>{profile.userName}</p>
-            <p>{profile.email || 'No email provided'}</p>
-            <p>{profile.organization || 'No organization provided'}</p>
-            <p>{profile.position || 'No position provided'}</p>
-            <p>{profile.isOutsourced ? 'Outsourced' : 'In-house'}</p>
-          </div>
-
-          <DropdownMenuItem
-            onClick={handleSignOut}
-            className="cursor-pointer text-red-600 hover:bg-red-50 focus:bg-red-50">
-            Sign Out
-          </DropdownMenuItem>
-        </div>
+      <DropdownMenuContent align="start" className="min-w-[200px] p-2">
+        <DropdownMenuLabel className="text-black text-[18px] font-bold font-BaiJamjuree px-2">
+          {profile.userName}
+        </DropdownMenuLabel>
+        <DropdownMenuGroup>
+          {profile.isAdmin && (
+            <DropdownMenuItem
+              onClick={() => window.location.assign('/admin')}
+              className="text-black font-BaiJamjuree">
+              Admin
+            </DropdownMenuItem>
+          )}
+          {(profile.isHead || profile.isAdmin) && (
+            <DropdownMenuItem
+              onClick={() => window.location.assign('/dashboard')}
+              className="text-black font-BaiJamjuree">
+              Dashboard
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuGroup>
+        <hr className="px-2 w-full border-t-1 border-gray-200" />
+        <DropdownMenuItem
+          onClick={handleSignOut}
+          className="text-red font-bold font-BaiJamjuree mt-1 focus:text-red">
+          Sign out
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
