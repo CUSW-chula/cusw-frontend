@@ -224,6 +224,11 @@ export const ProjectDetail = ({ project }: { project: Project }) => {
     Router.push(url);
   };
 
+  const gotoGantt = () => {
+    const url = `/dashboard/project/${project.id}`;
+    Router.push(url);
+  };
+
   return (
     <div className="w-full flex flex-col items-start justify-center gap-4 px-20">
       <div className="flex justify-between items-center w-full">
@@ -235,7 +240,13 @@ export const ProjectDetail = ({ project }: { project: Project }) => {
           <ProjectWorkspace project_id={project.id} />
           <div className="self-stretch h-[120px] flex-col justify-center items-end gap-3 flex">
             <hr className="my-4 w-full border-t-1 border-gray-200" />
-            <div className="justify-start items-start gap-1 inline-flex">
+            <div className="justify-start items-start gap-2 inline-flex">
+              <Button
+                className="text-black bg-neutral-200 "
+                variant={'destructive'}
+                onClick={gotoGantt}>
+                View gantt chart
+              </Button>
               <Button
                 variant="destructive"
                 className="px-4 py-2 bg-brown justify-center items-center gap-2.5 flex"
