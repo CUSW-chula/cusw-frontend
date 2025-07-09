@@ -39,7 +39,8 @@ export default function RootLayout({
       url.startsWith('/projects/') ||
       url.startsWith('/tasks/') ||
       url.startsWith('/admin') ||
-      url.startsWith('/dashboard')
+      url.startsWith('/dashboard') ||
+      url.startsWith('/workload')
     );
   }, [url]);
 
