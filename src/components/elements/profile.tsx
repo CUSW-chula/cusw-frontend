@@ -18,8 +18,8 @@ export interface ProfileProp {
   organization?: string; // Optional organization prop
   position?: string; // Optional position prop
   isOutsourced?: boolean; // Optional isOutsourced prop
-  isAdmin: boolean;
-  isHead: boolean;
+  isAdmin?: boolean;
+  isHead?: boolean;
   fallback?: React.ReactNode;
 }
 
@@ -107,9 +107,9 @@ export const Profile2 = ({ profile }: { profile: ProfileProp }) => {
               Admin
             </DropdownMenuItem>
           )}
-          {(profile.isHead || profile.isAdmin) && (
+          {profile.isHead && profile.isAdmin && (
             <DropdownMenuItem
-              onClick={() => window.location.assign('/dashboard')}
+              onClick={() => window.location.assign('/dashboards')}
               className="text-black font-BaiJamjuree">
               Dashboard
             </DropdownMenuItem>
