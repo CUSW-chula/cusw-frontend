@@ -22,6 +22,8 @@ export default function NavBar() {
     organization: '',
     position: '',
     isOutsourced: false,
+    isAdmin: false,
+    isHead: false,
     fallback: <span>Loading...</span>,
   });
   const [userid, setUserid] = useState('');
