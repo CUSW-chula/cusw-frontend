@@ -242,7 +242,7 @@ export const ProjectDetail = ({ project }: { project: Project }) => {
             <hr className="my-4 w-full border-t-1 border-gray-200" />
             <div className="justify-start items-start gap-2 inline-flex">
               <Button
-                className="text-black bg-neutral-200 "
+                className="text-black bg-white border-[#6b5c56] border"
                 variant={'destructive'}
                 onClick={gotoGantt}>
                 View gantt chart

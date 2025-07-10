@@ -83,7 +83,7 @@ const WorkloadBackButton = () => {
     <Button
       variant="link"
       size="sm"
-      onClick={() => router.push('/dashboard/workload')}
+      onClick={() => router.push('/workload')}
       className="font-BaiJamjuree bg-white border-x border-y border-brown text-brown text-md">
       <Redo2 className="transform rotate-180 text-brown" /> Back
     </Button>
@@ -97,7 +97,7 @@ const DashboardBackButton = () => {
     <Button
       variant="link"
       size="sm"
-      onClick={() => router.push('/dashboard')}
+      onClick={() => router.push('/dashboards')}
       className="font-BaiJamjuree bg-white border-x border-y border-brown text-brown text-md">
       <Redo2 className="transform rotate-180 text-brown" /> Back
     </Button>

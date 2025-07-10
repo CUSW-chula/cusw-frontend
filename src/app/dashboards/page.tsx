@@ -40,8 +40,8 @@ const page = () => {
     <div className="flex flex-col max-w-7xl mx-auto gap-8 w-full h-full">
       <h1 className="text-5xl font-bold text-brown mb-4 font-BaiJamjuree w-full">Dashboard</h1>
       <div className="grid w-full justify-center items-center grid-cols-[repeat(auto-fit,_minmax(200px,_310px))] gap-8">
-        <DashboardCard title="Workload Distribution" path="/dashboard/workload" />
-        <GanttChartCard title="Gant Chart" path="/dashboard/project" />
+        <DashboardCard title="Workload Distribution" path="/workload" />
+        <GanttChartCard title="Gantt Chart" path="/dashboard/project" />
       </div>
     </div>
   );
