@@ -96,7 +96,7 @@ export const Profile2 = ({ profile }: { profile: ProfileProp }) => {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="min-w-[200px] p-2">
-        <DropdownMenuLabel className="text-black text-[18px] font-bold font-BaiJamjuree px-2">
+        <DropdownMenuLabel className="text-black text-[18px] font-semibold font-BaiJamjuree px-2">
           {profile.userName}
         </DropdownMenuLabel>
         <DropdownMenuGroup>
@@ -118,7 +118,7 @@ export const Profile2 = ({ profile }: { profile: ProfileProp }) => {
         <hr className="px-2 w-full border-t-1 border-gray-200" />
         <DropdownMenuItem
           onClick={handleSignOut}
-          className="text-red font-bold font-BaiJamjuree mt-1 focus:text-red">
+          className="text-red font-semibold font-BaiJamjuree mt-1 focus:text-red">
           Sign out
         </DropdownMenuItem>
       </DropdownMenuContent>
