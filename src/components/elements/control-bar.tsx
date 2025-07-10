@@ -91,7 +91,7 @@ export function FilterByDateRange({ className, onDateChange }: FilterDateRangePr
         </PopoverTrigger>
         <PopoverContent
           className="w-auto p-0 flex flex-col text-brown text-sm font-normal font-BaiJamjuree"
-          align="center">
+          align="start">
           <Calendar
             initialFocus
             mode="range"
@@ -100,16 +100,16 @@ export function FilterByDateRange({ className, onDateChange }: FilterDateRangePr
             onSelect={setDate}
             numberOfMonths={2}
           />
-          <div className="flex justify-end">
+          <div className="flex justify-end mb-2 mr-2 gap-2">
             <Button
-              className="m-2 bg-transparent text-brown border-brown hover:text-brown"
+              className="bg-white h-8 px-2 text-brown border-brown hover:text-brown"
               variant={'outline'}
               onClick={handleReset}
               aria-label="Reset the selected date range">
               Reset
             </Button>
             <Button
-              className="m-2 bg-brown"
+              className="bg-brown h-8 px-2"
               onClick={handleApply}
               aria-label="Apply the selected date range">
               Apply
