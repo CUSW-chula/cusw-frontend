@@ -82,7 +82,6 @@ export const Profile2 = ({ profile }: { profile: ProfileProp }) => {
     deleteCookie('auth');
     navigate.push('/');
   };
-  console.info(profile);
 
   return (
     <DropdownMenu>
@@ -107,7 +106,7 @@ export const Profile2 = ({ profile }: { profile: ProfileProp }) => {
               Admin
             </DropdownMenuItem>
           )}
-          {profile.isHead && profile.isAdmin && (
+          {(profile.isHead || profile.isAdmin) && (
             <DropdownMenuItem
               onClick={() => window.location.assign('/dashboards')}
               className="text-black font-BaiJamjuree">
