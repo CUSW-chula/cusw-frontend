@@ -8,24 +8,24 @@ interface CustomJwtPayload extends JwtPayload {
 }
 
 export async function middleware(request: NextRequest) {
-      const cookie = request.cookies.get('auth')?.value;
+  const cookie = request.cookies.get('auth')?.value;
 
-      if (!cookie) {
-        console.log('No cookie found');
-        return NextResponse.redirect(new URL('/login', request.url));
-      }
+  if (!cookie) {
+    console.log('No cookie found');
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
 
-      const decryptedCookie: CustomJwtPayload = jwtDecode(cookie);
-      if (!decryptedCookie) {
-        console.log('Decryption failed or invalid cookie');
-        return NextResponse.redirect(new URL('/login', request.url));
-      }
+  const decryptedCookie: CustomJwtPayload = jwtDecode(cookie);
+  if (!decryptedCookie) {
+    console.log('Decryption failed or invalid cookie');
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
 
-      const response = await fetch(`${BASE_URL}/v2/users/${decryptedCookie.id}`, {
-        headers: {
-          Authorization: cookie,
-        },
-      });
+  const response = await fetch(`${BASE_URL}/v2/users/${decryptedCookie.id}`, {
+    headers: {
+      Authorization: cookie,
+    },
+  });
   if (request.nextUrl.pathname.startsWith('/admin')) {
     try {
       if (!response.ok) {
@@ -78,20 +78,20 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/404', request.url));
     }
   } else if (request.nextUrl.pathname === '/dashboards') {
-      try{
-        if (!response.ok) {
+    try {
+      if (!response.ok) {
         const errorMessage = await response.text();
         console.log(`🚨 Error ${response.status}: ${response.statusText}, ${errorMessage}`);
         return NextResponse.redirect(new URL('/login', request.url));
       }
 
-        const data = await response.json();
-        if (data.head !== true || data.admin !== true) {
-          console.log('You are a head');
-          return NextResponse.redirect(new URL('/login', request.url));
+      const data = await response.json();
+      if (data.head !== true || data.admin !== true) {
+        console.log('You are a head');
+        return NextResponse.redirect(new URL('/login', request.url));
       }
       return NextResponse.rewrite(request.url);
-      }catch (error) {
+    } catch (error) {
       if (error instanceof Error) {
         console.log(`Middleware error: ${error.message}`);
       } else {
@@ -100,20 +100,19 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/404', request.url));
     }
   } else if (request.nextUrl.pathname === '/workload') {
-      try{
-        if (!response.ok) {
+    try {
+      if (!response.ok) {
         const errorMessage = await response.text();
         console.log(`🚨 Error ${response.status}: ${response.statusText}, ${errorMessage}`);
         return NextResponse.redirect(new URL('/login', request.url));
       }
-        const data = await response.json();
-        if (data.head !== true || data.admin !== true)  {
-          console.log('You are a head');
-          return NextResponse.redirect(new URL('/login', request.url));
-
+      const data = await response.json();
+      if (data.head !== true || data.admin !== true) {
+        console.log('You are a head');
+        return NextResponse.redirect(new URL('/login', request.url));
       }
       return NextResponse.rewrite(request.url);
-      }catch (error) {
+    } catch (error) {
       if (error instanceof Error) {
         console.log(`Middleware error: ${error.message}`);
       } else {
@@ -122,20 +121,19 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/404', request.url));
     }
   } else if (request.nextUrl.pathname === '/dashboard') {
-      try{
-        if (!response.ok) {
+    try {
+      if (!response.ok) {
         const errorMessage = await response.text();
         console.log(`🚨 Error ${response.status}: ${response.statusText}, ${errorMessage}`);
         return NextResponse.redirect(new URL('/login', request.url));
       }
-        const data = await response.json();
-        if (data.head !== true || data.admin !== true)  {
-          console.log('You are a head');
-          return NextResponse.redirect(new URL('/login', request.url));
-
+      const data = await response.json();
+      if (data.head !== true || data.admin !== true) {
+        console.log('You are a head');
+        return NextResponse.redirect(new URL('/login', request.url));
       }
       return NextResponse.rewrite(request.url);
-      }catch (error) {
+    } catch (error) {
       if (error instanceof Error) {
         console.log(`Middleware error: ${error.message}`);
       } else {
@@ -147,5 +145,15 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/projects/:path*', '/tasks/:path*', '/my-tasks', '/admin/:path*', '/admin', '/dashboards', '/workload/:path*', '/workload', '/dashboard/:path*'],
+  matcher: [
+    '/projects/:path*',
+    '/tasks/:path*',
+    '/my-tasks',
+    '/admin/:path*',
+    '/admin',
+    '/dashboards',
+    '/workload/:path*',
+    '/workload',
+    '/dashboard/:path*',
+  ],
 };
