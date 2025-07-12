@@ -77,7 +77,7 @@ export async function middleware(request: NextRequest) {
       }
       return NextResponse.redirect(new URL('/404', request.url));
     }
-  } else if (request.nextUrl.pathname.startwith('/dashboards')) {
+  } else if (request.nextUrl.pathname.startsWith('/dashboards')) {
     try {
       if (!response.ok) {
         const errorMessage = await response.text();
@@ -99,7 +99,7 @@ export async function middleware(request: NextRequest) {
       }
       return NextResponse.redirect(new URL('/404', request.url));
     }
-  } else if (request.nextUrl.pathname.startwith('/workload')) {
+  } else if (request.nextUrl.pathname.startsWith('/workload')) {
     try {
       if (!response.ok) {
         const errorMessage = await response.text();
@@ -120,7 +120,7 @@ export async function middleware(request: NextRequest) {
       }
       return NextResponse.redirect(new URL('/404', request.url));
     }
-  } else if (request.nextUrl.pathname.startwith('/dashboard')) {
+  } else if (request.nextUrl.pathname.startsWith('/dashboard')) {
     try {
       if (!response.ok) {
         const errorMessage = await response.text();
