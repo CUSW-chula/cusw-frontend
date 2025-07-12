@@ -7,8 +7,6 @@ import { getCookie } from 'cookies-next';
 import { useEffect, useState } from 'react';
 import BASE_URL from '@/lib/shared';
 import { jwtDecode } from 'jwt-decode';
-import { toast } from '@/hooks/use-toast';
-import { TableOfContents } from 'lucide-react';
 import { parseProfileJsonValues } from './profile';
 
 export default function NavBar() {
@@ -27,8 +25,6 @@ export default function NavBar() {
     fallback: <span>Loading...</span>,
   });
   const [userid, setUserid] = useState('');
-  const [isAdmin, setIsAdmin] = useState<boolean>();
-  const [isHead, setIsHead] = useState<boolean>();
   const auth = cookie?.toString() ?? '';
 
   useEffect(() => {
@@ -60,8 +56,6 @@ export default function NavBar() {
         const data = await response.json();
         const json = parseProfileJsonValues(data);
         setName(data.name);
-        setIsHead(data.head);
-        setIsAdmin(data.admin);
         setProfile(json);
       } catch (error) {
         console.error('Error fetching Owner:', error);
@@ -78,16 +72,6 @@ export default function NavBar() {
           <img src="/asset/logo/s2.svg" alt="CUSW" width={240} />
         </a>
         <div className="flex flex-row gap-4">
-          {(isAdmin || isHead) && (
-            <button
-              type="button"
-              className="flex justify-center items-center gap-1 h-[40px] bg-white border border-brown rounded-[6px] px-2"
-              onClick={() => window.location.assign('/admin')}>
-              <TableOfContents />
-              {isAdmin ? 'Admin' : 'Dashboard'}
-            </button>
-          )}
-
           <button
             type="button"
             className="flex justify-center items-center gap-1 h-[40px] bg-brown text-white rounded-[6px] px-3"
