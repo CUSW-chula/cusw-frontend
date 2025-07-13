@@ -53,7 +53,7 @@ export async function middleware(request: NextRequest) {
       }
       return NextResponse.redirect(new URL('/404', request.url));
     }
-  }else if (request.nextUrl.pathname.startsWith('/dashboards')) {
+  } else if (request.nextUrl.pathname.startsWith('/dashboards')) {
     try {
       if (!response.ok) {
         const errorMessage = await response.text();
@@ -117,8 +117,7 @@ export async function middleware(request: NextRequest) {
       }
       return NextResponse.redirect(new URL('/404', request.url));
     }
-  } 
-  else if (request.nextUrl.pathname.startsWith('/')) {
+  } else if (request.nextUrl.pathname.startsWith('/')) {
     try {
       const cookie = request.cookies.get('auth')?.value;
 
@@ -142,7 +141,7 @@ export async function middleware(request: NextRequest) {
       }
       return NextResponse.redirect(new URL('/404', request.url));
     }
-  } 
+  }
 }
 
 export const config = {

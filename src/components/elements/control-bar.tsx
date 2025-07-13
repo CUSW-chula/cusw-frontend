@@ -47,6 +47,7 @@ const auth = cookie?.toString() ?? '';
 /* filter zone */
 export function FilterByDateRange({ className, onDateChange }: FilterDateRangeProps) {
   const [date, setDate] = React.useState<DateRange | undefined>();
+  const [isPopover, setIsPopover] = React.useState(false);
   const handleReset = () => {
     setDate(undefined);
     if (onDateChange) {
@@ -60,11 +61,16 @@ export function FilterByDateRange({ className, onDateChange }: FilterDateRangePr
         to: date.to.toISOString(),
       };
       onDateChange(formattedDateRange);
+    } else {
+      if (onDateChange) {
+        onDateChange(undefined);
+      }
     }
+    setIsPopover(false);
   };
   return (
     <div className={cn('grid gap-2', className)}>
-      <Popover>
+      <Popover open={isPopover} onOpenChange={setIsPopover}>
         <PopoverTrigger asChild>
           <Button
             id="date"
@@ -72,7 +78,8 @@ export function FilterByDateRange({ className, onDateChange }: FilterDateRangePr
             className={cn(
               'w-[240px] justify-start text-left font-BaiJamjuree border-[1px] border-brown font-bold text-brown text-sm',
               !date && 'text-muted-foreground',
-            )}>
+            )}
+            onClick={() => setIsPopover(true)}>
             <CalendarIcon className="text-brown" />
             {date?.from ? (
               date.to ? (
