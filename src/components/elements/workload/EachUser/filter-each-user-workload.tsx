@@ -72,7 +72,6 @@ export const FilterTagWorkloadEachUser = ({
           const selectedTagNames = selectedTagIds
             .map((id) => allTags.find((tag) => tag.id === id)?.name)
             .filter((name): name is string => !!name);
-            console.log("Tag name", tagName);
           filteredProjects = filteredProjects.filter((project) =>
             selectedTagNames.some((tagName) => project.tags.includes(tagName)),
           );
@@ -111,14 +110,17 @@ export const FilterTagWorkloadEachUser = ({
   // เมื่อเลือก tag ใหม่
   const handleTagSelected = (selectedIds: string[]) => {
     setSelectedTagIds(selectedIds);
-    handleFilter(selectedIds, dateRange);
   };
 
   // เมื่อเลือก date ใหม่
   const handleDateRangeChange = (range: { from: string; to: string } | undefined) => {
     setDateRange(range);
-    handleFilter(selectedTagIds, range);
   };
+
+  // เรียก filter เมื่อ state เปลี่ยนจริง
+  useEffect(() => {
+    handleFilter(selectedTagIds, dateRange);
+  }, [selectedTagIds, dateRange, handleFilter]);
 
   return (
     <div className="flex flex-wrap gap-2">
