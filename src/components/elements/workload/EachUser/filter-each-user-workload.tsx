@@ -72,7 +72,7 @@ export const FilterTagWorkloadEachUser = ({
           const selectedTagNames = selectedTagIds
             .map((id) => allTags.find((tag) => tag.id === id)?.name)
             .filter((name): name is string => !!name);
-
+            console.log("Tag name", tagName);
           filteredProjects = filteredProjects.filter((project) =>
             selectedTagNames.some((tagName) => project.tags.includes(tagName)),
           );
