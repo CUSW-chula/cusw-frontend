@@ -66,7 +66,7 @@ export function ProjectOwner({ task }: { task: TaskProps }) {
                   </TooltipContent>
                 </Tooltip>
               ) : (
-                owner?.slice(0, 2).map((user) => (
+                owner?.slice(0, 3).map((user) => (
                   <Tooltip key={user.id}>
                     <TooltipTrigger>
                       <div className="flex items-center space-x-2">
@@ -83,20 +83,20 @@ export function ProjectOwner({ task }: { task: TaskProps }) {
                   </Tooltip>
                 ))
               )}
-              {owner.length > 2 && (
+              {owner.length > 3 && (
                 <Tooltip>
                   <TooltipTrigger>
                     <div className="flex items-center space-x-2">
                       <div className="w-[24px] h-[24px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown">
                         <span className="text-brown text-[12px] font-BaiJamjuree">
-                          +{owner.length - 2}
+                          +{owner.length - 3}
                         </span>
                       </div>
                     </div>
                   </TooltipTrigger>
                   <TooltipContent>
                     <div className="flex flex-col">
-                      {owner.slice(2).map((user) => (
+                      {owner.slice(3).map((user) => (
                         <span key={user.id}>{user.name}</span>
                       ))}
                     </div>

@@ -385,6 +385,126 @@ export function SelectByTags({ onSelectTagChange }: FilterTagsProp) {
     </Popover>
   );
 }
+export function SelectByTagsWorkload({ onSelectTagChange }: FilterTagsProp) {
+  const [selectedValues, setSelectedValues] = React.useState<string[]>([]);
+  const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
+  const [tagsList] = useAtom<ProjectTagProp[]>(tagsListAtom);
+  const prevSelectedValues = useRef<string[]>([]);
+  useEffect(() => {
+    if (JSON.stringify(prevSelectedValues.current) !== JSON.stringify(selectedValues)) {
+      // Call onSelectTagChange only when selectedValues change
+      if (onSelectTagChange) {
+        onSelectTagChange(selectedValues);
+      }
+      prevSelectedValues.current = selectedValues; // Update ref with the new selectedValues
+    }
+  }, [selectedValues, onSelectTagChange]);
+  const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      setIsPopoverOpen(true);
+    } else if (event.key === 'Backspace' && !event.currentTarget.value) {
+      const newSelectedValues = [...selectedValues];
+      newSelectedValues.pop();
+      setSelectedValues(newSelectedValues);
+    }
+  };
+
+  const toggleOption = (option: string) => {
+    const newSelectedValues = selectedValues.includes(option)
+      ? selectedValues.filter((value) => value !== option)
+      : [...selectedValues, option];
+    setSelectedValues(newSelectedValues);
+  };
+
+  const handleClear = () => {
+    setSelectedValues([]);
+  };
+
+  const handleTogglePopover = () => {
+    setIsPopoverOpen((prev) => !prev);
+  };
+
+  const toggleAll = () => {
+    if (selectedValues.length === tagsList.length) {
+      handleClear();
+    } else {
+      const allValues = tagsList.map((option) => option.value);
+      setSelectedValues(allValues);
+    }
+  };
+  return (
+    <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          onClick={handleTogglePopover}
+          className={cn(
+            'flex p-4 rounded-[6px] border h-10 items-center justify-between border-brown',
+            selectedValues.length !== 0
+              ? ' bg-slate-100 hover:bg-gray-50'
+              : 'bg-white hover:bg-white',
+          )}>
+          <span
+            className={`text-sm font-BaiJamjuree ${selectedValues.length !== 0 ? 'text-black font-bold' : 'text-brown font-normal'}`}>
+            Select {selectedValues.length} tag(s)
+          </span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        className="w-auto p-0 relative"
+        align="start"
+        onEscapeKeyDown={() => setIsPopoverOpen(false)}>
+        <Command>
+          <CommandInput placeholder="Search..." onKeyDown={handleInputKeyDown} />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup className="mb-10">
+              {tagsList.map((option) => {
+                const isSelected = selectedValues.includes(option.value);
+                return (
+                  <CommandItem
+                    key={option.value}
+                    onSelect={() => toggleOption(option.value)}
+                    className="cursor-pointer">
+                    <div
+                      className={cn(
+                        'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
+                        isSelected
+                          ? 'bg-primary text-primary-foreground'
+                          : 'opacity-50 [&_svg]:invisible',
+                      )}>
+                      <CheckIcon className="h-4 w-4" />
+                    </div>
+                    <span>{option.label}</span>
+                  </CommandItem>
+                );
+              })}
+            </CommandGroup>
+            <CommandSeparator />
+            <CommandGroup className="absolute bottom-0 w-full bg-white">
+              <div className="flex items-center justify-between">
+                {selectedValues.length > 0 && (
+                  <>
+                    <CommandItem
+                      onSelect={handleClear}
+                      className="flex-1 justify-center cursor-pointer">
+                      Clear
+                    </CommandItem>
+                    <Separator orientation="vertical" className="flex min-h-6 h-full" />
+                  </>
+                )}
+                <CommandItem
+                  onSelect={() => setIsPopoverOpen(false)}
+                  className="flex-1 justify-center cursor-pointer max-w-full">
+                  Close
+                </CommandItem>
+              </div>
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
 /* sort button zone */
 export function SortButton({ onSelectChange }: SortProp) {
   const handleSelectChange = (value: string) => {

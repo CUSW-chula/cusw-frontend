@@ -252,17 +252,28 @@ const Comment = ({ task }: { task: TaskProps }) => {
   const [comment, setComment] = useState('');
   const [list, setList] = useAtom<CommentBoxProp[]>(commentlist);
   const charLimit = 200;
+const commentsContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const commentsEndRef = useRef<HTMLDivElement | null>(null); // Reference for the bottom of the comment list
+  // const commentsEndRef = useRef<HTMLDivElement | null>(null); // Reference for the bottom of the comment list
 
   // Scroll to the bottom of the comment list
-  const scrollToBottom = () => {
-    commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  // const scrollToBottom = () => {
+  //   // commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  // };
 
   useEffect(() => {
-    scrollToBottom();
-  }); // Run when the list updates
+  if (list.length > 0) {
+    const container = commentsContainerRef.current;
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
+  }
+}, [list]);
+
+
+  // useEffect(() => {
+  //   scrollToBottom();
+  // }); // Run when the list updates
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const parseJsonValues = useCallback((values: any[]) => {
@@ -378,7 +389,7 @@ const Comment = ({ task }: { task: TaskProps }) => {
   return (
     <div className="w-full max-h-[550px] flex-col min-w-full justify-start items-start gap-[18px] inline-flex ">
       <div className="font-semibold font-Anuphan text-2xl">Comment</div>
-      <div className="max-h-84 overflow-y-scroll w-full min-w-full">
+      <div   ref={commentsContainerRef} className="max-h-84 overflow-y-scroll w-full min-w-full">
         <ul>
           {list
             .slice()
@@ -399,7 +410,7 @@ const Comment = ({ task }: { task: TaskProps }) => {
                 </li>
               );
             })}
-          <div ref={commentsEndRef} /> {/* Empty div to anchor scroll to bottom */}
+          <div  ref={commentsContainerRef} /> {/* Empty div to anchor scroll to bottom */}
         </ul>
       </div>
       <div className="text-black text-sm font-medium font-BaiJamjuree">Your comment</div>
