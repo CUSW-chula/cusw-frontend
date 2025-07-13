@@ -62,8 +62,8 @@ export async function middleware(request: NextRequest) {
       }
 
       const data = await response.json();
-      if (data.head !== true || data.admin !== true) {
-        console.log('You are a head');
+      if (data.head !== true && data.admin !== true) {
+        console.log('You are not a head or admin');
         return NextResponse.redirect(new URL('/login', request.url));
       }
       return NextResponse.rewrite(request.url);
@@ -83,8 +83,8 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/login', request.url));
       }
       const data = await response.json();
-      if (data.head !== true || data.admin !== true) {
-        console.log('You are a head');
+      if (data.head !== true && data.admin !== true) {
+        console.log('You are not a head or admin');
         return NextResponse.redirect(new URL('/login', request.url));
       }
       return NextResponse.rewrite(request.url);
@@ -104,8 +104,8 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/login', request.url));
       }
       const data = await response.json();
-      if (data.head !== true || data.admin !== true) {
-        console.log('You are a head');
+      if (data.head !== true && data.admin !== true) {
+        console.log('You are not a head or admin');
         return NextResponse.redirect(new URL('/login', request.url));
       }
       return NextResponse.rewrite(request.url);
