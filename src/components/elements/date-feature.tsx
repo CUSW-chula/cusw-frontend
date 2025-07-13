@@ -349,10 +349,13 @@ function ChristGregor(date: Date | null): string {
       return '';
     }
 
-    const day = String(formatted.getDate()).padStart(2, '0');
-    const month = String(formatted.getMonth() + 1).padStart(2, '0');
-    const year = formatted.getFullYear(); // Add to buddhist year
-    return `${day}/${month}/${year}`;
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit'
+    };
+    
+    return formatted.toLocaleDateString('en-US', options);
   };
 
   return formatDate(date);
@@ -366,18 +369,21 @@ function DateText(date: DateInterface): string {
 
     const format = (date: Date | null): string => {
       const formatted = date ? new Date(date) : null;
-      //console.log('date: ', formatted instanceof Date);
       if (!(formatted instanceof Date)) return '';
-      const day = String(formatted.getDate()).padStart(2, '0');
-      const month = String(formatted.getMonth() + 1).padStart(2, '0');
-      const year = formatted.getFullYear();
-      return `${day}/${month}/${year}`;
+      
+      const options: Intl.DateTimeFormatOptions = {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit'
+      };
+      
+      return formatted.toLocaleDateString('en-US', options);
     };
 
     // Format startdate and enddate if they are valid
     const start = date.startDate ? format(date.startDate) : '';
     const end = date.endDate ? format(date.endDate) : '';
-    return `${start}${start && end ? ' -> ' : ''}${end}`;
+    return `${start}${start && end ? ' - ' : ''}${end}`;
   };
 
   return formatDate(date);
