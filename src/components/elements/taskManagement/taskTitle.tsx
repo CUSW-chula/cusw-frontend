@@ -58,7 +58,7 @@ export const TaskTitle = ({ item, isExpanded, onToggle }: TaskTitleProps) => {
             router.push(`/tasks/${item.id}`);
           }
         }}>
-        {item.title}
+        {item.title || 'new task'}
       </p>
     </div>
   );
