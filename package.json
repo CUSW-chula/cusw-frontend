@@ -14,10 +14,10 @@
     "format:fix": "bunx biome format --write ./src"
   },
   "dependencies": {
-    "@blocknote/core": "^0.23.6",
-    "@blocknote/mantine": "^0.23.6",
-    "@blocknote/react": "^0.23.6",
-    "@blocknote/shadcn": "^0.23.6",
+    "@blocknote/core": "^0.33.0",
+    "@blocknote/mantine": "^0.33.0",
+    "@blocknote/react": "^0.33.0",
+    "@blocknote/shadcn": "^0.33.0",
     "@hookform/resolvers": "^3.10.0",
     "@next/swc-linux-x64-gnu": "^15.3.1",
     "@radix-ui/react-alert-dialog": "^1.1.11",
