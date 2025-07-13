@@ -107,6 +107,7 @@ export const FilterAllUserWorkload = ({ originalUserWorkload, setUserWorkload }:
   const handleDateRangeChange = (range: { from: string; to: string } | undefined) => {
     setDateRange(range);
     handleFilter(selectedTagIds, range);
+    console.log('Date range changed:', range);
   };
 
   return (
