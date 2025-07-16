@@ -108,6 +108,16 @@ const SumBudget = ({ budget }: { budget: number }) => {
     </div>
   );
 };
+const SumRemaining = ({ remaining }: { remaining: number }) => {
+  const cookie = getCookie('auth');
+  return (
+    <div className="px-3 py-2 rounded-md flex flex-col items-center gap-2">
+      <span className="text-blue text-sm font-medium font-BaiJamjuree">
+        {remaining.toLocaleString()}
+      </span>
+    </div>
+  );
+};
 const SumAdvance = ({ advance }: { advance: number }) => {
   const cookie = getCookie('auth');
 
@@ -172,6 +182,19 @@ const MenuBar = ({ project }: { project: Project }) => {
           </p>
         </div>
         <SumBudget budget={project.budget} />
+      </div>
+
+      <div
+        aria-label="Remaining"
+        className="h-10 justify-start font-BaiJamjuree items-center inline-flex">
+        {/* Label Zone */}
+        <div className="w-24 justify-start items-center gap-2 flex">
+          {/* Icon */}
+          <div className="w-6 text-center text-blue text-[30px] font-semibold">฿</div>
+          {/* Describtion */}
+          <p className="text-blue text-xs font-medium  leading-tight">งบประมาณคงเหลือ : </p>
+        </div>
+        <SumRemaining remaining={project.budget - project.expense} />
       </div>
 
       <div
