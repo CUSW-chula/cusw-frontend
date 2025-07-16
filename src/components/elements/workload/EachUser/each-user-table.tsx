@@ -28,7 +28,7 @@ const getAcceptanceStatusColor = (status: string) => {
   switch (status) {
     case 'Overdue':
       return 'font-BaiJamjuree text-sm font-bold  text-[#EF4444]';
-    case 'In time':
+    case 'On time':
       return 'font-BaiJamjuree text-sm  font-bold text-[#22C55E]';
     default:
       return 'font-BaiJamjuree text-sm font-bold  text-black';
@@ -69,12 +69,18 @@ export function WorkloadEachUserTable({
             user.projects.map((project) => (
               <React.Fragment key={`project-group-${project.id}`}>
                 <TableRow className="hover:bg-transparent cursor-default">
-                  <TableCell
-                    colSpan={4}
-                    className="flex flex-row font-BaiJamjuree font-bold py-[6px] px-0">
-                    Project title:
-                    <div className="ml-1 font-medium">{project.title} </div>
-                  </TableCell>
+                  <TableCell colSpan={4} className="py-[6px] px-0 font-BaiJamjuree font-bold">
+  <div className="flex flex-wrap items-start gap-x-1">
+    <span className="">Project title:</span>
+    <span
+      className="font-medium break-words whitespace-pre-wrap"
+      style={{ maxWidth: '900px' }}
+    >
+      {project.title}
+    </span>
+  </div>
+</TableCell>
+
                 </TableRow>
 
                 {project.tasks.map((task) => (
