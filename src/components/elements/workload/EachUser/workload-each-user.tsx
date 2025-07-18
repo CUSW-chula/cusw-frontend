@@ -33,7 +33,7 @@ export function WorkloadEachUser({ userData }: WorkloadEachUserProps) {
       <div className="flex flex-col gap-[18px]">
         <div className="flex flex-row ">
           <div className="justify-start text-black text-5xl font-semibold font-['Anuphan'] leading-[48px]">
-            Workload Distribution :
+            Workload Distribution:
           </div>
           <div className=" ml-4 flex flex-row gap-1 items-end">
             {eachUserWorkload.length > 0 && (
