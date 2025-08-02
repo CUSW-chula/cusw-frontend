@@ -59,7 +59,7 @@ export const ProjectCard = ({
               </div>
               <Link
                 href={`/projects/detail/${project.id}`}
-                className="flex flex-start w-[308px] h-[348px] p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px] ">
+                className="flex flex-start w-[308px] h-96 p-[18px] gap-[10px] bg-white border-[1px] border-brown rounded-[6px] ">
                 <div className="flex flex-col gap-y-[8px]">
                   <div className="h-[40px] w-[240px] self-stretch overflow-hidden">
                     <TooltipProvider>
