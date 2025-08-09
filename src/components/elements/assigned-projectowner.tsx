@@ -12,7 +12,7 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { TooltipProvider } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Profile } from './profile';
 import BASE_URL, { BASE_SOCKET } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
@@ -140,6 +140,12 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
     );
   }
 
+
+  const MAX_VISIBLE = 3;
+  const visibleOwners = selectedUser.slice(0, MAX_VISIBLE);
+  const hiddenOwners = selectedUser.slice(MAX_VISIBLE);
+  const remaining = Math.max(hiddenOwners.length, 0);
+
   return (
     <TooltipProvider>
       <div className="flex flex-row gap-1 flex-wrap">
@@ -147,15 +153,14 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <div>
-                {' '}
                 {/* Critical wrapper to prevent button nesting */}
                 <Button
                   type="button"
                   variant="outline"
                   className="border-brown text-brown h-8 px-2">
                   {selectedUser.length > 0 ? (
-                    <div className="flex space-x-2">
-                      {selectedUser.map((user) => (
+                    <div className="flex items-center space-x-2">
+                      {visibleOwners.map((user) => (
                         <Profile
                           key={user.id}
                           userId={user.id}
@@ -163,6 +168,22 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
                           fallback={<Skeleton className="h-5 w-5 rounded-full" />}
                         />
                       ))}
+                      {remaining > 0 && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div
+                              className="h-6 w-6 bg-gray-100 rounded-xl border border-[#6b5c56] text-[#6b5c56] text-xs font-medium flex items-center justify-center"
+                              aria-label={`+${remaining} more owners`}>
+                              +{remaining}
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-white border border-[#6b5c56]" side="top">
+                                {hiddenOwners.map((u) => (
+                                  <p key={u.id}>{u.name}</p>
+                                ))}
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
                     </div>
                   ) : (
                     <p className="p-ui text-sm">Assigned</p>

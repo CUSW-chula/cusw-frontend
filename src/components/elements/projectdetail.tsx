@@ -46,9 +46,8 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
       if (!response.ok) {
         const errorMessage = await response.text();
 
-        return; // Exit early if there's an error
+        return;
       }
-      // Success: Redirect without parsing the response
       router.push('/projects');
     } catch (error) {
       console.error(error);

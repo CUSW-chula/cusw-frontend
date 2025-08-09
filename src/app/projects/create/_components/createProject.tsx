@@ -1,6 +1,6 @@
 'use client';
 import { getCookie } from 'cookies-next';
-import type React from 'react';
+import React from 'react';
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import BASE_URL from '@/lib/shared';
 import { useRouter } from 'next/navigation';
+import LoadingClient from '@/components/elements/loading-screen';
 import { NewTaskwithTemplate } from '@/app/projects/create/_components';
 import { useCreateProject } from '@/hooks/useProject';
 import { getAllTemplates } from '@/service/templateService';
@@ -26,6 +27,8 @@ export const CreateProject = () => {
   const [allTemplates, setAllTemplates] = useState<Template[]>();
   const [inputs, setInputs] = useState<FormInput>({});
   const [task, setTask] = useAtom<TaskProps[]>(taskAtom);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,6 +37,8 @@ export const CreateProject = () => {
         setAllTemplates(templates);
       } catch (error) {
         console.error('Failed to fetch templates:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -68,7 +73,13 @@ export const CreateProject = () => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>, typeofSubmit: string) => {
     event.preventDefault();
-    await handleProjectCreation(typeofSubmit);
+    setIsSubmitting(true);
+    try {
+      await handleProjectCreation(typeofSubmit);
+    } catch (e) {
+      console.error(e);
+      setIsSubmitting(false); 
+    }
   };
 
   const handleTemplateSelect = (template: Template) => {
@@ -97,6 +108,10 @@ export const CreateProject = () => {
   const handleCancel = () => {
     router.push('/projects');
   };
+
+  if (isLoading || isSubmitting) {
+    return <LoadingClient />;
+  }
 
   return (
     <div className="h-full flex flex-col justify-start items-start gap-4 w-full">
