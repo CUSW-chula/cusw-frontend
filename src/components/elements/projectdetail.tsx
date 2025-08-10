@@ -23,6 +23,12 @@ import type { Project } from '@/lib/shared';
 import { AssignedProjectOwner } from './assigned-projectowner';
 import { toast } from '@/hooks/use-toast';
 import { AssignedProjectMember } from './assigned-projectmember';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from '@radix-ui/react-tooltip';
 
 interface UsersProps {
   id: string;
@@ -139,6 +145,61 @@ const SumExpense = ({ expense }: { expense: number }) => {
   );
 };
 
+type ProjectFinanceItemProps = {
+  ariaLabel: string;
+  color: string; // Tailwind color class
+  label: string;
+  value: number;
+  tooltipLabel: string;
+  ValueComponent: React.ComponentType<{ value: number }>;
+};
+
+const ProjectFinanceItem: React.FC<ProjectFinanceItemProps> = ({
+  ariaLabel,
+  color,
+  label,
+  value,
+  tooltipLabel,
+  ValueComponent,
+}) => {
+  return (
+    <div
+      aria-label={ariaLabel}
+      className="h-10 justify-start items-center font-BaiJamjuree inline-flex"
+    >
+      {/* Label Zone */}
+      <div className="w-24 justify-start items-center gap-2 flex">
+        {/* Icon */}
+        <div className={`w-6 text-center text-[30px] font-semibold ${color}`}>
+          ฿
+        </div>
+        {/* Description */}
+        <p className={`text-xs font-medium leading-tight ${color}`}>
+          {label} :
+        </p>
+      </div>
+
+      {/* Tooltip */}
+      <Tooltip>
+        <TooltipTrigger>
+          <ValueComponent value={value} />
+        </TooltipTrigger>
+        <TooltipContent
+          side="top"
+          align="center"
+          className="z-50 overflow-visible"
+        >
+          <p
+            className={`z-50 font-BaiJamjuree font-medium bg-white border border-gray-300 rounded-md px-2 py-1 text-sm ${color}`}
+          >
+            {tooltipLabel} : {value.toLocaleString()}
+          </p>
+        </TooltipContent>
+      </Tooltip>
+    </div>
+  );
+}
+
 const MenuBar = ({ project }: { project: Project }) => {
   return (
     <div className="w-[360px] p-[20px] bg-white rounded-md border border-[#6b5c56] flex-col justify-center items-start gap-2 inline-flex">
@@ -168,59 +229,40 @@ const MenuBar = ({ project }: { project: Project }) => {
         {project && <ButtonAddTags project_id={project.id} />}
       </div>
 
-      <div aria-label="Budget" className="h-10 justify-start items-center inline-flex">
-        {/* Label Zone */}
-        <div className="w-24 justify-start items-center gap-2 flex">
-          {/* Icon */}
-          <div className="w-6 text-center text-black text-[30px] font-BaiJamjuree font-semibold">
-            ฿
-          </div>
-          {/* Describtion */}
-          <p className="text-black text-xs font-medium font-BaiJamjuree leading-tight">
-            งบประมาณโครงการ :{' '}
-          </p>
-        </div>
-        <SumBudget budget={project.budget} />
-      </div>
-
-      <div
-        aria-label="Remaining"
-        className="h-10 justify-start font-BaiJamjuree items-center inline-flex">
-        {/* Label Zone */}
-        <div className="w-24 justify-start items-center gap-2 flex">
-          {/* Icon */}
-          <div className="w-6 text-center text-blue text-[30px] font-semibold">฿</div>
-          {/* Describtion */}
-          <p className="text-blue text-xs font-medium  leading-tight">งบประมาณคงเหลือ : </p>
-        </div>
-        <SumRemaining remaining={project.budget - project.expense} />
-      </div>
-
-      <div
-        aria-label="Advance"
-        className="h-10 justify-start font-BaiJamjuree items-center inline-flex">
-        {/* Label Zone */}
-        <div className="w-24 justify-start items-center gap-2 flex">
-          {/* Icon */}
-          <div className="w-6 text-center text-green text-[30px] font-semibold">฿</div>
-          {/* Describtion */}
-          <p className="text-green text-xs font-medium  leading-tight">เงินยืมรองจ่าย : </p>
-        </div>
-        <SumAdvance advance={project.advance} />
-      </div>
-
-      <div
-        aria-label="Expense"
-        className="h-10 justify-start items-center font-BaiJamjuree inline-flex">
-        {/* Label Zone */}
-        <div className="w-24 justify-start items-center gap-2 flex">
-          {/* Icon */}
-          <div className="w-6 text-center text-red text-[30px] font-semibold">฿</div>
-          {/* Describtion */}
-          <p className="text-red text-xs font-medium  leading-tight">รายจ่าย : </p>
-        </div>
-        <SumExpense expense={project.expense} />
-      </div>
+      <TooltipProvider>
+        <ProjectFinanceItem
+          ariaLabel="Budget"
+          color="text-black"
+          label="งบประมาณโครงการ"
+          value={project.budget}
+          tooltipLabel="งบประมาณโครงการ"
+          ValueComponent={({ value }) => <SumBudget budget={value} />}
+        />
+        <ProjectFinanceItem
+          ariaLabel="Expense"
+          color="text-[#EF4444]"
+          label="รายจ่าย"
+          value={project.expense}
+          tooltipLabel="รายจ่าย"
+          ValueComponent={({ value }) => <SumExpense expense={value} />}
+        />
+        <ProjectFinanceItem
+          ariaLabel="Remaining"
+          color="text-blue"
+          label="งบประมาณคงเหลือ"
+          value={project.budget - project.expense}
+          tooltipLabel="งบประมาณคงเหลือ"
+          ValueComponent={({ value }) => <SumRemaining remaining={value} />}
+        />
+        <ProjectFinanceItem
+          ariaLabel="Advance"
+          color="text-[#69BCA0]"
+          label="เงินยืมรองจ่าย"
+          value={project.advance}
+          tooltipLabel="เงินยืมรองจ่าย"
+          ValueComponent={({ value }) => <SumAdvance advance={value} />}
+        />
+      </TooltipProvider>
 
       <div aria-label="date" className="h-10 justify-start items-center inline-flex">
         {/* Label Zone */}

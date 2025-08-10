@@ -190,30 +190,7 @@ export const ProjectCard = ({
                           align="center"
                           className="z-50 overflow-visible ">
                           <p className="z-50 font-BaiJamjuree font-medium bg-white border border-gray-300 rounded-md px-2 py-1 text-sm">
-                            {project.budget.toLocaleString()}
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                  </TooltipProvider>
-
-                  <TooltipProvider>
-                    <div className="flex flex-row items-center">
-                      <div className="flex items-center justify-center font-BaiJamjuree text-[24px] w-6 h-6 font-semibold -ml-1 text-blue">
-                        ฿
-                      </div>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="font-BaiJamjuree text-[14px] font-medium ml-2 truncate max-w-[250px] text-blue">
-                            {(project.budget-project.expense).toLocaleString()}
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent
-                          side="top"
-                          align="center"
-                          className="z-50 overflow-visible ">
-                          <p className="z-50 font-BaiJamjuree font-medium bg-white border border-gray-300 rounded-md px-2 py-1 text-sm text-blue">
-                            {(project.budget-project.expense).toLocaleString()}
+                            งบประมาณโครงการ : {project.budget.toLocaleString()}
                           </p>
                         </TooltipContent>
                       </Tooltip>
@@ -236,7 +213,30 @@ export const ProjectCard = ({
                           align="center"
                           className="z-50 overflow-visible ">
                           <p className="z-50 font-BaiJamjuree font-medium bg-white border border-gray-300 rounded-md px-2 py-1 text-sm text-[#EF4444] ">
-                            {project.expense.toLocaleString()}
+                            รายจ่าย : {project.expense.toLocaleString()}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </TooltipProvider>
+
+                  <TooltipProvider>
+                    <div className="flex flex-row items-center">
+                      <div className="flex items-center justify-center font-BaiJamjuree text-[24px] w-6 h-6 font-semibold -ml-1 text-blue">
+                        ฿
+                      </div>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="font-BaiJamjuree text-[14px] font-medium ml-2 truncate max-w-[250px] text-blue">
+                            {(project.budget-project.expense).toLocaleString()}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="top"
+                          align="center"
+                          className="z-50 overflow-visible ">
+                          <p className="z-50 font-BaiJamjuree font-medium bg-white border border-gray-300 rounded-md px-2 py-1 text-sm text-blue">
+                            งบประมาณคงเหลือ : {(project.budget-project.expense).toLocaleString()}
                           </p>
                         </TooltipContent>
                       </Tooltip>
@@ -259,7 +259,7 @@ export const ProjectCard = ({
                           align="center"
                           className="z-50 overflow-visible ">
                           <p className="z-50 font-BaiJamjuree font-medium bg-white border border-gray-300 rounded-md px-2 py-1 text-sm text-[#69BCA0]">
-                            {project.advance.toLocaleString()}
+                            เงินยืมรองจ่าย : {project.advance.toLocaleString()}
                           </p>
                         </TooltipContent>
                       </Tooltip>
