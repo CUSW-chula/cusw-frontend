@@ -5,7 +5,7 @@ import './globals.css';
 import NavBar from '@/components/elements/nav-bar';
 import CookieConsentBanner from '@/components/elements/cookie-consent-banner';
 import PDPAConsentModal from '@/components/elements/pdpa-consent-modal';
-import { SessionProvider } from 'next-auth/react';
+import { SessionProvider, useSession } from 'next-auth/react';
 import { Toaster } from '@/components/ui/toaster';
 import { usePathname } from 'next/navigation';
 import { useMemo } from 'react';
@@ -25,12 +25,13 @@ const anuphan = Anuphan({
   display: 'swap',
 });
 
-export default function RootLayout({
+function RootLayoutContent({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const url = usePathname();
+  const { data: session, status } = useSession();
   const { hasPDPAConsent } = usePDPAConsent();
 
   // Allowed routes where NavBar should be displayed
@@ -50,22 +51,35 @@ export default function RootLayout({
 
   const handlePDPAAccept = () => {
     console.log('PDPA consent completed');
-    // Modal จะจัดการการบันทึกข้อมูลเอง เราแค่รับแจ้งว่าเสร็จแล้ว
   };
 
+  const shouldShowPDPA = session && hasPDPAConsent === false && !url.startsWith('/login');
+
+  return (
+    <body
+      className={`min-h-lvh ${bai_jamjuree.variable} ${anuphan.variable} antialiased flex flex-col`}>
+      <CookieConsentBanner />
+      <div className="flex flex-row justify-between">{isAllowed && <NavBar />}</div>
+
+      <div className="w-full flex justify-center">{children}</div>
+      <Toaster />
+
+      {shouldShowPDPA && (
+        <PDPAConsentModal isOpen={true} onAccept={handlePDPAAccept} />
+      )}
+    </body>
+  );
+}
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="en">
       <SessionProvider>
-        <body
-          className={`min-h-lvh ${bai_jamjuree.variable} ${anuphan.variable} antialiased flex flex-col`}>
-          <CookieConsentBanner />
-          <div className="flex flex-row justify-between">{isAllowed && <NavBar />}</div>
-
-          <div className="w-full flex justify-center">{children}</div>
-          <Toaster />
-
-          <PDPAConsentModal isOpen={hasPDPAConsent === false} onAccept={handlePDPAAccept} />
-        </body>
+        <RootLayoutContent>{children}</RootLayoutContent>
       </SessionProvider>
     </html>
   );
