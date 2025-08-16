@@ -4,10 +4,12 @@ import { Bai_Jamjuree, Anuphan } from 'next/font/google';
 import './globals.css';
 import NavBar from '@/components/elements/nav-bar';
 import CookieConsentBanner from '@/components/elements/cookie-consent-banner';
+import PDPAConsentModal from '@/components/elements/pdpa-consent-modal';
 import { SessionProvider } from 'next-auth/react';
 import { Toaster } from '@/components/ui/toaster';
 import { usePathname } from 'next/navigation';
 import { useMemo } from 'react';
+import { usePDPAConsent } from '@/hooks/use-pdpa-consent';
 
 const bai_jamjuree = Bai_Jamjuree({
   subsets: ['latin'],
@@ -29,6 +31,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const url = usePathname();
+  const { hasPDPAConsent } = usePDPAConsent();
 
   // Allowed routes where NavBar should be displayed
   const allowedRoutes = ['/my-tasks', '/projects'];
@@ -45,6 +48,11 @@ export default function RootLayout({
     );
   }, [url]);
 
+  const handlePDPAAccept = () => {
+    console.log('PDPA consent completed');
+    // Modal จะจัดการการบันทึกข้อมูลเอง เราแค่รับแจ้งว่าเสร็จแล้ว
+  };
+
   return (
     <html lang="en">
       <SessionProvider>
@@ -55,6 +63,8 @@ export default function RootLayout({
 
           <div className="w-full flex justify-center">{children}</div>
           <Toaster />
+
+          <PDPAConsentModal isOpen={hasPDPAConsent === false} onAccept={handlePDPAAccept} />
         </body>
       </SessionProvider>
     </html>
