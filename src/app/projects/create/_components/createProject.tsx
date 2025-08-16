@@ -78,7 +78,7 @@ export const CreateProject = () => {
       await handleProjectCreation(typeofSubmit);
     } catch (e) {
       console.error(e);
-      setIsSubmitting(false); 
+      setIsSubmitting(false);
     }
   };
 

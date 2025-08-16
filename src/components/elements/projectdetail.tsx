@@ -23,12 +23,7 @@ import type { Project } from '@/lib/shared';
 import { AssignedProjectOwner } from './assigned-projectowner';
 import { toast } from '@/hooks/use-toast';
 import { AssignedProjectMember } from './assigned-projectmember';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider,
-} from '@radix-ui/react-tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@radix-ui/react-tooltip';
 
 interface UsersProps {
   id: string;
@@ -165,18 +160,13 @@ const ProjectFinanceItem: React.FC<ProjectFinanceItemProps> = ({
   return (
     <div
       aria-label={ariaLabel}
-      className="h-10 justify-start items-center font-BaiJamjuree inline-flex"
-    >
+      className="h-10 justify-start items-center font-BaiJamjuree inline-flex">
       {/* Label Zone */}
       <div className="w-24 justify-start items-center gap-2 flex">
         {/* Icon */}
-        <div className={`w-6 text-center text-[30px] font-semibold ${color}`}>
-          ฿
-        </div>
+        <div className={`w-6 text-center text-[30px] font-semibold ${color}`}>฿</div>
         {/* Description */}
-        <p className={`text-xs font-medium leading-tight ${color}`}>
-          {label} :
-        </p>
+        <p className={`text-xs font-medium leading-tight ${color}`}>{label} :</p>
       </div>
 
       {/* Tooltip */}
@@ -184,21 +174,16 @@ const ProjectFinanceItem: React.FC<ProjectFinanceItemProps> = ({
         <TooltipTrigger>
           <ValueComponent value={value} />
         </TooltipTrigger>
-        <TooltipContent
-          side="top"
-          align="center"
-          className="z-50 overflow-visible"
-        >
+        <TooltipContent side="top" align="center" className="z-50 overflow-visible">
           <p
-            className={`z-50 font-BaiJamjuree font-medium bg-white border border-gray-300 rounded-md px-2 py-1 text-sm ${color}`}
-          >
+            className={`z-50 font-BaiJamjuree font-medium bg-white border border-gray-300 rounded-md px-2 py-1 text-sm ${color}`}>
             {tooltipLabel} : {value.toLocaleString()}
           </p>
         </TooltipContent>
       </Tooltip>
     </div>
   );
-}
+};
 
 const MenuBar = ({ project }: { project: Project }) => {
   return (

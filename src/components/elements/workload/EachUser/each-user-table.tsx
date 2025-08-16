@@ -70,17 +70,15 @@ export function WorkloadEachUserTable({
               <React.Fragment key={`project-group-${project.id}`}>
                 <TableRow className="hover:bg-transparent cursor-default">
                   <TableCell colSpan={4} className="py-[6px] px-0 font-BaiJamjuree font-bold">
-  <div className="flex flex-wrap items-start gap-x-1">
-    <span className="">Project title:</span>
-    <span
-      className="font-medium break-words whitespace-pre-wrap"
-      style={{ maxWidth: '900px' }}
-    >
-      {project.title}
-    </span>
-  </div>
-</TableCell>
-
+                    <div className="flex flex-wrap items-start gap-x-1">
+                      <span className="">Project title:</span>
+                      <span
+                        className="font-medium break-words whitespace-pre-wrap"
+                        style={{ maxWidth: '900px' }}>
+                        {project.title}
+                      </span>
+                    </div>
+                  </TableCell>
                 </TableRow>
 
                 {project.tasks.map((task) => (

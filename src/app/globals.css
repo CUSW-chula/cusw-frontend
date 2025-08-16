@@ -13,6 +13,7 @@
     background-position: center; /* Centers the image */
     background-attachment: fixed;
   }
+
   h1 {
     @apply font-Anuphan text-[48px] leading-[48px] font-semibold;
   }

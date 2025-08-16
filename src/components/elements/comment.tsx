@@ -252,7 +252,7 @@ const Comment = ({ task }: { task: TaskProps }) => {
   const [comment, setComment] = useState('');
   const [list, setList] = useAtom<CommentBoxProp[]>(commentlist);
   const charLimit = 200;
-const commentsContainerRef = useRef<HTMLDivElement | null>(null);
+  const commentsContainerRef = useRef<HTMLDivElement | null>(null);
 
   // const commentsEndRef = useRef<HTMLDivElement | null>(null); // Reference for the bottom of the comment list
 
@@ -262,14 +262,13 @@ const commentsContainerRef = useRef<HTMLDivElement | null>(null);
   // };
 
   useEffect(() => {
-  if (list.length > 0) {
-    const container = commentsContainerRef.current;
-    if (container) {
-      container.scrollTop = container.scrollHeight;
+    if (list.length > 0) {
+      const container = commentsContainerRef.current;
+      if (container) {
+        container.scrollTop = container.scrollHeight;
+      }
     }
-  }
-}, [list]);
-
+  }, [list]);
 
   // useEffect(() => {
   //   scrollToBottom();
@@ -389,7 +388,7 @@ const commentsContainerRef = useRef<HTMLDivElement | null>(null);
   return (
     <div className="w-full max-h-[550px] flex-col min-w-full justify-start items-start gap-[18px] inline-flex ">
       <div className="font-semibold font-Anuphan text-2xl">Comment</div>
-      <div   ref={commentsContainerRef} className="max-h-84 overflow-y-scroll w-full min-w-full">
+      <div ref={commentsContainerRef} className="max-h-84 overflow-y-scroll w-full min-w-full">
         <ul>
           {list
             .slice()
@@ -410,7 +409,7 @@ const commentsContainerRef = useRef<HTMLDivElement | null>(null);
                 </li>
               );
             })}
-          <div  ref={commentsContainerRef} /> {/* Empty div to anchor scroll to bottom */}
+          <div ref={commentsContainerRef} /> {/* Empty div to anchor scroll to bottom */}
         </ul>
       </div>
       <div className="text-black text-sm font-medium font-BaiJamjuree">Your comment</div>

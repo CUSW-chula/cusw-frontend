@@ -140,7 +140,6 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
     );
   }
 
-
   const MAX_VISIBLE = 3;
   const visibleOwners = selectedUser.slice(0, MAX_VISIBLE);
   const hiddenOwners = selectedUser.slice(MAX_VISIBLE);
@@ -178,9 +177,9 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
                             </div>
                           </TooltipTrigger>
                           <TooltipContent className="bg-white border border-[#6b5c56]" side="top">
-                                {hiddenOwners.map((u) => (
-                                  <p key={u.id}>{u.name}</p>
-                                ))}
+                            {hiddenOwners.map((u) => (
+                              <p key={u.id}>{u.name}</p>
+                            ))}
                           </TooltipContent>
                         </Tooltip>
                       )}

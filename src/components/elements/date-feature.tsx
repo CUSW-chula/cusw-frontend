@@ -352,9 +352,9 @@ function ChristGregor(date: Date | null): string {
     const options: Intl.DateTimeFormatOptions = {
       year: 'numeric',
       month: 'short',
-      day: '2-digit'
+      day: '2-digit',
     };
-    
+
     return formatted.toLocaleDateString('en-US', options);
   };
 
@@ -370,13 +370,13 @@ function DateText(date: DateInterface): string {
     const format = (date: Date | null): string => {
       const formatted = date ? new Date(date) : null;
       if (!(formatted instanceof Date)) return '';
-      
+
       const options: Intl.DateTimeFormatOptions = {
         year: 'numeric',
         month: 'short',
-        day: '2-digit'
+        day: '2-digit',
       };
-      
+
       return formatted.toLocaleDateString('en-US', options);
     };
 
