@@ -64,9 +64,7 @@ function RootLayoutContent({
       <div className="w-full flex justify-center">{children}</div>
       <Toaster />
 
-      {shouldShowPDPA && (
-        <PDPAConsentModal isOpen={true} onAccept={handlePDPAAccept} />
-      )}
+      {shouldShowPDPA && <PDPAConsentModal isOpen={true} onAccept={handlePDPAAccept} />}
     </body>
   );
 }

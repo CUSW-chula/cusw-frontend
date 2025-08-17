@@ -80,6 +80,7 @@ export const Profile2 = ({ profile }: { profile: ProfileProp }) => {
 
   const handleSignOut = async () => {
     deleteCookie('auth');
+    localStorage.clear();
     navigate.push('/');
   };
 
