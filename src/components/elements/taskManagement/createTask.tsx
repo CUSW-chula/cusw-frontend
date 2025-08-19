@@ -14,7 +14,7 @@ export const CreateTask = ({ project }: { project: Project }) => {
     // ใช้วันที่ของ project เป็น default สำหรับ task ใหม่
     const taskStartDate = project.startDate ? new Date(project.startDate) : new Date();
     const taskEndDate = project.endDate ? new Date(project.endDate) : new Date();
-    
+
     const url = `${BASE_URL}/v2/tasks/${project.id}`;
     const options = {
       method: 'POST',

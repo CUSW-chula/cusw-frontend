@@ -37,7 +37,10 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
   });
   const [formattedDate, setFormattedDate] = React.useState<string>('');
   const [isRangeComplete, setIsRangeComplete] = React.useState(false);
-  const [projectBounds, setProjectBounds] = React.useState<{ startDate: Date | null; endDate: Date | null }>({
+  const [projectBounds, setProjectBounds] = React.useState<{
+    startDate: Date | null;
+    endDate: Date | null;
+  }>({
     startDate: null,
     endDate: null,
   });
@@ -49,7 +52,7 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
   React.useEffect(() => {
     const fetchProjectBounds = async () => {
       if (!task.projectId) return;
-      
+
       try {
         const response = await fetch(`${BASE_URL}/v2/projects/${task.projectId}`, {
           headers: { Authorization: auth },
@@ -70,10 +73,10 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
   // ตรวจสอบว่าวันที่อยู่ในขอบเขตของ project หรือไม่
   const isDateWithinProjectBounds = (dateRange: DateRange | undefined): boolean => {
     if (!dateRange?.from || !projectBounds.startDate || !projectBounds.endDate) return true;
-    
+
     const fromDate = dateRange.from;
     const toDate = dateRange.to || dateRange.from;
-    
+
     return (
       fromDate >= projectBounds.startDate &&
       fromDate <= projectBounds.endDate &&
@@ -169,7 +172,7 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
   // Handle calendar selection
   const handleCalendarSelect = async (range: DateRange | undefined) => {
     let patchedRange = range;
-    
+
     // ถ้าไม่มี range หรือ from ไม่มีค่า
     if (!range?.from) {
       return;
@@ -184,12 +187,12 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
       });
       return;
     }
-    
+
     // ถ้าเลือกวันเดียว (from มีค่า แต่ to ยังไม่มี) ให้ to = from
     if (range?.from && !range?.to) {
       patchedRange = { from: range.from, to: range.from };
     }
-    
+
     const url = `${BASE_URL}/v2/tasks/date/${task.id}`;
     const options = {
       method: 'PATCH',
