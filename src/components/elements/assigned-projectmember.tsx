@@ -75,6 +75,22 @@ export function AssignedProjectMember({ project }: { project: Project }) {
           data.projectId === project.id
         ) {
           setSelectedUser(data.members);
+        } else if (eventName === `owner:${project.id}`) {
+          // เมื่อมีการเปลี่ยนแปลง owner ให้ fetch ข้อมูล project ใหม่เพื่ออัปเดต members
+          const fetchProject = async () => {
+            try {
+              const response = await fetch(`${BASE_URL}/v2/projects/${project.id}`, {
+                headers: { Authorization: auth },
+              });
+              if (response.ok) {
+                const updatedProject = await response.json();
+                setSelectedUser(updatedProject.members);
+              }
+            } catch (error) {
+              console.error('Failed to fetch updated project:', error);
+            }
+          };
+          fetchProject();
         }
       } catch (error) {
         console.error('WebSocket message error:', error);
