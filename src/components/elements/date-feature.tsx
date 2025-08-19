@@ -258,6 +258,7 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
     to: undefined,
   });
   const [formattedDate, setFormattedDate] = React.useState<string>('');
+  const clickCountRef = React.useRef(0);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
 
@@ -341,13 +342,25 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
     return () => ws.close();
   }, [parseJsonValue, formatDate]);
 
-  // Handle calendar selection
+  // Handle calendar selection (เหมือน date feature)
   const handleCalendarSelect = async (range: DateRange | undefined) => {
+    if (!range?.from) return;
+
     let patchedRange = range;
-    // ถ้าเลือกวันเดียว (from มีค่า แต่ to ยังไม่มี) ให้ to = from
-    if (range?.from && !range?.to) {
+    // Logic: กดครั้งแรกให้ start/end เป็นวันเดียวกัน, กดครั้งที่สองถึงจะเป็น range
+    if (clickCountRef.current === 0) {
+      // ครั้งแรก: ให้ to = from
+      patchedRange = { from: range.from, to: range.from };
+      clickCountRef.current = 1;
+    } else if (range?.from && range?.to && range.from.getTime() !== range.to.getTime()) {
+      // ครั้งที่สอง: เป็น range จริง
+      patchedRange = { from: range.from, to: range.to };
+      clickCountRef.current = 0; // reset เพื่อให้เลือกใหม่ได้
+    } else {
+      // ถ้าเลือกวันเดียวซ้ำ ให้ to = from
       patchedRange = { from: range.from, to: range.from };
     }
+
     const url = `${BASE_URL}/v2/projects/${project.id}`;
     const options = {
       method: 'PATCH',

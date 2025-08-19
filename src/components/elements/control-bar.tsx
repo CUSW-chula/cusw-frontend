@@ -48,8 +48,30 @@ const auth = cookie?.toString() ?? '';
 export function FilterByDateRange({ className, onDateChange }: FilterDateRangeProps) {
   const [date, setDate] = React.useState<DateRange | undefined>();
   const [isPopover, setIsPopover] = React.useState(false);
+  const clickCountRef = React.useRef(0);
+
+  // ปรับ logic การเลือกวันที่
+  const handleCalendarSelect = (range: DateRange | undefined) => {
+    if (!range?.from) return;
+    let patchedRange = range;
+    if (clickCountRef.current === 0) {
+      // ครั้งแรก: ให้ to = from
+      patchedRange = { from: range.from, to: range.from };
+      clickCountRef.current = 1;
+    } else if (range?.from && range?.to && range.from.getTime() !== range.to.getTime()) {
+      // ครั้งที่สอง: เป็น range จริง
+      patchedRange = { from: range.from, to: range.to };
+      clickCountRef.current = 0; // reset เพื่อให้เลือกใหม่ได้
+    } else {
+      // ถ้าเลือกวันเดียวซ้ำ ให้ to = from
+      patchedRange = { from: range.from, to: range.from };
+    }
+    setDate(patchedRange);
+  };
+
   const handleReset = () => {
     setDate(undefined);
+    clickCountRef.current = 0;
     if (onDateChange) {
       onDateChange(undefined);
     }
@@ -104,7 +126,7 @@ export function FilterByDateRange({ className, onDateChange }: FilterDateRangePr
             mode="range"
             defaultMonth={date?.from}
             selected={date}
-            onSelect={setDate}
+            onSelect={handleCalendarSelect}
             numberOfMonths={2}
           />
           <div className="flex justify-end mb-2 mr-2 gap-2">
