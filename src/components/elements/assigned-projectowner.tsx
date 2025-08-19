@@ -14,9 +14,8 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Profile } from './profile';
-import BASE_URL, { BASE_SOCKET } from '@/lib/shared';
+import BASE_URL, { BASE_SOCKET, type Project } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
-import type { Project } from '@/lib/shared';
 import { toast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -33,55 +32,57 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
   const [auth, setAuth] = React.useState('');
   const [isMounted, setIsMounted] = React.useState(false);
 
-  // Client-side only initialization
+  const MAX_VISIBLE_MEMBERS = 3;
+
   React.useEffect(() => {
     setIsMounted(true);
     setAuth(getCookie('auth')?.toString() || '');
   }, []);
 
-  // Safe users fetch
   React.useEffect(() => {
     if (!isMounted || !auth) return;
-
     const fetchUsers = async () => {
       try {
         const response = await fetch(`${BASE_URL}/v2/users/`, {
           headers: { Authorization: auth },
         });
-        if (!response.ok) {
-          const errorMessage = await response.text();
-        }
+        if (!response.ok) return;
         const data = await response.json();
         setUsersList(data);
       } catch (error) {
         console.error('Failed to fetch users:', error);
       }
     };
-
     fetchUsers();
   }, [auth, isMounted]);
 
-  // Initialize selected user safely
   React.useEffect(() => {
     if (isMounted && project?.owner) {
       setSelectedUser(project.owner);
     }
   }, [project, isMounted]);
 
-  // WebSocket connection
   React.useEffect(() => {
     if (!isMounted || !auth || !project) return;
-
     const ws = new WebSocket(BASE_SOCKET);
 
     const handleMessage = (event: MessageEvent) => {
       try {
         const { eventName, data } = JSON.parse(event.data);
         if (eventName === `owner:${project.id}`) {
-          setSelectedUser((prev) => [
-            ...prev.filter((u) => u.id !== data.id),
-            { id: data.id, name: data.name, email: data.email },
-          ]);
+          // อัปเดต selectedUser จาก WebSocket เมื่อมีการเปลี่ยนแปลงจาก client อื่น
+          // แต่ต้องตรวจสอบให้แน่ใจว่าไม่ duplicate กับการ update จาก handleSelectUser
+          setSelectedUser((prev) => {
+            const exists = prev.some((u) => u.id === data.id);
+            if (exists) {
+              // ถ้ามีแล้ว ให้ลบออก
+              return prev.filter((u) => u.id !== data.id);
+            }
+            // ถ้าไม่มี ให้เพิ่มเข้าไป (แต่ตรวจสอบ duplicate ก่อน)
+            const newUser = { id: data.id, name: data.name, email: data.email };
+            const isDuplicate = prev.some((u) => u.id === newUser.id);
+            return isDuplicate ? prev : [...prev, newUser];
+          });
         }
       } catch (error) {
         console.error('WebSocket message error:', error);
@@ -97,7 +98,6 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
 
   const handleSelectUser = async (userName: string) => {
     if (!isMounted || !project) return;
-
     const user = usersList.find((u) => u.name === userName);
     if (!user) return;
 
@@ -105,29 +105,31 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
       const response = await fetch(`${BASE_URL}/v2/projects/owner/${project.id}`, {
         method: 'PATCH',
         headers: { Authorization: auth, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.id,
-        }),
+        body: JSON.stringify({ userId: user.id }),
       });
-      if (!response.ok) {
-        const errorMessage = await response.text();
-      } else {
+
+      if (response.ok) {
         toast({
           title: '✅ Success',
           description: 'Project owner updated successfully.',
-          variant: 'default',
+        });
+        // สำหรับ project owner ควรจะเป็นการ toggle เพียงคนเดียว
+        setSelectedUser((prev) => {
+          const exists = prev.some((u) => u.id === user.id);
+          if (exists) {
+            // ถ้ามีแล้ว ให้ลบออก
+            return prev.filter((u) => u.id !== user.id);
+          }
+          // ถ้าไม่มี ให้เพิ่มเข้าไป (แต่ตรวจสอบ duplicate ก่อน)
+          const isDuplicate = prev.some((u) => u.id === user.id);
+          return isDuplicate ? prev : [...prev, user];
         });
       }
-
-      setSelectedUser((prev) =>
-        prev.some((u) => u.id === user.id) ? prev.filter((u) => u.id !== user.id) : [...prev, user],
-      );
     } catch (error) {
       console.error('Error updating owner:', error);
       toast({
         title: '🚨 Error',
         description: 'An unexpected error occurred while updating the project owner.',
-        variant: 'default',
       });
     }
   };
@@ -140,55 +142,60 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
     );
   }
 
-  const MAX_VISIBLE = 3;
-  const visibleOwners = selectedUser.slice(0, MAX_VISIBLE);
-  const hiddenOwners = selectedUser.slice(MAX_VISIBLE);
-  const remaining = Math.max(hiddenOwners.length, 0);
-
   return (
     <TooltipProvider>
       <div className="flex flex-row gap-1 flex-wrap">
         <div className="flex items-center space-x-4">
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-              <div>
-                {/* Critical wrapper to prevent button nesting */}
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="border-brown text-brown h-8 px-2">
-                  {selectedUser.length > 0 ? (
-                    <div className="flex items-center space-x-2">
-                      {visibleOwners.map((user) => (
-                        <Profile
-                          key={user.id}
-                          userId={user.id}
-                          userName={user.name}
-                          fallback={<Skeleton className="h-5 w-5 rounded-full" />}
-                        />
-                      ))}
-                      {remaining > 0 && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div
-                              className="h-6 w-6 bg-gray-100 rounded-xl border border-[#6b5c56] text-[#6b5c56] text-xs font-medium flex items-center justify-center"
-                              aria-label={`+${remaining} more owners`}>
-                              +{remaining}
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent className="bg-white border border-[#6b5c56]" side="top">
-                            {hiddenOwners.map((u) => (
-                              <p key={u.id}>{u.name}</p>
-                            ))}
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
-                    </div>
-                  ) : (
-                    <p className="p-ui text-sm">Assigned</p>
-                  )}
-                </Button>
-              </div>
+              <Button type="button" variant="outline" className="border-brown text-brown h-8 px-2">
+                {selectedUser.length > 0 ? (
+                  <div className="flex items-center space-x-2">
+                    {(() => {
+                      // กรองเฉพาะ users ที่มีข้อมูลครบถ้วน
+                      const validUsers = selectedUser.filter((user) => user?.id && user?.name);
+
+                      return (
+                        <>
+                          {validUsers.slice(0, MAX_VISIBLE_MEMBERS).map((user) => (
+                            <Profile
+                              key={user.id}
+                              userId={user.id}
+                              userName={user.name}
+                              fallback={<Skeleton className="h-5 w-5 rounded-full" />}
+                            />
+                          ))}
+                          {validUsers.length > MAX_VISIBLE_MEMBERS && (
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <div className="w-[24px] h-[24px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown">
+                                  <span className="text-brown text-[12px] font-BaiJamjuree">
+                                    +{validUsers.length - MAX_VISIBLE_MEMBERS}
+                                  </span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <div className="flex flex-col gap-1">
+                                  {validUsers.slice(MAX_VISIBLE_MEMBERS).map((own) => {
+                                    if (!own?.id || !own?.name) return null;
+                                    return (
+                                      <span key={own.id} className="text-xs font-medium text-black">
+                                        {own.name}
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
+                ) : (
+                  <p className="p-ui text-sm">Assigned</p>
+                )}
+              </Button>
             </PopoverTrigger>
 
             <PopoverContent className="p-0" side="right" align="start">
