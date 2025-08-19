@@ -22,20 +22,21 @@ const Table = () => {
     ' ',
   ];
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const response = await fetch(`${BASE_URL}/v2/users/`, {
-        headers: { Authorization: auth },
-      });
-
-      const data = await response.json();
-      setUser(data);
-      if (!data || !Array.isArray(data)) {
-        throw new Error('Invalid data format received');
-      }
-    };
-    fetchUser();
+  // ดึงข้อมูล user จาก backend
+  const fetchUser = React.useCallback(async () => {
+    const response = await fetch(`${BASE_URL}/v2/users/`, {
+      headers: { Authorization: auth },
+    });
+    const data = await response.json();
+    setUser(data);
+    if (!data || !Array.isArray(data)) {
+      throw new Error('Invalid data format received');
+    }
   }, [auth]);
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
 
   const filteredUsers = user
     .filter((user) => user.name.toLowerCase().includes(searchUser.toLowerCase()))
@@ -87,19 +88,10 @@ const Table = () => {
                       outsource: u.isOutsource,
                       activated: u.activated,
                     }}
-                    onSave={(data) => {
-                      const userId = data.id;
-                      const body: Partial<UserData> = {
-                        userName: data.userName,
-                        role: data.role,
-                        organization: data.organization,
-                        position: data.position,
-                        outsource: data.outsource,
-                        activated: data.activated,
-                      };
-                      setUser((prevUsers) =>
-                        prevUsers.map((u) => (u.id === userId ? { ...u, ...body } : u)),
-                      );
+                    onSave={async (data) => {
+                      // สามารถส่ง request ไป backend เพื่ออัพเดท user ได้ที่นี่
+                      // หลังอัพเดทเสร็จ ให้รีเฟรชข้อมูล user ใหม่
+                      await fetchUser();
                     }}
                   />
                 </td>
