@@ -120,31 +120,31 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
 
   // Handle calendar selection
   const handleCalendarSelect = async (range: DateRange | undefined) => {
-    // Patch input to database.
+    let patchedRange = range;
+    // ถ้าเลือกวันเดียว (from มีค่า แต่ to ยังไม่มี) ให้ to = from
+    if (range?.from && !range?.to) {
+      patchedRange = { from: range.from, to: range.from };
+    }
     const url = `${BASE_URL}/v2/tasks/date/${task.id}`;
     const options = {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', Authorization: auth },
-      // body: `{"taskID":"${task_id}", "startDate":"${range?.from}", "endDate":"${range?.to}"}`
       body: JSON.stringify({
-        startDate: range?.from ? range.from : null,
-        endDate: range?.to ? range.to : null,
+        startDate: patchedRange?.from ? patchedRange.from : null,
+        endDate: patchedRange?.to ? patchedRange.to : null,
       }),
     };
     try {
       const response = await fetch(url, options);
       const data = await response.json();
       if (data) {
-        setDate(range);
-        setFormattedDate(formatDate(range ?? { from: undefined, to: undefined }));
+        setDate(patchedRange);
+        setFormattedDate(formatDate(patchedRange ?? { from: undefined, to: undefined }));
       }
-      // console.log(data); // Check Fetch Data
     } catch (error) {
       console.error(error);
     }
-
-    //Show data in range
-    console.log('range from selected date:', range);
+    console.log('range from selected date:', patchedRange);
   };
 
   return (
@@ -275,32 +275,32 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
 
   // Handle calendar selection
   const handleCalendarSelect = async (range: DateRange | undefined) => {
-    // Patch input to database.
+    let patchedRange = range;
+    // ถ้าเลือกวันเดียว (from มีค่า แต่ to ยังไม่มี) ให้ to = from
+    if (range?.from && !range?.to) {
+      patchedRange = { from: range.from, to: range.from };
+    }
     const url = `${BASE_URL}/v2/projects/${project.id}`;
     const options = {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', Authorization: auth },
-      // body: `{"taskID":"${task_id}", "startDate":"${range?.from}", "endDate":"${range?.to}"}`
       body: JSON.stringify({
         projectID: project.id,
-        startDate: range?.from ? range.from : null,
-        endDate: range?.to ? range.to : null,
+        startDate: patchedRange?.from ? patchedRange.from : null,
+        endDate: patchedRange?.to ? patchedRange.to : null,
       }),
     };
     try {
       const response = await fetch(url, options);
       const data = await response.json();
       if (data) {
-        setDate(range);
-        setFormattedDate(formatDate(range));
+        setDate(patchedRange);
+        setFormattedDate(formatDate(patchedRange));
       }
-      // console.log(data); // Check Fetch Data
     } catch (error) {
       console.error(error);
     }
-
-    //Show data in range
-    console.log('range from selected date:', range);
+    console.log('range from selected date:', patchedRange);
   };
 
   return (
