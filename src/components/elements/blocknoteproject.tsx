@@ -87,7 +87,7 @@ function Document({ project_id }: ProjectOverviewProps) {
       } catch (error) {
         console.error('Error updating description:', error);
       }
-    }, 1000);
+    }, 500);
     return () => clearTimeout(timer);
   }, [Description, project_id, canEdit]);
 
