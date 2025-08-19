@@ -125,12 +125,6 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
     if (range?.from && !range?.to) {
       patchedRange = { from: range.from, to: range.from };
     }
-    // ถ้าเลือกครบ range แล้ว (from/to มีค่า) แล้วเลือกอีกครั้ง ให้ reset เป็นวันใหม่
-    else if (range?.from && range?.to && date?.from && date?.to) {
-      // ถ้าเลือกวันที่ใหม่หลังจากเลือกครบ range แล้ว ให้ reset เป็นวันใหม่
-      // range.from คือวันที่ล่าสุดที่เลือก
-      patchedRange = { from: range.from, to: range.from };
-    }
     const url = `${BASE_URL}/v2/tasks/date/${task.id}`;
     const options = {
       method: 'PATCH',
@@ -284,10 +278,6 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
     let patchedRange = range;
     // ถ้าเลือกวันเดียว (from มีค่า แต่ to ยังไม่มี) ให้ to = from
     if (range?.from && !range?.to) {
-      patchedRange = { from: range.from, to: range.from };
-    }
-    // ถ้าเลือกครบ range แล้ว (from/to มีค่า) แล้วเลือกอีกครั้ง ให้ reset เป็นวันใหม่
-    else if (range?.from && range?.to && date?.from && date?.to) {
       patchedRange = { from: range.from, to: range.from };
     }
     const url = `${BASE_URL}/v2/projects/${project.id}`;
