@@ -81,10 +81,14 @@ export function BreadcrumbComponent({ task }: { task: TaskProps }) {
                 <BreadcrumbLink
                   href={`/tasks/${task.id}`}
                   className="font-BaiJamjuree text-[14px] text-black ">
-                  {task.title.length > 20 ? (
-                    <span title={task.title}>{task.title.substring(0, 20)}...</span>
+                  {task.title && task.title.trim() !== '' ? (
+                    task.title.length > 20 ? (
+                      <span title={task.title}>{task.title.substring(0, 20)}...</span>
+                    ) : (
+                      task.title
+                    )
                   ) : (
-                    task.title
+                    'new task'
                   )}
                 </BreadcrumbLink>
               </BreadcrumbItem>
