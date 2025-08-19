@@ -161,6 +161,7 @@ const Money = ({ task }: { task: TaskProps | null }) => {
           description: 'An error occurred while saving budget changes. Please try again.',
           variant: 'destructive',
         });
+        return false;
       }
       return true;
     };
@@ -199,13 +200,15 @@ const Money = ({ task }: { task: TaskProps | null }) => {
       try {
         const response = await fetch(url, options);
         const data = await response.json();
-        if (!response.ok) return false;
-        toast({
-          title: 'Budget Cleared',
-          description: 'The task budget has been reset successfully.',
-          variant: 'default', // Optional: Use "destructive" if clearing is a critical action
-        });
-        return data;
+        if (!response.ok) {
+          toast({
+            title: 'Budget Cleared',
+            description: 'The task budget has been reset successfully.',
+            variant: 'default', // Optional: Use "destructive" if clearing is a critical action
+          });
+          return false;
+        }
+        return true;
       } catch (error) {
         console.error(error);
         toast({
@@ -213,8 +216,8 @@ const Money = ({ task }: { task: TaskProps | null }) => {
           description: 'An error occurred while clearing the budget. Please try again.',
           variant: 'destructive',
         });
+        return false;
       }
-      return true;
     };
     if (await fetchDataDelete()) {
       const budgetNull = {
