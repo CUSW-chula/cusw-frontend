@@ -115,7 +115,7 @@ function EditorWithName({
       } catch (error) {
         console.error('Error updating Description:', error);
       }
-    }, 1000);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [Description, task_id]);
