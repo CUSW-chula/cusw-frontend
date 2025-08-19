@@ -75,7 +75,7 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
           setSelectedUser((prev) => {
             const exists = prev.some((u) => u.id === data.id);
             if (exists) {
-              // ถ้ามีแล้ว ให้ลบออก 
+              // ถ้ามีแล้ว ให้ลบออก
               return prev.filter((u) => u.id !== data.id);
             }
             // ถ้าไม่มี ให้เพิ่มเข้าไป (แต่ตรวจสอบ duplicate ก่อน)
@@ -153,8 +153,8 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
                   <div className="flex items-center space-x-2">
                     {(() => {
                       // กรองเฉพาะ users ที่มีข้อมูลครบถ้วน
-                      const validUsers = selectedUser.filter(user => user?.id && user?.name);
-                      
+                      const validUsers = selectedUser.filter((user) => user?.id && user?.name);
+
                       return (
                         <>
                           {validUsers.slice(0, MAX_VISIBLE_MEMBERS).map((user) => (
@@ -168,8 +168,8 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
                           {validUsers.length > MAX_VISIBLE_MEMBERS && (
                             <Tooltip>
                               <TooltipTrigger>
-                                <div className="ml-1 w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center border border-brown">
-                                  <span className="text-brown text-xs font-BaiJamjuree">
+                                <div className="w-[24px] h-[24px] bg-gray-100 rounded-full flex items-center justify-center border-[1px] border-brown">
+                                  <span className="text-brown text-[12px] font-BaiJamjuree">
                                     +{validUsers.length - MAX_VISIBLE_MEMBERS}
                                   </span>
                                 </div>
@@ -208,12 +208,13 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
                       <CommandItem
                         key={user.id}
                         value={user.name}
-                        onSelect={() => handleSelectUser(user.name)}
-                      >
+                        onSelect={() => handleSelectUser(user.name)}>
                         <Circle
                           className={cn(
                             'mr-2 h-4 w-4 fill-greenLight text-greenLight',
-                            selectedUser.some((u) => u.id === user.id) ? 'opacity-100' : 'opacity-40',
+                            selectedUser.some((u) => u.id === user.id)
+                              ? 'opacity-100'
+                              : 'opacity-40',
                           )}
                         />
                         <span>{user.name}</span>
