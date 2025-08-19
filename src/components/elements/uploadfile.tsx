@@ -228,7 +228,7 @@ const FileItem = ({ id, fileName, uploadedBy, filePath, fileSize, createdAt, tas
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
-                className="bg-red-600 hover:bg-red-700"
+                className="bg-amber-600 text-white hover:bg-amber-700"
                 onClick={() => handleDelete(taskId, id, auth)}>
                 Delete Permanently
               </AlertDialogAction>
