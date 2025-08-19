@@ -44,6 +44,10 @@ export const CreateSubtask = ({
   };
 
   const handleSubmit = async () => {
+    // ใช้วันที่ของ parent task เป็น default สำหรับ subtask
+    const subtaskStartDate = task.startDate ? new Date(task.startDate) : null;
+    const subtaskEndDate = task.endDate ? new Date(task.endDate) : null;
+    
     const url = `${BASE_URL}/v2/tasks/${task.projectId}`;
     const options = {
       method: 'POST',
@@ -57,8 +61,8 @@ export const CreateSubtask = ({
         statusBudgets: 'Initial',
         expense: 0,
         status: 'Unassigned',
-        startDate: null,
-        endDate: null,
+        startDate: subtaskStartDate,
+        endDate: subtaskEndDate,
       }),
     };
     try {

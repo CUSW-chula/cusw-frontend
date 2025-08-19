@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { getCookie } from 'cookies-next';
-import BASE_URL, { type TaskManageMentOverviewProp } from '@/lib/shared';
+import BASE_URL, { type TaskManageMentOverviewProp, type Project } from '@/lib/shared';
 import type { TagProps, TaskProps } from '@/app/types/types';
 import { Task, ExportDialog, Filter, Sort, CreateTask } from './taskManagement';
 import { parseJsonValues, statusSections } from '@/lib/taskUtils';
@@ -27,6 +27,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   const [tasks, setTasks] = useState<TaskProps[]>([]);
   const [showTasks, setShowTasks] = useState<TaskProps[]>([]);
   const [projectName, setProjectName] = useState<string>('');
+  const [project, setProject] = useState<Project | null>(null);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(loadExpandedState);
 
   // Save expanded state to localStorage when it changes
@@ -54,6 +55,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         }
 
         const project = await response.json();
+        setProject(project);
         setProjectName(project.title);
 
         const parsedData = parseJsonValues(project.tasks);
@@ -99,7 +101,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         </div>
         <div className="flex items-center gap-4">
           <Sort showTasks={showTasks} setShowTasks={setShowTasks} />
-          <CreateTask project_id={project_id} />
+          {project && <CreateTask project={project} />}
         </div>
       </div>
       {statusSections.map(({ status, displayName, icon }) => (

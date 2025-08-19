@@ -2,16 +2,20 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { getCookie } from 'cookies-next';
 
-import BASE_URL from '@/lib/shared';
+import BASE_URL, { type Project } from '@/lib/shared';
 import { toast } from '@/hooks/use-toast';
 import { Plus } from 'lucide-react';
 
-export const CreateTask = (project: { project_id: string }) => {
+export const CreateTask = ({ project }: { project: Project }) => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const router = useRouter();
   const handleCreateTask = async () => {
-    const url = `${BASE_URL}/v2/tasks/${project.project_id}`;
+    // ใช้วันที่ของ project เป็น default สำหรับ task ใหม่
+    const taskStartDate = project.startDate ? new Date(project.startDate) : new Date();
+    const taskEndDate = project.endDate ? new Date(project.endDate) : new Date();
+    
+    const url = `${BASE_URL}/v2/tasks/${project.id}`;
     const options = {
       method: 'POST',
       headers: { Authorization: auth, 'Content-Type': 'application/json' },
@@ -24,8 +28,8 @@ export const CreateTask = (project: { project_id: string }) => {
         expense: 0,
         statusBudgets: 'Initial',
         status: 'Unassigned',
-        startDate: new Date(),
-        endDate: new Date(),
+        startDate: taskStartDate,
+        endDate: taskEndDate,
       }),
     };
 
@@ -43,7 +47,7 @@ export const CreateTask = (project: { project_id: string }) => {
       toast({
         title: 'Task Creation Failed',
         description: 'There was an issue creating your task. Please try again.',
-        variant: 'destructive',
+        variant: 'default',
       });
     }
   };

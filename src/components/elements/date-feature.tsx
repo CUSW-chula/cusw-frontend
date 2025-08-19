@@ -12,6 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { transform } from 'next/dist/build/swc/generated-native';
+import { toast } from '@/hooks/use-toast';
 
 // FUNCTION USING INSTRUCTION
 //================================================================
@@ -25,6 +26,7 @@ export interface DateInterface {
   id: string;
   startDate: Date | null;
   endDate: Date | null;
+  projectId?: string; // เพิ่ม projectId สำหรับ task
 }
 
 // Exporting for Task Page
@@ -34,8 +36,51 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
     to: undefined,
   });
   const [formattedDate, setFormattedDate] = React.useState<string>('');
+  const [isRangeComplete, setIsRangeComplete] = React.useState(false);
+  const [projectBounds, setProjectBounds] = React.useState<{ startDate: Date | null; endDate: Date | null }>({
+    startDate: null,
+    endDate: null,
+  });
+  const clickCountRef = React.useRef(0);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
+
+  // ดึงข้อมูล project เพื่อตรวจสอบขอบเขตวันที่
+  React.useEffect(() => {
+    const fetchProjectBounds = async () => {
+      if (!task.projectId) return;
+      
+      try {
+        const response = await fetch(`${BASE_URL}/v2/projects/${task.projectId}`, {
+          headers: { Authorization: auth },
+        });
+        const project = await response.json();
+        setProjectBounds({
+          startDate: project.startDate ? new Date(project.startDate) : null,
+          endDate: project.endDate ? new Date(project.endDate) : null,
+        });
+      } catch (error) {
+        console.error('Error fetching project bounds:', error);
+      }
+    };
+
+    fetchProjectBounds();
+  }, [task.projectId, auth]);
+
+  // ตรวจสอบว่าวันที่อยู่ในขอบเขตของ project หรือไม่
+  const isDateWithinProjectBounds = (dateRange: DateRange | undefined): boolean => {
+    if (!dateRange?.from || !projectBounds.startDate || !projectBounds.endDate) return true;
+    
+    const fromDate = dateRange.from;
+    const toDate = dateRange.to || dateRange.from;
+    
+    return (
+      fromDate >= projectBounds.startDate &&
+      fromDate <= projectBounds.endDate &&
+      toDate >= projectBounds.startDate &&
+      toDate <= projectBounds.endDate
+    );
+  };
 
   // Regex for date matching
   // const dateTimeRegEx = /^(\d{1,2})[\/\-. ](\d{1,2})[\/\-. ](\d{4})$/;
@@ -83,10 +128,13 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
         const newDateRange = { from, to };
         setDate(newDateRange);
         setFormattedDate(formatDate(newDateRange));
+        // ตั้งค่า isRangeComplete ถ้ามี range ครบ (from และ to ต่างกัน)
+        setIsRangeComplete(Boolean(from && to && from.getTime() !== to.getTime()));
       } catch (error) {
         console.error('Error initializing dates:', error);
         setDate({ from: undefined, to: undefined });
         setFormattedDate('Pick a date');
+        setIsRangeComplete(false);
       }
     };
 
@@ -121,10 +169,27 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
   // Handle calendar selection
   const handleCalendarSelect = async (range: DateRange | undefined) => {
     let patchedRange = range;
+    
+    // ถ้าไม่มี range หรือ from ไม่มีค่า
+    if (!range?.from) {
+      return;
+    }
+
+    // ตรวจสอบขอบเขต project ก่อนดำเนินการ
+    if (!isDateWithinProjectBounds(range)) {
+      toast({
+        title: 'วันที่ไม่ถูกต้อง',
+        description: 'วันที่ที่เลือกต้องอยู่ภายในช่วงวันที่ของโปรเจค',
+        variant: 'default',
+      });
+      return;
+    }
+    
     // ถ้าเลือกวันเดียว (from มีค่า แต่ to ยังไม่มี) ให้ to = from
     if (range?.from && !range?.to) {
       patchedRange = { from: range.from, to: range.from };
     }
+    
     const url = `${BASE_URL}/v2/tasks/date/${task.id}`;
     const options = {
       method: 'PATCH',
