@@ -202,7 +202,14 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
     <>
       <div className="flex flex-row max-w-[212px] flex-wrap items-center justify-start overflow-hidden gap-x-1.5">
         {Array.isArray(selectedTags) && selectedTags.length > 0
-          ? selectedTags.map((tag) => {
+          ? selectedTags .sort((a, b) => {
+        const aIsApprove = a.name === 'Approved';
+        const bIsApprove = b.name === 'Approved';
+        if (aIsApprove && !bIsApprove) return -1;
+        if (!aIsApprove && bIsApprove) return 1;
+        return 0;
+      })
+      .map((tag) => {
               // Only show Accept tags to Head/Admin users
               if (tag.name === 'Approved' && !isHead && !isadmin) return null;
 
