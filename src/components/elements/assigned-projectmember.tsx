@@ -60,9 +60,9 @@ export function AssignedProjectMember({ project }: { project: Project }) {
   }, [auth, isMounted, fetchUsers]);
 
   React.useEffect(() => {
-  if (!isMounted || !project) return;
-  if (project?.members) setSelectedUser(project.members);
-  if (project?.owner) setOwnerIds(project.owner.map((o) => o.id));
+    if (!isMounted || !project) return;
+    if (project?.members) setSelectedUser(project.members);
+    if (project?.owner) setOwnerIds(project.owner.map((o) => o.id));
   }, [project, isMounted]);
 
   React.useEffect(() => {

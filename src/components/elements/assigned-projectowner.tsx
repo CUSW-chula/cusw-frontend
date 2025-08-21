@@ -68,7 +68,7 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
     if (!isMounted || !auth || !project) return;
     const ws = new WebSocket(BASE_SOCKET);
 
-  const handleMessage = (event: MessageEvent) => {
+    const handleMessage = (event: MessageEvent) => {
       try {
         const { eventName, data } = JSON.parse(event.data);
         if (eventName === `owner:${project.id}`) {
@@ -114,6 +114,12 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
       window.removeEventListener('focus', onFocus);
     };
   }, [open, fetchUsers]);
+
+  // Filter out project creator from dropdown to prevent removing themselves
+  const filteredUsersList = React.useMemo(
+    () => usersList.filter((u) => u.id !== project?.createdById),
+    [usersList, project?.createdById],
+  );
 
   const handleSelectUser = async (userName: string) => {
     if (!isMounted || !project) return;
@@ -223,7 +229,7 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
                 <CommandList>
                   <CommandEmpty>No members found</CommandEmpty>
                   <CommandGroup>
-                    {usersList.map((user) => (
+                    {filteredUsersList.map((user) => (
                       <CommandItem
                         key={user.id}
                         value={user.name}
