@@ -130,6 +130,10 @@ const handleDelete = async (taskId: string, id: string, auth: string) => {
     await response.json();
     // setFileList((prevFiles) => prevFiles.filter((file) => file.id !== id));
   } catch (error) {
+    toast({
+      title: 'Error deleting file',
+      description: 'มีเพียงผู้สร้าง task ที่มีสิทธิ์ลบไฟล์นี้',
+    })
     console.error(error);
   }
 };
