@@ -39,22 +39,24 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
     setAuth(getCookie('auth')?.toString() || '');
   }, []);
 
+  const fetchUsers = React.useCallback(async () => {
+    if (!auth) return;
+    try {
+      const response = await fetch(`${BASE_URL}/v2/users/`, {
+        headers: { Authorization: auth },
+      });
+      if (!response.ok) return;
+      const data = await response.json();
+      setUsersList(data);
+    } catch (error) {
+      console.error('Failed to fetch users:', error);
+    }
+  }, [auth]);
+
   React.useEffect(() => {
     if (!isMounted || !auth) return;
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/v2/users/`, {
-          headers: { Authorization: auth },
-        });
-        if (!response.ok) return;
-        const data = await response.json();
-        setUsersList(data);
-      } catch (error) {
-        console.error('Failed to fetch users:', error);
-      }
-    };
     fetchUsers();
-  }, [auth, isMounted]);
+  }, [auth, isMounted, fetchUsers]);
 
   React.useEffect(() => {
     if (isMounted && project?.owner) {
@@ -83,6 +85,9 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
             const isDuplicate = prev.some((u) => u.id === newUser.id);
             return isDuplicate ? prev : [...prev, newUser];
           });
+        } else if (typeof eventName === 'string' && /user/i.test(eventName)) {
+          // เมื่อมีการเปลี่ยนแปลงข้อมูลผู้ใช้ ให้รีเฟรช dropdown รายชื่อผู้ใช้
+          fetchUsers();
         }
       } catch (error) {
         console.error('WebSocket message error:', error);
@@ -94,7 +99,27 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
       ws.removeEventListener('message', handleMessage);
       ws.close();
     };
-  }, [auth, project, isMounted]);
+  }, [auth, project, isMounted, fetchUsers]);
+
+  // While dropdown is open, poll users periodically and refresh on window focus
+  React.useEffect(() => {
+    if (!open) return;
+    let interval: ReturnType<typeof setInterval> | null = null;
+    const onFocus = () => fetchUsers();
+    fetchUsers();
+    interval = setInterval(fetchUsers, 15000);
+    window.addEventListener('focus', onFocus);
+    return () => {
+      if (interval) clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [open, fetchUsers]);
+
+  // Filter out project creator from dropdown to prevent removing themselves
+  const filteredUsersList = React.useMemo(
+    () => usersList.filter((u) => u.id !== project?.createdById),
+    [usersList, project?.createdById],
+  );
 
   const handleSelectUser = async (userName: string) => {
     if (!isMounted || !project) return;
@@ -204,7 +229,7 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
                 <CommandList>
                   <CommandEmpty>No members found</CommandEmpty>
                   <CommandGroup>
-                    {usersList.map((user) => (
+                    {filteredUsersList.map((user) => (
                       <CommandItem
                         key={user.id}
                         value={user.name}

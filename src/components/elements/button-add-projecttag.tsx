@@ -202,31 +202,39 @@ export function ButtonAddTags({ project_id }: ProjectOverviewProps) {
     <>
       <div className="flex flex-row max-w-[212px] flex-wrap items-center justify-start overflow-hidden gap-x-1.5">
         {Array.isArray(selectedTags) && selectedTags.length > 0
-          ? selectedTags.map((tag) => {
-              // Only show Accept tags to Head/Admin users
-              if (tag.name === 'Approved' && !isHead && !isadmin) return null;
+          ? selectedTags
+              .sort((a, b) => {
+                const aIsApprove = a.name === 'Approved';
+                const bIsApprove = b.name === 'Approved';
+                if (aIsApprove && !bIsApprove) return -1;
+                if (!aIsApprove && bIsApprove) return 1;
+                return 0;
+              })
+              .map((tag) => {
+                // Only show Accept tags to Head/Admin users
+                if (tag.name === 'Approved' && !isHead && !isadmin) return null;
 
-              return (
-                <Badge
-                  key={tag.id}
-                  variant="destructive"
-                  className={cn(
-                    'h-6 w-fit max-w-[212px] flex items-center my-1 justify-center gap-1',
-                    tag.name === 'Approved'
-                      ? 'bg-[#eefafd] border-blue text-blue'
-                      : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
-                  )}>
-                  <span className="text-sm font-BaiJamjuree font-medium text-ellipsis overflow-hidden max-w-[180px]">
-                    {tag.name}
-                  </span>
-                  {(isHead || isadmin || isprojectOwner) && (
-                    <button type="button" onClick={() => handleDeleteTag(tag.id)}>
-                      <XCircle className="h-4 w-4" />
-                    </button>
-                  )}
-                </Badge>
-              );
-            })
+                return (
+                  <Badge
+                    key={tag.id}
+                    variant="destructive"
+                    className={cn(
+                      'h-6 w-fit max-w-[212px] flex items-center my-1 justify-center gap-1',
+                      tag.name === 'Approved'
+                        ? 'bg-[#eefafd] border-blue text-blue'
+                        : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
+                    )}>
+                    <span className="text-sm font-BaiJamjuree font-medium text-ellipsis overflow-hidden max-w-[180px]">
+                      {tag.name}
+                    </span>
+                    {(isHead || isadmin || isprojectOwner) && (
+                      <button type="button" onClick={() => handleDeleteTag(tag.id)}>
+                        <XCircle className="h-4 w-4" />
+                      </button>
+                    )}
+                  </Badge>
+                );
+              })
           : undefined}
 
         <Popover open={open} onOpenChange={setOpen}>
