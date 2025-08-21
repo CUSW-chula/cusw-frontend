@@ -31,6 +31,8 @@ export function AssignedProjectMember({ project }: { project: Project }) {
   const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
   const [auth, setAuth] = React.useState('');
   const [isMounted, setIsMounted] = React.useState(false);
+  // Keep owner ids locally so dropdown can exclude owners in real-time
+  const [ownerIds, setOwnerIds] = React.useState<string[]>([]);
   const MAX_VISIBLE_MEMBERS = 3;
 
   React.useEffect(() => {
@@ -38,28 +40,29 @@ export function AssignedProjectMember({ project }: { project: Project }) {
     setAuth(getCookie('auth')?.toString() || '');
   }, []);
 
+  const fetchUsers = React.useCallback(async () => {
+    if (!auth) return;
+    try {
+      const response = await fetch(`${BASE_URL}/v2/users/`, {
+        headers: { Authorization: auth },
+      });
+      if (!response.ok) return;
+      const data = await response.json();
+      setUsersList(data);
+    } catch (error) {
+      console.error('Failed to fetch users:', error);
+    }
+  }, [auth]);
+
   React.useEffect(() => {
     if (!isMounted || !auth) return;
-
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/v2/users/`, {
-          headers: { Authorization: auth },
-        });
-        const data = await response.json();
-        setUsersList(data);
-      } catch (error) {
-        console.error('Failed to fetch users:', error);
-      }
-    };
-
     fetchUsers();
-  }, [auth, isMounted]);
+  }, [auth, isMounted, fetchUsers]);
 
   React.useEffect(() => {
-    if (isMounted && project?.members) {
-      setSelectedUser(project.members);
-    }
+  if (!isMounted || !project) return;
+  if (project?.members) setSelectedUser(project.members);
+  if (project?.owner) setOwnerIds(project.owner.map((o) => o.id));
   }, [project, isMounted]);
 
   React.useEffect(() => {
@@ -85,12 +88,17 @@ export function AssignedProjectMember({ project }: { project: Project }) {
               if (response.ok) {
                 const updatedProject = await response.json();
                 setSelectedUser(updatedProject.members);
+                setOwnerIds(updatedProject.owner?.map((o: { id: string }) => o.id) || []);
               }
             } catch (error) {
               console.error('Failed to fetch updated project:', error);
             }
           };
           fetchProject();
+        } else if (typeof eventName === 'string' && /user/i.test(eventName)) {
+          // Backend อาจส่งเหตุการณ์ที่เกี่ยวกับผู้ใช้ เช่น user-created, user-updated
+          // ให้รีเฟรชรายการผู้ใช้เพื่อให้ dropdown อัปเดตแบบเรียลไทม์
+          fetchUsers();
         }
       } catch (error) {
         console.error('WebSocket message error:', error);
@@ -102,7 +110,21 @@ export function AssignedProjectMember({ project }: { project: Project }) {
       ws.removeEventListener('message', handleMessage);
       ws.close();
     };
-  }, [auth, project, isMounted]);
+  }, [auth, project, isMounted, fetchUsers]);
+
+  // While dropdown is open, poll users periodically and refresh on window focus
+  React.useEffect(() => {
+    if (!open) return;
+    let interval: ReturnType<typeof setInterval> | null = null;
+    const onFocus = () => fetchUsers();
+    fetchUsers();
+    interval = setInterval(fetchUsers, 15000); // 15s lightweight polling when open
+    window.addEventListener('focus', onFocus);
+    return () => {
+      if (interval) clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [open, fetchUsers]);
 
   const handleSelectUser = async (userName: string) => {
     if (!isMounted || !project) return;
@@ -185,7 +207,7 @@ export function AssignedProjectMember({ project }: { project: Project }) {
                   <CommandEmpty>No members found.</CommandEmpty>
                   <CommandGroup>
                     {usersList
-                      .filter((user) => !project.owner.some((owner) => owner.id === user.id))
+                      .filter((user) => !ownerIds.includes(user.id))
                       .map((user) => (
                         <CommandItem
                           key={user.id}
