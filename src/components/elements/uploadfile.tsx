@@ -133,7 +133,7 @@ const handleDelete = async (taskId: string, id: string, auth: string) => {
     toast({
       title: 'Error deleting file',
       description: 'มีเพียงผู้สร้าง task ที่มีสิทธิ์ลบไฟล์นี้',
-    })
+    });
     console.error(error);
   }
 };

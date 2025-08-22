@@ -16,6 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { toast } from '@/hooks/use-toast';
 import BASE_URL from '@/lib/shared';
 import { fetchData } from '@/service/fetchService';
 import { Ellipsis } from 'lucide-react';
@@ -40,6 +41,10 @@ export const TaskActionsMenu = ({ task }: { task: TaskProps }) => {
       await fetchData(`${BASE_URL}/v2/tasks/${task.id}`, 'DELETE', task, 'Error deleting task');
       window.location.reload();
     } catch (error) {
+      toast({
+        title: 'Error deleting task',
+        description: 'An error occurred while deleting the task.',
+      });
       console.error('Deletion error:', error);
     }
   };

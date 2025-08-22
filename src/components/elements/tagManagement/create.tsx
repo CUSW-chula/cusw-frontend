@@ -61,6 +61,10 @@ const Create = () => {
       setIsProject(false);
       window.location.reload();
     } catch (error) {
+      toast({
+        title: 'Error creating tag',
+        description: 'An error occurred while creating the tag.',
+      });
       console.error('Failed to add tag:', error);
     }
   };

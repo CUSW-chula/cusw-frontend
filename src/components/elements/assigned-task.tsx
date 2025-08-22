@@ -149,6 +149,10 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
           const errorMessage = await response.text();
         }
       } catch (error) {
+        toast({
+          title: 'Error unassigning user',
+          description: 'An error occurred while unassigning the user from this task.',
+        });
         console.error(error);
       }
     }
