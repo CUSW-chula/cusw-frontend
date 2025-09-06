@@ -173,6 +173,13 @@ const Workspace = ({ workspace }: Workspace) => {
         placeholder="Task Title"
         value={Title}
         onChange={(e) => {
+          if (e.target.value.includes(',')) {
+            toast({
+              title: '⚠️ Invalid Character',
+              description: 'Title cannot contain commas.',
+            });
+            return;
+          }
           setTitle(e.target.value);
         }}
         ref={textAreaRef}

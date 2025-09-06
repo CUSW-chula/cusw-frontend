@@ -107,25 +107,49 @@ const Money = ({ task }: { task: TaskProps | null }) => {
   //submit input budget
   const handleSubmit = async (budget: Budget) => {
     //sent POST method
-    if (
-      budget.type === 'expense' &&
-      project &&
-      task &&
-      (() => {
-        const remainingBudget = project.budget - project.expense + task.expense;
-        return budget.money > remainingBudget;
-      })()
-    )
-      return toast({
-        description: (
-          <div className="flex flex-col">
-            <p className="font-BaiJamjuree">⚠️ งบประมาณไม่พอ</p>
-            <p className="font-BaiJamjuree">
-              งบประมาณของโปรเจคคงเหลือ: {project.budget - project.expense + task.expense} บาท
-            </p>
-          </div>
-        ),
-      });
+    if (project && task) {
+      if (
+        budget.type === 'expense' &&
+        (() => {
+          const remainingBudget = project.budget - project.expense + task.expense;
+          return budget.money > remainingBudget;
+        })()
+      )
+        return toast({
+          description: (
+            <div className="flex flex-col">
+              <p className="font-BaiJamjuree">⚠️ งบประมาณไม่พอ</p>
+              <p className="font-BaiJamjuree">
+                งบประมาณของโปรเจคคงเหลือ: {project.budget - project.expense + task.expense} บาท
+              </p>
+            </div>
+          ),
+        });
+
+      if (
+        budget.type === 'budget' &&
+        (() => {
+          const totalBudget = project.budget - prevBudgetList.current.money + budget.money;
+          return totalBudget < project.expense;
+        })()
+      ) {
+        return toast({
+          description: (
+            <div className="flex flex-col">
+              <p className="font-BaiJamjuree">⚠️ งบประมาณไม่พอ</p>
+              <p className="font-BaiJamjuree">
+                ค่าใช้จ่ายของโปรเจคสูงกว่างบประมาณ:
+                {(
+                  project.expense -
+                  (project.budget - prevBudgetList.current.money + budget.money)
+                ).toLocaleString()}{' '}
+                บาท
+              </p>
+            </div>
+          ),
+        });
+      }
+    }
 
     const fetchDataPost = async (budgetList: number[]) => {
       const url = `${BASE_URL}/v2/tasks/money/${task?.id}`;
@@ -251,8 +275,13 @@ const Money = ({ task }: { task: TaskProps | null }) => {
     }));
   }
 
+  function onOpenChange(open: boolean): void {
+    if (!open) setBudgetList(prevBudgetList.current);
+    setOpenDialog(open);
+  }
+
   return (
-    <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+    <Dialog open={openDialog} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <div
           className={`h-8 px-2 text-sm bg-white rounded-md border justify-center items-center flex font-medium font-BaiJamjuree hover:cursor-pointer border-brown text-brown ${getMoneyColor(budgetList.type)}`}>

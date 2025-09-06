@@ -41,8 +41,15 @@ const Subtask = ({ task }: { task: TaskProps }) => {
 
   useEffect(() => {
     try {
-      setSubtasks(task.subtasks ?? []);
-      task.subtasks?.map((item) => {});
+      if (task.subtasks) {
+        const sortedSubtasks = [...task.subtasks].sort((a, b) => {
+          const dateA = a.startDate ? new Date(a.startDate).getTime() : 0;
+          const dateB = b.startDate ? new Date(b.startDate).getTime() : 0;
+          return dateA - dateB;
+        });
+        setSubtasks(sortedSubtasks);
+        task.subtasks.map((item) => {});
+      }
     } catch (error) {
       console.error('Error');
     }
