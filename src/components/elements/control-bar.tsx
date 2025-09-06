@@ -47,6 +47,7 @@ const auth = cookie?.toString() ?? '';
 /* filter zone */
 export function FilterByDateRange({ className, onDateChange }: FilterDateRangeProps) {
   const [date, setDate] = React.useState<DateRange | undefined>();
+  const refCalendar = React.useRef<DateRange | undefined>(date);
   const [isPopover, setIsPopover] = React.useState(false);
   const clickCountRef = React.useRef(0);
 
@@ -75,6 +76,7 @@ export function FilterByDateRange({ className, onDateChange }: FilterDateRangePr
     if (onDateChange) {
       onDateChange(undefined);
     }
+    setIsPopover(false);
   };
   const handleApply = () => {
     if (onDateChange && date?.from && date?.to) {
@@ -88,11 +90,21 @@ export function FilterByDateRange({ className, onDateChange }: FilterDateRangePr
         onDateChange(undefined);
       }
     }
+    refCalendar.current = date;
     setIsPopover(false);
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    setIsPopover(open);
+    if (!open) {
+      // ปิดปฏิทิน ให้คืนค่าเดิม
+      setDate(refCalendar.current);
+      clickCountRef.current = 0;
+    }
   };
   return (
     <div className={cn('grid gap-2', className)}>
-      <Popover open={isPopover} onOpenChange={setIsPopover}>
+      <Popover open={isPopover} onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>
           <Button
             id="date"
