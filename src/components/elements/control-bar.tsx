@@ -557,9 +557,10 @@ export function SortButton({ onSelectChange }: SortProp) {
     <div>
       <Select onValueChange={(value) => handleSelectChange(value)}>
         <SelectTrigger className="w-[200px] font-BaiJamjuree text-brown border-[#6b5c56] outline-none focus:ring-none ring-offset-transparent focus:ring-offset-transparent ">
-          <SelectValue defaultValue="Start Date ↑" placeholder="Sort by: Start date ↑" />
+          <SelectValue defaultValue="Default" placeholder="Sort by: Default" />
         </SelectTrigger>
         <SelectContent className="font-BaiJamjuree text-brown">
+          <SelectItem value="Default">Sort by: Default </SelectItem>
           <SelectItem value="Start Date ↑">Sort by: Start date ↑</SelectItem>
           <SelectItem value="Start Date ↓">Sort by: Start date ↓</SelectItem>
           <SelectItem value="End Date ↑">Sort by: End date ↑</SelectItem>

@@ -1,4 +1,4 @@
-import type { Dispatch, SetStateAction } from 'react';
+import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 import type { TaskProps } from '@/app/types/types';
 
@@ -8,7 +8,20 @@ interface SortProps {
 }
 
 export const Sort = ({ showTasks, setShowTasks }: SortProps) => {
+  const originalTasksRef = useRef<TaskProps[]>([]);
+
+  // เซ็ตค่า originalTasksRef แค่ครั้งแรกที่ showTasks มีค่า
+  useEffect(() => {
+    if (originalTasksRef.current.length === 0 && showTasks.length > 0) {
+      originalTasksRef.current = showTasks;
+    }
+  }, [showTasks]);
+
   const sortItem = [
+     {
+      value: 'default',
+      label: 'Default',
+    },
     {
       value: 'StartDate123',
       label: 'Start date ↑',
@@ -47,6 +60,9 @@ export const Sort = ({ showTasks, setShowTasks }: SortProps) => {
     };
     let sortedTasks = showTasks;
     switch (value) {
+      case 'default':
+        sortedTasks = originalTasksRef.current;
+        break;
       case 'StartDate123':
         sortedTasks = sortTasksByDate(showTasks, 'startDate', true);
         break;
@@ -67,7 +83,7 @@ export const Sort = ({ showTasks, setShowTasks }: SortProps) => {
   return (
     <Select onValueChange={(value) => handleSort(value)}>
       <SelectTrigger className="w-[172px] border-brown text-brown font-BaiJamjuree font-normal focus:outline-none focus:ring-0 focus:ring-offset-0">
-        <SelectValue placeholder="Sort by: Start date ↑" />
+        <SelectValue placeholder="Sort by: Default" />
       </SelectTrigger>
       <SelectContent>
         {sortItem.map(({ value, label }) => (
