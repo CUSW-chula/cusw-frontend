@@ -85,8 +85,8 @@ export const SortProject = ({
   setStarredProjects,
 }: SortProps) => {
   const { sortByStarredProjects } = UsePinned(starredProjects, setStarredProjects);
-    const sortByDefault = async (projects: Project[],inOrder:boolean) => {
-       const sorted = [...projects].sort((project1, project2) => {
+  const sortByDefault = async (projects: Project[], inOrder: boolean) => {
+    const sorted = [...projects].sort((project1, project2) => {
       if (project1.updatedAt === null) return 1;
       if (project2.updatedAt === null) return -1;
       return inOrder
@@ -94,7 +94,7 @@ export const SortProject = ({
         : new Date(project2.updatedAt).getTime() - new Date(project1.updatedAt).getTime();
     });
     setQuery(sortByStarredProjects(sorted));
-    }
+  };
   const sortByStartDate = async (projects: Project[], inOrder: boolean) => {
     const sorted = [...projects].sort((project1, project2) => {
       if (project1.startDate === null) return 1;

@@ -11,7 +11,6 @@ import { jwtDecode } from 'jwt-decode';
 import type { TaskProps } from '@/app/types/types';
 import { toast } from '@/hooks/use-toast';
 
-
 const Picker = dynamic(() => import('emoji-picker-react'), { ssr: true, loading: () => null });
 
 interface EmojiTaskUser {

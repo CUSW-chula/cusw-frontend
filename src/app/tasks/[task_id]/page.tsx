@@ -97,14 +97,16 @@ export default async function TasksManageMentPage({
   // 2. ต้องเป็น Member หรือ ProjectOwner ของโปรเจคที่ task นี้อยู่
   const isSystemAdmin = currentUser.admin || currentUser.head;
   const hasProjectAccess = userProjects.some(
-    (project) => 
-      project.id === task.projectId && 
-      (project.role === 'Member' || project.role === 'ProjectOwner')
+    (project) =>
+      project.id === task.projectId &&
+      (project.role === 'Member' || project.role === 'ProjectOwner'),
   );
 
   // ถ้าไม่มีสิทธิ์เข้าถึง ให้ redirect ไป project list
   if (!isSystemAdmin && !hasProjectAccess) {
-    console.warn(`User ${currentUser.id} attempted to access task ${task_id} but doesn't have permission`);
+    console.warn(
+      `User ${currentUser.id} attempted to access task ${task_id} but doesn't have permission`,
+    );
     redirect('/projects');
   }
 

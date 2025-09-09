@@ -18,7 +18,7 @@ export const Sort = ({ showTasks, setShowTasks }: SortProps) => {
   }, [showTasks]);
 
   const sortItem = [
-     {
+    {
       value: 'default',
       label: 'Default',
     },
