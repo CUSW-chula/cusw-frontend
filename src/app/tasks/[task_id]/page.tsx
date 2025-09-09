@@ -11,7 +11,6 @@ import { Comment } from '@/components/elements/comment';
 import ActivityLogs from '@/app/tasks/_components/activity-logs';
 import { DeleteTask } from '@/app/tasks/_components/deleteTask';
 import Emoji from '@/components/elements/emoji';
-import { redirect } from 'next/navigation';
 
 interface Workspace {
   id: string;
@@ -37,11 +36,6 @@ export default async function TasksManageMentPage({
   const auth: string = cookieStore?.toString() ?? '';
   const { task_id } = await params;
 
-  // ตรวจสอบ authentication
-  if (!auth) {
-    redirect('/login');
-  }
-
   const response = await fetch(`${BASE_URL}/v2/tasks/${task_id}`, {
     headers: { Authorization: auth },
   });
@@ -50,38 +44,6 @@ export default async function TasksManageMentPage({
   }
 
   const task: TaskProps = await response.json();
-
-  // ดึงข้อมูล project เพื่อตรวจสอบ project members
-  const projectResponse = await fetch(`${BASE_URL}/v2/projects/${task.projectId}`, {
-    headers: { Authorization: auth },
-  });
-  if (!projectResponse.ok) {
-    console.error(`Failed to fetch project data: ${projectResponse.statusText}`);
-    throw new Error(`Failed to fetch project data: ${projectResponse.statusText}`);
-  }
-
-  const project = await projectResponse.json();
-
-  // ดึงข้อมูลผู้ใช้ปัจจุบัน
-  const userResponse = await fetch(`${BASE_URL}/v2/users/me`, {
-    headers: { Authorization: auth },
-  });
-  if (!userResponse.ok) {
-    console.error('User authentication failed, redirecting to login');
-    redirect('/login');
-  }
-
-  const currentUser = await userResponse.json();
-
-  // ตรวจสอบว่าผู้ใช้ปัจจุบันเป็น member ของ project หรือไม่
-  const isProjectMember = project.members?.some((member: { id: string }) => member.id === currentUser.id) || 
-                         project.owner?.some((owner: { id: string }) => owner.id === currentUser.id);
-
-  // ถ้าไม่เป็น project member ให้ redirect ไป project list
-  if (!isProjectMember) {
-    console.warn(`User ${currentUser.id} attempted to access task ${task_id} but is not a project member`);
-    redirect('/projects');
-  }
 
   const workspace: Workspace = {
     id: task.id,
