@@ -78,7 +78,7 @@ export const CreateSubtask = ({
     try {
       const response = await fetch(url, options);
       const data = await response.json();
-      
+
       if (response.ok) {
         router.push(`/tasks/${data.id}`);
         toast({
@@ -150,7 +150,7 @@ export const CreateSubtask = ({
           onChange={handleChange}
         /> */}
       </div>
-      
+
       <div className="self-stretch flex-col justify-start items-start gap-3 flex">
         <div className="self-stretch justify-end items-center gap-3 inline-flex">
           <Button

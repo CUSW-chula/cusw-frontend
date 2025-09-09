@@ -230,8 +230,8 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
     if (!isDateWithinBounds(range)) {
       toast({
         title: 'วันที่ไม่ถูกต้อง',
-        description: isSubtask 
-          ? 'ไม่สามารถสร้างวันที่นอก parent task' 
+        description: isSubtask
+          ? 'ไม่สามารถสร้างวันที่นอก parent task'
           : 'วันที่ที่เลือกต้องอยู่ภายในช่วงวันที่ของโปรเจค',
         variant: 'default',
       });
