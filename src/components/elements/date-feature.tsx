@@ -27,6 +27,7 @@ export interface DateInterface {
   startDate: Date | null;
   endDate: Date | null;
   projectId?: string; // เพิ่ม projectId สำหรับ task
+  parentTaskId?: string; // เพิ่ม parentTaskId สำหรับ subtask
 }
 
 // Exporting for Task Page
@@ -44,9 +45,19 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
     startDate: null,
     endDate: null,
   });
+  const [parentTaskBounds, setParentTaskBounds] = React.useState<{
+    startDate: Date | null;
+    endDate: Date | null;
+  }>({
+    startDate: null,
+    endDate: null,
+  });
   const clickCountRef = React.useRef(0);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
+
+  // ตรวจสอบว่า task นี้เป็น subtask หรือไม่
+  const isSubtask = task.parentTaskId && task.parentTaskId.trim() !== '';
 
   // ดึงข้อมูล project เพื่อตรวจสอบขอบเขตวันที่
   React.useEffect(() => {
@@ -70,19 +81,56 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
     fetchProjectBounds();
   }, [task.projectId, auth]);
 
-  // ตรวจสอบว่าวันที่อยู่ในขอบเขตของ project หรือไม่
-  const isDateWithinProjectBounds = (dateRange: DateRange | undefined): boolean => {
-    if (!dateRange?.from || !projectBounds.startDate || !projectBounds.endDate) return true;
+  // ดึงข้อมูล parent task เพื่อตรวจสอบขอบเขตวันที่ (สำหรับ subtask)
+  React.useEffect(() => {
+    const fetchParentTaskBounds = async () => {
+      if (!isSubtask) return;
+
+      try {
+        const response = await fetch(`${BASE_URL}/v2/tasks/${task.parentTaskId}`, {
+          headers: { Authorization: auth },
+        });
+        const parentTask = await response.json();
+        setParentTaskBounds({
+          startDate: parentTask.startDate ? new Date(parentTask.startDate) : null,
+          endDate: parentTask.endDate ? new Date(parentTask.endDate) : null,
+        });
+      } catch (error) {
+        console.error('Error fetching parent task bounds:', error);
+      }
+    };
+
+    fetchParentTaskBounds();
+  }, [task.parentTaskId, auth, isSubtask]);
+
+  // ตรวจสอบว่าวันที่อยู่ในขอบเขตที่เหมาะสมหรือไม่
+  const isDateWithinBounds = (dateRange: DateRange | undefined): boolean => {
+    if (!dateRange?.from) return true;
 
     const fromDate = dateRange.from;
     const toDate = dateRange.to || dateRange.from;
 
-    return (
-      fromDate >= projectBounds.startDate &&
-      fromDate <= projectBounds.endDate &&
-      toDate >= projectBounds.startDate &&
-      toDate <= projectBounds.endDate
-    );
+    // ถ้าเป็น subtask ให้ตรวจสอบขอบเขตของ parent task
+    if (isSubtask && parentTaskBounds.startDate && parentTaskBounds.endDate) {
+      return (
+        fromDate >= parentTaskBounds.startDate &&
+        fromDate <= parentTaskBounds.endDate &&
+        toDate >= parentTaskBounds.startDate &&
+        toDate <= parentTaskBounds.endDate
+      );
+    }
+
+    // ถ้าเป็น task ปกติ ให้ตรวจสอบขอบเขตของ project
+    if (projectBounds.startDate && projectBounds.endDate) {
+      return (
+        fromDate >= projectBounds.startDate &&
+        fromDate <= projectBounds.endDate &&
+        toDate >= projectBounds.startDate &&
+        toDate <= projectBounds.endDate
+      );
+    }
+
+    return true;
   };
 
   // Regex for date matching
@@ -178,11 +226,13 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
       return;
     }
 
-    // ตรวจสอบขอบเขต project ก่อนดำเนินการ
-    if (!isDateWithinProjectBounds(range)) {
+    // ตรวจสอบขอบเขตก่อนดำเนินการ
+    if (!isDateWithinBounds(range)) {
       toast({
         title: 'วันที่ไม่ถูกต้อง',
-        description: 'วันที่ที่เลือกต้องอยู่ภายในช่วงวันที่ของโปรเจค',
+        description: isSubtask 
+          ? 'ไม่สามารถสร้างวันที่นอก parent task' 
+          : 'วันที่ที่เลือกต้องอยู่ภายในช่วงวันที่ของโปรเจค',
         variant: 'default',
       });
       return;
