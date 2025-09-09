@@ -65,7 +65,7 @@ const Table = () => {
                   <Rename tag={tag} />
                 </td>
                 <td className="p-2">
-                  <Manage tag={tag} />
+                  <p className='font-Anuphan text-[12px]'>{tag.isProject ? 'project' : 'task'}</p>
                 </td>
                 <td className="p-2">
                   <Delete tag={tag} />
