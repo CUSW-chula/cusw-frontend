@@ -36,7 +36,7 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
   const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
   const [owner, setOwner] = React.useState<UsersInterfaces[]>([]);
   const MAX_VISIBLE_MEMBERS = 3;
-   const [ownerIds, setOwnerIds] = React.useState<string[]>([]);
+  const [ownerIds, setOwnerIds] = React.useState<string[]>([]);
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const pareJsonValue = React.useCallback((values: any) => {
@@ -201,19 +201,21 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
                 <CommandList>
                   <CommandEmpty>No results found.</CommandEmpty>
                   <CommandGroup>
-                    {usersList.filter((user) => !ownerIds.includes(user.id)).map((user) => (
-                      <CommandItem key={user.id} value={user.name} onSelect={handleSelectUser}>
-                        <Circle
-                          className={cn(
-                            'mr-2 h-4 w-4 fill-greenLight text-greenLight ',
-                            taskMembers?.length > 0 && taskMembers.some((u) => u.id === user.id)
-                              ? 'opacity-100'
-                              : 'opacity-40',
-                          )}
-                        />
-                        <span>{user.name}</span>
-                      </CommandItem>
-                    ))}
+                    {usersList
+                      .filter((user) => !ownerIds.includes(user.id))
+                      .map((user) => (
+                        <CommandItem key={user.id} value={user.name} onSelect={handleSelectUser}>
+                          <Circle
+                            className={cn(
+                              'mr-2 h-4 w-4 fill-greenLight text-greenLight ',
+                              taskMembers?.length > 0 && taskMembers.some((u) => u.id === user.id)
+                                ? 'opacity-100'
+                                : 'opacity-40',
+                            )}
+                          />
+                          <span>{user.name}</span>
+                        </CommandItem>
+                      ))}
                   </CommandGroup>
                 </CommandList>
               </Command>
