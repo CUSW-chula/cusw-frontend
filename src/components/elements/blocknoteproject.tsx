@@ -43,18 +43,34 @@ function getRandomLightColor(): string {
 
 function Document({ project_id }: ProjectOverviewProps) {
   const [Description, setDescription] = useState<string>('');
-  const [canEdit, setCanEdit] = useState<boolean>(true);
+  const [canEdit, setCanEdit] = useState<boolean>(false); // เปลี่ยนจาก true เป็น false
   const [originalDescription, setOriginalDescription] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(true); // เพิ่ม loading state
 
   useEffect(() => {
     const fetchDescription = async () => {
       try {
+        // ทดสอบการแก้ไขก่อนโดยการ PATCH ด้วยข้อมูลเดิม
+        const testEditResponse = await fetch(`${BASE_URL}/v2/projects/${project_id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', Authorization: auth },
+          body: JSON.stringify({ description: '' }), // ส่งค่าว่างเพื่อทดสอบสิทธิ์
+        });
+        
+        // ถ้าได้ 403 แสดงว่าไม่มีสิทธิ์แก้ไข
+        if (testEditResponse.status === 403) {
+          setCanEdit(false);
+        } else if (testEditResponse.ok) {
+          setCanEdit(true);
+        }
+
+        // ดึงข้อมูลโปรเจค
         const response = await fetch(`${BASE_URL}/v2/projects/${project_id}`, {
           headers: { Authorization: auth },
         });
         if (!response.ok) {
           const errorMessage = await response.text();
-
+          setIsLoading(false);
           return;
         }
         const data = await response.json();
@@ -62,8 +78,11 @@ function Document({ project_id }: ProjectOverviewProps) {
         setOriginalDescription(data.description);
         const blocks = await editor.tryParseHTMLToBlocks(data.description);
         editor.replaceBlocks(editor.document, blocks);
+        setIsLoading(false);
       } catch (error) {
         console.error('Error fetching description:', error);
+        setCanEdit(false);
+        setIsLoading(false);
       }
     };
     fetchDescription();
@@ -113,6 +132,11 @@ function Document({ project_id }: ProjectOverviewProps) {
     const HTML = await editor.blocksToHTMLLossy(editor.document);
     setDescription(HTML);
   };
+
+  // แสดง loading ในขณะที่กำลังตรวจสอบสิทธิ์
+  if (isLoading) {
+    return <div className="flex items-center justify-center p-8">Loading...</div>;
+  }
 
   return (
     <BlockNoteView
