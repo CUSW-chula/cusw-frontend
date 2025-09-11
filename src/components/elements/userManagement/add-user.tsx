@@ -41,6 +41,10 @@ const AddUser = () => {
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Error response data:', response.status);
+        if (response.status === 422) {
+          alert('Invalid email format. Check console for details.');
+          return;
+        }
         throw new Error(`${response.status} ${errorData}`);
       }
 
@@ -55,14 +59,12 @@ const AddUser = () => {
   return (
     <div>
       <Popover open={showPopover} onOpenChange={setShowPopover}>
-        <PopoverTrigger>
-          <button
-            type="button"
-            className="flex justify-center items-center gap-1 px-4 h-[40px] min-w-[100px] rounded-md border border-brown hover:bg-neutral-100 transition"
-            onClick={() => setShowPopover(!showPopover)}>
-            <Plus />
-            Add user
-          </button>
+        <PopoverTrigger
+          type="button"
+          className="flex justify-center items-center gap-1 px-4 h-[40px] min-w-[100px] rounded-md border border-brown hover:bg-neutral-100 transition"
+          onClick={() => setShowPopover(!showPopover)}>
+          <Plus />
+          Add user
         </PopoverTrigger>
 
         <PopoverContent>

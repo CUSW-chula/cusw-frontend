@@ -44,7 +44,17 @@ export const CreateSubtask = ({
   };
 
   const handleSubmit = async () => {
-    // ใช้วันที่ของ parent task เป็น default สำหรับ subtask
+    // ตรวจสอบข้อมูลที่จำเป็น
+    if (!inputs.taskTitle?.trim()) {
+      toast({
+        title: 'ข้อมูลไม่ครบถ้วน',
+        description: 'กรุณาใส่ชื่อ task',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // ใช้วันที่ของ parent task โดยตรง
     const subtaskStartDate = task.startDate ? new Date(task.startDate) : null;
     const subtaskEndDate = task.endDate ? new Date(task.endDate) : null;
 
@@ -53,7 +63,7 @@ export const CreateSubtask = ({
       method: 'POST',
       headers: { Authorization: auth, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        title: inputs.taskTitle,
+        title: inputs.taskTitle.trim(),
         description: Description,
         budget: 0,
         advance: 0,
@@ -68,17 +78,22 @@ export const CreateSubtask = ({
     try {
       const response = await fetch(url, options);
       const data = await response.json();
-      router.push(`/tasks/${data.id}`);
-      toast({
-        title: 'Task Created Successfully',
-        description: 'Your task has been created and saved successfully.',
-        variant: 'default',
-      });
+
+      if (response.ok) {
+        router.push(`/tasks/${data.id}`);
+        toast({
+          title: 'สร้าง Subtask สำเร็จ',
+          description: 'Subtask ของคุณได้ถูกสร้างและบันทึกเรียบร้อยแล้ว',
+          variant: 'default',
+        });
+      } else {
+        throw new Error(data.message || 'Failed to create subtask');
+      }
     } catch (error) {
       console.error(error);
       toast({
-        title: 'Task Creation Failed',
-        description: 'There was an issue creating your task. Please try again.',
+        title: 'การสร้าง Subtask ล้มเหลว',
+        description: 'เกิดปัญหาในการสร้าง subtask กรุณาลองอีกครั้ง',
         variant: 'destructive',
       });
     }
@@ -135,6 +150,7 @@ export const CreateSubtask = ({
           onChange={handleChange}
         /> */}
       </div>
+
       <div className="self-stretch flex-col justify-start items-start gap-3 flex">
         <div className="self-stretch justify-end items-center gap-3 inline-flex">
           <Button

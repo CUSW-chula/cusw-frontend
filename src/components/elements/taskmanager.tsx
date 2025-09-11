@@ -4,7 +4,7 @@ import { getCookie } from 'cookies-next';
 import BASE_URL, { type TaskManageMentOverviewProp, type Project } from '@/lib/shared';
 import type { TagProps, TaskProps } from '@/app/types/types';
 import { Task, ExportDialog, Filter, Sort, CreateTask } from './taskManagement';
-import { parseJsonValues, statusSections } from '@/lib/taskUtils';
+import { groupingStatus, parseJsonValues, statusSections, statusToInt } from '@/lib/taskUtils';
 import { toast } from '@/hooks/use-toast';
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
@@ -67,27 +67,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     };
     fetchData();
   }, [project_id]);
-
-  const statusToInt = (status: string): number => {
-    const statusMap: { [key: string]: number } = {
-      Unassigned: 1,
-      Assigned: 2,
-      InRecheck: 3,
-      UnderReview: 4,
-      Done: 5,
-    };
-    return statusMap[status] || -1;
-  };
-
-  const groupingStatus = (task: TaskProps, max: number): number => {
-    let currentMax = Math.min(max, statusToInt(task.status));
-    if (task.subtasks) {
-      for (const subtask of task.subtasks) {
-        currentMax = Math.min(currentMax, groupingStatus(subtask, currentMax));
-      }
-    }
-    return currentMax;
-  };
 
   return (
     <div className="h-auto w-full p-11 font-BaiJamjuree bg-white rounded-md border border-brown flex flex-col">
