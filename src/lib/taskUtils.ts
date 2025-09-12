@@ -354,3 +354,24 @@ export const statusSectionsWorkload = [
   { status: 'UnderReview', displayName: 'Under review', icon: ICONS.UnderReview },
   { status: 'Done', displayName: 'Done', icon: ICONS.Done },
 ];
+
+export const statusToInt = (status: string): number => {
+  const statusMap: { [key: string]: number } = {
+    Unassigned: 1,
+    Assigned: 2,
+    InRecheck: 3,
+    UnderReview: 4,
+    Done: 5,
+  };
+  return statusMap[status] || -1;
+};
+
+export const groupingStatus = (task: TaskProps, max: number): number => {
+  let currentMax = Math.min(max, statusToInt(task.status));
+  if (task.subtasks) {
+    for (const subtask of task.subtasks) {
+      currentMax = Math.min(currentMax, groupingStatus(subtask, currentMax));
+    }
+  }
+  return currentMax;
+};

@@ -18,7 +18,13 @@ import {
 import type { TaskProps } from '@/app/types/types';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useEffect, useState } from 'react';
-import { statusSections, parseJsonValuesTemplate, useExportTask } from '@/lib/taskUtils';
+import {
+  statusSections,
+  parseJsonValuesTemplate,
+  useExportTask,
+  groupingStatus,
+  statusToInt,
+} from '@/lib/taskUtils';
 import { Input } from '@/components/ui/input';
 import { getUserRole } from '@/service/userService';
 
@@ -211,7 +217,7 @@ export const ExportDialog = ({ tasks }: { tasks: TaskProps[] }) => {
                 {/* Tasks in there group */}
                 <div className="w-full block">
                   {tasks
-                    .filter((item) => item.status === status) // Match with the status property
+                    .filter((item) => groupingStatus(item, 99) === statusToInt(status))
                     .map((item) => (
                       <Task key={item.id} item={item} />
                     ))}
