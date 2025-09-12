@@ -27,6 +27,7 @@ const saveExpandedState = (ids: Set<string>) => {
 export const MyTaskManager = () => {
   const [showTasks, setShowTasks] = useState<TaskProps[]>([]);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(loadExpandedState);
+  const [userProjects, setUserProjects] = useState<{ id: string; role: string }[]>([]);
 
   const handleToggle = (taskId: string) => {
     const newIds = new Set(expandedIds);
@@ -42,6 +43,22 @@ export const MyTaskManager = () => {
     const decoded = jwtDecode<{ id: string }>(auth);
     const userId = decoded.id;
 
+    const fetchUserProjects = async () => {
+      try {
+        const response = await fetch(`${BASE_URL}/v2/users/userrole/${userId}`, {
+          headers: { Authorization: auth },
+        });
+        if (!response.ok) {
+          console.error('Failed to fetch user projects');
+          return;
+        }
+        const data = await response.json();
+        setUserProjects(data);
+      } catch (error) {
+        console.error('Error fetching user projects:', error);
+      }
+    };
+
     const fetchTask = async () => {
       try {
         const response = await fetch(`${BASE_URL}/v2/tasks/user/${userId}`, {
@@ -49,7 +66,6 @@ export const MyTaskManager = () => {
         });
         if (!response.ok) {
           const errorMessage = await response.text();
-
           return;
         }
         const data = await response.json();
@@ -59,13 +75,14 @@ export const MyTaskManager = () => {
           subtasks: undefined,
         }));
         setShowTasks(testja);
-        //setShowTasks(data.filter((t: TaskProps) => t. === userId))
       } catch (error) {
         console.error('Error fetching tasks:', error);
       }
     };
+
+    fetchUserProjects();
     fetchTask();
-  }, [auth]);
+  }, []);
 
   const statusToInt = (status: string): number => {
     const statusMap: { [key: string]: number } = {
@@ -90,6 +107,11 @@ export const MyTaskManager = () => {
     return currentMax;
   };
 
+  // กรอง tasks ที่ user ยังคงเป็น project member
+  const filteredTasks = showTasks.filter((task) => {
+    return userProjects.some((project) => project.id === task.projectId);
+  });
+
   return (
     <div className="h-auto w-full p-11 font-BaiJamjuree bg-white rounded-md border border-brown flex flex-col">
       <header className="h-9 text-black text-3xl font-semibold leading-9 mb-6">My Task</header>
@@ -102,7 +124,7 @@ export const MyTaskManager = () => {
           </div>
           {/* Tasks in there group */}
           <div className="w-full block">
-            {showTasks
+            {filteredTasks
               .filter((item) => groupingStatus(item, 99) === statusToInt(status))
               .map((item) => (
                 <Task
