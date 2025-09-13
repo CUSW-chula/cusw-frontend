@@ -46,3 +46,7 @@ export interface FilterTasks {
   category: TagProps[];
   sort: 'stDate_asc' | 'stDate_desc' | 'endDate_asc' | 'endDate_desc';
 }
+
+export type ProjectRole = 'ProjectOwner' | 'Member' | undefined;
+
+export type TaskRole = 'assignee' | 'owner' | undefined;

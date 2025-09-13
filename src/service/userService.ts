@@ -1,3 +1,4 @@
+import type { ProjectRole, TaskRole } from '@/app/types/types';
 import BASE_URL from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { jwtDecode } from 'jwt-decode';
@@ -31,5 +32,61 @@ export async function getUserRole(): Promise<UserRoleResponse> {
   } catch (error) {
     console.error('Error fetching user role:', error);
     return { userName: undefined, isAdmin: false };
+  }
+}
+
+// Types for better type safety
+interface ProjectData {
+  id: string;
+  role: ProjectRole;
+  isAdmin: boolean;
+  tasks?: TaskData[];
+}
+
+interface TaskData {
+  taskId: string;
+  taskRole: TaskRole;
+}
+
+interface UserRoleProjectTaskResponse {
+  userId: string | undefined;
+  role: ProjectRole | TaskRole | undefined;
+  isAdmin: boolean;
+}
+
+export async function getUserRoleOnProjectTask({
+  projectId,
+  taskId,
+}: {
+  projectId: string;
+  taskId?: string;
+}): Promise<UserRoleProjectTaskResponse> {
+  const auth = getCookie('auth')?.toString();
+  if (!auth) return { userId: undefined, role: undefined, isAdmin: false };
+
+  try {
+    const decoded = jwtDecode<{ id: string }>(auth);
+    const response = await fetch(`${BASE_URL}/v2/users/userrole/${decoded.id}`, {
+      headers: { Authorization: auth },
+      cache: 'no-store',
+    });
+
+    if (!response.ok) throw new Error(`Failed to fetch user role: ${response.status}`);
+
+    const projects: ProjectData[] = await response.json();
+    const project = projects.find((p) => p.id === projectId);
+
+    if (!project) return { userId: decoded.id, role: undefined, isAdmin: false };
+
+    const taskRole = taskId && project.tasks?.find((t) => t.taskId === taskId)?.taskRole;
+
+    return {
+      userId: decoded.id,
+      role: taskRole || project.role || 'Member',
+      isAdmin: project.isAdmin,
+    };
+  } catch (error) {
+    console.error('getUserRoleOnProjectTask failed:', error);
+    return { userId: undefined, role: undefined, isAdmin: false };
   }
 }
