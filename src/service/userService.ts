@@ -1,4 +1,4 @@
-import { ProjectRole, TaskRole } from '@/app/types/types';
+import type { ProjectRole, TaskRole } from '@/app/types/types';
 import BASE_URL from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { jwtDecode } from 'jwt-decode';
@@ -74,12 +74,12 @@ export async function getUserRoleOnProjectTask({
     if (!response.ok) throw new Error(`Failed to fetch user role: ${response.status}`);
 
     const projects: ProjectData[] = await response.json();
-    const project = projects.find(p => p.id === projectId);
-    
+    const project = projects.find((p) => p.id === projectId);
+
     if (!project) return { userId: decoded.id, role: undefined, isAdmin: false };
 
-    const taskRole = taskId && project.tasks?.find(t => t.taskId === taskId)?.taskRole;
-    
+    const taskRole = taskId && project.tasks?.find((t) => t.taskId === taskId)?.taskRole;
+
     return {
       userId: decoded.id,
       role: taskRole || project.role || 'Member',
