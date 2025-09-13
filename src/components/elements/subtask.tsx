@@ -8,6 +8,7 @@ import { getCookie } from 'cookies-next';
 import { Sort, Task } from './taskManagement';
 import type { TaskProps } from '@/app/types/types';
 import { CreateSubtask } from './createSubtask';
+import { getUserRoleOnProjectTask } from '@/service/userService';
 
 // Helper functions for localStorage
 const loadExpandedState = (): Set<string> => {
@@ -28,6 +29,8 @@ const Subtask = ({ task }: { task: TaskProps }) => {
   const [subtasks, setSubtasks] = useState<TaskProps[]>([]);
   const cookie = getCookie('auth');
   const [expandedIds, setExpandedIds] = useState<Set<string>>(loadExpandedState);
+  // Permission state management
+  const [hasEditPermission, setHasEditPermission] = useState(false);
 
   const handleToggle = (taskId: string) => {
     const newIds = new Set(expandedIds);
@@ -35,9 +38,29 @@ const Subtask = ({ task }: { task: TaskProps }) => {
     setExpandedIds(new Set(newIds));
   };
 
+  const checkPermissions = async () => {
+    try {
+      const { role, isAdmin } = await getUserRoleOnProjectTask({
+        projectId: task.projectId,
+        taskId: task.id,
+      });
+
+      if (!role) {
+        setHasEditPermission(false);
+        return;
+      }
+
+      setHasEditPermission(isAdmin || ["ProjectOwner", "owner", "assignee"].includes(role));
+    } catch (error) {
+      console.error('Failed to check permissions:', error);
+      setHasEditPermission(false);
+    }
+  };
+
   useEffect(() => {
     saveExpandedState(expandedIds);
-  }, [expandedIds]);
+    checkPermissions();
+  }, [expandedIds, task.projectId, task.id]);
 
   useEffect(() => {
     try {
@@ -83,6 +106,7 @@ const Subtask = ({ task }: { task: TaskProps }) => {
           <Button
             variant="outline"
             className="border-brown font-BaiJamjuree text-sm rounded-md gap-1"
+            disabled={!hasEditPermission}
             onClick={() => {
               setIsSubtaskSectionVisible(!isSubtaskSectionVisible);
               // handleCreateSubtask();
