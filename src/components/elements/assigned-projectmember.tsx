@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import { Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -25,7 +24,15 @@ interface UsersInterfaces {
   email: string;
 }
 
-export function AssignedProjectMember({ project }: { project: Project }) {
+interface AssignedProjectMemberProps {
+  project: Project;
+  isMember?: boolean;
+}
+
+export const AssignedProjectMember: React.FC<AssignedProjectMemberProps> = ({ 
+  project, 
+  isMember = false 
+}) => {
   const [open, setOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<UsersInterfaces[]>([]);
   const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
@@ -127,7 +134,7 @@ export function AssignedProjectMember({ project }: { project: Project }) {
   }, [open, fetchUsers]);
 
   const handleSelectUser = async (userName: string) => {
-    if (!isMounted || !project) return;
+    if (!isMounted || !project || isMember) return; // เพิ่มการตรวจสอบ isMember
 
     const user = usersList.find((u) => u.name === userName);
     if (!user) return;
@@ -168,13 +175,33 @@ export function AssignedProjectMember({ project }: { project: Project }) {
     }
   };
 
+  const handlePopoverOpenChange = (newOpen: boolean) => {
+    if (!isMember) {
+      setOpen(newOpen);
+    }
+  };
+
+  const handleButtonClick = () => {
+    if (!isMember) {
+      setOpen(!open);
+    }
+  };
+
   return (
     <TooltipProvider>
-      <div className="flex flex-row gap-1 flex-wrap">
-        <div className="flex items-center space-x-4">
-          <Popover open={open} onOpenChange={setOpen}>
+      <div className="flex items-center gap-2">
+        {/* แสดงรายชื่อ members */}
+        <div className="flex items-center gap-2">
+          <Popover open={open} onOpenChange={handlePopoverOpenChange}>
             <PopoverTrigger asChild className="border-brown text-brown">
-              <Button variant="outline" className="h-8 px-2">
+              <Button 
+                variant="outline" 
+                className={cn(
+                  "h-8 px-2 hover:bg-gray-50",
+                  isMember && "cursor-default"
+                )}
+                onClick={handleButtonClick}
+              >
                 {selectedUser.length > 0 ? (
                   <div className="flex space-x-2 items-center">
                     {selectedUser.slice(0, MAX_VISIBLE_MEMBERS).map((user) => (
@@ -188,9 +215,13 @@ export function AssignedProjectMember({ project }: { project: Project }) {
                           </div>
                         </TooltipTrigger>
                         <TooltipContent>
-                          {selectedUser.slice(MAX_VISIBLE_MEMBERS).map((user) => (
-                            <p key={user.id}>{user.name}</p>
-                          ))}
+                          <div className="flex flex-col gap-1">
+                            {selectedUser.slice(MAX_VISIBLE_MEMBERS).map((user) => (
+                              <p key={user.id} className="text-xs font-medium text-black">
+                                {user.name}
+                              </p>
+                            ))}
+                          </div>
                         </TooltipContent>
                       </Tooltip>
                     )}

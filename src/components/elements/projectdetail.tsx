@@ -24,20 +24,38 @@ import { AssignedProjectOwner } from './assigned-projectowner';
 import { toast } from '@/hooks/use-toast';
 import { AssignedProjectMember } from './assigned-projectmember';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@radix-ui/react-tooltip';
+import { jwtDecode } from 'jwt-decode';
+import type { ProjectRole, TaskRole} from '@/app/types/types';
+import { useEffect, useState } from 'react';
 
 interface UsersProps {
   id: string;
   name: string;
   email: string;
 }
-interface DeleteTaskProps {
-  project_id: string;
+
+interface ProjectData {
+  id: string;
+  role: ProjectRole;
+  isAdmin: boolean;
+  tasks?: TaskData[];
 }
 
-const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
+interface TaskData {
+  taskId: string;
+  taskRole: TaskRole;
+}
+
+interface DeleteTaskProps {
+  project_id: string;
+  isMember?: boolean;
+}
+
+const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id, isMember = false }) => {
   const router = useRouter();
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
+  
   const handleDeleteTask = async () => {
     const url = `${BASE_URL}/v2/projects/${project_id}`;
     const options = { method: 'DELETE', headers: { Authorization: auth } };
@@ -46,7 +64,6 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
       const response = await fetch(url, options);
       if (!response.ok) {
         const errorMessage = await response.text();
-
         return;
       }
       router.push('/projects');
@@ -54,6 +71,12 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
       console.error(error);
     }
   };
+
+  // ซ่อนปุ่ม delete project เมื่อเป็น member
+  if (isMember) {
+    return null;
+  }
+  
   return (
     <AlertDialog>
       <AlertDialogTrigger>
@@ -185,7 +208,7 @@ const ProjectFinanceItem: React.FC<ProjectFinanceItemProps> = ({
   );
 };
 
-const MenuBar = ({ project }: { project: Project }) => {
+const MenuBar = ({ project, isMember }: { project: Project, isMember?: boolean }) => {
   return (
     <div className="w-[360px] p-[20px] bg-white rounded-md border border-[#6b5c56] flex-col justify-center items-start gap-2 inline-flex">
       <div aria-label="owner" className="h-10 justify-start items-center inline-flex">
@@ -193,14 +216,14 @@ const MenuBar = ({ project }: { project: Project }) => {
           <CrownIcon className="w-[24px] h-[24px] text-brown" />
           <p className="text-[#6b5c56] text-xs font-medium leading-tight">Owner : </p>
         </div>
-        {project && <AssignedProjectOwner project={project} />}
+        {project && <AssignedProjectOwner project={project} isMember={isMember} />}
       </div>
       <div aria-label="member" className="h-10 justify-start items-center inline-flex">
         <div className="w-24 justify-start items-center gap-2 flex">
           <Users className="w-[24px] h-[24px] text-brown" />
           <p className="text-brown text-xs font-medium font-BaiJamjuree">Member : </p>
         </div>
-        {project && <AssignedProjectMember project={project} />}
+        {project && <AssignedProjectMember project={project} isMember={isMember} />}
       </div>
 
       <div aria-label="tag" className="h-fit justify-start items-start inline-flex">
@@ -211,7 +234,7 @@ const MenuBar = ({ project }: { project: Project }) => {
           {/* Description */}
           <p className="text-brown text-xs font-medium font-BaiJamjuree">Tag : </p>
         </div>
-        {project && <ButtonAddTags project_id={project.id} />}
+        {project && <ButtonAddTags project_id={project.id} isMember={isMember} />}
       </div>
 
       <TooltipProvider>
@@ -257,7 +280,7 @@ const MenuBar = ({ project }: { project: Project }) => {
           {/* Describtion */}
           <p className="text-[#6b5c56] text-xs font-medium  leading-tight">Date : </p>
         </div>
-        {project && <DatePickerWithRangeProject project={project} />}
+        {project && <DatePickerWithRangeProject project={project} isMember={isMember} />}
       </div>
     </div>
   );
@@ -267,6 +290,40 @@ export const ProjectDetail = ({ project }: { project: Project }) => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const Router = useRouter();
+  const [isMember, setIsMember] = useState(false);
+
+  // ตรวจสอบว่า auth token มีค่าและไม่ใช่ empty string
+  useEffect(() => {
+    if (!auth || auth === '') {
+      console.error('No auth token found');
+      return;
+    }
+
+    try {
+      const userId = jwtDecode<{ id: string }>(auth);
+      
+      const fetchUserRole = async () => {
+        try {
+          const response = await fetch(`${BASE_URL}/v2/users/userrole/${userId.id}`, {
+            headers: { Authorization: auth },
+            cache: 'no-store',
+          });
+          if (!response.ok) throw new Error(`Failed to fetch user role: ${response.status}`);
+
+          const projects: ProjectData[] = await response.json();
+          const Project = projects.find((p) => p.id === project.id);
+
+          setIsMember(Project?.role === 'Member');
+        } catch (error) {
+          console.error('Error fetching user role:', error);
+        }
+      };
+
+      fetchUserRole();
+    } catch (error) {
+      console.error('Error decoding JWT:', error);
+    }
+  }, [auth, project.id]);
 
   const handleClick = () => {
     const url = `/projects/${project.id}`;
@@ -277,7 +334,7 @@ export const ProjectDetail = ({ project }: { project: Project }) => {
     const url = `/dashboard/project/${project.id}`;
     Router.push(url);
   };
-
+  
   return (
     <div className="w-full flex flex-col items-start justify-center gap-4 px-20">
       <div className="flex justify-between items-center w-full">
@@ -306,8 +363,8 @@ export const ProjectDetail = ({ project }: { project: Project }) => {
           </div>
         </div>
         <div className="flex-col justify-between items-end gap-4 inline-flex">
-          <MenuBar project={project} />
-          <DeleteProject project_id={project.id} />
+          <MenuBar project={project} isMember={isMember} />
+          <DeleteProject project_id={project.id} isMember={isMember} />
         </div>
       </div>
     </div>
