@@ -29,9 +29,9 @@ interface AssignedProjectMemberProps {
   isMember?: boolean;
 }
 
-export const AssignedProjectMember: React.FC<AssignedProjectMemberProps> = ({ 
-  project, 
-  isMember = false 
+export const AssignedProjectMember: React.FC<AssignedProjectMemberProps> = ({
+  project,
+  isMember = false,
 }) => {
   const [open, setOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<UsersInterfaces[]>([]);
@@ -194,14 +194,10 @@ export const AssignedProjectMember: React.FC<AssignedProjectMemberProps> = ({
         <div className="flex items-center gap-2">
           <Popover open={open} onOpenChange={handlePopoverOpenChange}>
             <PopoverTrigger asChild className="border-brown text-brown">
-              <Button 
-                variant="outline" 
-                className={cn(
-                  "h-8 px-2 hover:bg-gray-50",
-                  isMember && "cursor-default"
-                )}
-                onClick={handleButtonClick}
-              >
+              <Button
+                variant="outline"
+                className={cn('h-8 px-2 hover:bg-gray-50', isMember && 'cursor-default')}
+                onClick={handleButtonClick}>
                 {selectedUser.length > 0 ? (
                   <div className="flex space-x-2 items-center">
                     {selectedUser.slice(0, MAX_VISIBLE_MEMBERS).map((user) => (
@@ -264,4 +260,4 @@ export const AssignedProjectMember: React.FC<AssignedProjectMemberProps> = ({
       </div>
     </TooltipProvider>
   );
-}
+};

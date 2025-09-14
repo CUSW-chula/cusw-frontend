@@ -302,7 +302,10 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
 }
 
 // Exporting for Project Page.
-function DatePickerWithRangeProject({ project , isMember }: { project: DateInterface, isMember?: boolean }) {
+function DatePickerWithRangeProject({
+  project,
+  isMember,
+}: { project: DateInterface; isMember?: boolean }) {
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
@@ -456,7 +459,7 @@ function DatePickerWithRangeProject({ project , isMember }: { project: DateInter
             variant={'outline'}
             className={cn(
               `font-BaiJamjuree text-sm text-brown hover:bg-gray-50 ${!date && 'text-muted-foreground'}`,
-              isMember && "cursor-default"
+              isMember && 'cursor-default',
             )}
             onClick={handleButtonClick}>
             {date?.from ? (

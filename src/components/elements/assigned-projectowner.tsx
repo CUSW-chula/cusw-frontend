@@ -30,9 +30,9 @@ interface AssignedProjectOwnerProps {
   isMember?: boolean;
 }
 
-export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({ 
-  project, 
-  isMember = false 
+export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({
+  project,
+  isMember = false,
 }) => {
   const [open, setOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<UsersInterfaces[]>([]);
@@ -131,7 +131,7 @@ export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({
 
   const handleSelectUser = async (userName: string) => {
     if (!isMounted || !project || isMember) return; // เพิ่มการตรวจสอบ isMember
-    
+
     const user = usersList.find((u) => u.name === userName);
     if (!user) return;
 
@@ -192,15 +192,14 @@ export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({
         <div className="flex items-center gap-2">
           <Popover open={open} onOpenChange={handlePopoverOpenChange}>
             <PopoverTrigger asChild>
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 className={cn(
-                  "border-brown text-brown h-8 px-2 hover:bg-gray-50",
-                  isMember && "cursor-default"
+                  'border-brown text-brown h-8 px-2 hover:bg-gray-50',
+                  isMember && 'cursor-default',
                 )}
-                onClick={handleButtonClick}
-              >
+                onClick={handleButtonClick}>
                 {selectedUser.length > 0 ? (
                   <div className="flex items-center space-x-2">
                     {(() => {
@@ -280,4 +279,4 @@ export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({
       </div>
     </TooltipProvider>
   );
-}
+};

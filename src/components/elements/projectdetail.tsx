@@ -25,7 +25,7 @@ import { toast } from '@/hooks/use-toast';
 import { AssignedProjectMember } from './assigned-projectmember';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@radix-ui/react-tooltip';
 import { jwtDecode } from 'jwt-decode';
-import type { ProjectRole, TaskRole} from '@/app/types/types';
+import type { ProjectRole, TaskRole } from '@/app/types/types';
 import { useEffect, useState } from 'react';
 
 interface UsersProps {
@@ -55,7 +55,7 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id, isMember = false
   const router = useRouter();
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
-  
+
   const handleDeleteTask = async () => {
     const url = `${BASE_URL}/v2/projects/${project_id}`;
     const options = { method: 'DELETE', headers: { Authorization: auth } };
@@ -76,7 +76,7 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id, isMember = false
   if (isMember) {
     return null;
   }
-  
+
   return (
     <AlertDialog>
       <AlertDialogTrigger>
@@ -208,7 +208,7 @@ const ProjectFinanceItem: React.FC<ProjectFinanceItemProps> = ({
   );
 };
 
-const MenuBar = ({ project, isMember }: { project: Project, isMember?: boolean }) => {
+const MenuBar = ({ project, isMember }: { project: Project; isMember?: boolean }) => {
   return (
     <div className="w-[360px] p-[20px] bg-white rounded-md border border-[#6b5c56] flex-col justify-center items-start gap-2 inline-flex">
       <div aria-label="owner" className="h-10 justify-start items-center inline-flex">
@@ -301,7 +301,7 @@ export const ProjectDetail = ({ project }: { project: Project }) => {
 
     try {
       const userId = jwtDecode<{ id: string }>(auth);
-      
+
       const fetchUserRole = async () => {
         try {
           const response = await fetch(`${BASE_URL}/v2/users/userrole/${userId.id}`, {
@@ -334,7 +334,7 @@ export const ProjectDetail = ({ project }: { project: Project }) => {
     const url = `/dashboard/project/${project.id}`;
     Router.push(url);
   };
-  
+
   return (
     <div className="w-full flex flex-col items-start justify-center gap-4 px-20">
       <div className="flex justify-between items-center w-full">
