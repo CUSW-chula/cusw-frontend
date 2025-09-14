@@ -55,7 +55,7 @@ export default function CookieConsentBanner() {
             เราใช้คุกกี้เพื่อเพิ่มประสิทธิภาพและประสบการณ์ที่ดีในการใช้เว็บไซต์
             คุณสามารถเลือกตั้งค่าความยินยอมการใช้คุกกี้ได้โดยคลิก "การตั้งค่าคุกกี้" หรือศึกษา{' '}
             <a
-              href="https://doem.org.br/ba/modelo/arquivos/pdfviewer/0b517cdc5f9850e3782051c82e7f3234?name=lorem-ipsum.pdf"
+              href="/files/cookie.pdf"
               target="_blank"
               rel="noopener noreferrer"
               className="text-greenLight hover:text-green transition-colors duration-200 underline cursor-pointer">
