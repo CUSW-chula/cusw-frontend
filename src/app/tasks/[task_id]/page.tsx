@@ -28,7 +28,7 @@ interface ProjectRole {
   id: string;
   title: string;
   role: 'Member' | 'ProjectOwner';
-  tasks: unknown[];
+   tasks?: { taskId: string; taskRole?: 'owner' | 'assignee' }[];
   tags: unknown[];
   startDate: string;
   endDate: string;
@@ -89,20 +89,22 @@ export default async function TasksManageMentPage({
     console.error('Failed to fetch user roles, redirecting to projects');
     redirect('/projects');
   }
-
   const userProjects: ProjectRole[] = await userRoleResponse.json();
-    const roleInProject: ProjectRole['role'] | undefined = userProjects.find(
-    (p) => p.id === task.projectId,
-  )?.role;
+  const project = userProjects.find((p) => p.id === task.projectId);
+  const roleInProject = project?.role;
+  const roleInTask = project?.tasks?.find((t) => t.taskId === task.id)?.taskRole;
+
+  // --- ตรวจสอบสิทธิ์ ---
+  const isTaskOwner = roleInTask === 'owner';
   
   // ตรวจสอบสิทธิ์การเข้าถึง task
   // 1. ต้องเป็น admin หรือ head ของระบบ หรือ
   // 2. ต้องเป็น Member หรือ ProjectOwner ของโปรเจคที่ task นี้อยู่
   const isSystemAdmin = currentUser.admin || currentUser.head;
-  const canManageTags = isSystemAdmin || roleInProject === 'ProjectOwner';
-  const canManageMoney = isSystemAdmin || roleInProject === 'ProjectOwner';
-  const canManageDate = isSystemAdmin || roleInProject === 'ProjectOwner';
-  const canAssignTasks = isSystemAdmin || roleInProject === 'ProjectOwner' ;
+  const canManageTags = isSystemAdmin || roleInProject === 'ProjectOwner' || isTaskOwner;
+  const canManageMoney = isSystemAdmin || roleInProject === 'ProjectOwner' || isTaskOwner;
+  const canManageDate = isSystemAdmin || roleInProject === 'ProjectOwner' || isTaskOwner;
+  const canAssignTasks = isSystemAdmin || roleInProject === 'ProjectOwner' || isTaskOwner;
   const hasProjectAccess = userProjects.some(
     (project) =>
       project.id === task.projectId &&
