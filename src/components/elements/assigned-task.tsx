@@ -21,6 +21,8 @@ import { getCookie } from 'cookies-next';
 import type { TaskProps } from '@/app/types/types';
 import { toast } from '@/hooks/use-toast';
 import { useToast } from '@/hooks/use-toast';
+import { useEffect, useState } from 'react';
+import { getUserRoleOnProjectTask } from '@/service/userService';
 
 interface UsersInterfaces {
   id: string;
@@ -36,7 +38,6 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
   const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
   const [owner, setOwner] = React.useState<UsersInterfaces[]>([]);
   const MAX_VISIBLE_MEMBERS = 3;
- 
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const pareJsonValue = React.useCallback((values: any) => {
@@ -77,7 +78,6 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
           // throw new Error("Failed to assign tag");
         }
         const data = await response.json();
-       
       } catch (error) {
         console.error('Error fetching Owner:', error);
       }
@@ -162,13 +162,37 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
   };
 
   const { toast } = useToast();
+  const [hasEditPermission, setHasEditPermission] = useState(false);
+  const checkPermissions = async () => {
+    try {
+      const { role, isAdmin } = await getUserRoleOnProjectTask({
+        projectId: task.projectId,
+        taskId: task.id,
+      });
 
+      if (!role) {
+        setHasEditPermission(false);
+        return;
+      }
+
+      setHasEditPermission(isAdmin || ['ProjectOwner', 'owner', 'assignee'].includes(role));
+    } catch (error) {
+      console.error('Failed to check permissions:', error);
+      setHasEditPermission(false);
+    }
+  };
+  useEffect(() => {
+    checkPermissions();
+  }, [task]);
   return (
     <TooltipProvider>
       <div className="flex flex-row gap-1 flex-wrap">
         <div className="flex items-center space-x-4">
           <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild className=" border-brown text-brown">
+            <PopoverTrigger
+              asChild
+              className=" border-brown text-brown"
+              disabled={!hasEditPermission}>
               <Button variant="outline" className="h-8 px-2">
                 {taskMembers.length > 0 ? (
                   <div className="flex space-x-2 items-center ">
@@ -201,21 +225,19 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
                 <CommandList>
                   <CommandEmpty>No results found.</CommandEmpty>
                   <CommandGroup>
-                    {usersList
-                      
-                      .map((user) => (
-                        <CommandItem key={user.id} value={user.name} onSelect={handleSelectUser}>
-                          <Circle
-                            className={cn(
-                              'mr-2 h-4 w-4 fill-greenLight text-greenLight ',
-                              taskMembers?.length > 0 && taskMembers.some((u) => u.id === user.id)
-                                ? 'opacity-100'
-                                : 'opacity-40',
-                            )}
-                          />
-                          <span>{user.name}</span>
-                        </CommandItem>
-                      ))}
+                    {usersList.map((user) => (
+                      <CommandItem key={user.id} value={user.name} onSelect={handleSelectUser}>
+                        <Circle
+                          className={cn(
+                            'mr-2 h-4 w-4 fill-greenLight text-greenLight ',
+                            taskMembers?.length > 0 && taskMembers.some((u) => u.id === user.id)
+                              ? 'opacity-100'
+                              : 'opacity-40',
+                          )}
+                        />
+                        <span>{user.name}</span>
+                      </CommandItem>
+                    ))}
                   </CommandGroup>
                 </CommandList>
               </Command>

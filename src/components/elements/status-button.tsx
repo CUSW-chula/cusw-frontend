@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { useCallback, useEffect, useState } from 'react';
+import { use, useCallback, useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { selectedStatusAtom } from '@/atom';
 import BASE_URL, {
@@ -19,6 +19,7 @@ import { statusSections } from '@/lib/taskUtils';
 import type { TaskProps } from '@/app/types/types';
 import { useToast } from '@/hooks/use-toast';
 import { jwtDecode } from 'jwt-decode';
+import { getUserRoleOnProjectTask } from '@/service/userService';
 
 const statuses: Status[] = statusSections;
 
@@ -156,14 +157,35 @@ export function StatusButton({ task }: { task: TaskProps }) {
   };
 
   const { toast } = useToast();
+  const [hasEditPermission, setHasEditPermission] = useState(false);
+  const checkPermissions = async () => {
+    try {
+      const { role, isAdmin } = await getUserRoleOnProjectTask({
+        projectId: task.projectId,
+        taskId: task.id,
+      });
 
+      if (!role) {
+        setHasEditPermission(false);
+        return;
+      }
+
+      setHasEditPermission(isAdmin || ['ProjectOwner', 'owner', 'assignee'].includes(role));
+    } catch (error) {
+      console.error('Failed to check permissions:', error);
+      setHasEditPermission(false);
+    }
+  };
+  useEffect(() => {
+    checkPermissions();
+  }, [task]);
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild className=" border-brown text-brown">
         <Button
           variant="outline"
           size="sm"
-          disabled={!isBypassAble && selectedStatus.status === 'Unassigned'}
+          disabled={!hasEditPermission || (!isBypassAble && selectedStatus.status === 'Unassigned')}
           className="h-8 px-2 justify-start font-BaiJamjuree text-sm">
           {selectedStatus ? (
             <>

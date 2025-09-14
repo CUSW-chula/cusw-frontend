@@ -7,6 +7,8 @@ import BASE_URL, { type User } from '@/lib/shared';
 import { getCookie } from 'cookies-next/client';
 import { toast } from '@/hooks/use-toast';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
+import { useEffect, useState } from 'react';
+import { getUserRoleOnProjectTask } from '@/service/userService';
 
 export function ProjectOwner({ task }: { task: TaskProps }) {
   const [owner, setOwner] = React.useState<User[]>([]);
@@ -42,13 +44,37 @@ export function ProjectOwner({ task }: { task: TaskProps }) {
     };
     fetchOwner();
   }, [task.projectId, auth]);
+  const [hasEditPermission, setHasEditPermission] = useState(false);
+  const checkPermissions = async () => {
+    try {
+      const { role, isAdmin } = await getUserRoleOnProjectTask({
+        projectId: task.projectId,
+        taskId: task.id,
+      });
 
+      if (!role) {
+        setHasEditPermission(false);
+        return;
+      }
+
+      setHasEditPermission(isAdmin || ['ProjectOwner', 'owner', 'assignee'].includes(role));
+    } catch (error) {
+      console.error('Failed to check permissions:', error);
+      setHasEditPermission(false);
+    }
+  };
+  useEffect(() => {
+    checkPermissions();
+  }, [task]);
   return (
     <TooltipProvider>
       <div className="flex flex-row gap-1 flex-wrap">
         <div className="flex items-center space-x-4">
           <div className="flex space-x-2">
-            <Button variant={'outline'} className="flex gap-x-2 border-brown text-brown h-8 px-2">
+            <Button
+              variant={'outline'}
+              className="flex gap-x-2 border-brown text-brown h-8 px-2"
+              disabled={!hasEditPermission}>
               {owner.length === 1 ? (
                 <Tooltip key={owner[0].id}>
                   <TooltipTrigger>

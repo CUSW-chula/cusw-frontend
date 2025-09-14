@@ -18,6 +18,8 @@ import { getCookie } from 'cookies-next';
 import { Badge } from '@/components/ui/badge';
 import type { TaskProps, TagProps } from '@/app/types/types';
 import { useToast } from '@/hooks/use-toast';
+import { useEffect, useState } from 'react';
+import { getUserRoleOnProjectTask } from '@/service/userService';
 
 // Mock data
 export function ButtonAddTags({ task }: { task: TaskProps }) {
@@ -150,7 +152,28 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
     }
   };
   const { toast } = useToast();
+  const [hasEditPermission, setHasEditPermission] = useState(false);
+  const checkPermissions = async () => {
+    try {
+      const { role, isAdmin } = await getUserRoleOnProjectTask({
+        projectId: task.projectId,
+        taskId: task.id,
+      });
 
+      if (!role) {
+        setHasEditPermission(false);
+        return;
+      }
+
+      setHasEditPermission(isAdmin || ['ProjectOwner', 'owner', 'assignee'].includes(role));
+    } catch (error) {
+      console.error('Failed to check permissions:', error);
+      setHasEditPermission(false);
+    }
+  };
+  useEffect(() => {
+    checkPermissions();
+  }, [task]);
   return (
     <>
       <div className="flex flex-row max-w-[212px] flex-wrap items-center justify-start overflow-hidden gap-x-1.5">
@@ -179,38 +202,39 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
               </Badge>
             ))
           : undefined}
-
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild className=" border-brown text-brown ">
-            <Button variant="outline" className="h-8 px-2">
-              <p className="font-BaiJamjuree text-sm">Add tag</p>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="p-0" side="right" align="start">
-            <Command>
-              <CommandInput placeholder="Add tag ..." />
-              <CommandList>
-                <CommandEmpty>No results found.</CommandEmpty>
-                <CommandGroup>
-                  {statuses.map((status) => (
-                    <CommandItem key={status.id} value={status.name} onSelect={handleSelectTag}>
-                      <Circle
-                        className={cn(
-                          'mr-2 h-4 w-4 fill-greenLight text-greenLight',
-                          Array.isArray(selectedTags) &&
-                            selectedTags.some((tag) => tag.id === status.id)
-                            ? 'opacity-100'
-                            : 'opacity-40',
-                        )}
-                      />
-                      <span>{status.name}</span>
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
+        {hasEditPermission && (
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild className=" border-brown text-brown ">
+              <Button variant="outline" className="h-8 px-2">
+                <p className="font-BaiJamjuree text-sm">Add tag</p>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-0" side="right" align="start">
+              <Command>
+                <CommandInput placeholder="Add tag ..." />
+                <CommandList>
+                  <CommandEmpty>No results found.</CommandEmpty>
+                  <CommandGroup>
+                    {statuses.map((status) => (
+                      <CommandItem key={status.id} value={status.name} onSelect={handleSelectTag}>
+                        <Circle
+                          className={cn(
+                            'mr-2 h-4 w-4 fill-greenLight text-greenLight',
+                            Array.isArray(selectedTags) &&
+                              selectedTags.some((tag) => tag.id === status.id)
+                              ? 'opacity-100'
+                              : 'opacity-40',
+                          )}
+                        />
+                        <span>{status.name}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        )}
       </div>
     </>
   );

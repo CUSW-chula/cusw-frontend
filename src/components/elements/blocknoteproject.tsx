@@ -56,7 +56,7 @@ function Document({ project_id }: ProjectOverviewProps) {
           headers: { 'Content-Type': 'application/json', Authorization: auth },
           body: JSON.stringify({ description: '' }), // ส่งค่าว่างเพื่อทดสอบสิทธิ์
         });
-        
+
         // ถ้าได้ 403 แสดงว่าไม่มีสิทธิ์แก้ไข
         if (testEditResponse.status === 403) {
           setCanEdit(false);

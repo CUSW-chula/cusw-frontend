@@ -23,12 +23,13 @@ import { useSetAtom } from 'jotai';
 import { moneyAtom } from '@/atom';
 import type { TaskProps } from '@/app/types/types';
 import { useToast } from '@/hooks/use-toast';
+import { getUserRoleOnProjectTask } from '@/service/userService';
 interface Budget {
   type: string;
   money: number;
 }
 
-const Money = ({ task }: { task: TaskProps | null }) => {
+const Money = ({ task }: { task: TaskProps }) => {
   enum TypeMoney {
     null = '',
     budget = 'budget',
@@ -276,20 +277,43 @@ const Money = ({ task }: { task: TaskProps | null }) => {
   }
 
   function onOpenChange(open: boolean): void {
+    if (!hasEditPermission) return;
     if (!open) setBudgetList(prevBudgetList.current);
     setOpenDialog(open);
   }
+  const [hasEditPermission, setHasEditPermission] = useState(false);
+  const checkPermissions = async () => {
+    try {
+      const { role, isAdmin } = await getUserRoleOnProjectTask({
+        projectId: task.projectId,
+        taskId: task.id,
+      });
+
+      if (!role) {
+        setHasEditPermission(false);
+        return;
+      }
+
+      setHasEditPermission(isAdmin || ['ProjectOwner', 'owner', 'assignee'].includes(role));
+    } catch (error) {
+      console.error('Failed to check permissions:', error);
+      setHasEditPermission(false);
+    }
+  };
+  useEffect(() => {
+    checkPermissions();
+  }, [task]);
 
   return (
     <Dialog open={openDialog} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <div
-          className={`h-8 px-2 text-sm bg-white rounded-md border justify-center items-center flex font-medium font-BaiJamjuree hover:cursor-pointer border-brown text-brown ${getMoneyColor(budgetList.type)}`}>
+        <Button
+          className={`h-8 px-2 text-sm bg-white rounded-md border justify-center items-center flex font-medium font-BaiJamjuree hover:cursor-pointer border-brown text-brown hover:bg-white ${getMoneyColor(budgetList.type)}`}>
           {budgetList.type === TypeMoney.null || Number.isNaN(budgetList.money)
             ? 'Add money'
             : budgetList.money.toLocaleString()}
           {/* Allow up to three decimal */}
-        </div>
+        </Button>
       </DialogTrigger>
       <DialogContent className="w-[360px] px-3 pt-1 pb-3 bg-white rounded-md border border-brown gap-0">
         <DialogHeader>

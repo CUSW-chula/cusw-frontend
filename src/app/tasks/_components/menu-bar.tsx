@@ -88,15 +88,7 @@ const MenuBar = ({ task }: { task: TaskProps }) => {
             Date :{' '}
           </div>
         </div>
-        <DatePickerWithRange
-          task={{
-            id: task.id,
-            startDate: task.startDate,
-            endDate: task.endDate,
-            projectId: task.projectId,
-            parentTaskId: task.parentTaskId,
-          }}
-        />
+        <DatePickerWithRange task={task} />
       </div>
     </div>
   );

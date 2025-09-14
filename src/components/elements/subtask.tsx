@@ -103,17 +103,18 @@ const Subtask = ({ task }: { task: TaskProps }) => {
         </div>
         <div className="flex gap-2">
           <Sort showTasks={subtasks} setShowTasks={setSubtasks} />
-          <Button
-            variant="outline"
-            className="border-brown font-BaiJamjuree text-sm rounded-md gap-1"
-            disabled={!hasEditPermission}
-            onClick={() => {
-              setIsSubtaskSectionVisible(!isSubtaskSectionVisible);
-              // handleCreateSubtask();
-            }}>
-            <Plus className="text-brown" />
-            <span className="text-brown text-sm font-BaiJamjuree">New subtask</span>
-          </Button>
+          {hasEditPermission && (
+            <Button
+              variant="outline"
+              className="border-brown font-BaiJamjuree text-sm rounded-md gap-1"
+              onClick={() => {
+                setIsSubtaskSectionVisible(!isSubtaskSectionVisible);
+                // handleCreateSubtask();
+              }}>
+              <Plus className="text-brown" />
+              <span className="text-brown text-sm font-BaiJamjuree">New subtask</span>
+            </Button>
+          )}
         </div>
       </div>
 
