@@ -29,7 +29,7 @@ interface Budget {
   money: number;
 }
 
-const Money = ({ task }: { task: TaskProps }) => {
+const Money = ({ task, canManageMoney }: { task: TaskProps | null, canManageMoney: boolean }) => {
   enum TypeMoney {
     null = '',
     budget = 'budget',
@@ -305,16 +305,32 @@ const Money = ({ task }: { task: TaskProps }) => {
   }, [task]);
 
   return (
-    <Dialog open={openDialog} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button
-          className={`h-8 px-2 text-sm bg-white rounded-md border justify-center items-center flex font-medium font-BaiJamjuree hover:cursor-pointer border-brown text-brown hover:bg-white ${getMoneyColor(budgetList.type)}`}>
-          {budgetList.type === TypeMoney.null || Number.isNaN(budgetList.money)
-            ? 'Add money'
-            : budgetList.money.toLocaleString()}
-          {/* Allow up to three decimal */}
-        </Button>
-      </DialogTrigger>
+   {canManageMoney ? (
+    // --- Owner/Manager: สามารถกดเปิด Dialog ได้ ---
+    <DialogTrigger asChild>
+      <div
+        className={`h-8 px-2 text-sm bg-white rounded-md border justify-center items-center flex font-medium font-BaiJamjuree hover:cursor-pointer border-brown text-brown ${getMoneyColor(
+          budgetList.type,
+        )}`}>
+        {budgetList.type === TypeMoney.null || Number.isNaN(budgetList.money)
+          ? 'Add money'
+          : budgetList.money.toLocaleString()}
+      </div>
+    </DialogTrigger>
+  ) : (
+      // --- Member: เห็นจำนวนเงินเฉพาะเมื่อมีงบแล้วเท่านั้น ---
+      !(budgetList.type === TypeMoney.null || Number.isNaN(budgetList.money)) && (
+        <div
+          className={`h-8 px-2 text-sm bg-white rounded-md border justify-center items-center flex font-medium font-BaiJamjuree border-brown text-brown ${getMoneyColor(
+            budgetList.type,
+          )}`}
+        >
+          {budgetList.money.toLocaleString()}
+        </div>
+      )
+
+    
+  )}
       <DialogContent className="w-[360px] px-3 pt-1 pb-3 bg-white rounded-md border border-brown gap-0">
         <DialogHeader>
           <DialogTitle className="hidden" />
