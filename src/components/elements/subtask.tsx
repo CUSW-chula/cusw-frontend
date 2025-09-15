@@ -44,13 +44,9 @@ const Subtask = ({ task }: { task: TaskProps }) => {
         projectId: task.projectId,
         taskId: task.id,
       });
+      // console.log('User role:', role, 'Is Admin:', isAdmin);
 
-      if (!role) {
-        setHasEditPermission(false);
-        return;
-      }
-
-      setHasEditPermission(isAdmin || ['ProjectOwner', 'owner', 'assignee'].includes(role));
+      setHasEditPermission(isAdmin || ['ProjectOwner', 'owner', 'assignee'].includes(role || ''));
     } catch (error) {
       console.error('Failed to check permissions:', error);
       setHasEditPermission(false);

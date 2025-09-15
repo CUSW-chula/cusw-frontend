@@ -72,7 +72,7 @@ export async function getUserRoleOnProjectTask({
 
     if (!response.ok) throw new Error(`Failed to fetch user role: ${response.status}`);
 
-    const data: { projects: ProjectData[], isAdmin: boolean } = await response.json();
+    const data: { projects: ProjectData[]; isAdmin: boolean } = await response.json();
     const project = data.projects.find((p) => p.id === projectId);
 
     if (!project) return { userId: decoded.id, role: undefined, isAdmin: data.isAdmin };
