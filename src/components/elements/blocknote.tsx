@@ -19,7 +19,7 @@ import { getCookie } from 'cookies-next';
 import { jwtDecode, type JwtPayload } from 'jwt-decode';
 import { toast } from '@/hooks/use-toast';
 import { getUserRoleOnProjectTask } from '@/service/userService';
-import { TaskProps } from '@/app/types/types';
+import type { TaskProps } from '@/app/types/types';
 
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';

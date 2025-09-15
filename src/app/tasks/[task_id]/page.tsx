@@ -77,37 +77,37 @@ export default async function TasksManageMentPage({
   });
 
   // ดึงข้อมูล role จาก userRoleData
-  const roleInProject =
-    userRoleData.role === 'ProjectOwner' || userRoleData.role === 'Member'
-      ? userRoleData.role
-      : undefined;
-  const roleInTask =
-    userRoleData.role === 'assignee' || userRoleData.role === 'owner'
-      ? userRoleData.role
-      : undefined;
+  const roleInProject = userRoleData.projectRole;
+  const roleInTask = userRoleData.taskRole;
 
   // --- ตรวจสอบสิทธิ์ ---
   const isTaskOwner = roleInTask === 'owner';
 
   // ตรวจสอบสิทธิ์การเข้าถึง task
   // 1. ต้องเป็น admin หรือ head ของระบบ หรือ
-  // 2. ต้องมี role ในโปรเจคนี้ (Member หรือ ProjectOwner)
+  // 2. ต้องมี role ในโปรเจคนี้ (Member หรือ ProjectOwner) หรือ
+  // 3. ต้องถูก assign ใน task นี้ (assignee หรือ owner)
   const isSystemAdmin = currentUser.admin || currentUser.head;
 
   const hasProjectAccess =
-    userRoleData.role && (userRoleData.role === 'Member' || userRoleData.role === 'ProjectOwner');
+    roleInProject && (roleInProject === 'Member' || roleInProject === 'ProjectOwner');
+
+  const hasTaskAccess =
+    roleInTask && (roleInTask === 'assignee' || roleInTask === 'owner');
 
   console.log('Access check:', {
     userId: currentUser.id,
     taskId: task_id,
     projectId: task.projectId,
     isSystemAdmin,
-    userRole: userRoleData.role,
+    projectRole: roleInProject,
+    taskRole: roleInTask,
     hasProjectAccess,
+    hasTaskAccess,
   });
 
   // ถ้าไม่มีสิทธิ์เข้าถึง ให้ redirect ไป project list
-  if (!isSystemAdmin && !hasProjectAccess) {
+  if (!isSystemAdmin && !hasProjectAccess && !hasTaskAccess) {
     console.warn(
       `User ${currentUser.id} attempted to access task ${task_id} but doesn't have permission`,
     );

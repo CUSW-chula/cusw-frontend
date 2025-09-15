@@ -15,7 +15,7 @@ import { transform } from 'next/dist/build/swc/generated-native';
 import { toast } from '@/hooks/use-toast';
 import { getUserRoleOnProjectTask } from '@/service/userService';
 import { useEffect, useState } from 'react';
-import { TaskProps } from '@/app/types/types';
+import type { TaskProps } from '@/app/types/types';
 
 // FUNCTION USING INSTRUCTION
 //================================================================

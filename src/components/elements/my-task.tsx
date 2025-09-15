@@ -40,48 +40,76 @@ export const MyTaskManager = () => {
   }, [expandedIds]);
 
   useEffect(() => {
-    const decoded = jwtDecode<{ id: string }>(auth);
-    const userId = decoded.id;
+    if (!auth) {
+      console.error('No auth token found');
+      return;
+    }
 
-    const fetchUserProjects = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/v2/users/userrole/${userId}`, {
-          headers: { Authorization: auth },
-        });
-        if (!response.ok) {
-          console.error('Failed to fetch user projects');
-          return;
+    try {
+      const decoded = jwtDecode<{ id: string }>(auth);
+      const userId = decoded.id;
+
+      const fetchUserProjects = async () => {
+        try {
+          const response = await fetch(`${BASE_URL}/v2/users/userrole/${userId}`, {
+            headers: { Authorization: auth },
+          });
+          if (!response.ok) {
+            console.error('Failed to fetch user projects');
+            return;
+          }
+          const data = await response.json();
+          // Ensure data.projects exists and is an array
+          if (data?.projects && Array.isArray(data.projects)) {
+            setUserProjects(data.projects);
+          } else {
+            console.error('Invalid user projects data structure:', data);
+            setUserProjects([]);
+          }
+        } catch (error) {
+          console.error('Error fetching user projects:', error);
+          setUserProjects([]);
         }
-        const data = await response.json();
-        setUserProjects(data);
-      } catch (error) {
-        console.error('Error fetching user projects:', error);
-      }
-    };
+      };
 
-    const fetchTask = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/v2/tasks/user/${userId}`, {
-          headers: { Authorization: auth },
-        });
-        if (!response.ok) {
-          const errorMessage = await response.text();
-          return;
+      const fetchTask = async () => {
+        try {
+          const response = await fetch(`${BASE_URL}/v2/tasks/user/${userId}`, {
+            headers: { Authorization: auth },
+          });
+          if (!response.ok) {
+            const errorMessage = await response.text();
+            console.error('Failed to fetch tasks:', errorMessage);
+            return;
+          }
+          const data = await response.json();
+          if (Array.isArray(data)) {
+            const parsedData = parseJsonValues(data);
+            const testja = parsedData.map((task) => ({
+              ...task,
+              subtasks: undefined,
+            }));
+            setShowTasks(testja);
+          } else {
+            console.error('Invalid tasks data structure:', data);
+            setShowTasks([]);
+          }
+        } catch (error) {
+          console.error('Error fetching tasks:', error);
+          setShowTasks([]);
         }
-        const data = await response.json();
-        const parsedData = parseJsonValues(data);
-        const testja = parsedData.map((task) => ({
-          ...task,
-          subtasks: undefined,
-        }));
-        setShowTasks(testja);
-      } catch (error) {
-        console.error('Error fetching tasks:', error);
-      }
-    };
+      };
 
-    fetchUserProjects();
-    fetchTask();
+      fetchUserProjects();
+      fetchTask();
+    } catch (error) {
+      console.error('Error decoding JWT token:', error);
+      toast({
+        title: 'Authentication Error',
+        description: 'Please log in again.',
+        variant: 'destructive',
+      });
+    }
   }, []);
 
   const statusToInt = (status: string): number => {

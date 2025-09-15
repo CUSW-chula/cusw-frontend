@@ -5,7 +5,7 @@ import BASE_URL, { BASE_SOCKET } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import Blocknotes from './blocknote';
 import { toast } from '@/hooks/use-toast';
-import { TaskProps } from '@/app/types/types';
+import type { TaskProps } from '@/app/types/types';
 import { getUserRoleOnProjectTask } from '@/service/userService';
 interface Files {
   id: string;
