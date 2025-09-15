@@ -19,7 +19,9 @@ import {
 import { toast } from '@/hooks/use-toast';
 import BASE_URL from '@/lib/shared';
 import { fetchData } from '@/service/fetchService';
+import { getUserRoleOnProjectTask } from '@/service/userService';
 import { Ellipsis } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export const TaskActionsMenu = ({ task }: { task: TaskProps }) => {
   const handleDuplicateTask = async () => {
@@ -78,7 +80,29 @@ export const TaskActionsMenu = ({ task }: { task: TaskProps }) => {
       </AlertDialog>
     );
   };
+   const [hasEditPermission, setHasEditPermission] = useState(false);
+  const checkPermissions = async () => {
+    try {
+      const { role, isAdmin } = await getUserRoleOnProjectTask({
+        projectId: task.projectId,
+        taskId: task.id,
+      });
 
+      if (!role) {
+        setHasEditPermission(false);
+        return;
+      }
+
+      setHasEditPermission(isAdmin || ['ProjectOwner', 'owner'].includes(role));
+    } catch (error) {
+      console.error('Failed to check permissions:', error);
+      setHasEditPermission(false);
+    }
+  };
+  
+  useEffect(() => {
+    checkPermissions();
+  }, [ task.projectId, task.id]);
   return (
     <div className="relative">
       <DropdownMenu>
@@ -93,7 +117,7 @@ export const TaskActionsMenu = ({ task }: { task: TaskProps }) => {
             onClick={handleDuplicateTask}>
             Duplicate Task
           </DropdownMenuItem>
-          <DeleteTask />
+          {hasEditPermission && <DeleteTask />}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

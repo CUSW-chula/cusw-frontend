@@ -76,10 +76,14 @@ export default async function TasksManageMentPage({
     taskId: task.id,
   });
 
+  // --- ตรวจสอบสิทธิ์ ---
+  const isTaskOwner = roleInTask === 'owner';
+  
   // ตรวจสอบสิทธิ์การเข้าถึง task
   // 1. ต้องเป็น admin หรือ head ของระบบ หรือ
   // 2. ต้องมี role ในโปรเจคนี้ (Member หรือ ProjectOwner)
   const isSystemAdmin = currentUser.admin || currentUser.head;
+
   const hasProjectAccess =
     userRoleData.role && (userRoleData.role === 'Member' || userRoleData.role === 'ProjectOwner');
 
@@ -132,8 +136,9 @@ export default async function TasksManageMentPage({
 
         {/* Right Section */}
         <div className="flex flex-col gap-4 items-end">
-          <MenuBar task={task} />
-          <DeleteTask task={task} />
+          <MenuBar task={task}  canManageTags={canManageTags}  canManageMoney={canManageMoney}  canManageDate={canManageDate} canAssignTasks={canAssignTasks} />
+          { (isSystemAdmin || roleInProject === 'ProjectOwner') && <DeleteTask task={task} /> }
+
         </div>
       </div>
     </div>
