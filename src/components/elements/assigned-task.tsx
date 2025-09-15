@@ -242,6 +242,7 @@ export function AssignedTaskToMember({ task, canAssignTask }: { task: TaskProps,
               </TooltipContent>
             </Tooltip>
           )}
+
         </div>
       </div>
     )}

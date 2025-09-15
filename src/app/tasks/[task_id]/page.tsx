@@ -12,6 +12,7 @@ import ActivityLogs from '@/app/tasks/_components/activity-logs';
 import { DeleteTask } from '@/app/tasks/_components/deleteTask';
 import Emoji from '@/components/elements/emoji';
 import { redirect } from 'next/navigation';
+import { getUserRoleOnProjectTask } from '@/service/userService';
 
 interface Workspace {
   id: string;
@@ -24,23 +25,11 @@ interface taskEmoji {
   emoji: Emojis[];
 }
 
-interface ProjectRole {
-  id: string;
-  title: string;
-  role: 'Member' | 'ProjectOwner';
-   tasks?: { taskId: string; taskRole?: 'owner' | 'assignee' }[];
-  tags: unknown[];
-  startDate: string;
-  endDate: string;
-}
-
 interface UserRole {
   id: string;
   name: string;
-  email: string;
   admin: boolean;
   head: boolean;
-  activated: boolean;
 }
 
 export default async function TasksManageMentPage({
@@ -81,35 +70,31 @@ export default async function TasksManageMentPage({
 
   const currentUser: UserRole = await userResponse.json();
 
-  // ดึงข้อมูล user role ในโปรเจคต่าง ๆ
-  const userRoleResponse = await fetch(`${BASE_URL}/v2/users/userrole/${currentUser.id}`, {
-    headers: { Authorization: auth },
+  // ใช้ getUserRoleOnProjectTask เพื่อตรวจสอบสิทธิ์
+  const userRoleData = await getUserRoleOnProjectTask({
+    projectId: task.projectId,
+    taskId: task.id,
   });
-  if (!userRoleResponse.ok) {
-    console.error('Failed to fetch user roles, redirecting to projects');
-    redirect('/projects');
-  }
-  const userProjects: ProjectRole[] = await userRoleResponse.json();
-  const project = userProjects.find((p) => p.id === task.projectId);
-  const roleInProject = project?.role;
-  const roleInTask = project?.tasks?.find((t) => t.taskId === task.id)?.taskRole;
 
   // --- ตรวจสอบสิทธิ์ ---
   const isTaskOwner = roleInTask === 'owner';
   
   // ตรวจสอบสิทธิ์การเข้าถึง task
   // 1. ต้องเป็น admin หรือ head ของระบบ หรือ
-  // 2. ต้องเป็น Member หรือ ProjectOwner ของโปรเจคที่ task นี้อยู่
+  // 2. ต้องมี role ในโปรเจคนี้ (Member หรือ ProjectOwner)
   const isSystemAdmin = currentUser.admin || currentUser.head;
-  const canManageTags = isSystemAdmin || roleInProject === 'ProjectOwner' || isTaskOwner;
-  const canManageMoney = isSystemAdmin || roleInProject === 'ProjectOwner' || isTaskOwner;
-  const canManageDate = isSystemAdmin || roleInProject === 'ProjectOwner' || isTaskOwner;
-  const canAssignTasks = isSystemAdmin || roleInProject === 'ProjectOwner' || isTaskOwner;
-  const hasProjectAccess = userProjects.some(
-    (project) =>
-      project.id === task.projectId &&
-      (project.role === 'Member' || project.role === 'ProjectOwner'),
-  );
+
+  const hasProjectAccess =
+    userRoleData.role && (userRoleData.role === 'Member' || userRoleData.role === 'ProjectOwner');
+
+  console.log('Access check:', {
+    userId: currentUser.id,
+    taskId: task_id,
+    projectId: task.projectId,
+    isSystemAdmin,
+    userRole: userRoleData.role,
+    hasProjectAccess,
+  });
 
   // ถ้าไม่มีสิทธิ์เข้าถึง ให้ redirect ไป project list
   if (!isSystemAdmin && !hasProjectAccess) {
