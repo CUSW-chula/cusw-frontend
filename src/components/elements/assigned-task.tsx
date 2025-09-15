@@ -28,7 +28,7 @@ interface UsersInterfaces {
   email: string;
 }
 
-export function AssignedTaskToMember({ task }: { task: TaskProps }) {
+export function AssignedTaskToMember({ task, canAssignTask }: { task: TaskProps, canAssignTask: boolean }) {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [open, setOpen] = React.useState(false);
@@ -162,63 +162,96 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
   const { toast } = useToast();
 
   return (
-    <TooltipProvider>
-      <div className="flex flex-row gap-1 flex-wrap">
-        <div className="flex items-center space-x-4">
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild className=" border-brown text-brown">
-              <Button variant="outline" className="h-8 px-2">
-                {taskMembers.length > 0 ? (
-                  <div className="flex space-x-2 items-center ">
-                    {taskMembers.slice(0, MAX_VISIBLE_MEMBERS).map((user) => (
-                      <Profile key={user.id} userId={user.id} userName={user.name} />
-                    ))}
-                    {taskMembers.length > MAX_VISIBLE_MEMBERS && (
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <div className="w-[24px] h-[24px] bg-gray-100 rounded-xl border border-[#6b5c56] flex-col justify-center items-center gap-2.5 inline-flex text-center text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-3">
-                            +{taskMembers.length - MAX_VISIBLE_MEMBERS}
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {taskMembers.slice(MAX_VISIBLE_MEMBERS).map((user) => (
-                            <p key={user.id}>{user.name}</p>
-                          ))}
-                        </TooltipContent>
-                      </Tooltip>
-                    )}
-                  </div>
-                ) : (
-                  <p className="p-ui text-sm">Assigned</p>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="p-0" side="right" align="start">
-              <Command>
-                <CommandInput placeholder="Search member ..." />
-                <CommandList>
-                  <CommandEmpty>No results found.</CommandEmpty>
-                  <CommandGroup>
-                    {usersList.map((user) => (
-                      <CommandItem key={user.id} value={user.name} onSelect={handleSelectUser}>
-                        <Circle
-                          className={cn(
-                            'mr-2 h-4 w-4 fill-greenLight text-greenLight ',
-                            taskMembers?.length > 0 && taskMembers.some((u) => u.id === user.id)
-                              ? 'opacity-100'
-                              : 'opacity-40',
-                          )}
-                        />
-                        <span>{user.name}</span>
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
+
+   <TooltipProvider>
+  <div className="flex flex-row gap-1 flex-wrap">
+    <div className="flex items-center space-x-4">
+      {canAssignTask ? (
+        // ✅ กรณีมีสิทธิ์ assign → ใช้ Popover + ปุ่มกดได้
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild className="border-brown text-brown">
+            <Button variant="outline" className="h-8 px-2">
+              {taskMembers.length > 0 ? (
+                <div className="flex space-x-2 items-center">
+                  {taskMembers.slice(0, MAX_VISIBLE_MEMBERS).map((user) => (
+                    <Profile key={user.id} userId={user.id} userName={user.name} />
+                  ))}
+                  {taskMembers.length > MAX_VISIBLE_MEMBERS && (
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <div className="w-[24px] h-[24px] bg-gray-100 rounded-xl border border-[#6b5c56] flex-col justify-center items-center gap-2.5 inline-flex text-center text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-3">
+                          +{taskMembers.length - MAX_VISIBLE_MEMBERS}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {taskMembers.slice(MAX_VISIBLE_MEMBERS).map((user) => (
+                          <p key={user.id}>{user.name}</p>
+                        ))}
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
+              ) : (
+                <p className="p-ui text-sm">Assigned</p>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="p-0" side="right" align="start">
+            <Command>
+              <CommandInput placeholder="Search member ..." />
+              <CommandList>
+                <CommandEmpty>No results found.</CommandEmpty>
+                <CommandGroup>
+                  {usersList.map((user) => (
+                    <CommandItem key={user.id} value={user.name} onSelect={handleSelectUser}>
+                      <Circle
+                        className={cn(
+                          'mr-2 h-4 w-4 fill-greenLight text-greenLight ',
+                          taskMembers?.length > 0 && taskMembers.some((u) => u.id === user.id)
+                            ? 'opacity-100'
+                            : 'opacity-40',
+                        )}
+                      />
+                      <span>{user.name}</span>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      ) : (
+  // ❌ ไม่มีสิทธิ์ assign → แสดงเป็น read-only
+  <>
+    {taskMembers.length > 0 && (
+      <div className="h-8 px-2 border border-brown rounded-md flex items-center">
+        <div className="flex space-x-2 items-center">
+          {taskMembers.slice(0, MAX_VISIBLE_MEMBERS).map((user) => (
+            <Profile key={user.id} userId={user.id} userName={user.name} />
+          ))}
+          {taskMembers.length > MAX_VISIBLE_MEMBERS && (
+            <Tooltip>
+              <TooltipTrigger>
+                <div className="w-[24px] h-[24px] bg-gray-100 rounded-xl border border-[#6b5c56] flex-col justify-center items-center gap-2.5 inline-flex text-center text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-3">
+                  +{taskMembers.length - MAX_VISIBLE_MEMBERS}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                {taskMembers.slice(MAX_VISIBLE_MEMBERS).map((user) => (
+                  <p key={user.id}>{user.name}</p>
+                ))}
+              </TooltipContent>
+            </Tooltip>
+          )}
         </div>
       </div>
-    </TooltipProvider>
+    )}
+  </>
+)
+}
+    </div>
+  </div>
+</TooltipProvider>
+
   );
 }

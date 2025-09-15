@@ -19,8 +19,8 @@ export const Sort = ({ showTasks, setShowTasks }: SortProps) => {
 
   const sortItem = [
     {
-      value: 'default',
-      label: 'Default',
+      value: 'Date created',
+      label: 'Date created',
     },
     {
       value: 'StartDate123',
@@ -60,7 +60,7 @@ export const Sort = ({ showTasks, setShowTasks }: SortProps) => {
     };
     let sortedTasks = showTasks;
     switch (value) {
-      case 'default':
+      case 'Date created':
         sortedTasks = originalTasksRef.current;
         break;
       case 'StartDate123':
@@ -82,8 +82,8 @@ export const Sort = ({ showTasks, setShowTasks }: SortProps) => {
   };
   return (
     <Select onValueChange={(value) => handleSort(value)}>
-      <SelectTrigger className="w-[172px] border-brown text-brown font-BaiJamjuree font-normal focus:outline-none focus:ring-0 focus:ring-offset-0">
-        <SelectValue placeholder="Sort by: Default" />
+      <SelectTrigger className="w-[180px] border-brown text-brown font-BaiJamjuree font-normal focus:outline-none focus:ring-0 focus:ring-offset-0">
+        <SelectValue placeholder="Sort by: Date created" />
       </SelectTrigger>
       <SelectContent>
         {sortItem.map(({ value, label }) => (

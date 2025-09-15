@@ -39,7 +39,6 @@ export async function getUserRole(): Promise<UserRoleResponse> {
 interface ProjectData {
   id: string;
   role: ProjectRole;
-  isAdmin: boolean;
   tasks?: TaskData[];
 }
 
@@ -73,17 +72,17 @@ export async function getUserRoleOnProjectTask({
 
     if (!response.ok) throw new Error(`Failed to fetch user role: ${response.status}`);
 
-    const projects: ProjectData[] = await response.json();
-    const project = projects.find((p) => p.id === projectId);
+    const data: { projects: ProjectData[], isAdmin: boolean } = await response.json();
+    const project = data.projects.find((p) => p.id === projectId);
 
-    if (!project) return { userId: decoded.id, role: undefined, isAdmin: false };
+    if (!project) return { userId: decoded.id, role: undefined, isAdmin: data.isAdmin };
 
     const taskRole = taskId && project.tasks?.find((t) => t.taskId === taskId)?.taskRole;
 
     return {
       userId: decoded.id,
       role: taskRole || project.role || 'Member',
-      isAdmin: project.isAdmin,
+      isAdmin: data.isAdmin,
     };
   } catch (error) {
     console.error('getUserRoleOnProjectTask failed:', error);

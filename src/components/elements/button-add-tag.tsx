@@ -20,7 +20,7 @@ import type { TaskProps, TagProps } from '@/app/types/types';
 import { useToast } from '@/hooks/use-toast';
 
 // Mock data
-export function ButtonAddTags({ task }: { task: TaskProps }) {
+export function ButtonAddTags({ task, canManageTags, }: { task: TaskProps, canManageTags: boolean; }) {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [open, setOpen] = React.useState(false);
@@ -163,23 +163,24 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
                 <span className="text-sm font-BaiJamjuree font-medium text-ellipsis overflow-hidden max-w-[180px]">
                   {tag.name}
                 </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleDeleteTag(tag.id);
-                    toast({
-                      title: 'Tag Removed',
-                      description: `You removed "${tag.name}"`,
-                      variant: 'default',
-                    });
-                  }}
-                  className="cursor-pointer">
-                  <XCircle className="h-4 w-4" />
-                </button>
+                 {canManageTags && (
+              <button
+                type="button"
+                onClick={() => {
+                  handleDeleteTag(tag.id);
+                  toast({ title: 'Tag Removed', description: `You removed "${tag.name}"` });
+                }}
+                className="cursor-pointer">
+                <XCircle className="h-4 w-4" />
+              </button>
+            )}
               </Badge>
             ))
           : undefined}
 
+      
+      {/* ปุ่ม Add tag จะถูกซ่อนเมื่อ canManageTags === false */}
+      {canManageTags && (
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild className=" border-brown text-brown ">
             <Button variant="outline" className="h-8 px-2">
@@ -197,8 +198,7 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
                       <Circle
                         className={cn(
                           'mr-2 h-4 w-4 fill-greenLight text-greenLight',
-                          Array.isArray(selectedTags) &&
-                            selectedTags.some((tag) => tag.id === status.id)
+                          Array.isArray(selectedTags) && selectedTags.some((tag) => tag.id === status.id)
                             ? 'opacity-100'
                             : 'opacity-40',
                         )}
@@ -211,6 +211,7 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
             </Command>
           </PopoverContent>
         </Popover>
+      )}
       </div>
     </>
   );
