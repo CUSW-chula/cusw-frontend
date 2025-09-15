@@ -37,7 +37,6 @@ interface UsersProps {
 interface ProjectData {
   id: string;
   role: ProjectRole;
-  isAdmin: boolean;
   tasks?: TaskData[];
 }
 
@@ -310,8 +309,8 @@ export const ProjectDetail = ({ project }: { project: Project }) => {
           });
           if (!response.ok) throw new Error(`Failed to fetch user role: ${response.status}`);
 
-          const projects: ProjectData[] = await response.json();
-          const Project = projects.find((p) => p.id === project.id);
+          const data: { projects: ProjectData[]; isAdmin: boolean } = await response.json();
+          const Project = data.projects.find((p) => p.id === project.id);
 
           setIsMember(Project?.role === 'Member');
         } catch (error) {

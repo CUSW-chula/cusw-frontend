@@ -63,7 +63,14 @@ export async function getUserRoleOnProjectTask({
   taskId?: string;
 }): Promise<UserRoleProjectTaskResponse> {
   const auth = getCookie('auth')?.toString();
-  if (!auth) return { userId: undefined, projectRole: undefined, taskRole: undefined, role: undefined, isAdmin: false };
+  if (!auth)
+    return {
+      userId: undefined,
+      projectRole: undefined,
+      taskRole: undefined,
+      role: undefined,
+      isAdmin: false,
+    };
 
   try {
     const decoded = jwtDecode<{ id: string }>(auth);
@@ -77,12 +84,19 @@ export async function getUserRoleOnProjectTask({
     const data: { projects: ProjectData[]; isAdmin: boolean } = await response.json();
     const project = data.projects.find((p) => p.id === projectId);
 
-    if (!project) return { userId: decoded.id, projectRole: undefined, taskRole: undefined, role: undefined, isAdmin: data.isAdmin };
+    if (!project)
+      return {
+        userId: decoded.id,
+        projectRole: undefined,
+        taskRole: undefined,
+        role: undefined,
+        isAdmin: data.isAdmin,
+      };
 
     const taskRole = taskId && project.tasks?.find((t) => t.taskId === taskId)?.taskRole;
 
     const computedRole = taskRole || project.role || 'Member';
-    
+
     return {
       userId: decoded.id,
       projectRole: project.role || 'Member',
@@ -92,6 +106,12 @@ export async function getUserRoleOnProjectTask({
     };
   } catch (error) {
     console.error('getUserRoleOnProjectTask failed:', error);
-    return { userId: undefined, projectRole: undefined, taskRole: undefined, role: undefined, isAdmin: false };
+    return {
+      userId: undefined,
+      projectRole: undefined,
+      taskRole: undefined,
+      role: undefined,
+      isAdmin: false,
+    };
   }
 }
