@@ -80,7 +80,7 @@ export const TaskActionsMenu = ({ task }: { task: TaskProps }) => {
       </AlertDialog>
     );
   };
-   const [hasEditPermission, setHasEditPermission] = useState(false);
+  const [hasEditPermission, setHasEditPermission] = useState(false);
   const checkPermissions = async () => {
     try {
       const { role, isAdmin } = await getUserRoleOnProjectTask({
@@ -99,10 +99,10 @@ export const TaskActionsMenu = ({ task }: { task: TaskProps }) => {
       setHasEditPermission(false);
     }
   };
-  
+
   useEffect(() => {
     checkPermissions();
-  }, [ task.projectId, task.id]);
+  }, [task.projectId, task.id]);
   return (
     <div className="relative">
       <DropdownMenu>

@@ -22,7 +22,10 @@ import { useEffect, useState } from 'react';
 import { getUserRoleOnProjectTask } from '@/service/userService';
 
 // Mock data
-export function ButtonAddTags({ task, canManageTags, }: { task: TaskProps, canManageTags: boolean; }) {
+export function ButtonAddTags({
+  task,
+  canManageTags,
+}: { task: TaskProps; canManageTags: boolean }) {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [open, setOpen] = React.useState(false);
@@ -186,54 +189,55 @@ export function ButtonAddTags({ task, canManageTags, }: { task: TaskProps, canMa
                 <span className="text-sm font-BaiJamjuree font-medium text-ellipsis overflow-hidden max-w-[180px]">
                   {tag.name}
                 </span>
-                 {canManageTags && (
-              <button
-                type="button"
-                onClick={() => {
-                  handleDeleteTag(tag.id);
-                  toast({ title: 'Tag Removed', description: `You removed "${tag.name}"` });
-                }}
-                className="cursor-pointer">
-                <XCircle className="h-4 w-4" />
-              </button>
-            )}
+                {canManageTags && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleDeleteTag(tag.id);
+                      toast({ title: 'Tag Removed', description: `You removed "${tag.name}"` });
+                    }}
+                    className="cursor-pointer">
+                    <XCircle className="h-4 w-4" />
+                  </button>
+                )}
               </Badge>
             ))
           : undefined}
-      
-      {/* ปุ่ม Add tag จะถูกซ่อนเมื่อ canManageTags === false */}
-      {canManageTags && (
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild className=" border-brown text-brown ">
-            <Button variant="outline" className="h-8 px-2">
-              <p className="font-BaiJamjuree text-sm">Add tag</p>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="p-0" side="right" align="start">
-            <Command>
-              <CommandInput placeholder="Add tag ..." />
-              <CommandList>
-                <CommandEmpty>No results found.</CommandEmpty>
-                <CommandGroup>
-                  {statuses.map((status) => (
-                    <CommandItem key={status.id} value={status.name} onSelect={handleSelectTag}>
-                      <Circle
-                        className={cn(
-                          'mr-2 h-4 w-4 fill-greenLight text-greenLight',
-                          Array.isArray(selectedTags) && selectedTags.some((tag) => tag.id === status.id)
-                            ? 'opacity-100'
-                            : 'opacity-40',
-                        )}
-                      />
-                      <span>{status.name}</span>
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
-      )}
+
+        {/* ปุ่ม Add tag จะถูกซ่อนเมื่อ canManageTags === false */}
+        {canManageTags && (
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild className=" border-brown text-brown ">
+              <Button variant="outline" className="h-8 px-2">
+                <p className="font-BaiJamjuree text-sm">Add tag</p>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-0" side="right" align="start">
+              <Command>
+                <CommandInput placeholder="Add tag ..." />
+                <CommandList>
+                  <CommandEmpty>No results found.</CommandEmpty>
+                  <CommandGroup>
+                    {statuses.map((status) => (
+                      <CommandItem key={status.id} value={status.name} onSelect={handleSelectTag}>
+                        <Circle
+                          className={cn(
+                            'mr-2 h-4 w-4 fill-greenLight text-greenLight',
+                            Array.isArray(selectedTags) &&
+                              selectedTags.some((tag) => tag.id === status.id)
+                              ? 'opacity-100'
+                              : 'opacity-40',
+                          )}
+                        />
+                        <span>{status.name}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        )}
       </div>
     </>
   );

@@ -11,7 +11,19 @@ import type { TaskManageMentProp } from '@/lib/shared';
 import { DatePickerWithRange } from '@/components/elements/date-feature';
 import type { TaskProps } from '@/app/types/types';
 
-const MenuBar = ({ task, canManageTags, canManageMoney, canManageDate, canAssignTasks }: { task: TaskProps, canManageTags: boolean; canManageMoney: boolean; canManageDate: boolean; canAssignTasks: boolean; }) => {
+const MenuBar = ({
+  task,
+  canManageTags,
+  canManageMoney,
+  canManageDate,
+  canAssignTasks,
+}: {
+  task: TaskProps;
+  canManageTags: boolean;
+  canManageMoney: boolean;
+  canManageDate: boolean;
+  canAssignTasks: boolean;
+}) => {
   return (
     <div className="w-[360px] p-[20px] bg-white rounded-md border border-[#6b5c56] flex-col justify-center items-start gap-2 inline-flex">
       <div aria-label="status" className="h-10 justify-start items-center inline-flex">
@@ -49,7 +61,7 @@ const MenuBar = ({ task, canManageTags, canManageMoney, canManageDate, canAssign
             Member :{' '}
           </div>
         </div>
-        <AssignedTaskToMember task={task}  canAssignTask={canAssignTasks}/>
+        <AssignedTaskToMember task={task} canAssignTask={canAssignTasks} />
       </div>
 
       <div aria-label="tag" className="h-fit justify-start items-start inline-flex">
@@ -88,29 +100,20 @@ const MenuBar = ({ task, canManageTags, canManageMoney, canManageDate, canAssign
             Date :{' '}
           </div>
         </div>
-        
-       {canManageDate ? (
-    // ✅ Owner/Manager: ใช้ DatePicker ได้
-    <DatePickerWithRange
-      task={{
-        id: task.id,
-        startDate: task.startDate,
-        endDate: task.endDate,
-        projectId: task.projectId,
-        parentTaskId: task.parentTaskId,
-      }}
-    />
-  ) : (
-    // 👀 Member: เห็นวันอย่างเดียว กดไม่ได้
-    <div className="h-8 px-2 text-sm bg-white rounded-md border justify-center items-center flex font-medium font-BaiJamjuree hover:cursor-pointer border-brown text-brown">
-      {task.startDate && task.endDate
-        ? `${new Date(task.startDate).toLocaleDateString()} - ${new Date(
-            task.endDate,
-          ).toLocaleDateString()}`
-        : 'No date set'}
-    </div>
-  )}
 
+        {canManageDate ? (
+          // ✅ Owner/Manager: ใช้ DatePicker ได้
+          <DatePickerWithRange task={task} />
+        ) : (
+          // 👀 Member: เห็นวันอย่างเดียว กดไม่ได้
+          <div className="h-8 px-2 text-sm bg-white rounded-md border justify-center items-center flex font-medium font-BaiJamjuree hover:cursor-pointer border-brown text-brown">
+            {task.startDate && task.endDate
+              ? `${new Date(task.startDate).toLocaleDateString()} - ${new Date(
+                  task.endDate,
+                ).toLocaleDateString()}`
+              : 'No date set'}
+          </div>
+        )}
       </div>
     </div>
   );

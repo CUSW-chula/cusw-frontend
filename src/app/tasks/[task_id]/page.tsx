@@ -76,9 +76,19 @@ export default async function TasksManageMentPage({
     taskId: task.id,
   });
 
+  // ดึงข้อมูล role จาก userRoleData
+  const roleInProject =
+    userRoleData.role === 'ProjectOwner' || userRoleData.role === 'Member'
+      ? userRoleData.role
+      : undefined;
+  const roleInTask =
+    userRoleData.role === 'assignee' || userRoleData.role === 'owner'
+      ? userRoleData.role
+      : undefined;
+
   // --- ตรวจสอบสิทธิ์ ---
   const isTaskOwner = roleInTask === 'owner';
-  
+
   // ตรวจสอบสิทธิ์การเข้าถึง task
   // 1. ต้องเป็น admin หรือ head ของระบบ หรือ
   // 2. ต้องมี role ในโปรเจคนี้ (Member หรือ ProjectOwner)
@@ -103,6 +113,15 @@ export default async function TasksManageMentPage({
     );
     redirect('/projects');
   }
+
+  // --- กำหนดสิทธิ์การจัดการต่างๆ ---
+  // Admin และ Head สามารถจัดการทุกอย่างได้
+  // ProjectOwner สามารถจัดการทุกอย่างในโปรเจคได้
+  // Task Owner สามารถจัดการ task ของตัวเองได้
+  const canManageTags = isSystemAdmin || roleInProject === 'ProjectOwner' || isTaskOwner;
+  const canManageMoney = isSystemAdmin || roleInProject === 'ProjectOwner' || isTaskOwner;
+  const canManageDate = isSystemAdmin || roleInProject === 'ProjectOwner' || isTaskOwner;
+  const canAssignTasks = isSystemAdmin || roleInProject === 'ProjectOwner' || isTaskOwner;
 
   const workspace: Workspace = {
     id: task.id,
@@ -136,9 +155,14 @@ export default async function TasksManageMentPage({
 
         {/* Right Section */}
         <div className="flex flex-col gap-4 items-end">
-          <MenuBar task={task}  canManageTags={canManageTags}  canManageMoney={canManageMoney}  canManageDate={canManageDate} canAssignTasks={canAssignTasks} />
-          { (isSystemAdmin || roleInProject === 'ProjectOwner') && <DeleteTask task={task} /> }
-
+          <MenuBar
+            task={task}
+            canManageTags={canManageTags}
+            canManageMoney={canManageMoney}
+            canManageDate={canManageDate}
+            canAssignTasks={canAssignTasks}
+          />
+          {(isSystemAdmin || roleInProject === 'ProjectOwner') && <DeleteTask task={task} />}
         </div>
       </div>
     </div>
