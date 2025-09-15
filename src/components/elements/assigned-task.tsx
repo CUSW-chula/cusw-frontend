@@ -162,6 +162,7 @@ export function AssignedTaskToMember({ task, canAssignTask }: { task: TaskProps,
   const { toast } = useToast();
 
   return (
+
    <TooltipProvider>
   <div className="flex flex-row gap-1 flex-wrap">
     <div className="flex items-center space-x-4">
@@ -242,7 +243,6 @@ export function AssignedTaskToMember({ task, canAssignTask }: { task: TaskProps,
               </TooltipContent>
             </Tooltip>
           )}
-
         </div>
       </div>
     )}

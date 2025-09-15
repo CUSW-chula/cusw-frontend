@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar2';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import BASE_URL, { BASE_SOCKET, type TaskManageMentProp } from '@/lib/shared';
+import BASE_URL, { BASE_SOCKET, Project, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { transform } from 'next/dist/build/swc/generated-native';
 import { toast } from '@/hooks/use-toast';
@@ -302,7 +302,10 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
 }
 
 // Exporting for Project Page.
-function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
+function DatePickerWithRangeProject({
+  project,
+  isMember,
+}: { project: DateInterface; isMember?: boolean }) {
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
@@ -394,7 +397,7 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
 
   // Handle calendar selection (เหมือน date feature)
   const handleCalendarSelect = async (range: DateRange | undefined) => {
-    if (!range?.from) return;
+    if (!range?.from || isMember) return; // เพิ่มการตรวจสอบ isMember
 
     let patchedRange = range;
     // Logic: กดครั้งแรกให้ start/end เป็นวันเดียวกัน, กดครั้งที่สองถึงจะเป็น range
@@ -434,14 +437,31 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
     console.log('range from selected date:', patchedRange);
   };
 
+  const handlePopoverOpenChange = (newOpen: boolean) => {
+    if (!isMember) {
+      // ใช้ default behavior ของ Popover
+    }
+  };
+
+  const handleButtonClick = () => {
+    if (isMember) {
+      // ป้องกันการเปิด popover
+      return false;
+    }
+  };
+
   return (
     <div className={cn('grid gap-2')}>
-      <Popover>
+      <Popover onOpenChange={handlePopoverOpenChange}>
         <PopoverTrigger asChild className="border-brown h-8 px-2">
           <Button
             id="date"
             variant={'outline'}
-            className={`font-BaiJamjuree text-sm text-brown ${!date && 'text-muted-foreground'}`}>
+            className={cn(
+              `font-BaiJamjuree text-sm text-brown hover:bg-gray-50 ${!date && 'text-muted-foreground'}`,
+              isMember && 'cursor-default',
+            )}
+            onClick={handleButtonClick}>
             {date?.from ? (
               date.to ? (
                 <>{formattedDate}</>
@@ -455,16 +475,18 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0 z-1 p-ui" align="start">
-          <Calendar
-            initialFocus
-            mode="range"
-            defaultMonth={date?.from}
-            selected={date}
-            onSelect={handleCalendarSelect}
-            numberOfMonths={2}
-          />
-        </PopoverContent>
+        {!isMember && (
+          <PopoverContent className="w-auto p-0 z-1 p-ui" align="start">
+            <Calendar
+              initialFocus
+              mode="range"
+              defaultMonth={date?.from}
+              selected={date}
+              onSelect={handleCalendarSelect}
+              numberOfMonths={2}
+            />
+          </PopoverContent>
+        )}
       </Popover>
     </div>
   );

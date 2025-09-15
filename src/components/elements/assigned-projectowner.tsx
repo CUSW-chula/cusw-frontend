@@ -25,7 +25,15 @@ interface UsersInterfaces {
   email: string;
 }
 
-export function AssignedProjectOwner({ project }: { project: Project }) {
+interface AssignedProjectOwnerProps {
+  project: Project;
+  isMember?: boolean;
+}
+
+export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({
+  project,
+  isMember = false,
+}) => {
   const [open, setOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<UsersInterfaces[]>([]);
   const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
@@ -122,7 +130,8 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
   );
 
   const handleSelectUser = async (userName: string) => {
-    if (!isMounted || !project) return;
+    if (!isMounted || !project || isMember) return; // เพิ่มการตรวจสอบ isMember
+
     const user = usersList.find((u) => u.name === userName);
     if (!user) return;
 
@@ -138,14 +147,11 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
           title: '✅ Success',
           description: 'Project owner updated successfully.',
         });
-        // สำหรับ project owner ควรจะเป็นการ toggle เพียงคนเดียว
         setSelectedUser((prev) => {
           const exists = prev.some((u) => u.id === user.id);
           if (exists) {
-            // ถ้ามีแล้ว ให้ลบออก
             return prev.filter((u) => u.id !== user.id);
           }
-          // ถ้าไม่มี ให้เพิ่มเข้าไป (แต่ตรวจสอบ duplicate ก่อน)
           const isDuplicate = prev.some((u) => u.id === user.id);
           return isDuplicate ? prev : [...prev, user];
         });
@@ -159,6 +165,18 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
     }
   };
 
+  const handlePopoverOpenChange = (newOpen: boolean) => {
+    if (!isMember) {
+      setOpen(newOpen);
+    }
+  };
+
+  const handleButtonClick = () => {
+    if (!isMember) {
+      setOpen(!open);
+    }
+  };
+
   if (!isMounted) {
     return (
       <div className="flex items-center space-x-4">
@@ -169,15 +187,22 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
 
   return (
     <TooltipProvider>
-      <div className="flex flex-row gap-1 flex-wrap">
-        <div className="flex items-center space-x-4">
-          <Popover open={open} onOpenChange={setOpen}>
+      <div className="flex items-center gap-2">
+        {/* แสดงข้อมูล owner */}
+        <div className="flex items-center gap-2">
+          <Popover open={open} onOpenChange={handlePopoverOpenChange}>
             <PopoverTrigger asChild>
-              <Button type="button" variant="outline" className="border-brown text-brown h-8 px-2">
+              <Button
+                type="button"
+                variant="outline"
+                className={cn(
+                  'border-brown text-brown h-8 px-2 hover:bg-gray-50',
+                  isMember && 'cursor-default',
+                )}
+                onClick={handleButtonClick}>
                 {selectedUser.length > 0 ? (
                   <div className="flex items-center space-x-2">
                     {(() => {
-                      // กรองเฉพาะ users ที่มีข้อมูลครบถ้วน
                       const validUsers = selectedUser.filter((user) => user?.id && user?.name);
 
                       return (
@@ -254,4 +279,4 @@ export function AssignedProjectOwner({ project }: { project: Project }) {
       </div>
     </TooltipProvider>
   );
-}
+};
