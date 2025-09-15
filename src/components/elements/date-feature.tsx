@@ -13,6 +13,9 @@ import BASE_URL, { BASE_SOCKET, Project, type TaskManageMentProp } from '@/lib/s
 import { getCookie } from 'cookies-next';
 import { transform } from 'next/dist/build/swc/generated-native';
 import { toast } from '@/hooks/use-toast';
+import { getUserRoleOnProjectTask } from '@/service/userService';
+import { useEffect, useState } from 'react';
+import { TaskProps } from '@/app/types/types';
 
 // FUNCTION USING INSTRUCTION
 //================================================================
@@ -31,7 +34,7 @@ export interface DateInterface {
 }
 
 // Exporting for Task Page
-function DatePickerWithRange({ task }: { task: DateInterface }) {
+function DatePickerWithRange({ task }: { task: TaskProps }) {
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
@@ -265,10 +268,32 @@ function DatePickerWithRange({ task }: { task: DateInterface }) {
     console.log('range from selected date:', patchedRange);
   };
 
+  const [hasEditPermission, setHasEditPermission] = useState(false);
+  const checkPermissions = async () => {
+    try {
+      const { role, isAdmin } = await getUserRoleOnProjectTask({
+        projectId: task.projectId,
+        taskId: task.id,
+      });
+
+      if (!role) {
+        setHasEditPermission(false);
+        return;
+      }
+
+      setHasEditPermission(isAdmin || ['ProjectOwner', 'owner', 'assignee'].includes(role));
+    } catch (error) {
+      console.error('Failed to check permissions:', error);
+      setHasEditPermission(false);
+    }
+  };
+  useEffect(() => {
+    checkPermissions();
+  }, [task]);
   return (
     <div className={cn('grid gap-2')}>
       <Popover>
-        <PopoverTrigger asChild className="border-brown h-8 px-2">
+        <PopoverTrigger asChild className="border-brown h-8 px-2" disabled={!hasEditPermission}>
           <Button
             id="date"
             variant={'outline'}

@@ -21,6 +21,8 @@ import { getCookie } from 'cookies-next';
 import type { TaskProps } from '@/app/types/types';
 import { toast } from '@/hooks/use-toast';
 import { useToast } from '@/hooks/use-toast';
+import { useEffect, useState } from 'react';
+import { getUserRoleOnProjectTask } from '@/service/userService';
 
 interface UsersInterfaces {
   id: string;
@@ -160,7 +162,28 @@ export function AssignedTaskToMember({ task, canAssignTask }: { task: TaskProps,
   };
 
   const { toast } = useToast();
+  const [hasEditPermission, setHasEditPermission] = useState(false);
+  const checkPermissions = async () => {
+    try {
+      const { role, isAdmin } = await getUserRoleOnProjectTask({
+        projectId: task.projectId,
+        taskId: task.id,
+      });
 
+      if (!role) {
+        setHasEditPermission(false);
+        return;
+      }
+
+      setHasEditPermission(isAdmin || ['ProjectOwner', 'owner', 'assignee'].includes(role));
+    } catch (error) {
+      console.error('Failed to check permissions:', error);
+      setHasEditPermission(false);
+    }
+  };
+  useEffect(() => {
+    checkPermissions();
+  }, [task]);
   return (
 
    <TooltipProvider>

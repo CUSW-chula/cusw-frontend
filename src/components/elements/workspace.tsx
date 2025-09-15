@@ -5,6 +5,8 @@ import BASE_URL, { BASE_SOCKET } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import Blocknotes from './blocknote';
 import { toast } from '@/hooks/use-toast';
+import { TaskProps } from '@/app/types/types';
+import { getUserRoleOnProjectTask } from '@/service/userService';
 interface Files {
   id: string;
   fileName: string;
@@ -28,17 +30,17 @@ interface Description {
   description: string;
 }
 
-const Workspace = ({ workspace }: Workspace) => {
+const Workspace = ({ task }: { task: TaskProps }) => {
   const [Title, setTitle] = useState<string>('');
   const [fileList, setFileList] = useState<Files[]>([]);
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
-  const task_id = workspace.id;
+  const task_id = task.id;
   const [originTitle, setOriginalTitle] = useState('');
   useEffect(() => {
-    setOriginalTitle(workspace.title);
-    setTitle(workspace.title);
-  }, [workspace.title]);
+    setOriginalTitle(task.title);
+    setTitle(task.title);
+  }, [task.title]);
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const pareJsonValue = useCallback((values: any) => {
@@ -143,11 +145,6 @@ const Workspace = ({ workspace }: Workspace) => {
     return () => clearTimeout(timer);
   }, [Title, task_id, auth]);
 
-  const description: Description = {
-    id: workspace.id,
-    description: workspace.description,
-  };
-
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
     if (textAreaRef.current) {
@@ -160,7 +157,28 @@ const Workspace = ({ workspace }: Workspace) => {
       textAreaRef.current.style.height = `${scrollHeight}px`;
     }
   }, [textAreaRef, Title]);
+  const [hasEditPermission, setHasEditPermission] = useState(false);
+  const checkPermissions = async () => {
+    try {
+      const { role, isAdmin } = await getUserRoleOnProjectTask({
+        projectId: task.projectId,
+        taskId: task.id,
+      });
 
+      if (!role) {
+        setHasEditPermission(false);
+        return;
+      }
+
+      setHasEditPermission(isAdmin || ['ProjectOwner', 'owner', 'assignee'].includes(role));
+    } catch (error) {
+      console.error('Failed to check permissions:', error);
+      setHasEditPermission(false);
+    }
+  };
+  useEffect(() => {
+    checkPermissions();
+  }, [task]);
   return (
     <div className="relative w-full">
       <label
@@ -169,6 +187,7 @@ const Workspace = ({ workspace }: Workspace) => {
         {!Title && <span>*</span>}
       </label>
       <textarea
+        disabled={!hasEditPermission}
         className="resize-none border-none w-full outline-none placeholder-gray-300 text-[30px] font-semibold font-Anuphan"
         placeholder="Task Title"
         value={Title}
@@ -184,7 +203,7 @@ const Workspace = ({ workspace }: Workspace) => {
         }}
         ref={textAreaRef}
       />
-      <Blocknotes description={description} />
+      <Blocknotes task={task} />
       <Displayfile fileList={fileList} setFileList={setFileList} />
     </div>
   );

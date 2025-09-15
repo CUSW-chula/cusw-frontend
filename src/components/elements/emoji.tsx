@@ -10,6 +10,7 @@ import BASE_URL, { BASE_SOCKET, type User, type Emojis } from '@/lib/shared';
 import { jwtDecode } from 'jwt-decode';
 import type { TaskProps } from '@/app/types/types';
 import { toast } from '@/hooks/use-toast';
+import { getUserRoleOnProjectTask } from '@/service/userService';
 
 const Picker = dynamic(() => import('emoji-picker-react'), { ssr: true, loading: () => null });
 
@@ -111,18 +112,43 @@ const Emoji = ({ task }: { task: TaskProps }) => {
 
   const sortedEmojis = [...emojis].sort((a, b) => b.id.localeCompare(a.id));
 
+  const [hasEditPermission, setHasEditPermission] = useState(false);
+  const checkPermissions = async () => {
+    try {
+      const { role, isAdmin } = await getUserRoleOnProjectTask({
+        projectId: task.projectId,
+        taskId: task.id,
+      });
+
+      if (!role) {
+        setHasEditPermission(false);
+        return;
+      }
+
+      setHasEditPermission(isAdmin || ['ProjectOwner', 'owner', 'assignee'].includes(role));
+    } catch (error) {
+      console.error('Failed to check permissions:', error);
+      setHasEditPermission(false);
+    }
+  };
+  useEffect(() => {
+    checkPermissions();
+  }, [task]);
   return (
-    <div className="flex texts-center justify-center">
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="outline" className="rounded-full p-2 border-none">
-            <SmilePlus className="text-brown" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-fit border-none p-0 bg-transparent rounded-[10px]">
-          <Picker onEmojiClick={handleEmojiActions} searchDisabled />
-        </PopoverContent>
-      </Popover>
+    <div className="flex texts-center items-center justify-center">
+      {hasEditPermission ? (
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="block rounded-full w-fit h-fit p-2 border-none">
+              <SmilePlus className="text-brown" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-fit border-none p-0 bg-transparent rounded-[10px]">
+            <Picker onEmojiClick={handleEmojiActions} searchDisabled />
+          </PopoverContent>
+        </Popover>
+      ) : undefined}
+
       <div className="rounded-full flex justify-center text-center items-center">
         <Popover>
           <PopoverTrigger asChild>

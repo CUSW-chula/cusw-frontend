@@ -17,6 +17,7 @@ import BASE_URL, { type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import type { TaskProps } from '@/app/types/types';
 import { toast } from '@/hooks/use-toast';
+import { getUserRoleOnProjectTask } from '@/service/userService';
 
 interface Files {
   id: string;
@@ -102,11 +103,29 @@ const Uploadfile = ({ task }: { task: TaskProps }) => {
     }
   };
 
-  return (
-    <div>
-      <FileUploader handleFile={handleFile} />
-    </div>
-  );
+  const [hasEditPermission, setHasEditPermission] = useState(false);
+  const checkPermissions = async () => {
+    try {
+      const { role, isAdmin } = await getUserRoleOnProjectTask({
+        projectId: task.projectId,
+        taskId: task.id,
+      });
+
+      if (!role) {
+        setHasEditPermission(false);
+        return;
+      }
+
+      setHasEditPermission(isAdmin || ['ProjectOwner', 'owner', 'assignee'].includes(role));
+    } catch (error) {
+      console.error('Failed to check permissions:', error);
+      setHasEditPermission(false);
+    }
+  };
+  useEffect(() => {
+    checkPermissions();
+  }, [task]);
+  return <div>{hasEditPermission ? <FileUploader handleFile={handleFile} /> : undefined}</div>;
 };
 
 interface DisplayfileProps {

@@ -23,6 +23,7 @@ import { useSetAtom } from 'jotai';
 import { moneyAtom } from '@/atom';
 import type { TaskProps } from '@/app/types/types';
 import { useToast } from '@/hooks/use-toast';
+import { getUserRoleOnProjectTask } from '@/service/userService';
 interface Budget {
   type: string;
   money: number;
@@ -276,12 +277,34 @@ const Money = ({ task, canManageMoney }: { task: TaskProps | null, canManageMone
   }
 
   function onOpenChange(open: boolean): void {
+    if (!hasEditPermission) return;
     if (!open) setBudgetList(prevBudgetList.current);
     setOpenDialog(open);
   }
+  const [hasEditPermission, setHasEditPermission] = useState(false);
+  const checkPermissions = async () => {
+    try {
+      const { role, isAdmin } = await getUserRoleOnProjectTask({
+        projectId: task.projectId,
+        taskId: task.id,
+      });
+
+      if (!role) {
+        setHasEditPermission(false);
+        return;
+      }
+
+      setHasEditPermission(isAdmin || ['ProjectOwner', 'owner', 'assignee'].includes(role));
+    } catch (error) {
+      console.error('Failed to check permissions:', error);
+      setHasEditPermission(false);
+    }
+  };
+  useEffect(() => {
+    checkPermissions();
+  }, [task]);
 
   return (
-    <Dialog open={openDialog} onOpenChange={onOpenChange}>
    {canManageMoney ? (
     // --- Owner/Manager: สามารถกดเปิด Dialog ได้ ---
     <DialogTrigger asChild>

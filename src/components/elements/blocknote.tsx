@@ -14,10 +14,12 @@ import * as Tabs from '@/components/ui/tabs';
 import * as Toggle from '@/components/ui/toggle';
 import * as Tooltip from '@/components/ui/tooltip';
 import { useEffect, useState } from 'react';
-import BASE_URL, { BASE_YSWEET, type TaskManageMentProp } from '@/lib/shared';
+import BASE_URL, { BASE_YSWEET, Task, type TaskManageMentProp } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { jwtDecode, type JwtPayload } from 'jwt-decode';
 import { toast } from '@/hooks/use-toast';
+import { getUserRoleOnProjectTask } from '@/service/userService';
+import { TaskProps } from '@/app/types/types';
 
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
@@ -26,15 +28,11 @@ interface CustomJwtPayload extends JwtPayload {
   id: string;
 }
 
-interface Description {
-  description: { id: string; description: string };
-}
-
-export default function Blocknotes({ description }: Description) {
-  const docId = description.id;
+export default function Blocknotes({ task }: { task: TaskProps }) {
+  const docId = task.id;
   return (
     <YDocProvider docId={docId} authEndpoint={BASE_YSWEET}>
-      <Document description={description} />
+      <Document task={task} />
     </YDocProvider>
   );
 }
@@ -47,7 +45,7 @@ function getRandomLightColor(): string {
   return `#${r}${g}${b}`;
 }
 
-function Document({ description }: Description) {
+const Document = ({ task }: { task: TaskProps }) => {
   const [userName, setUserName] = useState<string | null>(null);
   const userData = getUserDataFromCookie();
 
@@ -73,31 +71,26 @@ function Document({ description }: Description) {
     return <div className="p-4 text-muted-foreground">Initializing editor...</div>;
   }
 
-  return <EditorWithName userName={userName} description={description} />;
-}
+  return <EditorWithName userName={userName} task={task} />;
+};
 
-function EditorWithName({
-  userName,
-  description,
-}: { userName: string; description: { id: string; description: string } }) {
+function EditorWithName({ userName, task }: { userName: string; task: TaskProps }) {
   const [Description, setDescription] = useState('');
-  const task_id = description.id;
-  const [originalDescription, setOriginalDescription] = useState<string>(description.description);
+  const [originalDescription, setOriginalDescription] = useState<string>(task.description);
   useEffect(() => {
     const replaceBlocks = async () => {
-      const blocks = await editor.tryParseHTMLToBlocks(description.description);
+      const blocks = await editor.tryParseHTMLToBlocks(task.description);
       editor.replaceBlocks(editor.document, blocks);
-      setDescription(description.description);
+      setDescription(task.description);
     };
 
     replaceBlocks();
-  }, [description.description]);
+  }, [task.description]);
 
   useEffect(() => {
     if (!Description || originalDescription === Description) return;
     const timer = setTimeout(async () => {
-      const taskId = task_id;
-      const url = `${BASE_URL}/v2/tasks/${taskId}`;
+      const url = `${BASE_URL}/v2/tasks/${task.id}`;
       const options = {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: auth },
@@ -118,7 +111,7 @@ function EditorWithName({
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [Description, task_id]);
+  }, [Description, task.id]);
 
   const { audio, image, video, file, codeBlock, ...allowedBlockSpecs } = defaultBlockSpecs;
   const schema = BlockNoteSchema.create({
@@ -142,9 +135,32 @@ function EditorWithName({
     const HTML = await editor.blocksToHTMLLossy(editor.document);
     setDescription(HTML);
   };
+  const [hasEditPermission, setHasEditPermission] = useState(false);
+  const checkPermissions = async () => {
+    try {
+      const { role, isAdmin } = await getUserRoleOnProjectTask({
+        projectId: task.projectId,
+        taskId: task.id,
+      });
+
+      if (!role) {
+        setHasEditPermission(false);
+        return;
+      }
+
+      setHasEditPermission(!isAdmin || ['ProjectOwner', 'owner', 'assignee'].includes(role));
+    } catch (error) {
+      console.error('Failed to check permissions:', error);
+      setHasEditPermission(false);
+    }
+  };
+  useEffect(() => {
+    checkPermissions();
+  }, [task]);
 
   return (
     <BlockNoteView
+      editable={!hasEditPermission}
       editor={editor}
       theme={'light'}
       onChange={onChangeBlock}
