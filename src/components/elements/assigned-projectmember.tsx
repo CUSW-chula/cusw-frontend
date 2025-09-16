@@ -27,12 +27,17 @@ interface UsersInterfaces {
 interface AssignedProjectMemberProps {
   project: Project;
   isMember?: boolean;
+  isAdmin?: boolean;
+  isHead?: boolean;
 }
 
 export const AssignedProjectMember: React.FC<AssignedProjectMemberProps> = ({
   project,
   isMember = false,
+  isAdmin = false,
+  isHead = false,
 }) => {
+  const restricted = isMember && !isAdmin && !isHead;
   const [open, setOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<UsersInterfaces[]>([]);
   const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
@@ -134,7 +139,7 @@ export const AssignedProjectMember: React.FC<AssignedProjectMemberProps> = ({
   }, [open, fetchUsers]);
 
   const handleSelectUser = async (userName: string) => {
-    if (!isMounted || !project || isMember) return; // เพิ่มการตรวจสอบ isMember
+    if (!isMounted || !project || restricted) return;
 
     const user = usersList.find((u) => u.name === userName);
     if (!user) return;
@@ -176,88 +181,80 @@ export const AssignedProjectMember: React.FC<AssignedProjectMemberProps> = ({
   };
 
   const handlePopoverOpenChange = (newOpen: boolean) => {
-    if (!isMember) {
-      setOpen(newOpen);
-    }
+    if (!restricted) setOpen(newOpen);
   };
-
   const handleButtonClick = () => {
-    if (!isMember) {
-      setOpen(!open);
-    }
+    if (!restricted) setOpen(!open);
   };
 
   return (
     <TooltipProvider>
-      <div className="flex items-center gap-2">
-        {/* แสดงรายชื่อ members */}
-        <div className="flex items-center gap-2">
-          <Popover open={open} onOpenChange={handlePopoverOpenChange}>
-            <PopoverTrigger asChild className="border-brown text-brown">
-              <Button
-                variant="outline"
-                className={cn('h-8 px-2 hover:bg-gray-50', isMember && 'cursor-default')}
-                onClick={handleButtonClick}>
-                {selectedUser.length > 0 ? (
-                  <div className="flex space-x-2 items-center">
-                    {selectedUser.slice(0, MAX_VISIBLE_MEMBERS).map((user) => (
-                      <Profile key={user.id} userId={user.id} userName={user.name} />
-                    ))}
-                    {selectedUser.length > MAX_VISIBLE_MEMBERS && (
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <div className="w-[24px] h-[24px] bg-gray-100 rounded-xl border border-[#6b5c56] flex-col justify-center items-center gap-2.5 inline-flex text-center text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-3">
-                            +{selectedUser.length - MAX_VISIBLE_MEMBERS}
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <div className="flex flex-col gap-1">
-                            {selectedUser.slice(MAX_VISIBLE_MEMBERS).map((user) => (
-                              <p key={user.id} className="text-xs font-medium text-black">
-                                {user.name}
-                              </p>
-                            ))}
-                          </div>
-                        </TooltipContent>
-                      </Tooltip>
-                    )}
-                  </div>
-                ) : (
-                  <p className="p-ui text-sm">Assigned</p>
+      <Popover open={open} onOpenChange={handlePopoverOpenChange}>
+        <PopoverTrigger asChild className="border-brown text-brown">
+          <Button
+            variant="outline"
+            className={cn('h-8 px-2 hover:bg-gray-50', restricted && 'cursor-default')}
+            onClick={handleButtonClick}>
+            {selectedUser.length > 0 ? (
+              <div className="flex space-x-2 items-center">
+                {selectedUser.slice(0, MAX_VISIBLE_MEMBERS).map((user) => (
+                  <Profile key={user.id} userId={user.id} userName={user.name} />
+                ))}
+                {selectedUser.length > MAX_VISIBLE_MEMBERS && (
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <div className="w-[24px] h-[24px] bg-gray-100 rounded-xl border border-[#6b5c56] flex-col justify-center items-center gap-2.5 inline-flex text-center text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-3">
+                        +{selectedUser.length - MAX_VISIBLE_MEMBERS}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <div className="flex flex-col gap-1">
+                        {selectedUser.slice(MAX_VISIBLE_MEMBERS).map((user) => (
+                          <p key={user.id} className="text-xs font-medium text-black">
+                            {user.name}
+                          </p>
+                        ))}
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
                 )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="p-0" side="right" align="start">
-              <Command>
-                <CommandInput placeholder="Search member ..." />
-                <CommandList>
-                  <CommandEmpty>No members found.</CommandEmpty>
-                  <CommandGroup>
-                    {usersList
-                      .filter((user) => !ownerIds.includes(user.id))
-                      .map((user) => (
-                        <CommandItem
-                          key={user.id}
-                          value={user.name}
-                          onSelect={() => handleSelectUser(user.name)}>
-                          <Circle
-                            className={cn(
-                              'mr-2 h-4 w-4 fill-greenLight text-greenLight',
-                              selectedUser.some((u) => u.id === user.id)
-                                ? 'opacity-100'
-                                : 'opacity-40',
-                            )}
-                          />
-                          <span>{user.name}</span>
-                        </CommandItem>
-                      ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-        </div>
-      </div>
+              </div>
+            ) : (
+              <p className="p-ui text-sm">Assigned</p>
+            )}
+          </Button>
+        </PopoverTrigger>
+        {!restricted && (
+          <PopoverContent className="p-0" side="right" align="start">
+            <Command>
+              <CommandInput placeholder="Search member ..." />
+              <CommandList>
+                <CommandEmpty>No members found.</CommandEmpty>
+                <CommandGroup>
+                  {usersList
+                    .filter((user) => !ownerIds.includes(user.id))
+                    .map((user) => (
+                      <CommandItem
+                        key={user.id}
+                        value={user.name}
+                        onSelect={() => handleSelectUser(user.name)}>
+                        <Circle
+                          className={cn(
+                            'mr-2 h-4 w-4 fill-greenLight text-greenLight',
+                            selectedUser.some((u) => u.id === user.id)
+                              ? 'opacity-100'
+                              : 'opacity-40',
+                          )}
+                        />
+                        <span>{user.name}</span>
+                      </CommandItem>
+                    ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        )}
+      </Popover>
     </TooltipProvider>
   );
 };

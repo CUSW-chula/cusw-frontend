@@ -330,7 +330,15 @@ function DatePickerWithRange({ task }: { task: TaskProps }) {
 function DatePickerWithRangeProject({
   project,
   isMember,
-}: { project: DateInterface; isMember?: boolean }) {
+  isAdmin,
+  isHead,
+}: {
+  project: DateInterface;
+  isMember?: boolean;
+  isAdmin?: boolean;
+  isHead?: boolean;
+}) {
+  const restricted = !!(isMember && !isAdmin && !isHead);
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
@@ -422,7 +430,7 @@ function DatePickerWithRangeProject({
 
   // Handle calendar selection (เหมือน date feature)
   const handleCalendarSelect = async (range: DateRange | undefined) => {
-    if (!range?.from || isMember) return; // เพิ่มการตรวจสอบ isMember
+    if (!range?.from || restricted) return; // เพิ่มการตรวจสอบ isMember
 
     let patchedRange = range;
     // Logic: กดครั้งแรกให้ start/end เป็นวันเดียวกัน, กดครั้งที่สองถึงจะเป็น range
@@ -462,29 +470,23 @@ function DatePickerWithRangeProject({
     console.log('range from selected date:', patchedRange);
   };
 
+  const [open, setOpen] = React.useState(false);
   const handlePopoverOpenChange = (newOpen: boolean) => {
-    if (!isMember) {
-      // ใช้ default behavior ของ Popover
-    }
+    if (!restricted) setOpen(newOpen);
   };
-
   const handleButtonClick = () => {
-    if (isMember) {
-      // ป้องกันการเปิด popover
-      return false;
-    }
+    if (!restricted) setOpen(!open);
   };
-
   return (
     <div className={cn('grid gap-2')}>
-      <Popover onOpenChange={handlePopoverOpenChange}>
+      <Popover open={open} onOpenChange={handlePopoverOpenChange}>
         <PopoverTrigger asChild className="border-brown h-8 px-2">
           <Button
             id="date"
-            variant={'outline'}
+            variant="outline"
             className={cn(
-              `font-BaiJamjuree text-sm text-brown hover:bg-gray-50 ${!date && 'text-muted-foreground'}`,
-              isMember && 'cursor-default',
+              'font-BaiJamjuree text-sm text-brown hover:bg-gray-50',
+              restricted && 'cursor-default',
             )}
             onClick={handleButtonClick}>
             {date?.from ? (
@@ -500,7 +502,7 @@ function DatePickerWithRangeProject({
             )}
           </Button>
         </PopoverTrigger>
-        {!isMember && (
+        {!restricted && (
           <PopoverContent className="w-auto p-0 z-1 p-ui" align="start">
             <Calendar
               initialFocus
