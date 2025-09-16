@@ -30,6 +30,8 @@ interface Tags {
 interface ButtonAddTagsProps {
   project_id: string;
   isMember?: boolean;
+  isAdmin?: boolean;
+  isHead?: boolean;
 }
 
 interface Owner {
@@ -41,11 +43,17 @@ interface Owner {
   activated: boolean;
 }
 
-export function ButtonAddTags({ project_id, isMember = false }: ButtonAddTagsProps) {
+export const ButtonAddTags: React.FC<ButtonAddTagsProps> = ({
+  project_id,
+  isMember = false,
+  isAdmin = false,
+  isHead = false,
+}) => {
+  const restricted = isMember && !isAdmin && !isHead;
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const userid = (jwtDecode(auth) as { id: string }).id;
-  const [isHead, setIsHead] = React.useState<boolean>();
+  const [isHeadState, setIsHead] = React.useState<boolean>();
   const [isadmin, setIsAdmin] = React.useState<boolean>();
   const [isprojectOwner, setIsProjectOwner] = React.useState<boolean>();
   const [projectOwner, setProjectOwner] = React.useState<Owner[]>([]);
@@ -203,8 +211,13 @@ export function ButtonAddTags({ project_id, isMember = false }: ButtonAddTagsPro
     }
   };
 
+  const handleAddTag = async () => {
+    if (restricted) return;
+    setOpen(true);
+  };
+
   return (
-    <>
+    <div className="flex items-center gap-2">
       <div className="flex flex-row max-w-[212px] flex-wrap items-center justify-start overflow-hidden gap-x-1.5">
         {Array.isArray(selectedTags) && selectedTags.length > 0
           ? selectedTags
@@ -217,7 +230,7 @@ export function ButtonAddTags({ project_id, isMember = false }: ButtonAddTagsPro
               })
               .map((tag) => {
                 // Only show Accept tags to Head/Admin users
-                if (tag.name === 'Approved' && !isHead && !isadmin) return null;
+                if (tag.name === 'Approved' && !isHeadState && !isadmin) return null;
 
                 return (
                   <Badge
@@ -232,7 +245,7 @@ export function ButtonAddTags({ project_id, isMember = false }: ButtonAddTagsPro
                     <span className="text-sm font-BaiJamjuree font-medium text-ellipsis overflow-hidden max-w-[180px]">
                       {tag.name}
                     </span>
-                    {(isHead || isadmin || isprojectOwner) && (
+                    {(isHeadState || isadmin || isprojectOwner) && (
                       <button type="button" onClick={() => handleDeleteTag(tag.id)}>
                         <XCircle className="h-4 w-4" />
                       </button>
@@ -245,8 +258,12 @@ export function ButtonAddTags({ project_id, isMember = false }: ButtonAddTagsPro
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild className="border-brown text-brown">
             {!isMember && (
-              <Button variant="outline" className="h-8 px-2">
-                <p className="p-ui text-sm">Add tag</p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleAddTag}
+                className={cn('ml-2 hover:bg-gray-50', restricted && 'cursor-default')}>
+                Add Tag
               </Button>
             )}
           </PopoverTrigger>
@@ -258,7 +275,7 @@ export function ButtonAddTags({ project_id, isMember = false }: ButtonAddTagsPro
                 <CommandGroup>
                   {statuses.map((status) => {
                     // Hide Accept/Rework from non-Head users
-                    if (['Approved'].includes(status.name) && !isHead && !isadmin) return null;
+                    if (['Approved'].includes(status.name) && !isHeadState && !isadmin) return null;
 
                     return (
                       <CommandItem key={status.id} value={status.name} onSelect={handleSelectTag}>
@@ -283,6 +300,6 @@ export function ButtonAddTags({ project_id, isMember = false }: ButtonAddTagsPro
           </PopoverContent>
         </Popover>
       </div>
-    </>
+    </div>
   );
-}
+};
