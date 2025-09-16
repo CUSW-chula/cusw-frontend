@@ -208,7 +208,9 @@ export default async function TasksManageMentPage({
             canManageDate={canManageDate}
             canAssignTasks={canAssignTasks}
           />
-          {(isSystemAdmin || roleInProject === 'ProjectOwner') && <DeleteTask task={task} />}
+          {(isSystemAdmin || roleInProject === 'ProjectOwner' || isTaskCreator) && (
+            <DeleteTask task={task} />
+          )}
         </div>
       </div>
     </div>
