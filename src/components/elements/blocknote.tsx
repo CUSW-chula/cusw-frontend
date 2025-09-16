@@ -20,6 +20,7 @@ import { jwtDecode, type JwtPayload } from 'jwt-decode';
 import { toast } from '@/hooks/use-toast';
 import { getUserRoleOnProjectTask } from '@/service/userService';
 import type { TaskProps } from '@/app/types/types';
+import { can } from '@/permissions/helper';
 
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
@@ -136,31 +137,22 @@ function EditorWithName({ userName, task }: { userName: string; task: TaskProps 
     setDescription(HTML);
   };
   const [hasEditPermission, setHasEditPermission] = useState(false);
-  const checkPermissions = async () => {
-    try {
-      const { role, isAdmin } = await getUserRoleOnProjectTask({
+
+  useEffect(() => {
+    const checkPermission = async () => {
+      const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
         projectId: task.projectId,
         taskId: task.id,
       });
+      setHasEditPermission(can('editDescription', { projectRole, taskRole, isAdmin, isHead }));
+    };
 
-      if (!role) {
-        setHasEditPermission(false);
-        return;
-      }
-
-      setHasEditPermission(!isAdmin || ['ProjectOwner', 'owner', 'assignee'].includes(role));
-    } catch (error) {
-      console.error('Failed to check permissions:', error);
-      setHasEditPermission(false);
-    }
-  };
-  useEffect(() => {
-    checkPermissions();
-  }, [task]);
+    checkPermission();
+  }, [task.projectId, task.id]);
 
   return (
     <BlockNoteView
-      editable={!hasEditPermission}
+      editable={hasEditPermission}
       editor={editor}
       theme={'light'}
       onChange={onChangeBlock}

@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { toast } from '@/hooks/use-toast';
 import BASE_URL from '@/lib/shared';
+import { can } from '@/permissions/helper';
 import { fetchData } from '@/service/fetchService';
 import { getUserRoleOnProjectTask } from '@/service/userService';
 import { Ellipsis } from 'lucide-react';
@@ -81,27 +82,17 @@ export const TaskActionsMenu = ({ task }: { task: TaskProps }) => {
     );
   };
   const [hasEditPermission, setHasEditPermission] = useState(false);
-  const checkPermissions = async () => {
-    try {
-      const { role, isAdmin } = await getUserRoleOnProjectTask({
+
+  useEffect(() => {
+    const checkPermission = async () => {
+      const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
         projectId: task.projectId,
         taskId: task.id,
       });
+      setHasEditPermission(can('deleteTask', { projectRole, taskRole, isAdmin, isHead }));
+    };
 
-      if (!role) {
-        setHasEditPermission(false);
-        return;
-      }
-
-      setHasEditPermission(isAdmin || ['ProjectOwner', 'owner'].includes(role));
-    } catch (error) {
-      console.error('Failed to check permissions:', error);
-      setHasEditPermission(false);
-    }
-  };
-
-  useEffect(() => {
-    checkPermissions();
+    checkPermission();
   }, [task.projectId, task.id]);
   return (
     <div className="relative">

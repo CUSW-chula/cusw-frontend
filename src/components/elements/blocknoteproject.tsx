@@ -18,6 +18,8 @@ import BASE_URL, { BASE_YSWEET, type ProjectOverviewProps } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { jwtDecode, type JwtPayload } from 'jwt-decode';
 import { toast } from '@/hooks/use-toast';
+import { getUserRoleOnProjectTask } from '@/service/userService';
+import { can } from '@/permissions/helper';
 
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
@@ -46,6 +48,7 @@ function Document({ project_id }: ProjectOverviewProps) {
   const [canEdit, setCanEdit] = useState<boolean>(false); // เปลี่ยนจาก true เป็น false
   const [originalDescription, setOriginalDescription] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true); // เพิ่ม loading state
+  const [hasEditPermission, setHasEditPermission] = useState(false);
 
   useEffect(() => {
     const fetchDescription = async () => {
@@ -85,6 +88,16 @@ function Document({ project_id }: ProjectOverviewProps) {
         setIsLoading(false);
       }
     };
+    const checkPermission = async () => {
+      const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
+        projectId: project_id,
+      });
+      setHasEditPermission(
+        can('editProjectDescription', { projectRole, taskRole, isAdmin, isHead }),
+      );
+    };
+
+    checkPermission();
     fetchDescription();
   }, [project_id]);
 
@@ -141,7 +154,7 @@ function Document({ project_id }: ProjectOverviewProps) {
   return (
     <BlockNoteView
       editor={editor}
-      editable={canEdit}
+      editable={canEdit && hasEditPermission}
       aria-disabled={!canEdit}
       theme={'light'}
       onChange={onChangeBlock}

@@ -27,6 +27,8 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@radix
 import { jwtDecode } from 'jwt-decode';
 import type { ProjectRole, TaskRole } from '@/app/types/types';
 import { useEffect, useState } from 'react';
+import { can } from '@/permissions/helper';
+import { getUserRoleOnProjectTask } from '@/service/userService';
 
 interface UsersProps {
   id: string;
@@ -50,7 +52,7 @@ interface DeleteTaskProps {
   isMember?: boolean;
 }
 
-const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id, isMember = false }) => {
+const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
   const router = useRouter();
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
@@ -71,37 +73,49 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id, isMember = false
     }
   };
 
-  // ซ่อนปุ่ม delete project เมื่อเป็น member
-  if (isMember) {
-    return null;
-  }
+  const [hasEditPermission, setHasEditPermission] = useState(false);
+
+  useEffect(() => {
+    const checkPermission = async () => {
+      const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
+        projectId: project_id,
+      });
+      setHasEditPermission(can('deleteProject', { projectRole, taskRole, isAdmin, isHead }));
+    };
+
+    checkPermission();
+  }, [project_id]);
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger>
-        <div className="w-fit h-fit py-1 px-2 bg-red-300 rounded-md border bg-white border-red justify-center items-center gap-2 inline-flex hover:bg-red group">
-          <Trash2 className="h-4 w-4 text-red group-hover:text-white" />
-          <div className="text-sm font-medium font-BaiJamjuree text-red group-hover:text-white">
-            Delete project
-          </div>
-        </div>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete your account and remove your
-            data from our servers.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDeleteTask} className="bg-red">
-            Delete
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <>
+      {hasEditPermission && (
+        <AlertDialog>
+          <AlertDialogTrigger>
+            <div className="w-fit h-fit py-1 px-2 bg-red-300 rounded-md border bg-white border-red justify-center items-center gap-2 inline-flex hover:bg-red group">
+              <Trash2 className="h-4 w-4 text-red group-hover:text-white" />
+              <div className="text-sm font-medium font-BaiJamjuree text-red group-hover:text-white">
+                Delete project
+              </div>
+            </div>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete your account and remove
+                your data from our servers.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteTask} className="bg-red">
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+    </>
   );
 };
 

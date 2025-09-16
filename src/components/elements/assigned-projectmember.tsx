@@ -17,6 +17,8 @@ import { Profile } from './profile';
 import BASE_URL, { BASE_SOCKET, type Project } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { toast } from '@/hooks/use-toast';
+import { can } from '@/permissions/helper';
+import { getUserRoleOnProjectTask } from '@/service/userService';
 
 interface UsersInterfaces {
   id: string;
@@ -40,12 +42,24 @@ export const AssignedProjectMember: React.FC<AssignedProjectMemberProps> = ({
   const [isMounted, setIsMounted] = React.useState(false);
   // Keep owner ids locally so dropdown can exclude owners in real-time
   const [ownerIds, setOwnerIds] = React.useState<string[]>([]);
+  const [hasEditPermission, setHasEditPermission] = React.useState(false);
   const MAX_VISIBLE_MEMBERS = 3;
 
   React.useEffect(() => {
     setIsMounted(true);
     setAuth(getCookie('auth')?.toString() || '');
   }, []);
+
+  React.useEffect(() => {
+    const checkPermission = async () => {
+      const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
+        projectId: project.id,
+      });
+      setHasEditPermission(can('editProjectMember', { projectRole, taskRole, isAdmin, isHead }));
+    };
+
+    checkPermission();
+  }, [project]);
 
   const fetchUsers = React.useCallback(async () => {
     if (!auth) return;
@@ -196,6 +210,7 @@ export const AssignedProjectMember: React.FC<AssignedProjectMemberProps> = ({
             <PopoverTrigger asChild className="border-brown text-brown">
               <Button
                 variant="outline"
+                disabled={!hasEditPermission}
                 className={cn('h-8 px-2 hover:bg-gray-50', isMember && 'cursor-default')}
                 onClick={handleButtonClick}>
                 {selectedUser.length > 0 ? (

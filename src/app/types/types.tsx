@@ -50,3 +50,10 @@ export interface FilterTasks {
 export type ProjectRole = 'ProjectOwner' | 'Member' | undefined;
 
 export type TaskRole = 'assignee' | 'owner' | undefined;
+
+export type PermissionContext = {
+  projectRole: ProjectRole;
+  taskRole: TaskRole;
+  isAdmin: boolean;
+  isHead: boolean;
+};

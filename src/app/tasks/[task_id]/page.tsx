@@ -144,30 +144,6 @@ export default async function TasksManageMentPage({
   // Task Owner สามารถจัดการ task ของตัวเองได้
   // Task Member สามารถจัดการ task ที่ตัวเองเป็น member ได้
   // Task Creator สามารถจัดการ task ที่ตัวเองสร้างได้
-  const canManageTags =
-    isSystemAdmin ||
-    roleInProject === 'ProjectOwner' ||
-    isTaskOwner ||
-    isTaskOwnerInArray ||
-    isTaskCreator;
-  const canManageMoney =
-    isSystemAdmin ||
-    roleInProject === 'ProjectOwner' ||
-    isTaskOwner ||
-    isTaskOwnerInArray ||
-    isTaskCreator;
-  const canManageDate =
-    isSystemAdmin ||
-    roleInProject === 'ProjectOwner' ||
-    isTaskOwner ||
-    isTaskOwnerInArray ||
-    isTaskCreator;
-  const canAssignTasks =
-    isSystemAdmin ||
-    roleInProject === 'ProjectOwner' ||
-    isTaskOwner ||
-    isTaskOwnerInArray ||
-    isTaskCreator;
 
   const workspace: Workspace = {
     id: task.id,
@@ -201,14 +177,8 @@ export default async function TasksManageMentPage({
 
         {/* Right Section */}
         <div className="flex flex-col gap-4 items-end">
-          <MenuBar
-            task={task}
-            canManageTags={canManageTags}
-            canManageMoney={canManageMoney}
-            canManageDate={canManageDate}
-            canAssignTasks={canAssignTasks}
-          />
-          {(isSystemAdmin || roleInProject === 'ProjectOwner') && <DeleteTask task={task} />}
+          <MenuBar task={task} />
+          <DeleteTask task={task} />
         </div>
       </div>
     </div>

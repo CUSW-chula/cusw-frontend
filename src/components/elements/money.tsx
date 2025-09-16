@@ -24,12 +24,13 @@ import { moneyAtom } from '@/atom';
 import type { TaskProps } from '@/app/types/types';
 import { useToast } from '@/hooks/use-toast';
 import { getUserRoleOnProjectTask } from '@/service/userService';
+import { can } from '@/permissions/helper';
 interface Budget {
   type: string;
   money: number;
 }
 
-const Money = ({ task, canManageMoney }: { task: TaskProps | null; canManageMoney: boolean }) => {
+const Money = ({ task }: { task: TaskProps | null }) => {
   enum TypeMoney {
     null = '',
     budget = 'budget',
@@ -283,36 +284,22 @@ const Money = ({ task, canManageMoney }: { task: TaskProps | null; canManageMone
   }
   const [hasEditPermission, setHasEditPermission] = useState(false);
 
-  const checkPermissions = useCallback(async () => {
-    if (!task) {
-      setHasEditPermission(false);
-      return;
-    }
-
-    try {
-      const { role, isAdmin } = await getUserRoleOnProjectTask({
+  useEffect(() => {
+    if (!task) return;
+    const checkPermission = async () => {
+      const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
         projectId: task.projectId,
         taskId: task.id,
       });
+      setHasEditPermission(can('editMoney', { projectRole, taskRole, isAdmin, isHead }));
+    };
 
-      if (!role) {
-        setHasEditPermission(false);
-        return;
-      }
-
-      setHasEditPermission(isAdmin || ['ProjectOwner', 'owner', 'assignee'].includes(role));
-    } catch (error) {
-      console.error('Failed to check permissions:', error);
-      setHasEditPermission(false);
-    }
-  }, [task]);
-  useEffect(() => {
-    checkPermissions();
-  }, [checkPermissions]);
+    checkPermission();
+  }, [task?.projectId, task?.id]);
 
   return (
     <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-      {canManageMoney ? (
+      {hasEditPermission ? (
         // --- Owner/Manager: สามารถกดเปิด Dialog ได้ ---
         <DialogTrigger asChild>
           <div
@@ -328,7 +315,7 @@ const Money = ({ task, canManageMoney }: { task: TaskProps | null; canManageMone
         // --- Member: เห็นจำนวนเงินเฉพาะเมื่อมีงบแล้วเท่านั้น ---
         !(budgetList.type === TypeMoney.null || Number.isNaN(budgetList.money)) && (
           <div
-            className={`h-8 px-2 text-sm bg-white rounded-md border justify-center items-center flex font-medium font-BaiJamjuree border-brown text-brown ${getMoneyColor(
+            className={`h-8 px-2 text-sm bg-white rounded-md justify-center items-center flex font-medium font-BaiJamjuree text-brown ${getMoneyColor(
               budgetList.type,
             )}`}>
             {budgetList.money.toLocaleString()}

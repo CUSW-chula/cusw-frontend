@@ -18,6 +18,8 @@ import BASE_URL, { BASE_SOCKET, type Project } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { toast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getUserRoleOnProjectTask } from '@/service/userService';
+import { can } from '@/permissions/helper';
 
 interface UsersInterfaces {
   id: string;
@@ -39,6 +41,7 @@ export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({
   const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
   const [auth, setAuth] = React.useState('');
   const [isMounted, setIsMounted] = React.useState(false);
+  const [hasEditPermission, setHasEditPermission] = React.useState(false);
 
   const MAX_VISIBLE_MEMBERS = 3;
 
@@ -60,6 +63,17 @@ export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({
       console.error('Failed to fetch users:', error);
     }
   }, [auth]);
+
+  React.useEffect(() => {
+    const checkPermission = async () => {
+      const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
+        projectId: project.id,
+      });
+      setHasEditPermission(can('editProjectOwner', { projectRole, taskRole, isAdmin, isHead }));
+    };
+
+    checkPermission();
+  }, [project]);
 
   React.useEffect(() => {
     if (!isMounted || !auth) return;
@@ -194,6 +208,7 @@ export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({
             <PopoverTrigger asChild>
               <Button
                 type="button"
+                disabled={!hasEditPermission}
                 variant="outline"
                 className={cn(
                   'border-brown text-brown h-8 px-2 hover:bg-gray-50',

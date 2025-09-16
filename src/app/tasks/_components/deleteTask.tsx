@@ -18,6 +18,7 @@ import BASE_URL from '@/lib/shared';
 import type { TaskProps } from '@/app/types/types';
 import { useEffect, useState } from 'react';
 import { getUserRoleOnProjectTask } from '@/service/userService';
+import { can } from '@/permissions/helper';
 
 export const DeleteTask = ({ task }: { task: TaskProps }) => {
   const router = useRouter();
@@ -35,27 +36,19 @@ export const DeleteTask = ({ task }: { task: TaskProps }) => {
     }
   };
   const [hasEditPermission, setHasEditPermission] = useState(false);
-  const checkPermissions = async () => {
-    try {
-      const { role, isAdmin } = await getUserRoleOnProjectTask({
+
+  useEffect(() => {
+    const checkPermission = async () => {
+      const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
         projectId: task.projectId,
         taskId: task.id,
       });
+      setHasEditPermission(can('deleteTask', { projectRole, taskRole, isAdmin, isHead }));
+    };
 
-      if (!role) {
-        setHasEditPermission(false);
-        return;
-      }
+    checkPermission();
+  }, [task.projectId, task.id]);
 
-      setHasEditPermission(isAdmin || ['ProjectOwner', 'owner', 'assignee'].includes(role));
-    } catch (error) {
-      console.error('Failed to check permissions:', error);
-      setHasEditPermission(false);
-    }
-  };
-  useEffect(() => {
-    checkPermissions();
-  }, [task]);
   return (
     hasEditPermission && (
       <AlertDialog>
