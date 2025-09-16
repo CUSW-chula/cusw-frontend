@@ -45,7 +45,7 @@ const MenuBar = ({
           <CrownIcon className="w-6 h-6 relative text-brown" />
           {/* Describtion */}
           <div className="text-brown text-xs font-medium font-BaiJamjuree leading-tight">
-            Owner :{' '}
+            Project owner :{' '}
           </div>
         </div>
         <ProjectOwner task={task} />
@@ -58,7 +58,7 @@ const MenuBar = ({
           <Users className="w-6 h-6 relative text-brown" />
           {/* Describtion */}
           <div className="text-brown text-xs font-medium font-BaiJamjuree leading-tight">
-            Member :{' '}
+            Task member :{' '}
           </div>
         </div>
         <AssignedTaskToMember task={task} canAssignTask={canAssignTasks} />

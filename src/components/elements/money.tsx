@@ -354,7 +354,7 @@ const Money = ({ task, canManageMoney }: { task: TaskProps | null; canManageMone
                 <SelectItem
                   value="advance"
                   className="text-black text-sm font-normal font-Anuphan leading-normal hover:bg-gray-100">
-                  สำรองจ่าย
+                  ยืมรองจ่าย
                 </SelectItem>
                 <SelectItem
                   value="expense"

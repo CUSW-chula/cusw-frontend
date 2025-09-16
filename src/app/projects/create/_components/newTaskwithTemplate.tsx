@@ -29,7 +29,7 @@ export const NewTaskwithTemplate: React.FC<NewTaskwithTemplateProps> = ({
     <form
       className="flex flex-col h-full justify-between"
       onSubmit={(event) => handleSubmit(event, 'newTaskwithTemplate')}>
-      <h2 className="text-xl font-BaiJamjuree text-center my-4 ">Select Template</h2>
+      <h2 className="text-xl font-BaiJamjuree text-center my-4 ">Select a Template</h2>
       <div className="flex w-full flex-1 min-h-0 p-6">
         {/* Templates Column */}
         <div className="w-1/3 flex flex-col border-r pr-4 overflow-hidden">
