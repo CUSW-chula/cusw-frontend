@@ -53,6 +53,7 @@ interface UserRoleProjectTaskResponse {
   taskRole: TaskRole | undefined;
   role: ProjectRole | TaskRole | undefined; // Computed role for backwards compatibility
   isAdmin: boolean;
+  isHead: boolean;
 }
 
 export async function getUserRoleOnProjectTask({
@@ -70,18 +71,22 @@ export async function getUserRoleOnProjectTask({
       taskRole: undefined,
       role: undefined,
       isAdmin: false,
+      isHead: false,
     };
 
   try {
     const decoded = jwtDecode<{ id: string }>(auth);
     const response = await fetch(`${BASE_URL}/v2/users/userrole/${decoded.id}`, {
       headers: { Authorization: auth },
-      cache: 'no-store',
+      // cache: 'no-store',
     });
 
     if (!response.ok) throw new Error(`Failed to fetch user role: ${response.status}`);
 
-    const data: { projects: ProjectData[]; isAdmin: boolean } = await response.json();
+    const data: { projects: ProjectData[]; isAdmin: boolean; isHead: boolean } =
+      await response.json();
+    // console.log('Fetched user role data:', data);
+
     const project = data.projects.find((p) => p.id === projectId);
 
     if (!project)
@@ -91,6 +96,7 @@ export async function getUserRoleOnProjectTask({
         taskRole: undefined,
         role: undefined,
         isAdmin: data.isAdmin,
+        isHead: data.isHead,
       };
 
     const taskRole = taskId && project.tasks?.find((t) => t.taskId === taskId)?.taskRole;
@@ -103,6 +109,7 @@ export async function getUserRoleOnProjectTask({
       taskRole: taskRole || undefined,
       role: computedRole, // Backwards compatibility
       isAdmin: data.isAdmin,
+      isHead: data.isHead,
     };
   } catch (error) {
     console.error('getUserRoleOnProjectTask failed:', error);
@@ -112,6 +119,7 @@ export async function getUserRoleOnProjectTask({
       taskRole: undefined,
       role: undefined,
       isAdmin: false,
+      isHead: false,
     };
   }
 }
