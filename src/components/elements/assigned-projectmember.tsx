@@ -223,7 +223,7 @@ export const AssignedProjectMember: React.FC<AssignedProjectMemberProps> = ({
                     )}
                   </div>
                 ) : (
-                  <p className="p-ui text-sm">Assigned</p>
+                  <p className="p-ui text-sm">Assign</p>
                 )}
               </Button>
             </PopoverTrigger>

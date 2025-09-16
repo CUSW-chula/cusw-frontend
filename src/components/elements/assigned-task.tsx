@@ -217,7 +217,7 @@ export function AssignedTaskToMember({
                       )}
                     </div>
                   ) : (
-                    <p className="p-ui text-sm">Assigned</p>
+                    <p className="p-ui text-sm">Assign</p>
                   )}
                 </Button>
               </PopoverTrigger>
