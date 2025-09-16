@@ -100,28 +100,15 @@ function Document({ project_id }: ProjectOverviewProps) {
           // ถ้า parse ไม่ได้ ปล่อยว่าง
         }
 
-        // 2) ตัดสินสิทธิ์แก้ไขจาก response หรือ OPTIONS
+        // 2) ตัดสินสิทธิ์แก้ไขจาก response เท่านั้น (ไม่ใช้ OPTIONS)
         let allowed = false;
 
-        // กรณี API มี flag สิทธิ์
         if (typeof data?.permissions?.can_edit === 'boolean') {
           allowed = data.permissions.can_edit;
         } else if (typeof data?.can_edit === 'boolean') {
           allowed = data.can_edit;
         } else if (data?.role && ['owner', 'editor', 'maintainer', 'admin'].includes(data.role)) {
           allowed = true;
-        } else {
-          // Fallback: ใช้ OPTIONS เพื่อดูว่ามี PATCH ไหม (ไม่แก้ไขข้อมูล)
-          try {
-            const opt = await fetch(`${BASE_URL}/v2/projects/${project_id}`, {
-              method: 'OPTIONS',
-              headers: { Authorization: auth },
-            });
-            const allow = opt.headers.get('Allow') || opt.headers.get('allow') || '';
-            if (allow.toUpperCase().includes('PATCH')) allowed = true;
-          } catch {
-            // ถ้าเช็คไม่ได้ ให้คงเป็น read-only
-          }
         }
 
         setCanEdit(allowed);
