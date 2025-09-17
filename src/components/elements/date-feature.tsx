@@ -16,6 +16,7 @@ import { toast } from '@/hooks/use-toast';
 import { getUserRoleOnProjectTask } from '@/service/userService';
 import { useEffect, useState } from 'react';
 import type { TaskProps } from '@/app/types/types';
+import { can } from '@/permissions/helper';
 
 // FUNCTION USING INSTRUCTION
 //================================================================
@@ -269,27 +270,18 @@ function DatePickerWithRange({ task }: { task: TaskProps }) {
   };
 
   const [hasEditPermission, setHasEditPermission] = useState(false);
-  const checkPermissions = async () => {
-    try {
-      const { role, isAdmin } = await getUserRoleOnProjectTask({
+
+  useEffect(() => {
+    const checkPermission = async () => {
+      const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
         projectId: task.projectId,
         taskId: task.id,
       });
+      setHasEditPermission(can('editDate', { projectRole, taskRole, isAdmin, isHead }));
+    };
 
-      if (!role) {
-        setHasEditPermission(false);
-        return;
-      }
-
-      setHasEditPermission(isAdmin || ['ProjectOwner', 'owner', 'assignee'].includes(role));
-    } catch (error) {
-      console.error('Failed to check permissions:', error);
-      setHasEditPermission(false);
-    }
-  };
-  useEffect(() => {
-    checkPermissions();
-  }, [task]);
+    checkPermission();
+  }, [task.projectId, task.id]);
   return (
     <div className={cn('grid gap-2')}>
       <Popover>
@@ -327,18 +319,8 @@ function DatePickerWithRange({ task }: { task: TaskProps }) {
 }
 
 // Exporting for Project Page.
-function DatePickerWithRangeProject({
-  project,
-  isMember,
-  isAdmin,
-  isHead,
-}: {
-  project: DateInterface;
-  isMember?: boolean;
-  isAdmin?: boolean;
-  isHead?: boolean;
-}) {
-  const restricted = !!(isMember && !isAdmin && !isHead);
+function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
+
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
@@ -430,7 +412,7 @@ function DatePickerWithRangeProject({
 
   // Handle calendar selection (เหมือน date feature)
   const handleCalendarSelect = async (range: DateRange | undefined) => {
-    if (!range?.from || restricted) return; // เพิ่มการตรวจสอบ isMember
+    if (!range?.from) return; // เพิ่มการตรวจสอบ isMember
 
     let patchedRange = range;
     // Logic: กดครั้งแรกให้ start/end เป็นวันเดียวกัน, กดครั้งที่สองถึงจะเป็น range
@@ -472,21 +454,41 @@ function DatePickerWithRangeProject({
 
   const [open, setOpen] = React.useState(false);
   const handlePopoverOpenChange = (newOpen: boolean) => {
-    if (!restricted) setOpen(newOpen);
+    if (hasEditPermission) {
+      // ใช้ default behavior ของ Popover
+    }
+
   };
   const handleButtonClick = () => {
-    if (!restricted) setOpen(!open);
+    if (!hasEditPermission) {
+      // ป้องกันการเปิด popover
+      return false;
+    }
   };
+
+  const [hasEditPermission, setHasEditPermission] = useState(false);
+
+  useEffect(() => {
+    const checkPermission = async () => {
+      const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
+        projectId: project.id,
+      });
+      setHasEditPermission(can('editProjectDate', { projectRole, taskRole, isAdmin, isHead }));
+    };
+
+    checkPermission();
+  }, [project.id]);
+
   return (
     <div className={cn('grid gap-2')}>
-      <Popover open={open} onOpenChange={handlePopoverOpenChange}>
-        <PopoverTrigger asChild className="border-brown h-8 px-2">
+      <Popover onOpenChange={handlePopoverOpenChange}>
+        <PopoverTrigger asChild className="border-brown h-8 px-2" disabled={!hasEditPermission}>
+
           <Button
             id="date"
             variant="outline"
             className={cn(
-              'font-BaiJamjuree text-sm text-brown hover:bg-gray-50',
-              restricted && 'cursor-default',
+              `font-BaiJamjuree text-sm text-brown hover:bg-gray-50 ${!date && 'text-muted-foreground'}`,
             )}
             onClick={handleButtonClick}>
             {date?.from ? (
@@ -502,18 +504,16 @@ function DatePickerWithRangeProject({
             )}
           </Button>
         </PopoverTrigger>
-        {!restricted && (
-          <PopoverContent className="w-auto p-0 z-1 p-ui" align="start">
-            <Calendar
-              initialFocus
-              mode="range"
-              defaultMonth={date?.from}
-              selected={date}
-              onSelect={handleCalendarSelect}
-              numberOfMonths={2}
-            />
-          </PopoverContent>
-        )}
+        <PopoverContent className="w-auto p-0 z-1 p-ui" align="start">
+          <Calendar
+            initialFocus
+            mode="range"
+            defaultMonth={date?.from}
+            selected={date}
+            onSelect={handleCalendarSelect}
+            numberOfMonths={2}
+          />
+        </PopoverContent>
       </Popover>
     </div>
   );

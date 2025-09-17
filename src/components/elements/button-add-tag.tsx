@@ -20,12 +20,10 @@ import type { TaskProps, TagProps } from '@/app/types/types';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
 import { getUserRoleOnProjectTask } from '@/service/userService';
+import { can } from '@/permissions/helper';
 
 // Mock data
-export function ButtonAddTags({
-  task,
-  canManageTags,
-}: { task: TaskProps; canManageTags: boolean }) {
+export function ButtonAddTags({ task }: { task: TaskProps }) {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const [open, setOpen] = React.useState(false);
@@ -156,27 +154,19 @@ export function ButtonAddTags({
   };
   const { toast } = useToast();
   const [hasEditPermission, setHasEditPermission] = useState(false);
-  const checkPermissions = async () => {
-    try {
-      const { role, isAdmin } = await getUserRoleOnProjectTask({
+
+  useEffect(() => {
+    const checkPermission = async () => {
+      const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
         projectId: task.projectId,
         taskId: task.id,
       });
+      setHasEditPermission(can('editTag', { projectRole, taskRole, isAdmin, isHead }));
+    };
 
-      if (!role) {
-        setHasEditPermission(false);
-        return;
-      }
+    checkPermission();
+  }, [task.projectId, task.id]);
 
-      setHasEditPermission(isAdmin || ['ProjectOwner', 'owner', 'assignee'].includes(role));
-    } catch (error) {
-      console.error('Failed to check permissions:', error);
-      setHasEditPermission(false);
-    }
-  };
-  useEffect(() => {
-    checkPermissions();
-  }, [task]);
   return (
     <>
       <div className="flex flex-row max-w-[212px] flex-wrap items-center justify-start overflow-hidden gap-x-1.5">
@@ -189,7 +179,7 @@ export function ButtonAddTags({
                 <span className="text-sm font-BaiJamjuree font-medium text-ellipsis overflow-hidden max-w-[180px]">
                   {tag.name}
                 </span>
-                {canManageTags && (
+                {hasEditPermission && (
                   <button
                     type="button"
                     onClick={() => {
@@ -205,7 +195,7 @@ export function ButtonAddTags({
           : undefined}
 
         {/* ปุ่ม Add tag จะถูกซ่อนเมื่อ canManageTags === false */}
-        {canManageTags && (
+        {hasEditPermission && (
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild className=" border-brown text-brown ">
               <Button variant="outline" className="h-8 px-2">

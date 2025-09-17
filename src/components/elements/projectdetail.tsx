@@ -27,6 +27,8 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@radix
 import { jwtDecode } from 'jwt-decode';
 import type { ProjectRole, TaskRole } from '@/app/types/types';
 import { useEffect, useState } from 'react';
+import { can } from '@/permissions/helper';
+import { getUserRoleOnProjectTask } from '@/service/userService';
 
 interface UsersProps {
   id: string;
@@ -52,12 +54,8 @@ interface DeleteTaskProps {
   isHead?: boolean;
 }
 
-const DeleteProject: React.FC<DeleteTaskProps> = ({
-  project_id,
-  isMember = false,
-  isAdmin = false,
-  isHead = false,
-}) => {
+const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
+
   const router = useRouter();
   const auth = getCookie('auth')?.toString() ?? '';
   const restricted = isMember && !isAdmin && !isHead;
@@ -78,52 +76,49 @@ const DeleteProject: React.FC<DeleteTaskProps> = ({
     }
   };
 
-  // ซ่อนปุ่ม delete project เมื่อเป็น member
-  if (isMember) {
-    return null;
-  }
+  const [hasEditPermission, setHasEditPermission] = useState(false);
+
+  useEffect(() => {
+    const checkPermission = async () => {
+      const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
+        projectId: project_id,
+      });
+      setHasEditPermission(can('deleteProject', { projectRole, taskRole, isAdmin, isHead }));
+    };
+
+    checkPermission();
+  }, [project_id]);
 
   return (
-    <AlertDialog>
-      {restricted ? (
-        // แสดงปุ่มเหมือนเดิม แต่ไม่ห่อด้วย Trigger เพื่อไม่ให้เปิด dialog
-        <button
-          type="button"
-          aria-disabled={true}
-          onClick={(e) => e.preventDefault()}
-          className="w-fit h-fit py-1 px-2 bg-red-300 rounded-md border bg-white border-red justify-center items-center gap-2 inline-flex hover:bg-red group">
-          <Trash2 className="h-4 w-4 text-red group-hover:text-white" />
-          <div className="text-sm font-medium font-BaiJamjuree text-red group-hover:text-white">
-            Delete project
-          </div>
-        </button>
-      ) : (
-        <AlertDialogTrigger>
-          <div className="w-fit h-fit py-1 px-2 bg-red-300 rounded-md border bg-white border-red justify-center items-center gap-2 inline-flex hover:bg-red group">
-            <Trash2 className="h-4 w-4 text-red group-hover:text-white" />
-            <div className="text-sm font-medium font-BaiJamjuree text-red group-hover:text-white">
-              Delete project
+    <>
+      {hasEditPermission && (
+        <AlertDialog>
+          <AlertDialogTrigger>
+            <div className="w-fit h-fit py-1 px-2 bg-red-300 rounded-md border bg-white border-red justify-center items-center gap-2 inline-flex hover:bg-red group">
+              <Trash2 className="h-4 w-4 text-red group-hover:text-white" />
+              <div className="text-sm font-medium font-BaiJamjuree text-red group-hover:text-white">
+                Delete project
+              </div>
             </div>
-          </div>
-        </AlertDialogTrigger>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete your account and remove
+                your data from our servers.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteTask} className="bg-red">
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
-      {!restricted && (
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your project.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteTask} className="bg-red">
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      )}
-    </AlertDialog>
+    </>
   );
 };
 
@@ -229,17 +224,8 @@ const ProjectFinanceItem: React.FC<ProjectFinanceItemProps> = ({
   );
 };
 
-const MenuBar = ({
-  project,
-  isMember,
-  isAdmin,
-  isHead,
-}: {
-  project: Project;
-  isMember?: boolean;
-  isAdmin?: boolean;
-  isHead?: boolean;
-}) => {
+const MenuBar = ({ project }: { project: Project }) => {
+
   return (
     <div className="w-[360px] p-[20px] bg-white rounded-md border border-[#6b5c56] flex-col justify-center items-start gap-2 inline-flex">
       <div aria-label="owner" className="h-10 justify-start items-center inline-flex">
@@ -247,28 +233,14 @@ const MenuBar = ({
           <CrownIcon className="w-[24px] h-[24px] text-brown" />
           <p className="text-[#6b5c56] text-xs font-medium leading-tight">Owner : </p>
         </div>
-        {project && (
-          <AssignedProjectOwner
-            project={project}
-            isMember={isMember}
-            isAdmin={isAdmin}
-            isHead={isHead}
-          />
-        )}
+        {project && <AssignedProjectOwner project={project} />}
       </div>
       <div aria-label="member" className="h-10 justify-start items-center inline-flex">
         <div className="w-24 justify-start items-center gap-2 flex">
           <Users className="w-[24px] h-[24px] text-brown" />
           <p className="text-brown text-xs font-medium font-BaiJamjuree">Member : </p>
         </div>
-        {project && (
-          <AssignedProjectMember
-            project={project}
-            isMember={isMember}
-            isAdmin={isAdmin}
-            isHead={isHead}
-          />
-        )}
+        {project && <AssignedProjectMember project={project} />}
       </div>
 
       <div aria-label="tag" className="h-fit justify-start items-start inline-flex">
@@ -279,14 +251,7 @@ const MenuBar = ({
           {/* Description */}
           <p className="text-brown text-xs font-medium font-BaiJamjuree">Tag : </p>
         </div>
-        {project && (
-          <ButtonAddTags
-            project_id={project.id}
-            isMember={isMember}
-            isAdmin={isAdmin}
-            isHead={isHead}
-          />
-        )}
+        {project && <ButtonAddTags project_id={project.id} />}
       </div>
 
       <TooltipProvider>
@@ -332,14 +297,7 @@ const MenuBar = ({
           {/* Describtion */}
           <p className="text-[#6b5c56] text-xs font-medium  leading-tight">Date : </p>
         </div>
-        {project && (
-          <DatePickerWithRangeProject
-            project={project}
-            isMember={isMember}
-            isAdmin={isAdmin}
-            isHead={isHead}
-          />
-        )}
+        {project && <DatePickerWithRangeProject project={project} />}
       </div>
     </div>
   );
@@ -349,59 +307,15 @@ export const ProjectDetail = ({ project }: { project: Project }) => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const Router = useRouter();
-  const [isMember, setIsMember] = useState(false);
-  const [isHead, setIsHead] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  // ป้องกัน decode error
-  let userId: { id: string } | null = null;
-  try {
-    userId = auth ? jwtDecode<{ id: string }>(auth) : null;
-  } catch {
-    userId = null;
-  }
+
 
   useEffect(() => {
-    if (!auth || !userId?.id) return;
+    if (!auth || auth === '') {
+      console.error('No auth token found');
+      return;
+    }
+  }, [auth]);
 
-    const fetchOwner = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/v2/users/${userId?.id}`, {
-          headers: { Authorization: auth },
-        });
-        if (!response.ok) return;
-        const data = await response.json();
-        setIsHead(!!data.head);
-        setIsAdmin(!!data.admin);
-      } catch (error) {
-        console.error('Error fetching Owner:', error);
-      }
-    };
-
-    fetchOwner();
-  }, [auth, userId?.id]);
-
-  useEffect(() => {
-    if (!auth || !userId?.id) return;
-
-    const fetchUserRole = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/v2/users/userrole/${userId?.id}`, {
-          headers: { Authorization: auth },
-          cache: 'no-store',
-        });
-        if (!response.ok) throw new Error(`Failed to fetch user role: ${response.status}`);
-        const data: { projects: ProjectData[] } = await response.json();
-        const projRole = data.projects.find((p) => p.id === project.id);
-        setIsMember(projRole?.role === 'Member');
-      } catch (error) {
-        console.error('Error fetching user role:', error);
-      }
-    };
-
-    fetchUserRole();
-  }, [auth, userId?.id, project.id]);
-
-  const restricted = isMember && !isAdmin && !isHead;
 
   const handleClick = () => {
     const url = `/projects/${project.id}`;
@@ -441,13 +355,8 @@ export const ProjectDetail = ({ project }: { project: Project }) => {
           </div>
         </div>
         <div className="flex-col justify-between items-end gap-4 inline-flex">
-          <MenuBar project={project} isMember={restricted} isAdmin={isAdmin} isHead={isHead} />
-          <DeleteProject
-            project_id={project.id}
-            isMember={restricted}
-            isAdmin={isAdmin}
-            isHead={isHead}
-          />
+          <MenuBar project={project} />
+          <DeleteProject project_id={project.id} />
         </div>
       </div>
     </div>

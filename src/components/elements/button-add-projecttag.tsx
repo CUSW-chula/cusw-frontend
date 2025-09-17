@@ -21,6 +21,8 @@ import { jwtDecode } from 'jwt-decode';
 import { useEffect } from 'react';
 import { set } from 'date-fns';
 import { ProjectOwner } from './project-owner';
+import { getUserRoleOnProjectTask } from '@/service/userService';
+import { can } from '@/permissions/helper';
 
 interface Tags {
   id: string;
@@ -29,9 +31,6 @@ interface Tags {
 
 interface ButtonAddTagsProps {
   project_id: string;
-  isMember?: boolean;
-  isAdmin?: boolean;
-  isHead?: boolean;
 }
 
 interface Owner {
@@ -43,13 +42,8 @@ interface Owner {
   activated: boolean;
 }
 
-export const ButtonAddTags: React.FC<ButtonAddTagsProps> = ({
-  project_id,
-  isMember = false,
-  isAdmin = false,
-  isHead = false,
-}) => {
-  const restricted = isMember && !isAdmin && !isHead;
+export function ButtonAddTags({ project_id }: ButtonAddTagsProps) {
+
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const userid = (jwtDecode(auth) as { id: string }).id;
@@ -60,6 +54,7 @@ export const ButtonAddTags: React.FC<ButtonAddTagsProps> = ({
   const [open, setOpen] = React.useState(false);
   const [statuses, setStatuses] = React.useState<Tags[]>([]);
   const [selectedTags, setSelectedTags] = React.useState<Tags[]>([]);
+  const [hasEditPermission, setHasEditPermission] = React.useState<boolean>(false);
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const pareJsonValue = React.useCallback((values: any) => {
@@ -90,6 +85,17 @@ export const ButtonAddTags: React.FC<ButtonAddTagsProps> = ({
 
     fetchOwner();
   }, [auth, userid]);
+
+  useEffect(() => {
+    const checkPermission = async () => {
+      const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
+        projectId: project_id,
+      });
+      setHasEditPermission(can('editProjectTag', { projectRole, taskRole, isAdmin, isHead }));
+    };
+
+    checkPermission();
+  }, [project_id]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
@@ -255,50 +261,49 @@ export const ButtonAddTags: React.FC<ButtonAddTagsProps> = ({
               })
           : undefined}
 
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild className="border-brown text-brown">
-            {!isMember && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleAddTag}
-                className={cn('ml-2 hover:bg-gray-50', restricted && 'cursor-default')}>
-                Add Tag
-              </Button>
-            )}
-          </PopoverTrigger>
-          <PopoverContent className="p-0" side="right" align="start">
-            <Command>
-              <CommandInput placeholder="Add tag ..." />
-              <CommandList>
-                <CommandEmpty>No results found.</CommandEmpty>
-                <CommandGroup>
-                  {statuses.map((status) => {
-                    // Hide Accept/Rework from non-Head users
-                    if (['Approved'].includes(status.name) && !isHeadState && !isadmin) return null;
+        {hasEditPermission && (
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild className="border-brown text-brown">
+              {hasEditPermission && (
+                <Button variant="outline" className="h-8 px-2">
+                  <p className="p-ui text-sm">Add tag</p>
+                </Button>
+              )}
+            </PopoverTrigger>
+            <PopoverContent className="p-0" side="right" align="start">
+              <Command>
+                <CommandInput placeholder="Add tag ..." />
+                <CommandList>
+                  <CommandEmpty>No results found.</CommandEmpty>
+                  <CommandGroup>
+                    {statuses.map((status) => {
+                      // Hide Accept/Rework from non-Head users
+                      if (['Approved'].includes(status.name) && !isHead && !isadmin) return null;
 
-                    return (
-                      <CommandItem key={status.id} value={status.name} onSelect={handleSelectTag}>
-                        <Circle
-                          className={cn(
-                            'mr-2 h-4 w-4',
-                            status.name === 'Approved'
-                              ? 'fill-blue text-blue'
-                              : 'fill-greenLight text-greenLight',
-                            selectedTags.some((tag) => tag.id === status.id)
-                              ? 'opacity-100'
-                              : 'opacity-40',
-                          )}
-                        />
-                        <span>{status.name}</span>
-                      </CommandItem>
-                    );
-                  })}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
+
+                      return (
+                        <CommandItem key={status.id} value={status.name} onSelect={handleSelectTag}>
+                          <Circle
+                            className={cn(
+                              'mr-2 h-4 w-4',
+                              status.name === 'Approved'
+                                ? 'fill-blue text-blue'
+                                : 'fill-greenLight text-greenLight',
+                              selectedTags.some((tag) => tag.id === status.id)
+                                ? 'opacity-100'
+                                : 'opacity-40',
+                            )}
+                          />
+                          <span>{status.name}</span>
+                        </CommandItem>
+                      );
+                    })}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        )}
       </div>
     </div>
   );

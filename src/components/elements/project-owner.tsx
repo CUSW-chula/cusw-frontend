@@ -9,6 +9,7 @@ import { toast } from '@/hooks/use-toast';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
 import { useEffect, useState } from 'react';
 import { getUserRoleOnProjectTask } from '@/service/userService';
+import { can } from '@/permissions/helper';
 
 export function ProjectOwner({ task }: { task: TaskProps }) {
   const [owner, setOwner] = React.useState<User[]>([]);
@@ -45,27 +46,18 @@ export function ProjectOwner({ task }: { task: TaskProps }) {
     fetchOwner();
   }, [task.projectId, auth]);
   const [hasEditPermission, setHasEditPermission] = useState(false);
-  const checkPermissions = async () => {
-    try {
-      const { role, isAdmin } = await getUserRoleOnProjectTask({
+
+  useEffect(() => {
+    const checkPermission = async () => {
+      const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
         projectId: task.projectId,
         taskId: task.id,
       });
+      setHasEditPermission(can('editProjectOwner', { projectRole, taskRole, isAdmin, isHead }));
+    };
 
-      if (!role) {
-        setHasEditPermission(false);
-        return;
-      }
-
-      setHasEditPermission(isAdmin || ['ProjectOwner', 'owner', 'assignee'].includes(role));
-    } catch (error) {
-      console.error('Failed to check permissions:', error);
-      setHasEditPermission(false);
-    }
-  };
-  useEffect(() => {
-    checkPermissions();
-  }, [task]);
+    checkPermission();
+  }, [task.projectId, task.id]);
   return (
     <TooltipProvider>
       <div className="flex flex-row gap-1 flex-wrap">

@@ -17,6 +17,8 @@ import { Profile } from './profile';
 import BASE_URL, { BASE_SOCKET, type Project } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { toast } from '@/hooks/use-toast';
+import { can } from '@/permissions/helper';
+import { getUserRoleOnProjectTask } from '@/service/userService';
 
 interface UsersInterfaces {
   id: string;
@@ -26,18 +28,10 @@ interface UsersInterfaces {
 
 interface AssignedProjectMemberProps {
   project: Project;
-  isMember?: boolean;
-  isAdmin?: boolean;
-  isHead?: boolean;
 }
 
-export const AssignedProjectMember: React.FC<AssignedProjectMemberProps> = ({
-  project,
-  isMember = false,
-  isAdmin = false,
-  isHead = false,
-}) => {
-  const restricted = isMember && !isAdmin && !isHead;
+export const AssignedProjectMember: React.FC<AssignedProjectMemberProps> = ({ project }) => {
+
   const [open, setOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<UsersInterfaces[]>([]);
   const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
@@ -45,12 +39,24 @@ export const AssignedProjectMember: React.FC<AssignedProjectMemberProps> = ({
   const [isMounted, setIsMounted] = React.useState(false);
   // Keep owner ids locally so dropdown can exclude owners in real-time
   const [ownerIds, setOwnerIds] = React.useState<string[]>([]);
+  const [hasEditPermission, setHasEditPermission] = React.useState(false);
   const MAX_VISIBLE_MEMBERS = 3;
 
   React.useEffect(() => {
     setIsMounted(true);
     setAuth(getCookie('auth')?.toString() || '');
   }, []);
+
+  React.useEffect(() => {
+    const checkPermission = async () => {
+      const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
+        projectId: project.id,
+      });
+      setHasEditPermission(can('editProjectMember', { projectRole, taskRole, isAdmin, isHead }));
+    };
+
+    checkPermission();
+  }, [project]);
 
   const fetchUsers = React.useCallback(async () => {
     if (!auth) return;
@@ -139,7 +145,7 @@ export const AssignedProjectMember: React.FC<AssignedProjectMemberProps> = ({
   }, [open, fetchUsers]);
 
   const handleSelectUser = async (userName: string) => {
-    if (!isMounted || !project || restricted) return;
+    if (!isMounted || !project) return;
 
     const user = usersList.find((u) => u.name === userName);
     if (!user) return;
@@ -181,42 +187,50 @@ export const AssignedProjectMember: React.FC<AssignedProjectMemberProps> = ({
   };
 
   const handlePopoverOpenChange = (newOpen: boolean) => {
-    if (!restricted) setOpen(newOpen);
+    setOpen(newOpen);
   };
   const handleButtonClick = () => {
-    if (!restricted) setOpen(!open);
+    setOpen(!open);
   };
 
   return (
     <TooltipProvider>
-      <Popover open={open} onOpenChange={handlePopoverOpenChange}>
-        <PopoverTrigger asChild className="border-brown text-brown">
-          <Button
-            variant="outline"
-            className={cn('h-8 px-2 hover:bg-gray-50', restricted && 'cursor-default')}
-            onClick={handleButtonClick}>
-            {selectedUser.length > 0 ? (
-              <div className="flex space-x-2 items-center">
-                {selectedUser.slice(0, MAX_VISIBLE_MEMBERS).map((user) => (
-                  <Profile key={user.id} userId={user.id} userName={user.name} />
-                ))}
-                {selectedUser.length > MAX_VISIBLE_MEMBERS && (
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <div className="w-[24px] h-[24px] bg-gray-100 rounded-xl border border-[#6b5c56] flex-col justify-center items-center gap-2.5 inline-flex text-center text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-3">
-                        +{selectedUser.length - MAX_VISIBLE_MEMBERS}
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <div className="flex flex-col gap-1">
-                        {selectedUser.slice(MAX_VISIBLE_MEMBERS).map((user) => (
-                          <p key={user.id} className="text-xs font-medium text-black">
-                            {user.name}
-                          </p>
-                        ))}
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
+      <div className="flex items-center gap-2">
+        {/* แสดงรายชื่อ members */}
+        <div className="flex items-center gap-2">
+          <Popover open={open} onOpenChange={handlePopoverOpenChange}>
+            <PopoverTrigger asChild className="border-brown text-brown">
+              <Button
+                variant="outline"
+                disabled={!hasEditPermission}
+                className={cn('h-8 px-2 hover:bg-gray-50')}
+                onClick={handleButtonClick}>
+                {selectedUser.length > 0 ? (
+                  <div className="flex space-x-2 items-center">
+                    {selectedUser.slice(0, MAX_VISIBLE_MEMBERS).map((user) => (
+                      <Profile key={user.id} userId={user.id} userName={user.name} />
+                    ))}
+                    {selectedUser.length > MAX_VISIBLE_MEMBERS && (
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <div className="w-[24px] h-[24px] bg-gray-100 rounded-xl border border-[#6b5c56] flex-col justify-center items-center gap-2.5 inline-flex text-center text-[#6b5c56] text-xs font-medium font-BaiJamjuree leading-3">
+                            +{selectedUser.length - MAX_VISIBLE_MEMBERS}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <div className="flex flex-col gap-1">
+                            {selectedUser.slice(MAX_VISIBLE_MEMBERS).map((user) => (
+                              <p key={user.id} className="text-xs font-medium text-black">
+                                {user.name}
+                              </p>
+                            ))}
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </div>
+                ) : (
+                  <p className="p-ui text-sm">Assigned</p>
                 )}
               </div>
             ) : (

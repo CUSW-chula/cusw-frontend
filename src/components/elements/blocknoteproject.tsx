@@ -18,6 +18,8 @@ import BASE_URL, { BASE_YSWEET, type ProjectOverviewProps } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { jwtDecode, type JwtPayload } from 'jwt-decode';
 import { toast } from '@/hooks/use-toast';
+import { getUserRoleOnProjectTask } from '@/service/userService';
+import { can } from '@/permissions/helper';
 
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
@@ -45,7 +47,8 @@ function Document({ project_id }: ProjectOverviewProps) {
   const [Description, setDescription] = useState<string>('');
   const [canEdit, setCanEdit] = useState<boolean>(false); // read-only จนกว่าจะตรวจสิทธิ์เสร็จ
   const [originalDescription, setOriginalDescription] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true); // เพิ่ม loading state
+  const [hasEditPermission, setHasEditPermission] = useState(false);
 
   const { audio, image, video, file, codeBlock, ...allowedBlockSpecs } = defaultBlockSpecs;
   const schema = BlockNoteSchema.create({
@@ -119,6 +122,19 @@ function Document({ project_id }: ProjectOverviewProps) {
         setIsLoading(false);
       }
     };
+    const checkPermission = async () => {
+      const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
+        projectId: project_id,
+      });
+      setHasEditPermission(
+        can('editProjectDescription', { projectRole, taskRole, isAdmin, isHead }),
+      );
+    };
+
+    checkPermission();
+    fetchDescription();
+  }, [project_id]);
+
 
     load();
   }, [project_id, editor]);
@@ -174,7 +190,7 @@ function Document({ project_id }: ProjectOverviewProps) {
   return (
     <BlockNoteView
       editor={editor}
-      editable={canEdit}
+      editable={canEdit && hasEditPermission}
       aria-disabled={!canEdit}
       theme={'light'}
       onChange={onChangeBlock}

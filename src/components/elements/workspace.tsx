@@ -7,6 +7,7 @@ import Blocknotes from './blocknote';
 import { toast } from '@/hooks/use-toast';
 import type { TaskProps } from '@/app/types/types';
 import { getUserRoleOnProjectTask } from '@/service/userService';
+import { can } from '@/permissions/helper';
 interface Files {
   id: string;
   fileName: string;
@@ -158,27 +159,18 @@ const Workspace = ({ task }: { task: TaskProps }) => {
     }
   }, [textAreaRef, Title]);
   const [hasEditPermission, setHasEditPermission] = useState(false);
-  const checkPermissions = async () => {
-    try {
-      const { role, isAdmin } = await getUserRoleOnProjectTask({
+
+  useEffect(() => {
+    const checkPermission = async () => {
+      const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
         projectId: task.projectId,
         taskId: task.id,
       });
+      setHasEditPermission(can('editTitle', { projectRole, taskRole, isAdmin, isHead }));
+    };
 
-      if (!role) {
-        setHasEditPermission(false);
-        return;
-      }
-
-      setHasEditPermission(isAdmin || ['ProjectOwner', 'owner', 'assignee'].includes(role));
-    } catch (error) {
-      console.error('Failed to check permissions:', error);
-      setHasEditPermission(false);
-    }
-  };
-  useEffect(() => {
-    checkPermissions();
-  }, [task]);
+    checkPermission();
+  }, [task.projectId, task.id]);
   return (
     <div className="relative w-full">
       <label

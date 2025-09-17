@@ -10,6 +10,8 @@ import BASE_URL, {
 import { getCookie } from 'cookies-next';
 import Blocknoteproject from './blocknoteproject';
 import { toast } from '@/hooks/use-toast';
+import { getUserRoleOnProjectTask } from '@/service/userService';
+import { can } from '@/permissions/helper';
 
 const Workspace = ({ project_id }: ProjectOverviewProps) => {
   const [Title, setTitle] = useState<string>('');
@@ -95,6 +97,19 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
     }
   }, [textAreaRef, Title]);
 
+  const [hasEditPermission, setHasEditPermission] = useState(false);
+
+  useEffect(() => {
+    const checkPermission = async () => {
+      const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
+        projectId: project_id,
+      });
+      setHasEditPermission(can('editProjectTitle', { projectRole, taskRole, isAdmin, isHead }));
+    };
+
+    checkPermission();
+  }, [project_id]);
+
   return (
     <div className="relative w-full">
       <label
@@ -105,7 +120,7 @@ const Workspace = ({ project_id }: ProjectOverviewProps) => {
       <textarea
         className="resize-none border-none w-full outline-none placeholder-gray-300 text-[30px] font-semibold font-Anuphan"
         placeholder="Task Title"
-        disabled={!canEdit}
+        disabled={!canEdit || !hasEditPermission}
         value={Title}
         onChange={(e) => {
           setTitle(e.target.value);

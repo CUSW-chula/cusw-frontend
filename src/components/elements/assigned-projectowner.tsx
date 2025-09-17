@@ -18,6 +18,8 @@ import BASE_URL, { BASE_SOCKET, type Project } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { toast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getUserRoleOnProjectTask } from '@/service/userService';
+import { can } from '@/permissions/helper';
 
 interface UsersInterfaces {
   id: string;
@@ -27,23 +29,16 @@ interface UsersInterfaces {
 
 interface AssignedProjectOwnerProps {
   project: Project;
-  isMember?: boolean;
-  isAdmin?: boolean;
-  isHead?: boolean;
 }
 
-export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({
-  project,
-  isMember = false,
-  isAdmin = false,
-  isHead = false,
-}) => {
-  const restricted = isMember && !isAdmin && !isHead;
+export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({ project }) => {
+
   const [open, setOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<UsersInterfaces[]>([]);
   const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
   const [auth, setAuth] = React.useState('');
   const [isMounted, setIsMounted] = React.useState(false);
+  const [hasEditPermission, setHasEditPermission] = React.useState(false);
 
   const MAX_VISIBLE_MEMBERS = 3;
 
@@ -65,6 +60,17 @@ export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({
       console.error('Failed to fetch users:', error);
     }
   }, [auth]);
+
+  React.useEffect(() => {
+    const checkPermission = async () => {
+      const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
+        projectId: project.id,
+      });
+      setHasEditPermission(can('editProjectOwner', { projectRole, taskRole, isAdmin, isHead }));
+    };
+
+    checkPermission();
+  }, [project]);
 
   React.useEffect(() => {
     if (!isMounted || !auth) return;
@@ -135,7 +141,7 @@ export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({
   );
 
   const handleSelectUser = async (userName: string) => {
-    if (!isMounted || !project || restricted) return;
+    if (!isMounted || !project) return; // เพิ่มการตรวจสอบ isMember
 
     const user = usersList.find((u) => u.name === userName);
     if (!user) return;
@@ -171,10 +177,11 @@ export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({
   };
 
   const handlePopoverOpenChange = (newOpen: boolean) => {
-    if (!restricted) setOpen(newOpen);
+    setOpen(newOpen);
   };
   const handleButtonClick = () => {
-    if (!restricted) setOpen(!open);
+    setOpen(!open);
+
   };
 
   if (!isMounted) {
@@ -194,11 +201,9 @@ export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({
             <PopoverTrigger asChild>
               <Button
                 type="button"
+                disabled={!hasEditPermission}
                 variant="outline"
-                className={cn(
-                  'border-brown text-brown h-8 px-2 hover:bg-gray-50',
-                  restricted && 'cursor-default',
-                )}
+                className={cn('border-brown text-brown h-8 px-2 hover:bg-gray-50')}
                 onClick={handleButtonClick}>
                 {selectedUser.length > 0 ? (
                   <div className="flex items-center space-x-2">

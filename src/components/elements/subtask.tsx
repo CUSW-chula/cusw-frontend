@@ -9,6 +9,7 @@ import { Sort, Task } from './taskManagement';
 import type { TaskProps } from '@/app/types/types';
 import { CreateSubtask } from './createSubtask';
 import { getUserRoleOnProjectTask } from '@/service/userService';
+import { can } from '@/permissions/helper';
 
 // Helper functions for localStorage
 const loadExpandedState = (): Set<string> => {
@@ -38,25 +39,21 @@ const Subtask = ({ task }: { task: TaskProps }) => {
     setExpandedIds(new Set(newIds));
   };
 
-  const checkPermissions = async () => {
-    try {
-      const { role, isAdmin } = await getUserRoleOnProjectTask({
+  useEffect(() => {
+    saveExpandedState(expandedIds);
+  }, [expandedIds]);
+
+  useEffect(() => {
+    const checkPermission = async () => {
+      const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
         projectId: task.projectId,
         taskId: task.id,
       });
-      // console.log('User role:', role, 'Is Admin:', isAdmin);
+      setHasEditPermission(can('createSubtask', { projectRole, taskRole, isAdmin, isHead }));
+    };
 
-      setHasEditPermission(isAdmin || ['ProjectOwner', 'owner', 'assignee'].includes(role || ''));
-    } catch (error) {
-      console.error('Failed to check permissions:', error);
-      setHasEditPermission(false);
-    }
-  };
-
-  useEffect(() => {
-    saveExpandedState(expandedIds);
-    checkPermissions();
-  }, [expandedIds, task.projectId, task.id]);
+    checkPermission();
+  }, [task.projectId, task.id]);
 
   useEffect(() => {
     try {
