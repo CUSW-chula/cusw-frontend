@@ -176,10 +176,12 @@ export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({ proj
   };
 
   const handlePopoverOpenChange = (newOpen: boolean) => {
+    if (!hasEditPermission) return;
     setOpen(newOpen);
   };
 
   const handleButtonClick = () => {
+    if (!hasEditPermission) return;
     setOpen(!open);
   };
 
@@ -200,7 +202,6 @@ export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({ proj
             <PopoverTrigger asChild>
               <Button
                 type="button"
-                disabled={!hasEditPermission}
                 variant="outline"
                 className={cn('border-brown text-brown h-8 px-2 hover:bg-gray-50')}
                 onClick={handleButtonClick}>

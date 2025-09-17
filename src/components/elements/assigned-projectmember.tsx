@@ -186,10 +186,14 @@ export const AssignedProjectMember: React.FC<AssignedProjectMemberProps> = ({ pr
   };
 
   const handlePopoverOpenChange = (newOpen: boolean) => {
+    if (!hasEditPermission) return;
     setOpen(newOpen);
   };
 
   const handleButtonClick = () => {
+    console.log('hasEditPermission', hasEditPermission);
+
+    if (!hasEditPermission) return;
     setOpen(!open);
   };
 
@@ -202,7 +206,6 @@ export const AssignedProjectMember: React.FC<AssignedProjectMemberProps> = ({ pr
             <PopoverTrigger asChild className="border-brown text-brown">
               <Button
                 variant="outline"
-                disabled={!hasEditPermission}
                 className={cn('h-8 px-2 hover:bg-gray-50')}
                 onClick={handleButtonClick}>
                 {selectedUser.length > 0 ? (
