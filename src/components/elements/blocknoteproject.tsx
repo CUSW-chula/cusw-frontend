@@ -122,6 +122,7 @@ function Document({ project_id }: ProjectOverviewProps) {
         setIsLoading(false);
       }
     };
+
     const checkPermission = async () => {
       const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
         projectId: project_id,
@@ -132,10 +133,6 @@ function Document({ project_id }: ProjectOverviewProps) {
     };
 
     checkPermission();
-    fetchDescription();
-  }, [project_id]);
-
-
     load();
   }, [project_id, editor]);
 

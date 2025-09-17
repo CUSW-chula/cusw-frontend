@@ -32,7 +32,6 @@ interface AssignedProjectOwnerProps {
 }
 
 export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({ project }) => {
-
   const [open, setOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<UsersInterfaces[]>([]);
   const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
@@ -181,7 +180,6 @@ export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({ proj
   };
   const handleButtonClick = () => {
     setOpen(!open);
-
   };
 
   if (!isMounted) {
@@ -252,8 +250,8 @@ export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({ proj
                 )}
               </Button>
             </PopoverTrigger>
-            {/* render dropdown เฉพาะเมื่อไม่ restricted */}
-            {!restricted && (
+            {/* render dropdown เฉพาะเมื่อมีสิทธิ์แก้ไข */}
+            {hasEditPermission && (
               <PopoverContent className="p-0" side="right" align="start">
                 <Command>
                   <CommandInput placeholder="Search member..." />

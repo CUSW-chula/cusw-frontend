@@ -43,7 +43,6 @@ interface Owner {
 }
 
 export function ButtonAddTags({ project_id }: ButtonAddTagsProps) {
-
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const userid = (jwtDecode(auth) as { id: string }).id;
@@ -218,7 +217,7 @@ export function ButtonAddTags({ project_id }: ButtonAddTagsProps) {
   };
 
   const handleAddTag = async () => {
-    if (restricted) return;
+    if (!hasEditPermission) return;
     setOpen(true);
   };
 
@@ -278,8 +277,8 @@ export function ButtonAddTags({ project_id }: ButtonAddTagsProps) {
                   <CommandGroup>
                     {statuses.map((status) => {
                       // Hide Accept/Rework from non-Head users
-                      if (['Approved'].includes(status.name) && !isHead && !isadmin) return null;
-
+                      if (['Approved'].includes(status.name) && !isHeadState && !isadmin)
+                        return null;
 
                       return (
                         <CommandItem key={status.id} value={status.name} onSelect={handleSelectTag}>
@@ -307,4 +306,4 @@ export function ButtonAddTags({ project_id }: ButtonAddTagsProps) {
       </div>
     </div>
   );
-};
+}

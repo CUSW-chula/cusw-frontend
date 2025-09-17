@@ -1,24 +1,24 @@
-import { useEffect, useState } from "react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@radix-ui/react-tooltip";
-import { Button } from "../ui/button";
-import type { TaskProps } from "@/app/types/types";
+import { useEffect, useState } from 'react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@radix-ui/react-tooltip';
+import { Button } from '../ui/button';
+import type { TaskProps } from '@/app/types/types';
 import BASE_URL, { type User } from '@/lib/shared';
-import { getCookie } from "cookies-next/client";
+import { getCookie } from 'cookies-next/client';
 
 const getInitials = (name: string) => {
-  const nameParts = name.split(" ");
-  return nameParts.map((part) => part[0]).join("");
+  const nameParts = name.split(' ');
+  return nameParts.map((part) => part[0]).join('');
 };
 
 const getFirstName = (name: string) => {
-  const nameParts = name.split(" ");
+  const nameParts = name.split(' ');
   return nameParts[0];
 };
 
 export const ShowTaskCreator = ({ task }: { task: TaskProps }) => {
   const [creator, setCreator] = useState<{ id: string; name: string } | null>(null);
-    const cookie = getCookie('auth');
-    const auth = cookie?.toString() ?? '';
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
   useEffect(() => {
     const fetchOwner = async () => {
       try {
@@ -29,14 +29,14 @@ export const ShowTaskCreator = ({ task }: { task: TaskProps }) => {
         });
 
         if (!response.ok) {
-          console.error("Failed to fetch owner:", await response.text());
+          console.error('Failed to fetch owner:', await response.text());
           return;
         }
 
         const data = await response.json();
         setCreator({ id: data.id, name: data.name }); // ปรับให้ตรงกับ response จริง
       } catch (error) {
-        console.error("Error fetching Owner:", error);
+        console.error('Error fetching Owner:', error);
       }
     };
 

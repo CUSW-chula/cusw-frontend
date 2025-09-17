@@ -1,7 +1,16 @@
 'use client';
 
 import { Money } from '@/components/elements/money';
-import { CrownIcon, Users, Tag, Calendar, Trash2, DollarSign, Weight,Copyright } from 'lucide-react';
+import {
+  CrownIcon,
+  Users,
+  Tag,
+  Calendar,
+  Trash2,
+  DollarSign,
+  Weight,
+  Copyright,
+} from 'lucide-react';
 import StatusButton from '@/components/elements/status-button';
 import StatusLabel from './status-label';
 import { ProjectOwner } from '@/components/elements/project-owner';

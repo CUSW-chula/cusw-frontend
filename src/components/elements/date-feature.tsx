@@ -320,7 +320,6 @@ function DatePickerWithRange({ task }: { task: TaskProps }) {
 
 // Exporting for Project Page.
 function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
-
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
@@ -457,7 +456,6 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
     if (hasEditPermission) {
       // ใช้ default behavior ของ Popover
     }
-
   };
   const handleButtonClick = () => {
     if (!hasEditPermission) {
@@ -483,7 +481,6 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
     <div className={cn('grid gap-2')}>
       <Popover onOpenChange={handlePopoverOpenChange}>
         <PopoverTrigger asChild className="border-brown h-8 px-2" disabled={!hasEditPermission}>
-
           <Button
             id="date"
             variant="outline"

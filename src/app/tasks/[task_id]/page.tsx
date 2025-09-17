@@ -179,7 +179,6 @@ export default async function TasksManageMentPage({
         <div className="flex flex-col gap-4 items-end">
           <MenuBar task={task} />
           <DeleteTask task={task} />
-
         </div>
       </div>
     </div>

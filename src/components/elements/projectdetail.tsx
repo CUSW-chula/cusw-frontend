@@ -54,8 +54,7 @@ interface DeleteTaskProps {
   isHead?: boolean;
 }
 
-const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
-
+const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id, isMember, isAdmin, isHead }) => {
   const router = useRouter();
   const auth = getCookie('auth')?.toString() ?? '';
   const restricted = isMember && !isAdmin && !isHead;
@@ -225,7 +224,6 @@ const ProjectFinanceItem: React.FC<ProjectFinanceItemProps> = ({
 };
 
 const MenuBar = ({ project }: { project: Project }) => {
-
   return (
     <div className="w-[360px] p-[20px] bg-white rounded-md border border-[#6b5c56] flex-col justify-center items-start gap-2 inline-flex">
       <div aria-label="owner" className="h-10 justify-start items-center inline-flex">
@@ -308,14 +306,12 @@ export const ProjectDetail = ({ project }: { project: Project }) => {
   const auth = cookie?.toString() ?? '';
   const Router = useRouter();
 
-
   useEffect(() => {
     if (!auth || auth === '') {
       console.error('No auth token found');
       return;
     }
   }, [auth]);
-
 
   const handleClick = () => {
     const url = `/projects/${project.id}`;
