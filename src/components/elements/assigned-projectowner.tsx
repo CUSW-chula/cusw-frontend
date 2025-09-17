@@ -32,6 +32,7 @@ interface AssignedProjectOwnerProps {
 }
 
 export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({ project }) => {
+
   const [open, setOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<UsersInterfaces[]>([]);
   const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
@@ -178,9 +179,9 @@ export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({ proj
   const handlePopoverOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
   };
-
   const handleButtonClick = () => {
     setOpen(!open);
+
   };
 
   if (!isMounted) {
@@ -247,37 +248,39 @@ export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({ proj
                     })()}
                   </div>
                 ) : (
-                  <p className="p-ui text-sm">Assigned</p>
+                  <p className="p-ui text-sm">Assign</p>
                 )}
               </Button>
             </PopoverTrigger>
-
-            <PopoverContent className="p-0" side="right" align="start">
-              <Command>
-                <CommandInput placeholder="Search member..." />
-                <CommandList>
-                  <CommandEmpty>No members found</CommandEmpty>
-                  <CommandGroup>
-                    {filteredUsersList.map((user) => (
-                      <CommandItem
-                        key={user.id}
-                        value={user.name}
-                        onSelect={() => handleSelectUser(user.name)}>
-                        <Circle
-                          className={cn(
-                            'mr-2 h-4 w-4 fill-greenLight text-greenLight',
-                            selectedUser.some((u) => u.id === user.id)
-                              ? 'opacity-100'
-                              : 'opacity-40',
-                          )}
-                        />
-                        <span>{user.name}</span>
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
+            {/* render dropdown เฉพาะเมื่อไม่ restricted */}
+            {!restricted && (
+              <PopoverContent className="p-0" side="right" align="start">
+                <Command>
+                  <CommandInput placeholder="Search member..." />
+                  <CommandList>
+                    <CommandEmpty>No members found</CommandEmpty>
+                    <CommandGroup>
+                      {filteredUsersList.map((user) => (
+                        <CommandItem
+                          key={user.id}
+                          value={user.name}
+                          onSelect={() => handleSelectUser(user.name)}>
+                          <Circle
+                            className={cn(
+                              'mr-2 h-4 w-4 fill-greenLight text-greenLight',
+                              selectedUser.some((u) => u.id === user.id)
+                                ? 'opacity-100'
+                                : 'opacity-40',
+                            )}
+                          />
+                          <span>{user.name}</span>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            )}
           </Popover>
         </div>
       </div>

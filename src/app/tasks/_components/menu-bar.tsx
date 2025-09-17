@@ -1,7 +1,7 @@
 'use client';
 
 import { Money } from '@/components/elements/money';
-import { CrownIcon, Users, Tag, Calendar, Trash2, DollarSign, Weight } from 'lucide-react';
+import { CrownIcon, Users, Tag, Calendar, Trash2, DollarSign, Weight,Copyright } from 'lucide-react';
 import StatusButton from '@/components/elements/status-button';
 import StatusLabel from './status-label';
 import { ProjectOwner } from '@/components/elements/project-owner';
@@ -10,6 +10,7 @@ import { ButtonAddTags } from '@/components/elements/button-add-tag';
 import type { TaskManageMentProp } from '@/lib/shared';
 import { DatePickerWithRange } from '@/components/elements/date-feature';
 import type { TaskProps } from '@/app/types/types';
+import { ShowTaskCreator } from '@/components/elements/showTaskCreator';
 
 const MenuBar = ({ task }: { task: TaskProps }) => {
   return (
@@ -33,10 +34,23 @@ const MenuBar = ({ task }: { task: TaskProps }) => {
           <CrownIcon className="w-6 h-6 relative text-brown" />
           {/* Describtion */}
           <div className="text-brown text-xs font-medium font-BaiJamjuree leading-tight">
-            Owner :{' '}
+            Project owner :{' '}
           </div>
         </div>
         <ProjectOwner task={task} />
+      </div>
+
+      <div aria-label="Task Creator" className="h-10 justify-start items-center inline-flex">
+        {/* Label Zone */}
+        <div className="w-24 justify-start items-center gap-2 flex">
+          {/* Icon */}
+          <Copyright className="w-6 h-6 relative text-brown" />
+          {/* Describtion */}
+          <div className="text-brown text-xs font-medium font-BaiJamjuree leading-tight">
+            Task Creator :{' '}
+          </div>
+        </div>
+        <ShowTaskCreator task={task} />
       </div>
 
       <div aria-label="member" className="h-10 justify-start items-center inline-flex">
@@ -46,7 +60,7 @@ const MenuBar = ({ task }: { task: TaskProps }) => {
           <Users className="w-6 h-6 relative text-brown" />
           {/* Describtion */}
           <div className="text-brown text-xs font-medium font-BaiJamjuree leading-tight">
-            Member :{' '}
+            Task member :{' '}
           </div>
         </div>
         <AssignedTaskToMember task={task} />
