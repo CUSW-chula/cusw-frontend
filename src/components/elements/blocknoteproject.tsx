@@ -45,84 +45,49 @@ function getRandomLightColor(): string {
 
 function Document({ project_id }: ProjectOverviewProps) {
   const [Description, setDescription] = useState<string>('');
-  const [canEdit, setCanEdit] = useState<boolean>(false); // read-only จนกว่าจะตรวจสิทธิ์เสร็จ
+  const [canEdit, setCanEdit] = useState<boolean>(false); // เปลี่ยนจาก true เป็น false
   const [originalDescription, setOriginalDescription] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true); // เพิ่ม loading state
   const [hasEditPermission, setHasEditPermission] = useState(false);
 
-  const { audio, image, video, file, codeBlock, ...allowedBlockSpecs } = defaultBlockSpecs;
-  const schema = BlockNoteSchema.create({
-    blockSpecs: { ...allowedBlockSpecs },
-  });
-
-  // ป้องกัน token ผิดรูป
-  let userName = 'anonymous';
-  try {
-    const userData = jwtDecode<CustomJwtPayload>(auth || '');
-    if (userData?.id) userName = userData.id;
-  } catch {
-    // ignore invalid token
-  }
-
-  const provider = useYjsProvider();
-  const doc = useYDoc();
-  const editor = useCreateBlockNote({
-    schema,
-    collaboration: {
-      provider,
-      fragment: doc.getXmlFragment('blocknote'),
-      user: { color: getRandomLightColor(), name: userName },
-    },
-  });
-
-  // โหลดข้อมูล + ตรวจสิทธิ์ โดยไม่แก้ไขข้อมูลจริง
   useEffect(() => {
-    if (!editor) return;
-
-    const load = async () => {
-      setIsLoading(true);
+    const fetchDescription = async () => {
       try {
-        // 1) ดึงข้อมูลโปรเจกต์
-        const res = await fetch(`${BASE_URL}/v2/projects/${project_id}`, {
+        // ทดสอบการแก้ไขก่อนโดยการ PATCH ด้วยข้อมูลเดิม
+        const testEditResponse = await fetch(`${BASE_URL}/v2/projects/${project_id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', Authorization: auth },
+          body: JSON.stringify({ description: '' }), // ส่งค่าว่างเพื่อทดสอบสิทธิ์
+        });
+
+        // ถ้าได้ 403 แสดงว่าไม่มีสิทธิ์แก้ไข
+        if (testEditResponse.status === 403) {
+          setCanEdit(false);
+        } else if (testEditResponse.ok) {
+          setCanEdit(true);
+        }
+
+        // ดึงข้อมูลโปรเจค
+        const response = await fetch(`${BASE_URL}/v2/projects/${project_id}`, {
           headers: { Authorization: auth },
         });
-        if (!res.ok) {
+        if (!response.ok) {
+          const errorMessage = await response.text();
           setIsLoading(false);
           return;
         }
-        const data = await res.json();
-        const desc = data?.description ?? '';
-        setDescription(desc);
-        setOriginalDescription(desc);
-
-        // sync เนื้อหาเข้า editor
-        try {
-          const blocks = await editor.tryParseHTMLToBlocks(desc);
-          editor.replaceBlocks(editor.document, blocks);
-        } catch {
-          // ถ้า parse ไม่ได้ ปล่อยว่าง
-        }
-
-        // 2) ตัดสินสิทธิ์แก้ไขจาก response เท่านั้น (ไม่ใช้ OPTIONS)
-        let allowed = false;
-
-        if (typeof data?.permissions?.can_edit === 'boolean') {
-          allowed = data.permissions.can_edit;
-        } else if (typeof data?.can_edit === 'boolean') {
-          allowed = data.can_edit;
-        } else if (data?.role && ['owner', 'editor', 'maintainer', 'admin'].includes(data.role)) {
-          allowed = true;
-        }
-
-        setCanEdit(allowed);
-      } catch (e) {
-        console.error('Error fetching description:', e);
+        const data = await response.json();
+        setDescription(data.description);
+        setOriginalDescription(data.description);
+        const blocks = await editor.tryParseHTMLToBlocks(data.description);
+        editor.replaceBlocks(editor.document, blocks);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching description:', error);
         setCanEdit(false);
-      } finally {
         setIsLoading(false);
       }
     };
-
     const checkPermission = async () => {
       const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
         projectId: project_id,
@@ -133,13 +98,11 @@ function Document({ project_id }: ProjectOverviewProps) {
     };
 
     checkPermission();
-    load();
-  }, [project_id, editor]);
+    fetchDescription();
+  }, [project_id]);
 
-  // บันทึกอัตโนมัติเมื่อแก้ไข (เฉพาะเมื่อมีสิทธิ์เท่านั้น)
   useEffect(() => {
     if (!Description || !canEdit || originalDescription === Description) return;
-
     const timer = setTimeout(async () => {
       try {
         const response = await fetch(`${BASE_URL}/v2/projects/${project_id}`, {
@@ -147,32 +110,35 @@ function Document({ project_id }: ProjectOverviewProps) {
           headers: { 'Content-Type': 'application/json', Authorization: auth },
           body: JSON.stringify({ description: Description }),
         });
-
+        setOriginalDescription(Description);
         if (response.status === 403) {
           setCanEdit(false);
-          // ย้อนกลับไปเป็นค่าก่อนหน้า
-          setDescription(originalDescription);
-          try {
-            const blocks = await editor.tryParseHTMLToBlocks(originalDescription);
-            editor.replaceBlocks(editor.document, blocks);
-          } catch {}
-          return;
+        } else if (!response.ok) {
+          const errorMessage = await response.text();
         }
-
-        if (!response.ok) {
-          const text = await response.text();
-          console.error('Error updating description:', text);
-          return;
-        }
-
-        setOriginalDescription(Description);
       } catch (error) {
         console.error('Error updating description:', error);
       }
     }, 500);
-
     return () => clearTimeout(timer);
-  }, [Description, project_id, canEdit, auth, originalDescription, editor]);
+  }, [Description, project_id, canEdit]);
+
+  const { audio, image, video, file, codeBlock, ...allowedBlockSpecs } = defaultBlockSpecs;
+  const schema = BlockNoteSchema.create({
+    blockSpecs: { ...allowedBlockSpecs },
+  });
+
+  const userData = jwtDecode<CustomJwtPayload>(auth);
+  const provider = useYjsProvider();
+  const doc = useYDoc();
+  const editor = useCreateBlockNote({
+    schema,
+    collaboration: {
+      provider,
+      fragment: doc.getXmlFragment('blocknote'),
+      user: { color: getRandomLightColor(), name: userData.id },
+    },
+  });
 
   const onChangeBlock = async () => {
     if (!canEdit) return;
@@ -180,6 +146,7 @@ function Document({ project_id }: ProjectOverviewProps) {
     setDescription(HTML);
   };
 
+  // แสดง loading ในขณะที่กำลังตรวจสอบสิทธิ์
   if (isLoading) {
     return <div className="flex items-center justify-center p-8">Loading...</div>;
   }
