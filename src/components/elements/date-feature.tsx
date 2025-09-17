@@ -319,10 +319,7 @@ function DatePickerWithRange({ task }: { task: TaskProps }) {
 }
 
 // Exporting for Project Page.
-function DatePickerWithRangeProject({
-  project,
-  isMember,
-}: { project: DateInterface; isMember?: boolean }) {
+function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
@@ -414,7 +411,7 @@ function DatePickerWithRangeProject({
 
   // Handle calendar selection (เหมือน date feature)
   const handleCalendarSelect = async (range: DateRange | undefined) => {
-    if (!range?.from || isMember) return; // เพิ่มการตรวจสอบ isMember
+    if (!range?.from) return; // เพิ่มการตรวจสอบ isMember
 
     let patchedRange = range;
     // Logic: กดครั้งแรกให้ start/end เป็นวันเดียวกัน, กดครั้งที่สองถึงจะเป็น range
@@ -455,13 +452,13 @@ function DatePickerWithRangeProject({
   };
 
   const handlePopoverOpenChange = (newOpen: boolean) => {
-    if (!isMember) {
+    if (hasEditPermission) {
       // ใช้ default behavior ของ Popover
     }
   };
 
   const handleButtonClick = () => {
-    if (isMember) {
+    if (!hasEditPermission) {
       // ป้องกันการเปิด popover
       return false;
     }
@@ -489,7 +486,6 @@ function DatePickerWithRangeProject({
             variant={'outline'}
             className={cn(
               `font-BaiJamjuree text-sm text-brown hover:bg-gray-50 ${!date && 'text-muted-foreground'}`,
-              isMember && 'cursor-default',
             )}
             onClick={handleButtonClick}>
             {date?.from ? (
@@ -505,18 +501,16 @@ function DatePickerWithRangeProject({
             )}
           </Button>
         </PopoverTrigger>
-        {!isMember && (
-          <PopoverContent className="w-auto p-0 z-1 p-ui" align="start">
-            <Calendar
-              initialFocus
-              mode="range"
-              defaultMonth={date?.from}
-              selected={date}
-              onSelect={handleCalendarSelect}
-              numberOfMonths={2}
-            />
-          </PopoverContent>
-        )}
+        <PopoverContent className="w-auto p-0 z-1 p-ui" align="start">
+          <Calendar
+            initialFocus
+            mode="range"
+            defaultMonth={date?.from}
+            selected={date}
+            onSelect={handleCalendarSelect}
+            numberOfMonths={2}
+          />
+        </PopoverContent>
       </Popover>
     </div>
   );

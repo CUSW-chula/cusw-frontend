@@ -221,7 +221,7 @@ const ProjectFinanceItem: React.FC<ProjectFinanceItemProps> = ({
   );
 };
 
-const MenuBar = ({ project, isMember }: { project: Project; isMember?: boolean }) => {
+const MenuBar = ({ project }: { project: Project }) => {
   return (
     <div className="w-[360px] p-[20px] bg-white rounded-md border border-[#6b5c56] flex-col justify-center items-start gap-2 inline-flex">
       <div aria-label="owner" className="h-10 justify-start items-center inline-flex">
@@ -229,14 +229,14 @@ const MenuBar = ({ project, isMember }: { project: Project; isMember?: boolean }
           <CrownIcon className="w-[24px] h-[24px] text-brown" />
           <p className="text-[#6b5c56] text-xs font-medium leading-tight">Owner : </p>
         </div>
-        {project && <AssignedProjectOwner project={project} isMember={isMember} />}
+        {project && <AssignedProjectOwner project={project} />}
       </div>
       <div aria-label="member" className="h-10 justify-start items-center inline-flex">
         <div className="w-24 justify-start items-center gap-2 flex">
           <Users className="w-[24px] h-[24px] text-brown" />
           <p className="text-brown text-xs font-medium font-BaiJamjuree">Member : </p>
         </div>
-        {project && <AssignedProjectMember project={project} isMember={isMember} />}
+        {project && <AssignedProjectMember project={project} />}
       </div>
 
       <div aria-label="tag" className="h-fit justify-start items-start inline-flex">
@@ -247,7 +247,7 @@ const MenuBar = ({ project, isMember }: { project: Project; isMember?: boolean }
           {/* Description */}
           <p className="text-brown text-xs font-medium font-BaiJamjuree">Tag : </p>
         </div>
-        {project && <ButtonAddTags project_id={project.id} isMember={isMember} />}
+        {project && <ButtonAddTags project_id={project.id} />}
       </div>
 
       <TooltipProvider>
@@ -293,7 +293,7 @@ const MenuBar = ({ project, isMember }: { project: Project; isMember?: boolean }
           {/* Describtion */}
           <p className="text-[#6b5c56] text-xs font-medium  leading-tight">Date : </p>
         </div>
-        {project && <DatePickerWithRangeProject project={project} isMember={isMember} />}
+        {project && <DatePickerWithRangeProject project={project} />}
       </div>
     </div>
   );
@@ -303,7 +303,6 @@ export const ProjectDetail = ({ project }: { project: Project }) => {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const Router = useRouter();
-  const [isMember, setIsMember] = useState(false);
 
   // ตรวจสอบว่า auth token มีค่าและไม่ใช่ empty string
   useEffect(() => {
@@ -311,32 +310,7 @@ export const ProjectDetail = ({ project }: { project: Project }) => {
       console.error('No auth token found');
       return;
     }
-
-    try {
-      const userId = jwtDecode<{ id: string }>(auth);
-
-      const fetchUserRole = async () => {
-        try {
-          const response = await fetch(`${BASE_URL}/v2/users/userrole/${userId.id}`, {
-            headers: { Authorization: auth },
-            cache: 'no-store',
-          });
-          if (!response.ok) throw new Error(`Failed to fetch user role: ${response.status}`);
-
-          const data: { projects: ProjectData[]; isAdmin: boolean } = await response.json();
-          const Project = data.projects.find((p) => p.id === project.id);
-
-          setIsMember(Project?.role === 'Member');
-        } catch (error) {
-          console.error('Error fetching user role:', error);
-        }
-      };
-
-      fetchUserRole();
-    } catch (error) {
-      console.error('Error decoding JWT:', error);
-    }
-  }, [auth, project.id]);
+  }, [auth]);
 
   const handleClick = () => {
     const url = `/projects/${project.id}`;
@@ -376,8 +350,8 @@ export const ProjectDetail = ({ project }: { project: Project }) => {
           </div>
         </div>
         <div className="flex-col justify-between items-end gap-4 inline-flex">
-          <MenuBar project={project} isMember={isMember} />
-          <DeleteProject project_id={project.id} isMember={isMember} />
+          <MenuBar project={project} />
+          <DeleteProject project_id={project.id} />
         </div>
       </div>
     </div>

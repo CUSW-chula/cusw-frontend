@@ -31,7 +31,6 @@ interface Tags {
 
 interface ButtonAddTagsProps {
   project_id: string;
-  isMember?: boolean;
 }
 
 interface Owner {
@@ -43,7 +42,7 @@ interface Owner {
   activated: boolean;
 }
 
-export function ButtonAddTags({ project_id, isMember = false }: ButtonAddTagsProps) {
+export function ButtonAddTags({ project_id }: ButtonAddTagsProps) {
   const cookie = getCookie('auth');
   const auth = cookie?.toString() ?? '';
   const userid = (jwtDecode(auth) as { id: string }).id;
@@ -259,7 +258,7 @@ export function ButtonAddTags({ project_id, isMember = false }: ButtonAddTagsPro
         {hasEditPermission && (
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild className="border-brown text-brown">
-              {!isMember && (
+              {hasEditPermission && (
                 <Button variant="outline" className="h-8 px-2">
                   <p className="p-ui text-sm">Add tag</p>
                 </Button>

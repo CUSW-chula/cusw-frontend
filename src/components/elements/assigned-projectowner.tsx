@@ -29,13 +29,9 @@ interface UsersInterfaces {
 
 interface AssignedProjectOwnerProps {
   project: Project;
-  isMember?: boolean;
 }
 
-export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({
-  project,
-  isMember = false,
-}) => {
+export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({ project }) => {
   const [open, setOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<UsersInterfaces[]>([]);
   const [usersList, setUsersList] = React.useState<UsersInterfaces[]>([]);
@@ -144,7 +140,7 @@ export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({
   );
 
   const handleSelectUser = async (userName: string) => {
-    if (!isMounted || !project || isMember) return; // เพิ่มการตรวจสอบ isMember
+    if (!isMounted || !project) return; // เพิ่มการตรวจสอบ isMember
 
     const user = usersList.find((u) => u.name === userName);
     if (!user) return;
@@ -180,15 +176,11 @@ export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({
   };
 
   const handlePopoverOpenChange = (newOpen: boolean) => {
-    if (!isMember) {
-      setOpen(newOpen);
-    }
+    setOpen(newOpen);
   };
 
   const handleButtonClick = () => {
-    if (!isMember) {
-      setOpen(!open);
-    }
+    setOpen(!open);
   };
 
   if (!isMounted) {
@@ -210,10 +202,7 @@ export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({
                 type="button"
                 disabled={!hasEditPermission}
                 variant="outline"
-                className={cn(
-                  'border-brown text-brown h-8 px-2 hover:bg-gray-50',
-                  isMember && 'cursor-default',
-                )}
+                className={cn('border-brown text-brown h-8 px-2 hover:bg-gray-50')}
                 onClick={handleButtonClick}>
                 {selectedUser.length > 0 ? (
                   <div className="flex items-center space-x-2">
