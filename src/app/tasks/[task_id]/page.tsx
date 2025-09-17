@@ -13,6 +13,7 @@ import { DeleteTask } from '@/app/tasks/_components/deleteTask';
 import Emoji from '@/components/elements/emoji';
 import { redirect } from 'next/navigation';
 import { getUserRoleOnProjectTask } from '@/service/userService';
+import Task from '../_components/task';
 
 interface Workspace {
   id: string;
@@ -37,150 +38,7 @@ export default async function TasksManageMentPage({
 }: {
   params: Promise<{ task_id: string }>;
 }) {
-  const Workspace = dynamic(() => import('../../../components/elements/workspace'), {
-    ssr: true,
-  });
-
-  const cookieStore = (await cookies()).get('auth')?.value;
-  const auth: string = cookieStore?.toString() ?? '';
   const { task_id } = await params;
 
-  // ตรวจสอบ authentication
-  if (!auth) {
-    redirect('/login');
-  }
-
-  const response = await fetch(`${BASE_URL}/v2/tasks/${task_id}`, {
-    headers: { Authorization: auth },
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to fetch task data: ${response.statusText}`);
-  }
-
-  const task: TaskProps = await response.json();
-
-  // ดึงข้อมูลผู้ใช้ปัจจุบัน
-  const userResponse = await fetch(`${BASE_URL}/v2/users/me`, {
-    headers: { Authorization: auth },
-  });
-  if (!userResponse.ok) {
-    console.error('User authentication failed, redirecting to login');
-    redirect('/login');
-  }
-
-  const currentUser: UserRole = await userResponse.json();
-
-  // ใช้ getUserRoleOnProjectTask เพื่อตรวจสอบสิทธิ์
-  const userRoleData = await getUserRoleOnProjectTask({
-    projectId: task.projectId,
-    taskId: task.id,
-  });
-
-  // ดึงข้อมูล role จาก userRoleData
-  const roleInProject = userRoleData.projectRole;
-  const roleInTask = userRoleData.taskRole;
-
-  // --- ตรวจสอบสิทธิ์ ---
-  const isTaskOwner = roleInTask === 'owner';
-
-  // ตรวจสอบสิทธิ์การเข้าถึง task
-  // 1. ต้องเป็น admin หรือ head ของระบบ หรือ
-  // 2. ต้องมี role ในโปรเจคนี้ (Member หรือ ProjectOwner) หรือ
-  // 3. ต้องถูก assign ใน task นี้ (assignee หรือ owner) หรือ
-  // 4. ต้องเป็น member ใน task นี้ (ใน task.members หรือ task.owner array)
-  const isSystemAdmin = currentUser.admin || currentUser.head;
-
-  const hasProjectAccess =
-    roleInProject && (roleInProject === 'Member' || roleInProject === 'ProjectOwner');
-
-  const hasTaskAccess = roleInTask && (roleInTask === 'assignee' || roleInTask === 'owner');
-
-  // ตรวจสอบว่า user เป็น member หรือ owner ของ task
-  const isTaskMember = Array.isArray(task.members)
-    ? task.members.some((member) => member.id === currentUser.id)
-    : false;
-  const isTaskOwnerInArray = Array.isArray(task.owner)
-    ? task.owner.some((owner) => owner.id === currentUser.id)
-    : false;
-
-  // ตรวจสอบว่า user เป็น creator ของ task
-  const isTaskCreator = task.createdById === currentUser.id;
-
-  console.log('Access check:', {
-    userId: currentUser.id,
-    taskId: task_id,
-    projectId: task.projectId,
-    isSystemAdmin,
-    projectRole: roleInProject,
-    taskRole: roleInTask,
-    hasProjectAccess,
-    hasTaskAccess,
-    isTaskMember,
-    isTaskOwnerInArray,
-    isTaskCreator,
-    taskOwnerType: typeof task.owner,
-    taskOwnersArray: Array.isArray(task.owner),
-    taskMembersArray: Array.isArray(task.members),
-  });
-
-  // ถ้าไม่มีสิทธิ์เข้าถึง ให้ redirect ไป project list
-  if (
-    !isSystemAdmin &&
-    !hasProjectAccess &&
-    !hasTaskAccess &&
-    !isTaskMember &&
-    !isTaskOwnerInArray &&
-    !isTaskCreator
-  ) {
-    console.warn(
-      `User ${currentUser.id} attempted to access task ${task_id} but doesn't have permission`,
-    );
-    redirect('/projects');
-  }
-
-  // --- กำหนดสิทธิ์การจัดการต่างๆ ---
-  // Admin และ Head สามารถจัดการทุกอย่างได้
-  // ProjectOwner สามารถจัดการทุกอย่างในโปรเจคได้
-  // Task Owner สามารถจัดการ task ของตัวเองได้
-  // Task Member สามารถจัดการ task ที่ตัวเองเป็น member ได้
-  // Task Creator สามารถจัดการ task ที่ตัวเองสร้างได้
-
-  const workspace: Workspace = {
-    id: task.id,
-    title: task.title,
-    description: task.description,
-  };
-
-  return (
-    <div className="w-full flex-col items-start justify-center gap-8 px-20">
-      {/* page nav */}
-      <div className="flex flex-row py-4 items-center justify-between">
-        <BreadcrumbComponent task={task} />
-        <BackButton task={task} />
-      </div>
-
-      {/* page content */}
-      <div className="flex flex-row w-full gap-[28px]">
-        {/* Left Section */}
-        <div className="flex flex-col w-full max-w-[calc(100%-388px)] rounded-[6px] p-5 border-brown border-[1px] bg-white">
-          <Workspace task={task} />
-          <div className="w-full flex justify-between">
-            <Emoji task={task} />
-            <Uploadfile task={task} />
-          </div>
-          <div className="w-full flex flex-col gap-4 mt-4">
-            <Subtask task={task} />
-            <ActivityLogs task={task} />
-            <Comment task={task} />
-          </div>
-        </div>
-
-        {/* Right Section */}
-        <div className="flex flex-col gap-4 items-end">
-          <MenuBar task={task} />
-          <DeleteTask task={task} />
-        </div>
-      </div>
-    </div>
-  );
+  return <Task taskId={task_id} />;
 }
