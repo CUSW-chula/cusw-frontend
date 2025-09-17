@@ -50,14 +50,12 @@ interface TaskData {
 interface DeleteTaskProps {
   project_id: string;
   isMember?: boolean;
-  isAdmin?: boolean;
-  isHead?: boolean;
 }
 
-const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id, isMember, isAdmin, isHead }) => {
+const DeleteProject: React.FC<DeleteTaskProps> = ({ project_id }) => {
   const router = useRouter();
-  const auth = getCookie('auth')?.toString() ?? '';
-  const restricted = isMember && !isAdmin && !isHead;
+  const cookie = getCookie('auth');
+  const auth = cookie?.toString() ?? '';
 
   const handleDeleteTask = async () => {
     const url = `${BASE_URL}/v2/projects/${project_id}`;
@@ -306,6 +304,7 @@ export const ProjectDetail = ({ project }: { project: Project }) => {
   const auth = cookie?.toString() ?? '';
   const Router = useRouter();
 
+  // ตรวจสอบว่า auth token มีค่าและไม่ใช่ empty string
   useEffect(() => {
     if (!auth || auth === '') {
       console.error('No auth token found');

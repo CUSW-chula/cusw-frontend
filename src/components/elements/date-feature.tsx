@@ -451,12 +451,12 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
     console.log('range from selected date:', patchedRange);
   };
 
-  const [open, setOpen] = React.useState(false);
   const handlePopoverOpenChange = (newOpen: boolean) => {
     if (hasEditPermission) {
       // ใช้ default behavior ของ Popover
     }
   };
+
   const handleButtonClick = () => {
     if (!hasEditPermission) {
       // ป้องกันการเปิด popover
@@ -483,7 +483,7 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
         <PopoverTrigger asChild className="border-brown h-8 px-2" disabled={!hasEditPermission}>
           <Button
             id="date"
-            variant="outline"
+            variant={'outline'}
             className={cn(
               `font-BaiJamjuree text-sm text-brown hover:bg-gray-50 ${!date && 'text-muted-foreground'}`,
             )}

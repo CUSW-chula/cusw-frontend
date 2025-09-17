@@ -178,6 +178,7 @@ export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({ proj
   const handlePopoverOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
   };
+
   const handleButtonClick = () => {
     setOpen(!open);
   };
@@ -246,39 +247,37 @@ export const AssignedProjectOwner: React.FC<AssignedProjectOwnerProps> = ({ proj
                     })()}
                   </div>
                 ) : (
-                  <p className="p-ui text-sm">Assign</p>
+                  <p className="p-ui text-sm">Assigned</p>
                 )}
               </Button>
             </PopoverTrigger>
-            {/* render dropdown เฉพาะเมื่อมีสิทธิ์แก้ไข */}
-            {hasEditPermission && (
-              <PopoverContent className="p-0" side="right" align="start">
-                <Command>
-                  <CommandInput placeholder="Search member..." />
-                  <CommandList>
-                    <CommandEmpty>No members found</CommandEmpty>
-                    <CommandGroup>
-                      {filteredUsersList.map((user) => (
-                        <CommandItem
-                          key={user.id}
-                          value={user.name}
-                          onSelect={() => handleSelectUser(user.name)}>
-                          <Circle
-                            className={cn(
-                              'mr-2 h-4 w-4 fill-greenLight text-greenLight',
-                              selectedUser.some((u) => u.id === user.id)
-                                ? 'opacity-100'
-                                : 'opacity-40',
-                            )}
-                          />
-                          <span>{user.name}</span>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            )}
+
+            <PopoverContent className="p-0" side="right" align="start">
+              <Command>
+                <CommandInput placeholder="Search member..." />
+                <CommandList>
+                  <CommandEmpty>No members found</CommandEmpty>
+                  <CommandGroup>
+                    {filteredUsersList.map((user) => (
+                      <CommandItem
+                        key={user.id}
+                        value={user.name}
+                        onSelect={() => handleSelectUser(user.name)}>
+                        <Circle
+                          className={cn(
+                            'mr-2 h-4 w-4 fill-greenLight text-greenLight',
+                            selectedUser.some((u) => u.id === user.id)
+                              ? 'opacity-100'
+                              : 'opacity-40',
+                          )}
+                        />
+                        <span>{user.name}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
           </Popover>
         </div>
       </div>
