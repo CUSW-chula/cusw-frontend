@@ -45,9 +45,9 @@ function getRandomLightColor(): string {
 
 function Document({ project_id }: ProjectOverviewProps) {
   const [Description, setDescription] = useState<string>('');
-  const [canEdit, setCanEdit] = useState<boolean>(false); // read-only จนกว่าจะตรวจสิทธิ์เสร็จ
+  const [canEdit, setCanEdit] = useState<boolean>(false); // server flag (ข้อมูลประกอบ)
   const [originalDescription, setOriginalDescription] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(true); // เพิ่ม loading state
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hasEditPermission, setHasEditPermission] = useState(false);
 
   const { audio, image, video, file, codeBlock, ...allowedBlockSpecs } = defaultBlockSpecs;
@@ -82,7 +82,6 @@ function Document({ project_id }: ProjectOverviewProps) {
     const load = async () => {
       setIsLoading(true);
       try {
-        // 1) ดึงข้อมูลโปรเจกต์
         const res = await fetch(`${BASE_URL}/v2/projects/${project_id}`, {
           headers: { Authorization: auth },
         });
@@ -95,17 +94,13 @@ function Document({ project_id }: ProjectOverviewProps) {
         setDescription(desc);
         setOriginalDescription(desc);
 
-        // sync เนื้อหาเข้า editor
         try {
           const blocks = await editor.tryParseHTMLToBlocks(desc);
           editor.replaceBlocks(editor.document, blocks);
-        } catch {
-          // ถ้า parse ไม่ได้ ปล่อยว่าง
-        }
+        } catch {}
 
-        // 2) ตัดสินสิทธิ์แก้ไขจาก response เท่านั้น (ไม่ใช้ OPTIONS)
+        // server flag (ไม่ใช้กำหนด UI โดยตรง)
         let allowed = false;
-
         if (typeof data?.permissions?.can_edit === 'boolean') {
           allowed = data.permissions.can_edit;
         } else if (typeof data?.can_edit === 'boolean') {
@@ -113,7 +108,6 @@ function Document({ project_id }: ProjectOverviewProps) {
         } else if (data?.role && ['owner', 'editor', 'maintainer', 'admin'].includes(data.role)) {
           allowed = true;
         }
-
         setCanEdit(allowed);
       } catch (e) {
         console.error('Error fetching description:', e);
@@ -124,21 +118,26 @@ function Document({ project_id }: ProjectOverviewProps) {
     };
 
     const checkPermission = async () => {
-      const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
-        projectId: project_id,
-      });
-      setHasEditPermission(
-        can('editProjectDescription', { projectRole, taskRole, isAdmin, isHead }),
-      );
+      try {
+        const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
+          projectId: project_id,
+        });
+        setHasEditPermission(
+          can('editProjectDescription', { projectRole, taskRole, isAdmin, isHead }),
+        );
+      } catch (e) {
+        console.error('Error checking permission:', e);
+        setHasEditPermission(false);
+      }
     };
 
     checkPermission();
     load();
   }, [project_id, editor]);
 
-  // บันทึกอัตโนมัติเมื่อแก้ไข (เฉพาะเมื่อมีสิทธิ์เท่านั้น)
+  // autosave เฉพาะเมื่อมีสิทธิ์
   useEffect(() => {
-    if (!Description || !canEdit || originalDescription === Description) return;
+    if (!hasEditPermission || originalDescription === Description) return;
 
     const timer = setTimeout(async () => {
       try {
@@ -149,7 +148,12 @@ function Document({ project_id }: ProjectOverviewProps) {
         });
 
         if (response.status === 403) {
-          setCanEdit(false);
+          setHasEditPermission(false);
+          toast({
+            title: 'ไม่มีสิทธิ์แก้ไข',
+            description: 'สลับเป็นโหมดอ่านอย่างเดียว',
+            variant: 'destructive',
+          });
           // ย้อนกลับไปเป็นค่าก่อนหน้า
           setDescription(originalDescription);
           try {
@@ -172,10 +176,10 @@ function Document({ project_id }: ProjectOverviewProps) {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [Description, project_id, canEdit, auth, originalDescription, editor]);
+  }, [Description, project_id, hasEditPermission, auth, originalDescription, editor]);
 
   const onChangeBlock = async () => {
-    if (!canEdit) return;
+    if (!hasEditPermission) return;
     const HTML = await editor.blocksToHTMLLossy(editor.document);
     setDescription(HTML);
   };
@@ -187,8 +191,8 @@ function Document({ project_id }: ProjectOverviewProps) {
   return (
     <BlockNoteView
       editor={editor}
-      editable={canEdit && hasEditPermission}
-      aria-disabled={!canEdit}
+      editable={hasEditPermission}
+      aria-disabled={!hasEditPermission}
       theme={'light'}
       onChange={onChangeBlock}
       emojiPicker={false}
