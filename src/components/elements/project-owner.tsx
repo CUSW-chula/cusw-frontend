@@ -66,7 +66,8 @@ export function ProjectOwner({ task }: { task: TaskProps }) {
             <Button
               variant={'outline'}
               className="flex gap-x-2 border-brown text-brown h-8 px-2"
-              disabled={!hasEditPermission}>
+              // disabled={!hasEditPermission}
+            >
               {owner.length === 1 ? (
                 <Tooltip key={owner[0].id}>
                   <TooltipTrigger>
