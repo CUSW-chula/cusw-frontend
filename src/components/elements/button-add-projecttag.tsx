@@ -23,6 +23,7 @@ import { set } from 'date-fns';
 import { ProjectOwner } from './project-owner';
 import { getUserRoleOnProjectTask } from '@/service/userService';
 import { can } from '@/permissions/helper';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface Tags {
   id: string;
@@ -224,41 +225,47 @@ export function ButtonAddTags({ project_id }: ButtonAddTagsProps) {
   return (
     <div className="flex items-center gap-2">
       <div className="flex flex-row max-w-[212px] flex-wrap items-center justify-start overflow-hidden gap-x-1.5">
-        {Array.isArray(selectedTags) && selectedTags.length > 0
-          ? selectedTags
-              .sort((a, b) => {
-                const aIsApprove = a.name === 'Approved';
-                const bIsApprove = b.name === 'Approved';
-                if (aIsApprove && !bIsApprove) return -1;
-                if (!aIsApprove && bIsApprove) return 1;
-                return 0;
-              })
-              .map((tag) => {
-                // Only show Accept tags to Head/Admin users
-                if (tag.name === 'Approved' && !isHeadState && !isadmin) return null;
+        <TooltipProvider>
+          {Array.isArray(selectedTags) && selectedTags.length > 0
+            ? selectedTags
+                .sort((a, b) => {
+                  const aIsApprove = a.name === 'Approved';
+                  const bIsApprove = b.name === 'Approved';
+                  if (aIsApprove && !bIsApprove) return -1;
+                  if (!aIsApprove && bIsApprove) return 1;
+                  return 0;
+                })
+                .map((tag) => {
+                  if (tag.name === 'Approved' && !isHeadState && !isadmin) return null;
 
-                return (
-                  <Badge
-                    key={tag.id}
-                    variant="destructive"
-                    className={cn(
-                      'h-6 w-fit max-w-[212px] flex items-center my-1 justify-center gap-1',
-                      tag.name === 'Approved'
-                        ? 'bg-[#eefafd] border-blue text-blue'
-                        : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
-                    )}>
-                    <span className="text-sm font-BaiJamjuree font-medium text-ellipsis overflow-hidden max-w-[180px]">
-                      {tag.name}
-                    </span>
-                    {(isHeadState || isadmin || isprojectOwner) && (
-                      <button type="button" onClick={() => handleDeleteTag(tag.id)}>
-                        <XCircle className="h-4 w-4" />
-                      </button>
-                    )}
-                  </Badge>
-                );
-              })
-          : undefined}
+                  return (
+                    <Tooltip key={tag.id}>
+                      <TooltipTrigger asChild>
+                        <Badge
+                          variant="destructive"
+                          className={cn(
+                            'h-6 w-fit max-w-[212px] flex items-center my-1 justify-center gap-1',
+                            tag.name === 'Approved'
+                              ? 'bg-[#eefafd] border-blue text-blue'
+                              : 'bg-[#EEFDF7] border-[#69BCA0] text-[#69BCA0]',
+                          )}>
+                          <span className="text-sm font-BaiJamjuree font-medium truncate whitespace-nowrap max-w-[180px]">
+                            {tag.name}
+                          </span>
+                          {(isHeadState || isadmin || isprojectOwner) && (
+                            <button type="button" onClick={() => handleDeleteTag(tag.id)}>
+                              <XCircle className="h-4 w-4" />
+                            </button>
+                          )}
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-[280px] break-words">
+                        {tag.name}
+                      </TooltipContent>
+                    </Tooltip>
+                  );
+                })
+            : undefined}
 
         {hasEditPermission && (
           <Popover open={open} onOpenChange={setOpen}>
@@ -303,6 +310,7 @@ export function ButtonAddTags({ project_id }: ButtonAddTagsProps) {
             </PopoverContent>
           </Popover>
         )}
+        </TooltipProvider>
       </div>
     </div>
   );
