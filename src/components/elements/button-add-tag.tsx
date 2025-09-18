@@ -175,8 +175,8 @@ export function ButtonAddTags({ task }: { task: TaskProps }) {
               <Badge
                 key={tag.id}
                 variant="destructive"
-                className="h-6 w-fit max-w-[212px] flex items-center my-1 justify-center bg-[#EEFDF7] border border-green text-green gap-1">
-                <span className="text-sm font-BaiJamjuree font-medium text-ellipsis overflow-hidden max-w-[180px]">
+                className=" w-fit max-w-[212px] flex items-center my-1 justify-center bg-[#EEFDF7] border border-green text-green gap-1">
+                <span className="h-min text-sm font-BaiJamjuree font-medium text-ellipsis overflow-hidden max-w-[180px] break-all">
                   {tag.name}
                 </span>
                 {hasEditPermission && (
