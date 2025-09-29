@@ -40,7 +40,11 @@ const Table = () => {
 
   const filteredUsers = user
     .filter((user) => user.name.toLowerCase().includes(searchUser.toLowerCase()))
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => {
+      // เรียงให้ Active มาก่อน จากนั้นเรียงตามชื่อ (A->Z)
+      if (a.activated === b.activated) return a.name.localeCompare(b.name);
+      return a.activated ? -1 : 1; // a ก่อนถ้า a.active = true
+    });
 
   return (
     <div className="font-BaiJamjuree w-full h-[690px] bg-white p-4 rounded-lg border border-brown">
