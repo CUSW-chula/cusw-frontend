@@ -65,7 +65,9 @@ export const AssignedProjectMember: React.FC<AssignedProjectMemberProps> = ({ pr
       });
       if (!response.ok) return;
       const data = await response.json();
-      setUsersList(data);
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+      const activatedUsers = data.filter((user: any) => user.activated);
+      setUsersList(activatedUsers);
     } catch (error) {
       console.error('Failed to fetch users:', error);
     }

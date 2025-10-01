@@ -61,12 +61,53 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
         const parsedData = parseJsonValues(project.tasks);
         setTasks(parsedData);
         setShowTasks(parsedData);
+
+        if (!loadExpandedState().size) {
+          expandAllTasks(parsedData);
+        }
       } catch (error) {
         console.error(error);
       }
     };
     fetchData();
   }, [project_id]);
+
+  const expandAllTasks = (tasks: TaskProps[]) => {
+    const newIds = new Set(expandedIds);
+
+    const traverse = (task: TaskProps) => {
+      newIds.add(task.id);
+      task.subtasks?.forEach(traverse);
+    };
+
+    tasks.forEach(traverse);
+    setExpandedIds(newIds);
+  };
+
+  const removeTaskFromState = (taskId: string) => {
+    const removeTaskRecursive = (taskList: TaskProps[]): TaskProps[] => {
+      return taskList
+        .filter((task) => task.id !== taskId)
+        .map((task) => ({
+          ...task,
+          subtasks: task.subtasks ? removeTaskRecursive(task.subtasks) : undefined,
+        }));
+    };
+
+    const updatedTasks = removeTaskRecursive(tasks);
+    setTasks(updatedTasks);
+    setShowTasks(updatedTasks);
+
+    // Remove from expanded state if it was expanded
+    const newExpandedIds = new Set(expandedIds);
+    newExpandedIds.delete(taskId);
+    setExpandedIds(newExpandedIds);
+
+    toast({
+      title: 'Task deleted',
+      description: 'The task has been successfully deleted.',
+    });
+  };
 
   return (
     <div className="h-auto w-full p-11 font-BaiJamjuree bg-white rounded-md border border-brown flex flex-col">
@@ -100,6 +141,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
                   hiddenDate={false}
                   expandedIds={expandedIds}
                   onToggle={handleToggle}
+                  onTaskDelete={removeTaskFromState}
                 />
               ))}
           </div>

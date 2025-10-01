@@ -24,7 +24,13 @@ import { getUserRoleOnProjectTask } from '@/service/userService';
 import { Ellipsis } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-export const TaskActionsMenu = ({ task }: { task: TaskProps }) => {
+export const TaskActionsMenu = ({
+  task,
+  onTaskDelete,
+}: {
+  task: TaskProps;
+  onTaskDelete?: () => void;
+}) => {
   const handleDuplicateTask = async () => {
     try {
       await fetchData(
@@ -33,7 +39,6 @@ export const TaskActionsMenu = ({ task }: { task: TaskProps }) => {
         [task],
         'Error duplicating task',
       );
-      window.location.reload();
     } catch (error) {
       console.error('Duplication error:', error);
     }
@@ -42,7 +47,7 @@ export const TaskActionsMenu = ({ task }: { task: TaskProps }) => {
   const handleDeleteTask = async () => {
     try {
       await fetchData(`${BASE_URL}/v2/tasks/${task.id}`, 'DELETE', task, 'Error deleting task');
-      window.location.reload();
+      onTaskDelete?.();
     } catch (error) {
       toast({
         title: 'Error deleting task',
