@@ -1,5 +1,6 @@
 'use client';
 import { Button } from '@/components/ui/button';
+import { Redo2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type React from 'react';
 
@@ -10,6 +11,20 @@ const page = () => {
     title: string;
     path: string;
   }
+
+  const HomeBackButton = () => {
+    const router = useRouter();
+
+    return (
+      <Button
+        variant="link"
+        size="sm"
+        onClick={() => router.push('/')}
+        className="font-BaiJamjuree bg-white border-x border-y border-brown text-brown text-md">
+        <Redo2 className="transform rotate-180 text-brown" /> Back
+      </Button>
+    );
+  };
 
   const DashboardCard: React.FC<DashboardCardProps> = ({ title, path }) => {
     return (
@@ -38,7 +53,10 @@ const page = () => {
 
   return (
     <div className="flex flex-col max-w-7xl mx-auto gap-8 w-full h-full">
-      <h1 className="text-5xl font-bold text-brown mb-4 font-BaiJamjuree w-full">Dashboard</h1>
+      <section className="flex items-center justify-between">
+        <h1 className="text-5xl font-bold text-brown mb-4 font-BaiJamjuree w-full">Dashboard</h1>
+        <HomeBackButton />
+      </section>
       <div className="grid w-full justify-center items-center grid-cols-[repeat(auto-fit,_minmax(200px,_310px))] gap-8">
         <DashboardCard title="Workload Distribution" path="/workload" />
         <GanttChartCard title="Project Data Overview" path="/dashboard/project" />

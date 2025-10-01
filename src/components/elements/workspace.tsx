@@ -96,7 +96,7 @@ const Workspace = ({ task }: { task: TaskProps }) => {
         const { eventName, data } = socketEvent;
         const parsedData = pareJsonValue(data);
         const parsedDatas = pareJsonValues(data);
-        if (eventName === 'add-file') {
+        if (eventName === `add-file: ${task_id}`) {
           setFileList((prevFiles) => [...prevFiles, parsedData]);
         } else if (eventName === 'remove-file') {
           setFileList((prevFiles) => prevFiles.filter((file) => file.id !== parsedData.id));
