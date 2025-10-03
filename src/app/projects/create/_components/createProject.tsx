@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import BASE_URL from '@/lib/shared';
 import { useRouter } from 'next/navigation';
 import LoadingClient from '@/components/elements/loading-screen';
@@ -18,6 +17,17 @@ import { type Budget, TypeMoney } from '@/app/types/moneyType';
 import type { TaskProps } from '@/app/types/types';
 import { taskAtom } from '@/atom';
 import { useAtom } from 'jotai';
+import { BlockNoteView } from '@blocknote/shadcn';
+import { GridSuggestionMenuController, useCreateBlockNote } from '@blocknote/react';
+import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
+import * as Card from '@/components/ui/card';
+import * as DropdownMenu from '@/components/ui/dropdown-menu';
+import * as Form from '@/components/ui/form';
+import * as Label from '@/components/ui/label';
+import * as Popover from '@/components/ui/popover';
+import * as Tabs from '@/components/ui/tabs';
+import * as Toggle from '@/components/ui/toggle';
+import * as Tooltip from '@/components/ui/tooltip';
 
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
@@ -29,6 +39,17 @@ export const CreateProject = () => {
   const [task, setTask] = useAtom<TaskProps[]>(taskAtom);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [description, setDescription] = useState<string>('');
+   const { audio, image, video, file, codeBlock, ...allowedBlockSpecs } = defaultBlockSpecs;
+  const schema = BlockNoteSchema.create({
+    blockSpecs: {
+      ...allowedBlockSpecs,
+    },
+  });
+
+    const editor = useCreateBlockNote({
+    schema,
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,10 +80,10 @@ export const CreateProject = () => {
       budgetList.type === TypeMoney.budget
         ? taskMoney.budget
         : budgetList.type === TypeMoney.ad
-          ? taskMoney.advance
-          : budgetList.type === TypeMoney.exp
-            ? taskMoney.expense
-            : null;
+        ? taskMoney.advance
+        : budgetList.type === TypeMoney.exp
+        ? taskMoney.expense
+        : null;
 
     setInputs((values) => ({
       ...values,
@@ -109,6 +130,13 @@ export const CreateProject = () => {
     router.push('/projects');
   };
 
+  // แก้ไข handleDescriptionChange ให้อัพเดท inputs แทน
+  const handleDescriptionChange = async () => {
+    const blocks = editor.document;
+    const html = await editor.blocksToHTMLLossy(blocks);
+    setInputs((values) => ({ ...values, projectDescription: html }));
+  };
+
   if (isLoading || isSubmitting) {
     return <LoadingClient />;
   }
@@ -116,7 +144,7 @@ export const CreateProject = () => {
   return (
     <div className="h-full flex flex-col justify-start items-start gap-4 w-full">
       <h1 className="text-black text-5xl font-semibold font-Anuphan">Create project</h1>
-      <form className="w-full h-[348px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start inline-flex relative">
+      <form className="w-full h-[348px] p-5 bg-white rounded-md border border-[#6b5c56] flex-col justify-between items-start inline-flex">
         <label
           htmlFor="require part"
           className="text-red font-semibold text-2xl absolute left-[280px] top-[30px]">
@@ -130,13 +158,34 @@ export const CreateProject = () => {
             value={inputs.projectTitle || ''}
             onChange={handleChange}
           />
-          <Textarea
+          {/* <Textarea
             className="resize-none border-none w-full outline-none text-black text-xl font-BaiJamjuree leading-7"
             placeholder="Project description"
             name="projectDescription"
             value={inputs.projectDescription || ''}
             onChange={handleChange}
-          />
+          /> */}
+          <div
+            className="border-none w-full outline-none bg-white rounded-lg overflow-hidden"
+            style={{ minHeight: '100px' }}
+          >
+            <BlockNoteView
+                      editor={editor}
+                      theme={'light'}
+                      onChange={handleDescriptionChange}
+                      emojiPicker={false}
+                      shadCNComponents={{
+                        Card,
+                        DropdownMenu,
+                        Label,
+                        Popover,
+                        Tabs,
+                        Toggle,
+                        Tooltip,
+                      }}>
+                      <GridSuggestionMenuController triggerCharacter={':'} columns={5} minQueryLength={2} />
+            </BlockNoteView>{' '}
+          </div>
         </div>
         <div className="justify-start items-start gap-3 inline-flex">
           <Button
@@ -170,3 +219,5 @@ export const CreateProject = () => {
     </div>
   );
 };
+
+export default CreateProject;
