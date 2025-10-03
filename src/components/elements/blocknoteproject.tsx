@@ -12,7 +12,7 @@ import * as Popover from '@/components/ui/popover';
 import * as Tabs from '@/components/ui/tabs';
 import * as Toggle from '@/components/ui/toggle';
 import * as Tooltip from '@/components/ui/tooltip';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import BASE_URL, { BASE_YSWEET, type ProjectOverviewProps } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 import { jwtDecode, type JwtPayload } from 'jwt-decode';
@@ -47,9 +47,7 @@ function Document({ project_id }: ProjectOverviewProps) {
   const [originalDescription, setOriginalDescription] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hasEditPermission, setHasEditPermission] = useState(false);
-  const hasHydratedRef = useRef<string | null>(null);
-  const [providerSynced, setProviderSynced] = useState(false);
-  const [hydrationDone, setHydrationDone] = useState(false);
+  const [isContentLoaded, setIsContentLoaded] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -69,7 +67,6 @@ function Document({ project_id }: ProjectOverviewProps) {
 
         setDescription(data.description ?? '');
         setOriginalDescription(data.description ?? '');
-        // ย้ายการ sync เข้า editor ไปทำหลัง provider sync (ดู useEffect ด้านล่าง)
       } catch (error) {
         console.error('Error fetching description:', error);
       }
@@ -113,7 +110,6 @@ function Document({ project_id }: ProjectOverviewProps) {
   const provider = useYjsProvider();
   const doc = useYDoc();
 
-  // โหลดชื่อจริงจาก API แล้วอัปเดต state
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -147,66 +143,23 @@ function Document({ project_id }: ProjectOverviewProps) {
     },
   });
 
-  // ติดตามสถานะ sync ของ provider
   useEffect(() => {
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-    const p = provider as any;
-    const onSync = (isSynced: boolean) => {
-      if (isSynced) setProviderSynced(true);
-    };
-    // เผื่อ provider รองรับทั้ง 'sync' และ 'synced'
-    p?.on?.('sync', onSync);
-    p?.on?.('synced', onSync);
-    if (p?.synced || p?.isSynced) setProviderSynced(true);
-
-    return () => {
-      p?.off?.('sync', onSync);
-      p?.off?.('synced', onSync);
-    };
-  }, [provider]);
-
-  // reset ตัวกันซ้ำเมื่อเปลี่ยนโปรเจกต์
-  useEffect(() => {
-    hasHydratedRef.current = null;
-    setHydrationDone(false);
-  }, [project_id]);
-
-  // hydrate เนื้อหาเข้า editor หลัง provider sync แล้ว และทำครั้งเดียว
-  useEffect(() => {
-    if (!providerSynced) return;
-
-    // ถ้า hydrate ไปแล้วสำหรับโปรเจกต์นี้ ให้ถือว่าเสร็จ
-    if (hasHydratedRef.current === project_id) {
-      setHydrationDone(true);
-      return;
-    }
-
-    let cancelled = false;
-    (async () => {
-      try {
-        // ถ้าไม่มี Description ก็ถือว่าเสร็จ
-        if (!Description) {
-          if (!cancelled) {
-            hasHydratedRef.current = project_id;
-            setHydrationDone(true);
-          }
-          return;
+    if (!isLoading && originalDescription && !isContentLoaded && editor) {
+      const loadContent = async () => {
+        try {
+          // แปลง HTML กลับเป็น blocks
+          const blocks = await editor.tryParseHTMLToBlocks(originalDescription);
+          editor.replaceBlocks(editor.document, blocks);
+          setIsContentLoaded(true);
+        } catch (error) {
+          console.error('Error loading content into editor:', error);
+          setIsContentLoaded(true);
         }
-        const blocks = await editor.tryParseHTMLToBlocks(Description);
-        if (cancelled) return;
-        editor.replaceBlocks(editor.document, blocks);
-        hasHydratedRef.current = project_id;
-        setHydrationDone(true);
-      } catch (e) {
-        console.error('Error hydrating editor:', e);
-        if (!cancelled) setHydrationDone(true); // fail-open เพื่อไม่ให้ค้าง loading
-      }
-    })();
+      };
 
-    return () => {
-      cancelled = true;
-    };
-  }, [providerSynced, Description, editor, project_id]);
+      loadContent();
+    }
+  }, [isLoading, originalDescription, isContentLoaded, editor]);
 
   const onChangeBlock = async () => {
     if (!hasEditPermission) return;
@@ -244,7 +197,6 @@ function Document({ project_id }: ProjectOverviewProps) {
           return;
         }
 
-        // บันทึกสำเร็จ ค่อยอัปเดต originalDescription
         setOriginalDescription(Description);
       } catch (error) {
         console.error('Error updating description:', error);
@@ -259,8 +211,7 @@ function Document({ project_id }: ProjectOverviewProps) {
     return () => clearTimeout(timer);
   }, [Description, project_id, hasEditPermission]);
 
-  // แสดง loading จนกว่าจะโหลดข้อมูล, provider sync และ hydrate เสร็จ
-  if (isLoading || !providerSynced || !hydrationDone) {
+  if (isLoading) {
     return <div className="flex items-center justify-center p-8">Loading...</div>;
   }
 
