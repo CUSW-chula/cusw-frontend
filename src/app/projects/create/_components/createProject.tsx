@@ -17,17 +17,13 @@ import { type Budget, TypeMoney } from '@/app/types/moneyType';
 import type { TaskProps } from '@/app/types/types';
 import { taskAtom } from '@/atom';
 import { useAtom } from 'jotai';
-import { BlockNoteView } from '@blocknote/shadcn';
-import { GridSuggestionMenuController, useCreateBlockNote } from '@blocknote/react';
-import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
-import * as Card from '@/components/ui/card';
-import * as DropdownMenu from '@/components/ui/dropdown-menu';
-import * as Form from '@/components/ui/form';
-import * as Label from '@/components/ui/label';
-import * as Popover from '@/components/ui/popover';
-import * as Tabs from '@/components/ui/tabs';
-import * as Toggle from '@/components/ui/toggle';
-import * as Tooltip from '@/components/ui/tooltip';
+import dynamic from 'next/dynamic';
+
+// Dynamically import the BlockNote editor component
+const BlockNoteEditor = dynamic(() => import('./BlockNoteEditor'), {
+  ssr: false,
+  loading: () => <div className="p-4 text-gray-500">Loading editor...</div>,
+});
 
 const cookie = getCookie('auth');
 const auth = cookie?.toString() ?? '';
@@ -40,16 +36,6 @@ export const CreateProject = () => {
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [description, setDescription] = useState<string>('');
-   const { audio, image, video, file, codeBlock, ...allowedBlockSpecs } = defaultBlockSpecs;
-  const schema = BlockNoteSchema.create({
-    blockSpecs: {
-      ...allowedBlockSpecs,
-    },
-  });
-
-    const editor = useCreateBlockNote({
-    schema,
-  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -80,10 +66,10 @@ export const CreateProject = () => {
       budgetList.type === TypeMoney.budget
         ? taskMoney.budget
         : budgetList.type === TypeMoney.ad
-        ? taskMoney.advance
-        : budgetList.type === TypeMoney.exp
-        ? taskMoney.expense
-        : null;
+          ? taskMoney.advance
+          : budgetList.type === TypeMoney.exp
+            ? taskMoney.expense
+            : null;
 
     setInputs((values) => ({
       ...values,
@@ -130,10 +116,7 @@ export const CreateProject = () => {
     router.push('/projects');
   };
 
-  // แก้ไข handleDescriptionChange ให้อัพเดท inputs แทน
-  const handleDescriptionChange = async () => {
-    const blocks = editor.document;
-    const html = await editor.blocksToHTMLLossy(blocks);
+  const handleDescriptionChange = (html: string) => {
     setInputs((values) => ({ ...values, projectDescription: html }));
   };
 
@@ -158,33 +141,10 @@ export const CreateProject = () => {
             value={inputs.projectTitle || ''}
             onChange={handleChange}
           />
-          {/* <Textarea
-            className="resize-none border-none w-full outline-none text-black text-xl font-BaiJamjuree leading-7"
-            placeholder="Project description"
-            name="projectDescription"
-            value={inputs.projectDescription || ''}
-            onChange={handleChange}
-          /> */}
           <div
             className="border-none w-full outline-none bg-white rounded-lg overflow-hidden"
-            style={{ minHeight: '100px' }}
-          >
-            <BlockNoteView
-                      editor={editor}
-                      theme={'light'}
-                      onChange={handleDescriptionChange}
-                      emojiPicker={false}
-                      shadCNComponents={{
-                        Card,
-                        DropdownMenu,
-                        Label,
-                        Popover,
-                        Tabs,
-                        Toggle,
-                        Tooltip,
-                      }}>
-                      <GridSuggestionMenuController triggerCharacter={':'} columns={5} minQueryLength={2} />
-            </BlockNoteView>{' '}
+            style={{ minHeight: '100px' }}>
+            <BlockNoteEditor onChange={handleDescriptionChange} />
           </div>
         </div>
         <div className="justify-start items-start gap-3 inline-flex">
