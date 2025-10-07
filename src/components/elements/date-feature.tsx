@@ -223,15 +223,80 @@ function DatePickerWithRange({ task }: { task: TaskProps }) {
 
   // Handle calendar selection
   const handleCalendarSelect = async (range: DateRange | undefined) => {
-    let patchedRange = range;
-
-    // ถ้าไม่มี range หรือ from ไม่มีค่า
+    // ถ้าไม่มี range หรือ from ไม่มีค่า ให้ reset
     if (!range?.from) {
+      // Reset to empty state
+      const resetRange = { from: undefined, to: undefined };
+      clickCountRef.current = 0;
+      
+      const url = `${BASE_URL}/v2/tasks/date/${task.id}`;
+      const options = {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
+        body: JSON.stringify({
+          startDate: null,
+          endDate: null,
+        }),
+      };
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        if (data) {
+          setDate(resetRange);
+          setFormattedDate(formatDate(resetRange));
+        }
+      } catch (error) {
+        console.error(error);
+      }
+      console.log('Date reset to null');
       return;
     }
 
+    let patchedRange = range;
+
+    // Logic สำหรับการกดหลายครั้ง
+    if (clickCountRef.current === 0) {
+      // ครั้งแรก: ให้ start/end เป็นวันเดียวกัน
+      patchedRange = { from: range.from, to: range.from };
+      clickCountRef.current = 1;
+    } else if (clickCountRef.current === 1 && range?.from && range?.to && range.from.getTime() !== range.to.getTime()) {
+      // ครั้งที่สอง: เป็น range จริง
+      patchedRange = { from: range.from, to: range.to };
+      clickCountRef.current = 2;
+    } else if (clickCountRef.current === 2) {
+      // ครั้งที่สาม: reset ทั้งหมด
+      const resetRange = { from: undefined, to: undefined };
+      clickCountRef.current = 0;
+      
+      const url = `${BASE_URL}/v2/tasks/date/${task.id}`;
+      const options = {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
+        body: JSON.stringify({
+          startDate: null,
+          endDate: null,
+        }),
+      };
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        if (data) {
+          setDate(resetRange);
+          setFormattedDate(formatDate(resetRange));
+        }
+      } catch (error) {
+        console.error(error);
+      }
+      console.log('Date reset to null on third click');
+      return;
+    } else {
+      // กรณีอื่นๆ: ให้ to = from
+      patchedRange = { from: range.from, to: range.from };
+      clickCountRef.current = 1;
+    }
+
     // ตรวจสอบขอบเขตก่อนดำเนินการ
-    if (!isDateWithinBounds(range)) {
+    if (!isDateWithinBounds(patchedRange)) {
       toast({
         title: 'วันที่ไม่ถูกต้อง',
         description: isSubtask
@@ -240,11 +305,6 @@ function DatePickerWithRange({ task }: { task: TaskProps }) {
         variant: 'default',
       });
       return;
-    }
-
-    // ถ้าเลือกวันเดียว (from มีค่า แต่ to ยังไม่มี) ให้ to = from
-    if (range?.from && !range?.to) {
-      patchedRange = { from: range.from, to: range.from };
     }
 
     const url = `${BASE_URL}/v2/tasks/date/${task.id}`;
@@ -411,21 +471,78 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
 
   // Handle calendar selection (เหมือน date feature)
   const handleCalendarSelect = async (range: DateRange | undefined) => {
-    if (!range?.from) return; // เพิ่มการตรวจสอบ isMember
+    // ถ้าไม่มี range หรือ from ไม่มีค่า ให้ reset
+    if (!range?.from) {
+      // Reset to empty state
+      const resetRange = { from: undefined, to: undefined };
+      clickCountRef.current = 0;
+      
+      const url = `${BASE_URL}/v2/projects/${project.id}`;
+      const options = {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
+        body: JSON.stringify({
+          projectID: project.id,
+          startDate: null,
+          endDate: null,
+        }),
+      };
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        if (data) {
+          setDate(resetRange);
+          setFormattedDate(formatDate(resetRange));
+        }
+      } catch (error) {
+        console.error(error);
+      }
+      console.log('Project date reset to null');
+      return;
+    }
 
     let patchedRange = range;
-    // Logic: กดครั้งแรกให้ start/end เป็นวันเดียวกัน, กดครั้งที่สองถึงจะเป็น range
+    
+    // Logic: กดครั้งแรกให้ start/end เป็นวันเดียวกัน, กดครั้งที่สองถึงจะเป็น range, กดครั้งที่สามให้ reset
     if (clickCountRef.current === 0) {
       // ครั้งแรก: ให้ to = from
       patchedRange = { from: range.from, to: range.from };
       clickCountRef.current = 1;
-    } else if (range?.from && range?.to && range.from.getTime() !== range.to.getTime()) {
+    } else if (clickCountRef.current === 1 && range?.from && range?.to && range.from.getTime() !== range.to.getTime()) {
       // ครั้งที่สอง: เป็น range จริง
       patchedRange = { from: range.from, to: range.to };
-      clickCountRef.current = 0; // reset เพื่อให้เลือกใหม่ได้
+      clickCountRef.current = 2;
+    } else if (clickCountRef.current === 2) {
+      // ครั้งที่สาม: reset ทั้งหมด
+      const resetRange = { from: undefined, to: undefined };
+      clickCountRef.current = 0;
+      
+      const url = `${BASE_URL}/v2/projects/${project.id}`;
+      const options = {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
+        body: JSON.stringify({
+          projectID: project.id,
+          startDate: null,
+          endDate: null,
+        }),
+      };
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        if (data) {
+          setDate(resetRange);
+          setFormattedDate(formatDate(resetRange));
+        }
+      } catch (error) {
+        console.error(error);
+      }
+      console.log('Project date reset to null on third click');
+      return;
     } else {
       // ถ้าเลือกวันเดียวซ้ำ ให้ to = from
       patchedRange = { from: range.from, to: range.from };
+      clickCountRef.current = 1;
     }
 
     const url = `${BASE_URL}/v2/projects/${project.id}`;
