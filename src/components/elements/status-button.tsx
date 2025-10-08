@@ -238,7 +238,7 @@ export function StatusButton({ task }: { task: TaskProps }) {
                 <CommandItem
                   key={status.status}
                   value={status.status}
-                  disabled= {isStatusDisabled(status)}
+                  disabled={isStatusDisabled(status)}
                   className="pl-[32px] font-BaiJamjuree text-base"
                   onSelect={() => {
                     handleSelectStatus(status);

@@ -39,6 +39,7 @@ export const TaskActionsMenu = ({
         [task],
         'Error duplicating task',
       );
+      // window.location.reload();
     } catch (error) {
       console.error('Duplication error:', error);
     }

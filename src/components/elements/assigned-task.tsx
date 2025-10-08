@@ -63,6 +63,9 @@ export function AssignedTaskToMember({ task }: { task: TaskProps }) {
       }
       const userList = await usersData.json();
       setUsersList(userList);
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+      const activatedUsers = userList.filter((user: any) => user.activated);
+      setUsersList(activatedUsers);
     };
 
     fetchAssignUsers();
