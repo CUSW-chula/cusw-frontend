@@ -160,6 +160,41 @@ export function StatusButton({ task }: { task: TaskProps }) {
   const { toast } = useToast();
   const [hasEditPermission, setHasEditPermission] = useState(false);
 
+  // Function to check if a status should be disabled
+  const isStatusDisabled = (status: Status) => {
+    // Bypass users (admins/heads/project owners) can change to any status
+    if (isBypassAble) return false;
+
+    const currentStatus = selectedStatus.status;
+    const targetStatus = status.status;
+
+    // From 'Assigned' - can only go to 'UnderReview'
+    if (currentStatus === 'Assigned') {
+      return targetStatus !== 'UnderReview';
+    }
+
+    if (currentStatus === 'Unassigned') {
+      return true; // assignee cannot change status from Unassigned
+    }
+
+    if (currentStatus === 'UnderReview') {
+      return true; // assignee cannot change status from UnderReview
+    }
+
+    // From 'InRecheck' - can only go to 'UnderReview'
+    if (currentStatus === 'InRecheck') {
+      return targetStatus !== 'UnderReview';
+    }
+
+    // From 'Done' - can only go to 'InRecheck'
+    if (currentStatus === 'Done') {
+      return true; // assignee cannot change status from Done
+    }
+
+    // Default: allow transition
+    return false;
+  };
+
   useEffect(() => {
     const checkPermission = async () => {
       const { projectRole, taskRole, isAdmin, isHead } = await getUserRoleOnProjectTask({
@@ -203,17 +238,7 @@ export function StatusButton({ task }: { task: TaskProps }) {
                 <CommandItem
                   key={status.status}
                   value={status.status}
-                  disabled={
-                    !isBypassAble &&
-                    ((selectedStatus.status === 'Assigned' && status.status !== 'UnderReview') ||
-                      (selectedStatus.status === 'UnderReview' &&
-                        (status.status === 'Unassigned' ||
-                          status.status === 'Assigned' ||
-                          status.status === 'UnderReview' ||
-                          (status.status === 'Done' && !isAllSubTaskDone))) ||
-                      (selectedStatus.status === 'InRecheck' && status.status !== 'UnderReview') ||
-                      (selectedStatus.status === 'Done' && status.status !== 'InRecheck'))
-                  }
+                  disabled={isStatusDisabled(status)}
                   className="pl-[32px] font-BaiJamjuree text-base"
                   onSelect={() => {
                     handleSelectStatus(status);
