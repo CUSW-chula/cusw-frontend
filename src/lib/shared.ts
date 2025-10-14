@@ -133,12 +133,12 @@ export type UserWorkload = {
 export const BASE_SOCKET =
   process.env.NODE_ENV === 'production'
     ? 'wss://cusw-workspace.sa.chula.ac.th/socket'
-    : 'ws://localhost:3001/socket';
+    : 'wss://dev-cusw-workspace.sa.chula.ac.th/socket';
 
 const BASE_URL =
   process.env.NODE_ENV === 'production'
     ? 'https://cusw-workspace.sa.chula.ac.th/api'
-    : 'http://localhost:4000/api';
+    : 'https://dev-cusw-workspace.sa.chula.ac.th/api';
 
 export const BASE_YSWEET =
   process.env.NODE_ENV === 'production'
