@@ -33,6 +33,7 @@ COPY --from=base /app/package.json ./
 # Accept environment variables again in the production stage
 ARG GOOGLE_CLIENT_ID
 ARG GOOGLE_CLIENT_SECRET
+ARG NODE_ENV
 ARG NEXTAUTH_SECRET
 ARG IS_DEV
 
