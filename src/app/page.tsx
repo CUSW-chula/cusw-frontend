@@ -9,7 +9,9 @@ export default function Home() {
   useEffect(() => {
     const cookie = getCookie('auth');
     const auth = cookie?.toString() ?? '';
-
+    const isDev =
+      process.env.IS_DEV === 'true' || process.env.IS_DEV === '1' || process.env.IS_DEV === 'yes';
+    console.log('IS_DEV:', isDev);
     if (auth !== '') {
       router.push('/projects');
     } else router.push('/login');
