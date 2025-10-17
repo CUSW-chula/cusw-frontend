@@ -130,8 +130,12 @@ export type UserWorkload = {
   }[];
 };
 
-// ใช้ IS_DEV แทน NODE_ENV เพื่อแยก environment ได้ชัดเจน
-const isDev = process.env.IS_DEV === 'true';
+
+const isDev = 
+  process.env.IS_DEV === 'true' || 
+  process.env.IS_DEV === '1' || 
+  process.env.IS_DEV === 'yes';
+
 
 export const BASE_SOCKET = isDev
   ? 'wss://dev-cusw-workspace.sa.chula.ac.th/socket'
@@ -144,5 +148,6 @@ const BASE_URL = isDev
 export const BASE_YSWEET = isDev
   ? 'http://localhost:4001/yjs/auth'
   : 'https://cusw-workspace.sa.chula.ac.th/yjs/auth';
+
 
 export default BASE_URL;
