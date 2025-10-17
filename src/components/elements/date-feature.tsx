@@ -228,7 +228,7 @@ function DatePickerWithRange({ task }: { task: TaskProps }) {
       // Reset to empty state
       const resetRange = { from: undefined, to: undefined };
       clickCountRef.current = 0;
-      
+
       const url = `${BASE_URL}/v2/tasks/date/${task.id}`;
       const options = {
         method: 'PATCH',
@@ -259,7 +259,12 @@ function DatePickerWithRange({ task }: { task: TaskProps }) {
       // ครั้งแรก: ให้ start/end เป็นวันเดียวกัน
       patchedRange = { from: range.from, to: range.from };
       clickCountRef.current = 1;
-    } else if (clickCountRef.current === 1 && range?.from && range?.to && range.from.getTime() !== range.to.getTime()) {
+    } else if (
+      clickCountRef.current === 1 &&
+      range?.from &&
+      range?.to &&
+      range.from.getTime() !== range.to.getTime()
+    ) {
       // ครั้งที่สอง: เป็น range จริง
       patchedRange = { from: range.from, to: range.to };
       clickCountRef.current = 2;
@@ -267,7 +272,7 @@ function DatePickerWithRange({ task }: { task: TaskProps }) {
       // ครั้งที่สาม: reset ทั้งหมด
       const resetRange = { from: undefined, to: undefined };
       clickCountRef.current = 0;
-      
+
       const url = `${BASE_URL}/v2/tasks/date/${task.id}`;
       const options = {
         method: 'PATCH',
@@ -476,7 +481,7 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
       // Reset to empty state
       const resetRange = { from: undefined, to: undefined };
       clickCountRef.current = 0;
-      
+
       const url = `${BASE_URL}/v2/projects/${project.id}`;
       const options = {
         method: 'PATCH',
@@ -502,13 +507,18 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
     }
 
     let patchedRange = range;
-    
+
     // Logic: กดครั้งแรกให้ start/end เป็นวันเดียวกัน, กดครั้งที่สองถึงจะเป็น range, กดครั้งที่สามให้ reset
     if (clickCountRef.current === 0) {
       // ครั้งแรก: ให้ to = from
       patchedRange = { from: range.from, to: range.from };
       clickCountRef.current = 1;
-    } else if (clickCountRef.current === 1 && range?.from && range?.to && range.from.getTime() !== range.to.getTime()) {
+    } else if (
+      clickCountRef.current === 1 &&
+      range?.from &&
+      range?.to &&
+      range.from.getTime() !== range.to.getTime()
+    ) {
       // ครั้งที่สอง: เป็น range จริง
       patchedRange = { from: range.from, to: range.to };
       clickCountRef.current = 2;
@@ -516,7 +526,7 @@ function DatePickerWithRangeProject({ project }: { project: DateInterface }) {
       // ครั้งที่สาม: reset ทั้งหมด
       const resetRange = { from: undefined, to: undefined };
       clickCountRef.current = 0;
-      
+
       const url = `${BASE_URL}/v2/projects/${project.id}`;
       const options = {
         method: 'PATCH',

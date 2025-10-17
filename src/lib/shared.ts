@@ -130,19 +130,19 @@ export type UserWorkload = {
   }[];
 };
 
-export const BASE_SOCKET =
-  process.env.NODE_ENV === 'production'
-    ? 'wss://cusw-workspace.sa.chula.ac.th/socket'
-    : 'wss://dev-cusw-workspace.sa.chula.ac.th/socket';
+// ใช้ IS_DEV แทน NODE_ENV เพื่อแยก environment ได้ชัดเจน
+const isDev = process.env.IS_DEV === 'true';
 
-const BASE_URL =
-  process.env.NODE_ENV === 'production'
-    ? 'https://cusw-workspace.sa.chula.ac.th/api'
-    : 'https://dev-cusw-workspace.sa.chula.ac.th/api';
+export const BASE_SOCKET = isDev
+  ? 'wss://dev-cusw-workspace.sa.chula.ac.th/socket'
+  : 'wss://cusw-workspace.sa.chula.ac.th/socket';
 
-export const BASE_YSWEET =
-  process.env.NODE_ENV === 'production'
-    ? 'https://cusw-workspace.sa.chula.ac.th/yjs/auth'
-    : 'http://localhost:4001/yjs/auth';
+const BASE_URL = isDev
+  ? 'https://dev-cusw-workspace.sa.chula.ac.th/api'
+  : 'https://cusw-workspace.sa.chula.ac.th/api';
+
+export const BASE_YSWEET = isDev
+  ? 'http://localhost:4001/yjs/auth'
+  : 'https://cusw-workspace.sa.chula.ac.th/yjs/auth';
 
 export default BASE_URL;

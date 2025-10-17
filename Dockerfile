@@ -43,9 +43,8 @@ ENV GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
 ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
 ENV IS_DEV=${IS_DEV}
 
-# Set Node.js environment to production
-ENV NODE_ENV=production
-ENV NEXTAUTH_URL=https://cusw-workspace.sa.chula.ac.th
+# ไม่ต้อง hardcode NODE_ENV และ NEXTAUTH_URL ที่นี่
+# ให้ docker-compose กำหนดแทน
 
 EXPOSE 3000
 ENV HOSTNAME="0.0.0.0"
