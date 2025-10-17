@@ -130,8 +130,11 @@ export type UserWorkload = {
   }[];
 };
 
+
 const isDev =
-  process.env.IS_DEV === 'true' || process.env.IS_DEV === '1' || process.env.IS_DEV === 'yes';
+  process.env.NEXT_PUBLIC_IS_DEV === 'true' ||
+  process.env.NEXT_PUBLIC_IS_DEV === '1' ||
+  process.env.NEXT_PUBLIC_IS_DEV === 'yes';
 
 export const BASE_SOCKET = isDev
   ? 'wss://dev-cusw-workspace.sa.chula.ac.th/socket'
