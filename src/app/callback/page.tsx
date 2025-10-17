@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress'; // Optional loading spinner
 const BASE_URL =
   process.env.NODE_ENV === 'production'
     ? 'https://cusw-workspace.sa.chula.ac.th'
-    : 'http://localhost:4000';
+    : 'https://dev-cusw-workspace.sa.chula.ac.th';
 
 const AuthCallbackPage = () => {
   const { data: session, status } = useSession();
