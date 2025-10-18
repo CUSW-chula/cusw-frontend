@@ -135,13 +135,14 @@ export type UserWorkload = {
 const getIsDev = () => {
   // ฝั่ง client: เช็คจาก window.location
   if (typeof window !== 'undefined') {
-    return window.location.hostname.includes('dev-cusw') || 
-           window.location.hostname.includes('localhost');
+    return (
+      window.location.hostname.includes('dev-cusw') ||
+      window.location.hostname.includes('localhost')
+    );
   }
-  
+
   // ฝั่ง server: เช็คจาก environment variable
-  return process.env.NEXTAUTH_URL?.includes('dev-cusw') || 
-         process.env.NODE_ENV === 'development';
+  return process.env.NEXTAUTH_URL?.includes('dev-cusw') || process.env.NODE_ENV === 'development';
 };
 
 const isDev = getIsDev();
@@ -155,7 +156,7 @@ const BASE_URL = isDev
   : 'https://cusw-workspace.sa.chula.ac.th/api';
 
 export const BASE_YSWEET = isDev
-  ? 'http://localhost:4001/yjs/auth'
+  ? 'https://dev-cusw-workspace.sa.chula.ac.th/yjs/auth'
   : 'https://cusw-workspace.sa.chula.ac.th/yjs/auth';
 
 export default BASE_URL;

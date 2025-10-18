@@ -6,10 +6,18 @@ import { useEffect } from 'react';
 import { setCookie } from 'cookies-next';
 import { Progress } from '@/components/ui/progress'; // Optional loading spinner
 
-const BASE_URL =
-  process.env.NODE_ENV === 'production'
-    ? 'https://cusw-workspace.sa.chula.ac.th'
-    : 'https://dev-cusw-workspace.sa.chula.ac.th';
+// เช็คจาก URL ปัจจุบันว่าเป็น dev หรือ prod
+const getBaseURL = () => {
+  if (typeof window !== 'undefined') {
+    const isDev = window.location.hostname.includes('dev-cusw') || 
+                  window.location.hostname.includes('localhost');
+    return isDev 
+      ? 'https://dev-cusw-workspace.sa.chula.ac.th'
+      : 'https://cusw-workspace.sa.chula.ac.th';
+  }
+  // Fallback สำหรับ server-side (ไม่ควรเกิด เพราะเป็น client component)
+  return 'https://cusw-workspace.sa.chula.ac.th';
+};
 
 const AuthCallbackPage = () => {
   const { data: session, status } = useSession();
@@ -19,6 +27,7 @@ const AuthCallbackPage = () => {
     const handleTokenExchange = async () => {
       if (status === 'authenticated' && session?.user?.email) {
         try {
+          const BASE_URL = getBaseURL();
           const response = await fetch(`${BASE_URL}/sign/${session.user.email}`);
 
           if (!response.ok) throw new Error('Token exchange failed');
