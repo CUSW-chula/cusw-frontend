@@ -130,10 +130,21 @@ export type UserWorkload = {
   }[];
 };
 
-const isDev =
-  process.env.NEXT_PUBLIC_IS_DEV === 'true' ||
-  process.env.NEXT_PUBLIC_IS_DEV === '1' ||
-  process.env.NEXT_PUBLIC_IS_DEV === 'yes';
+// เช็คจาก URL ปัจจุบันว่าเป็น dev หรือ prod
+// ใช้ได้ทั้ง client และ server side
+const getIsDev = () => {
+  // ฝั่ง client: เช็คจาก window.location
+  if (typeof window !== 'undefined') {
+    return window.location.hostname.includes('dev-cusw') || 
+           window.location.hostname.includes('localhost');
+  }
+  
+  // ฝั่ง server: เช็คจาก environment variable
+  return process.env.NEXTAUTH_URL?.includes('dev-cusw') || 
+         process.env.NODE_ENV === 'development';
+};
+
+const isDev = getIsDev();
 
 export const BASE_SOCKET = isDev
   ? 'wss://dev-cusw-workspace.sa.chula.ac.th/socket'
