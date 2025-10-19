@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { getCookie } from 'cookies-next';
-import BASE_URL, { type TaskManageMentOverviewProp } from '@/lib/shared';
+import BASE_URL, { type Project, type TaskManageMentOverviewProp } from '@/lib/shared';
 import type { TagProps, TaskProps } from '@/app/types/types';
 import { Task, ExportDialog, Filter, Sort, CreateTask } from './taskManagement';
 import { parseJsonValues, statusSections } from '@/lib/taskUtils';
@@ -28,6 +28,7 @@ export const MyTaskManager = () => {
   const [showTasks, setShowTasks] = useState<TaskProps[]>([]);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(loadExpandedState);
   const [userProjects, setUserProjects] = useState<{ id: string; role: string }[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
 
   const handleToggle = (taskId: string) => {
     const newIds = new Set(expandedIds);
@@ -135,6 +136,20 @@ export const MyTaskManager = () => {
     return currentMax;
   };
 
+  const fetchProjects = async () => {
+    try {
+      const project = await fetch(`${BASE_URL}/v2/projects/`, {
+        headers: { Authorization: auth },
+      });
+      const data = await project.json();
+      setProjects(data);
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+    }
+  };
+  useEffect(() => {
+    fetchProjects();
+  }, []);
   // กรอง tasks ที่ user ยังคงเป็น project member
   const filteredTasks = showTasks.filter((task) => {
     return userProjects.some((project) => project.id === task.projectId);
@@ -143,30 +158,44 @@ export const MyTaskManager = () => {
   return (
     <div className="h-auto w-full p-11 font-BaiJamjuree bg-white rounded-md border border-brown flex flex-col">
       <header className="h-9 text-black text-3xl font-semibold leading-9 mb-6">My Task</header>
-      {statusSections.map(({ status, displayName, icon }) => (
-        <div key={status}>
-          {/* Status Title */}
-          <div className="flex items-center gap-2 border-b border-gray-300 py-3">
-            <img src={icon} alt={`${status} Icon`} className="w-6 h-6" />
-            <span className="text-black text-sm font-medium font-BaiJamjuree">{displayName}</span>
+      {statusSections.map(({ status, displayName, icon }) => {
+        const statusInt = statusToInt(status);
+        return (
+          <div key={status}>
+            <div className="flex items-center gap-2 border-b border-gray-300 py-3">
+              <img src={icon} alt={`${status} Icon`} className="w-6 h-6" />
+              <span className="text-black text-sm font-medium font-BaiJamjuree">{displayName}</span>
+            </div>
+            <div className="w-full block">
+              {projects.map((proj) => {
+                const projectTasks = filteredTasks.filter(
+                  (item) => item.projectId === proj.id && groupingStatus(item, 99) === statusInt,
+                );
+                if (projectTasks.length === 0) return null;
+                return (
+                  <div key={proj.id} className="py-2">
+                    <p className="font-semibold text-[14px]">
+                      Project title: <span className="font-normal">{proj.title}</span>
+                    </p>
+                    <div>
+                      {projectTasks.map((item) => (
+                        <Task
+                          key={item.id}
+                          item={item}
+                          hiddenDate={false}
+                          expandedIds={expandedIds}
+                          onToggle={handleToggle}
+                          showActionsMenu={false}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          {/* Tasks in there group */}
-          <div className="w-full block">
-            {filteredTasks
-              .filter((item) => groupingStatus(item, 99) === statusToInt(status))
-              .map((item) => (
-                <Task
-                  key={item.id}
-                  item={item}
-                  hiddenDate={false}
-                  expandedIds={expandedIds}
-                  onToggle={handleToggle}
-                  showActionsMenu={false}
-                />
-              ))}
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };
