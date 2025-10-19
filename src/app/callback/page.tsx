@@ -9,9 +9,10 @@ import { Progress } from '@/components/ui/progress'; // Optional loading spinner
 // เช็คจาก URL ปัจจุบันว่าเป็น dev หรือ prod
 const getBaseURL = () => {
   if (typeof window !== 'undefined') {
-    const isDev = window.location.hostname.includes('dev-cusw') || 
-                  window.location.hostname.includes('localhost');
-    return isDev 
+    const isDev =
+      window.location.hostname.includes('dev-cusw') ||
+      window.location.hostname.includes('localhost');
+    return isDev
       ? 'https://dev-cusw-workspace.sa.chula.ac.th'
       : 'https://cusw-workspace.sa.chula.ac.th';
   }
