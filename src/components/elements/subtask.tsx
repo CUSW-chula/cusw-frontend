@@ -26,7 +26,7 @@ const saveExpandedState = (ids: Set<string>) => {
 
 const Subtask = ({ task }: { task: TaskProps }) => {
   const [isSubtaskSectionVisible, setIsSubtaskSectionVisible] = useState(false);
-  const [isSubtaskVisible, setIsSubtaskVisible] = useState(false);
+  const [isSubtaskVisible, setIsSubtaskVisible] = useState(true);
   const [subtasks, setSubtasks] = useState<TaskProps[]>([]);
   const cookie = getCookie('auth');
   const [expandedIds, setExpandedIds] = useState<Set<string>>(loadExpandedState);
@@ -77,6 +77,19 @@ const Subtask = ({ task }: { task: TaskProps }) => {
 
   const { audio, image, video, file, ...allowedBlockSpecs } = defaultBlockSpecs;
 
+  const handleSubtaskCreated = (newSubtask: TaskProps) => {
+    setSubtasks((prev) => {
+      const updated = [...prev, newSubtask];
+      return updated.sort((a, b) => {
+        const dateA = a.startDate ? new Date(a.startDate).getTime() : 0;
+        const dateB = b.startDate ? new Date(b.startDate).getTime() : 0;
+        return dateA - dateB;
+      });
+    });
+
+    setIsSubtaskVisible(true);
+  };
+
   return (
     <>
       <div className="flex items-center py-1 w-full justify-between">
@@ -113,7 +126,11 @@ const Subtask = ({ task }: { task: TaskProps }) => {
 
       {/* Subtask creation section */}
       {isSubtaskSectionVisible && (
-        <CreateSubtask task={task} setDialog={setIsSubtaskSectionVisible} />
+        <CreateSubtask
+          task={task}
+          setDialog={setIsSubtaskSectionVisible}
+          onSuccess={handleSubtaskCreated} // <--- 4. ส่งฟังก์ชันเข้าไป
+        />
       )}
       {isSubtaskVisible && (
         <div className="flex flex-col space-y-1 w-full overflow-scroll">
