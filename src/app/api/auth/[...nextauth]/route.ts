@@ -10,11 +10,11 @@ const handler = NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
       authorization: {
         params: {
-          prompt: "select_account",
-          access_type: "offline",
-          response_type: "code"
-        }
-      }
+          prompt: 'select_account',
+          access_type: 'offline',
+          response_type: 'code',
+        },
+      },
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,

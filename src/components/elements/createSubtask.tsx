@@ -29,7 +29,12 @@ interface FormInput {
 export const CreateSubtask = ({
   task,
   setDialog,
-}: { task: TaskProps; setDialog: (value: boolean) => void }) => {
+  onSuccess,
+}: {
+  task: TaskProps;
+  setDialog: (value: boolean) => void;
+  onSuccess: (newSubtask: TaskProps) => void;
+}) => {
   const [inputs, setInputs] = useState<FormInput>({});
   const router = useRouter();
   const cookie = getCookie('auth');
@@ -79,12 +84,13 @@ export const CreateSubtask = ({
       const data = await response.json();
 
       if (response.ok) {
-        router.push(`/tasks/${data.id}`);
+        setDialog(false);
         toast({
           title: 'สร้าง Subtask สำเร็จ',
           description: 'Subtask ของคุณได้ถูกสร้างและบันทึกเรียบร้อยแล้ว',
           variant: 'default',
         });
+        onSuccess(data);
       } else {
         throw new Error(data.message || 'Failed to create subtask');
       }

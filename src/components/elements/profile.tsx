@@ -107,7 +107,7 @@ export const Profile2 = ({ profile }: { profile: ProfileProp }) => {
               Admin
             </DropdownMenuItem>
           )}
-          {(profile.isHead || profile.isAdmin) && (
+          {(profile.isHead || profile.isAdmin || !profile.isOutsourced) && (
             <DropdownMenuItem
               onClick={() => window.location.assign('/dashboards')}
               className="text-black font-BaiJamjuree">
