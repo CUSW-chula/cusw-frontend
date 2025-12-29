@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { setCookie } from 'cookies-next';
+import { setCookie, getCookie } from 'cookies-next';
 import { Progress } from '@/components/ui/progress'; // Optional loading spinner
 
 // เช็คจาก URL ปัจจุบันว่าเป็น dev หรือ prod
@@ -36,9 +36,31 @@ const AuthCallbackPage = () => {
           const data = await response.text();
           const token = `Bearer ${data}`;
 
+          // Set cookie with explicit options to ensure it's available for middleware
           setCookie('auth', token, {
+            path: '/',
             secure: process.env.NODE_ENV === 'production',
+            // Lax allows top-level navigation while still providing CSRF protection
+            sameSite: 'lax',
+            // Persist for 7 days by default
+            maxAge: 60 * 60 * 24 * 7,
           });
+
+          // Ensure cookie is actually set in the browser before navigating.
+          // Some browsers or environments may need a tiny delay; retry a few times.
+          let retries = 0;
+          const maxRetries = 5;
+          const wait = (ms: number) => new Promise((res) => setTimeout(res, ms));
+          while (retries < maxRetries) {
+            const existing = getCookie('auth');
+            if (existing) {
+              break;
+            }
+            retries += 1;
+            // exponential backoff small delays
+            // eslint-disable-next-line no-await-in-loop
+            await wait(100 * retries);
+          }
 
           router.push('/projects');
         } catch (error) {

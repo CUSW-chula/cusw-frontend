@@ -31,6 +31,7 @@ export function WorkloadUser() {
     });
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     const fetchAllUserWorkload = async () => {
       setIsLoading(true); // เริ่มโหลด

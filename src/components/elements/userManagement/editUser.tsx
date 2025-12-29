@@ -46,6 +46,7 @@ export const UserEditDialog = ({ user, initialData, onSave }: UserEditDialogProp
   const [allOrganizations, setAllOrganizations] = useState<string[]>([]);
   const [allPositions, setAllPositions] = useState<string[]>([]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     const setAllOrganizationAndPosition = (data: User[]) => {
       const organizations = new Set<string>();
