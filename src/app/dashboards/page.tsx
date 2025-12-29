@@ -6,12 +6,17 @@ import { Redo2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type React from 'react';
 import { useEffect, useState } from 'react';
-import BASE_URL, { type User } from '@/lib/shared';
+import BASE_URL, { Project } from '@/lib/shared';
 import { getCookie } from 'cookies-next';
 
 interface DashboardCardProps {
   title: string;
   path: string;
+}
+
+interface User {
+  isAdmin: boolean;
+  isHead: boolean;
 }
 
 const DashboardCard: React.FC<DashboardCardProps> = ({ title, path }) => {
@@ -84,7 +89,9 @@ const Page = () => {
         <HomeBackButton />
       </section>
       <div className="grid w-full justify-center items-center grid-cols-[repeat(auto-fit,_minmax(200px,_310px))] gap-8">
-        {user?.isOutsource && <DashboardCard title="Workload Distribution" path="/workload" />}
+        {(user?.isAdmin || user?.isHead) && (
+          <DashboardCard title="Workload Distribution" path="/workload" />
+        )}
         <DashboardCard title="Project Data Overview" path="/dashboard/project" />
       </div>
     </div>
