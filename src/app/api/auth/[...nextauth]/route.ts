@@ -32,24 +32,28 @@ const handler = NextAuth({
   },
 });
 
-// Exported handlers. Add small wrappers to log request method when executed
-// — this helps identify which request is returning 403.
-export async function GET(request: Request) {
+// Exported handlers. Add small wrappers to log request method when executed.
+// NextAuth expects route handlers to accept both request and context (with params).
+export async function GET(
+  request: Request,
+  context: { params: { nextauth: string[] } }
+) {
   try {
     console.log('NextAuth GET', request.method, request.url);
   } catch (_) {
     /* ignore */
   }
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  return handler(request as any);
+  return handler(request, context);
 }
 
-export async function POST(request: Request) {
+export async function POST(
+  request: Request,
+  context: { params: { nextauth: string[] } }
+) {
   try {
     console.log('NextAuth POST', request.method, request.url);
   } catch (_) {
     /* ignore */
   }
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  return handler(request as any);
+  return handler(request, context);
 }
