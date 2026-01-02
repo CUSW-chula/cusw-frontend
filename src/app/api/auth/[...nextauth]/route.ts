@@ -25,6 +25,27 @@ const handler = NextAuth({
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === 'development',
+  cookies: {
+    sessionToken: {
+      name: 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: false, // Set to true in production with HTTPS
+      },
+    },
+    csrfToken: {
+      name: 'next-auth.csrf-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: false,
+      },
+    },
+  },
   callbacks: {
     async redirect({ url, baseUrl }) {
       return `${baseUrl}/callback`;
@@ -34,10 +55,7 @@ const handler = NextAuth({
 
 // Exported handlers. Add small wrappers to log request method when executed.
 // NextAuth expects route handlers to accept both request and context (with params).
-export async function GET(
-  request: Request,
-  context: { params: { nextauth: string[] } }
-) {
+export async function GET(request: Request, context: { params: { nextauth: string[] } }) {
   try {
     console.log('NextAuth GET', request.method, request.url);
   } catch (_) {
@@ -46,10 +64,7 @@ export async function GET(
   return handler(request, context);
 }
 
-export async function POST(
-  request: Request,
-  context: { params: { nextauth: string[] } }
-) {
+export async function POST(request: Request, context: { params: { nextauth: string[] } }) {
   try {
     console.log('NextAuth POST', request.method, request.url);
   } catch (_) {
