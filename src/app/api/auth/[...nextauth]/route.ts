@@ -10,6 +10,8 @@ console.log('ENV: GOOGLE_CLIENT_ID set=', !!process.env.GOOGLE_CLIENT_ID);
 console.log('ENV: GOOGLE_CLIENT_SECRET set=', !!process.env.GOOGLE_CLIENT_SECRET);
 console.log('ENV: NEXTAUTH_SECRET set=', !!process.env.NEXTAUTH_SECRET);
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 const handler = NextAuth({
   providers: [
     Google({
@@ -25,24 +27,24 @@ const handler = NextAuth({
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === 'development',
+  debug: !isProduction,
   cookies: {
     sessionToken: {
-      name: 'next-auth.session-token',
+      name: `${isProduction ? '__Secure-' : ''}next-auth.session-token`,
       options: {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: false, // Set to true in production with HTTPS
+        secure: isProduction,
       },
     },
     csrfToken: {
-      name: 'next-auth.csrf-token',
+      name: `${isProduction ? '__Host-' : ''}next-auth.csrf-token`,
       options: {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: false,
+        secure: isProduction,
       },
     },
   },
