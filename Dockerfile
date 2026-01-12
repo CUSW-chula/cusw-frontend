@@ -50,10 +50,14 @@ ENV NEXT_PUBLIC_IS_DEV=${NEXT_PUBLIC_IS_DEV}
 ENV NODE_ENV=production
 ENV NEXT_SERVER_ACTIONS_ENCRYPTION_KEY=${NEXT_SERVER_ACTIONS_ENCRYPTION_KEY}
 
-# ไม่ต้อง hardcode NODE_ENV และ NEXTAUTH_URL ที่นี่
-# ให้ docker-compose กำหนดแทน
+# NEXTAUTH_URL ไม่ hardcode ที่นี่ - ให้ docker-compose กำหนดแทน
+# เพื่อให้สามารถ override ได้ตอน runtime
 
 EXPOSE 3000
+
+# HOSTNAME 0.0.0.0 ใช้สำหรับ binding port เท่านั้น
+# NextAuth จะใช้ NEXTAUTH_URL จาก environment variable แทน
 ENV HOSTNAME="0.0.0.0"
+ENV PORT=3000
 
 CMD ["bun", "server.js"]

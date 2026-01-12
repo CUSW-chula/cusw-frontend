@@ -9,6 +9,13 @@ console.log('ENV: GOOGLE_CLIENT_SECRET set=', !!process.env.GOOGLE_CLIENT_SECRET
 console.log('ENV: NEXTAUTH_SECRET set=', !!process.env.NEXTAUTH_SECRET);
 console.log('ENV: NEXTAUTH_URL set=', !!process.env.NEXTAUTH_URL);
 
+// ⚠️ Warning: Check for invalid NEXTAUTH_URL values
+const nextAuthUrl = process.env.NEXTAUTH_URL;
+if (nextAuthUrl?.includes('0.0.0.0')) {
+  console.warn('⚠️ WARNING: NEXTAUTH_URL contains 0.0.0.0 which is invalid for browser redirects!');
+  console.warn('   Please change NEXTAUTH_URL to http://localhost:3000 or your actual domain.');
+}
+
 const isProduction = process.env.NODE_ENV === 'production';
 
 const handler = NextAuth({
