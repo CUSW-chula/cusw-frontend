@@ -1,11 +1,15 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { signIn } from 'next-auth/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import Image from 'next/image';
 import { Building, Facebook, Mail, Phone } from 'lucide-react';
+
+// ใช้ direct redirect แทน signIn() เพื่อหลีกเลี่ยงปัญหา Server Action
+const handleGoogleLogin = () => {
+  window.location.href = '/api/auth/signin/google';
+};
 
 export default function Home() {
   return (
@@ -29,7 +33,7 @@ export default function Home() {
           <Button
             variant="outline"
             className="w-fit flex items-center justify-center space-x-2 px-10 border-brown bg-cream"
-            onClick={() => signIn('google')}>
+            onClick={handleGoogleLogin}>
             <Image src="asset/icon/google.svg" width={24} height={24} alt="Google Logo" />
             <span className="font-BaiJamjuree">Login with Google</span>
           </Button>

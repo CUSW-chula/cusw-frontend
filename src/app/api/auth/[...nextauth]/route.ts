@@ -68,6 +68,10 @@ const handler = NextAuth({
 export async function GET(request: Request, context: { params: { nextauth: string[] } }) {
   try {
     console.log('NextAuth GET', request.method, request.url);
+    console.log('  -> NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
+    console.log('  -> x-forwarded-host:', request.headers.get('x-forwarded-host'));
+    console.log('  -> x-forwarded-proto:', request.headers.get('x-forwarded-proto'));
+    console.log('  -> host:', request.headers.get('host'));
   } catch (_) {
     /* ignore */
   }
@@ -77,6 +81,7 @@ export async function GET(request: Request, context: { params: { nextauth: strin
 export async function POST(request: Request, context: { params: { nextauth: string[] } }) {
   try {
     console.log('NextAuth POST', request.method, request.url);
+    console.log('  -> NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
   } catch (_) {
     /* ignore */
   }
