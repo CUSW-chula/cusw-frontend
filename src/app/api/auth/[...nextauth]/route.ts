@@ -90,8 +90,22 @@ export async function POST(request: Request, context: { params: { nextauth: stri
   try {
     console.log('NextAuth POST', request.method, request.url);
     console.log('  -> NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
-  } catch (_) {
-    /* ignore */
+    
+    // Debug CSRF
+    const cookieHeader = request.headers.get('cookie') || '';
+    const csrfCookie = cookieHeader.split(';').find(c => c.trim().startsWith('next-auth.csrf-token='));
+    // biome-ignore lint/style/useTemplate: <explanation>
+    console.log('  -> csrf cookie:', csrfCookie?.substring(0, 80) + '...');
+    
+    // Clone request to read body for debugging
+    const clonedRequest = request.clone();
+    const formData = await clonedRequest.formData().catch(() => null);
+    if (formData) {
+      // biome-ignore lint/style/useTemplate: <explanation>
+      console.log('  -> csrf form:', formData.get('csrfToken')?.toString().substring(0, 40) + '...');
+    }
+  } catch (e) {
+    console.log('  -> debug error:', e);
   }
   return handler(request, context);
 }

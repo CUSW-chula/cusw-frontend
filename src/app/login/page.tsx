@@ -1,36 +1,28 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { signIn } from 'next-auth/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import Image from 'next/image';
 import { Building, Facebook, Mail, Phone } from 'lucide-react';
 
-// Clear stale NextAuth cookies before signing in to prevent CSRF issues
-const handleGoogleLogin = async () => {
-  // Delete all possible NextAuth cookies to ensure fresh login
+// Redirect ไป Google OAuth โดยตรงผ่าน NextAuth GET endpoint
+// วิธีนี้ bypass CSRF check เพราะเป็น GET request ไม่ใช่ POST
+const handleGoogleLogin = () => {
+  // ลบ cookies เก่าก่อน
   const cookiesToDelete = [
     'next-auth.csrf-token',
-    'next-auth.callback-url',
+    'next-auth.callback-url', 
     'next-auth.session-token',
-    '__Secure-next-auth.csrf-token',
-    '__Secure-next-auth.callback-url',
-    '__Secure-next-auth.session-token',
   ];
   
   // biome-ignore lint/complexity/noForEach: <explanation>
     cookiesToDelete.forEach((name) => {
-    // Delete with various path options to ensure removal
     document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
-    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${window.location.hostname}`;
   });
 
-  // Small delay to ensure cookies are cleared
-  await new Promise((resolve) => setTimeout(resolve, 100));
-
-  // Now sign in fresh
-  signIn('google');
+  // Redirect ไป authorization endpoint โดยตรง (GET request - ไม่ต้องใช้ CSRF)
+  window.location.href = '/api/auth/google';
 };
 
 export default function Home() {
