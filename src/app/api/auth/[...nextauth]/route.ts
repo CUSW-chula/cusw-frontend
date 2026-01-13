@@ -50,7 +50,7 @@ export async function POST(request: Request, context: { params: { nextauth: stri
       method: 'GET',
       headers: request.headers,
     });
-    
+
     // เรียก handler ด้วย GET request (bypass CSRF)
     return handler(getRequest, context);
   }
