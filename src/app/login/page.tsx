@@ -1,43 +1,13 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { signIn, getCsrfToken } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import Image from 'next/image';
 import { Building, Facebook, Mail, Phone } from 'lucide-react';
-import { useEffect, useState } from 'react';
 
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Refresh CSRF token ทุกครั้งที่โหลดหน้า login
-  useEffect(() => {
-    // Force refresh CSRF token เมื่อเข้าหน้า login
-    const refreshCsrf = async () => {
-      // ลบ cookies เก่าก่อน
-      document.cookie = 'next-auth.csrf-token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
-      document.cookie = 'next-auth.callback-url=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
-      document.cookie = 'next-auth.session-token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
-      
-      // Fetch fresh CSRF token
-      await getCsrfToken();
-    };
-    refreshCsrf();
-  }, []);
-
-  const handleGoogleLogin = async () => {
-    setIsLoading(true);
-    try {
-      // Fetch fresh CSRF อีกครั้งก่อน signin
-      await getCsrfToken();
-      await signIn('google', { callbackUrl: '/callback' });
-    } catch (error) {
-      console.error('Login error:', error);
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="flex flex-col items-center justify-between w-full min-h-screen pt-28 gap-8">
       <Card className="flex flex-row h-[580px] px-32 gap-[40px] items-center justify-center rounded-[20px] border border-brown bg-white">
@@ -59,10 +29,9 @@ export default function Home() {
           <Button
             variant="outline"
             className="w-fit flex items-center justify-center space-x-2 px-10 border-brown bg-cream"
-            onClick={handleGoogleLogin}
-            disabled={isLoading}>
+            onClick={() => signIn('google')}>
             <Image src="asset/icon/google.svg" width={24} height={24} alt="Google Logo" />
-            <span className="font-BaiJamjuree">{isLoading ? 'Loading...' : 'Login with Google'}</span>
+            <span className="font-BaiJamjuree">Login with Google</span>
           </Button>
         </CardContent>
       </Card>
