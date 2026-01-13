@@ -12,12 +12,12 @@ const handleGoogleLogin = () => {
   // ลบ cookies เก่าก่อน
   const cookiesToDelete = [
     'next-auth.csrf-token',
-    'next-auth.callback-url', 
+    'next-auth.callback-url',
     'next-auth.session-token',
   ];
-  
+
   // biome-ignore lint/complexity/noForEach: <explanation>
-    cookiesToDelete.forEach((name) => {
+  cookiesToDelete.forEach((name) => {
     document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
   });
 

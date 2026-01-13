@@ -5,10 +5,11 @@ import { redirect } from 'next/navigation';
 export async function GET() {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const redirectUri = `${process.env.NEXTAUTH_URL}/api/auth/callback/google`;
-  
+
   // สร้าง state สำหรับ security (ใช้ random string)
-  const state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-  
+  const state =
+    Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
   const params = new URLSearchParams({
     client_id: clientId || '',
     redirect_uri: redirectUri,
@@ -20,8 +21,8 @@ export async function GET() {
   });
 
   const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
-  
+
   console.log('Redirecting to Google OAuth:', googleAuthUrl);
-  
+
   redirect(googleAuthUrl);
 }
