@@ -6,22 +6,29 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import Image from 'next/image';
 import { Building, Facebook, Mail, Phone } from 'lucide-react';
-import { deleteCookie } from 'cookies-next';
 
 // Clear stale NextAuth cookies before signing in to prevent CSRF issues
 const handleGoogleLogin = async () => {
-  // Delete old NextAuth cookies that might cause CSRF mismatch
-  deleteCookie('next-auth.csrf-token');
-  deleteCookie('next-auth.callback-url');
-  deleteCookie('next-auth.session-token');
-  // Also delete __Secure- prefixed cookies (production)
-  deleteCookie('__Secure-next-auth.csrf-token');
-  deleteCookie('__Secure-next-auth.callback-url');
-  deleteCookie('__Secure-next-auth.session-token');
+  // Delete all possible NextAuth cookies to ensure fresh login
+  const cookiesToDelete = [
+    'next-auth.csrf-token',
+    'next-auth.callback-url',
+    'next-auth.session-token',
+    '__Secure-next-auth.csrf-token',
+    '__Secure-next-auth.callback-url',
+    '__Secure-next-auth.session-token',
+  ];
   
+  // biome-ignore lint/complexity/noForEach: <explanation>
+    cookiesToDelete.forEach((name) => {
+    // Delete with various path options to ensure removal
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${window.location.hostname}`;
+  });
+
   // Small delay to ensure cookies are cleared
-  await new Promise((resolve) => setTimeout(resolve, 50));
-  
+  await new Promise((resolve) => setTimeout(resolve, 100));
+
   // Now sign in fresh
   signIn('google');
 };

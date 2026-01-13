@@ -34,9 +34,10 @@ const handler = NextAuth({
   ],
   secret: process.env.NEXTAUTH_SECRET,
   debug: !isProduction,
+  // ใช้ชื่อ cookie ปกติโดยไม่มี __Secure- prefix เพื่อให้ทำงานกับ reverse proxy ได้ดีขึ้น
   cookies: {
     sessionToken: {
-      name: `${isProduction ? '__Secure-' : ''}next-auth.session-token`,
+      name: 'next-auth.session-token',
       options: {
         httpOnly: true,
         sameSite: 'lax',
@@ -45,9 +46,16 @@ const handler = NextAuth({
       },
     },
     csrfToken: {
-      // เปลี่ยนจาก __Host- เป็น __Secure- เพราะ __Host- ต้องการ path=/ และห้ามมี domain
-      // ซึ่งบางครั้งทำให้มีปัญหากับ proxy หรือ deployment
-      name: `${isProduction ? '__Secure-' : ''}next-auth.csrf-token`,
+      name: 'next-auth.csrf-token',
+      options: {
+        httpOnly: false, // CSRF token ต้องอ่านได้จาก JavaScript
+        sameSite: 'lax',
+        path: '/',
+        secure: isProduction,
+      },
+    },
+    callbackUrl: {
+      name: 'next-auth.callback-url',
       options: {
         httpOnly: true,
         sameSite: 'lax',

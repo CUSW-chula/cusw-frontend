@@ -40,7 +40,11 @@ const AuthCallbackPage = () => {
           const response = await fetch(`${BASE_URL}/sign/${session.user.email}`);
 
           if (!response.ok) {
-            console.error('[Callback] Token exchange failed:', response.status, response.statusText);
+            console.error(
+              '[Callback] Token exchange failed:',
+              response.status,
+              response.statusText,
+            );
             throw new Error('Token exchange failed');
           }
 
