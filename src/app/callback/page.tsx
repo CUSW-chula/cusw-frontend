@@ -24,45 +24,55 @@ const AuthCallbackPage = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
 
+  // Debug log
+  useEffect(() => {
+    console.log('[Callback] status:', status);
+    console.log('[Callback] session:', session);
+  }, [status, session]);
+
   useEffect(() => {
     const handleTokenExchange = async () => {
+      console.log('[Callback] handleTokenExchange called, status:', status);
       if (status === 'authenticated' && session?.user?.email) {
         try {
           const BASE_URL = getBaseURL();
+          console.log('[Callback] Fetching token from:', `${BASE_URL}/sign/${session.user.email}`);
           const response = await fetch(`${BASE_URL}/sign/${session.user.email}`);
 
-          if (!response.ok) throw new Error('Token exchange failed');
+          if (!response.ok) {
+            console.error('[Callback] Token exchange failed:', response.status, response.statusText);
+            throw new Error('Token exchange failed');
+          }
 
           const data = await response.text();
           const token = `Bearer ${data}`;
+          console.log('[Callback] Token received, setting cookie...');
 
           // Set cookie with explicit options to ensure it's available for middleware
+          // ใช้ document.cookie โดยตรงเพื่อให้แน่ใจว่า cookie ถูก set
+          const cookieValue = `auth=${encodeURIComponent(token)}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax${window.location.protocol === 'https:' ? '; Secure' : ''}`;
+          document.cookie = cookieValue;
+          console.log('[Callback] Cookie set via document.cookie');
+
+          // Also try with cookies-next as backup
           setCookie('auth', token, {
             path: '/',
-            secure: process.env.NODE_ENV === 'production',
-            // Lax allows top-level navigation while still providing CSRF protection
+            secure: window.location.protocol === 'https:',
             sameSite: 'lax',
-            // Persist for 7 days by default
             maxAge: 60 * 60 * 24 * 7,
           });
 
-          // Ensure cookie is actually set in the browser before navigating.
-          // Some browsers or environments may need a tiny delay; retry a few times.
-          let retries = 0;
-          const maxRetries = 5;
-          const wait = (ms: number) => new Promise((res) => setTimeout(res, ms));
-          while (retries < maxRetries) {
-            const existing = getCookie('auth');
-            if (existing) {
-              break;
-            }
-            retries += 1;
-            // exponential backoff small delays
-            // eslint-disable-next-line no-await-in-loop
-            await wait(100 * retries);
+          // Verify cookie was set
+          await new Promise((res) => setTimeout(res, 100));
+          const existing = getCookie('auth');
+          console.log('[Callback] Cookie verification:', existing ? 'SUCCESS' : 'FAILED');
+
+          if (!existing) {
+            console.error('[Callback] Cookie not set! Check browser cookie settings.');
           }
 
-          router.push('/projects');
+          // Use window.location for full page reload to ensure cookies are sent
+          window.location.href = '/projects';
         } catch (error) {
           console.error('Token exchange error:', error);
           router.push('/contact-admin');
@@ -82,7 +92,8 @@ const AuthCallbackPage = () => {
   }
 
   if (status === 'unauthenticated') {
-    router.push('/');
+    console.log('[Callback] Unauthenticated - redirecting to /login');
+    router.push('/login');
     return null;
   }
 

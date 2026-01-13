@@ -1,14 +1,29 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { signIn } from 'next-auth/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import Image from 'next/image';
 import { Building, Facebook, Mail, Phone } from 'lucide-react';
+import { deleteCookie } from 'cookies-next';
 
-// ใช้ direct redirect แทน signIn() เพื่อหลีกเลี่ยงปัญหา Server Action
-const handleGoogleLogin = () => {
-  window.location.href = '/api/auth/signin/google';
+// Clear stale NextAuth cookies before signing in to prevent CSRF issues
+const handleGoogleLogin = async () => {
+  // Delete old NextAuth cookies that might cause CSRF mismatch
+  deleteCookie('next-auth.csrf-token');
+  deleteCookie('next-auth.callback-url');
+  deleteCookie('next-auth.session-token');
+  // Also delete __Secure- prefixed cookies (production)
+  deleteCookie('__Secure-next-auth.csrf-token');
+  deleteCookie('__Secure-next-auth.callback-url');
+  deleteCookie('__Secure-next-auth.session-token');
+  
+  // Small delay to ensure cookies are cleared
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  
+  // Now sign in fresh
+  signIn('google');
 };
 
 export default function Home() {
