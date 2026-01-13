@@ -41,27 +41,20 @@ export async function GET(request: Request, context: { params: { nextauth: strin
 // Custom POST handler ที่ bypass CSRF check สำหรับ signin
 export async function POST(request: Request, context: { params: { nextauth: string[] } }) {
   const { nextauth } = context.params;
-  
-  // ถ้าเป็น signin/google request - bypass CSRF โดยเรียก GET handler แทน
-  // NextAuth GET /signin/google?callbackUrl=xxx จะ redirect ไป Google โดยตรง
+
+  // ถ้าเป็น signin/google request - แปลง POST เป็น GET แล้วเรียก handler
   if (nextauth?.[0] === 'signin' && nextauth?.[1] === 'google') {
-    // สร้าง GET request ใหม่ไปที่ /api/auth/authorize/google
+    // สร้าง GET request ใหม่
     const url = new URL(request.url);
-    const callbackUrl = url.searchParams.get('callbackUrl') || '/callback';
-    
-    // เรียก internal authorize endpoint
-    const baseUrl = process.env.NEXTAUTH_URL || url.origin;
-    const authorizeUrl = `${baseUrl}/api/auth/signin/google?callbackUrl=${encodeURIComponent(callbackUrl)}`;
-    
-    // Return redirect response
-    return new Response(null, {
-      status: 302,
-      headers: {
-        Location: authorizeUrl,
-      },
+    const getRequest = new Request(url.toString(), {
+      method: 'GET',
+      headers: request.headers,
     });
+    
+    // เรียก handler ด้วย GET request (bypass CSRF)
+    return handler(getRequest, context);
   }
-  
+
   // สำหรับ request อื่นๆ ใช้ handler ปกติ
   return handler(request, context);
 }
