@@ -137,30 +137,27 @@ const getIsDev = () => {
   // ฝั่ง client: เช็คจาก window.location
   if (typeof window !== 'undefined') {
     return (
-      window.location.hostname.includes('localhost') ||
+      window.location.hostname.includes('dev-cusw') ||
       window.location.hostname.includes('localhost')
     );
   }
 
   // ฝั่ง server: เช็คจาก environment variable
-  return process.env.NEXTAUTH_URL?.includes('localhost') || process.env.NODE_ENV === 'development';
+  return process.env.NEXTAUTH_URL?.includes('dev-cusw') || process.env.NODE_ENV === 'development';
 };
 
 const isDev = getIsDev();
 
-export const BASE_SOCKET =
-  process.env.NODE_ENV === 'production'
-    ? 'wss://cusw-workspace.sa.chula.ac.th/socket'
-    : 'ws://localhost:3001/socket';
+export const BASE_SOCKET = isDev
+  ? 'wss://dev-cusw-workspace.sa.chula.ac.th/socket'
+  : 'wss://cusw-workspace.sa.chula.ac.th/socket';
 
-const BASE_URL =
-  process.env.NODE_ENV === 'production'
-    ? 'https://cusw-workspace.sa.chula.ac.th/api'
-    : 'http://localhost:4000/api';
+const BASE_URL = isDev
+  ? 'https://dev-cusw-workspace.sa.chula.ac.th/api'
+  : 'https://cusw-workspace.sa.chula.ac.th/api';
 
-export const BASE_YSWEET =
-  process.env.NODE_ENV === 'production'
-    ? 'https://cusw-workspace.sa.chula.ac.th/yjs/auth'
-    : 'http://localhost:4001/yjs/auth';
+export const BASE_YSWEET = isDev
+  ? 'https://dev-cusw-workspace.sa.chula.ac.th/yjs/auth'
+  : 'https://cusw-workspace.sa.chula.ac.th/yjs/auth';
 
 export default BASE_URL;
