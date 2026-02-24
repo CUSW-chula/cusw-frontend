@@ -1,18 +1,28 @@
-import { useState, useEffect } from 'react';
+'use client';
+import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { TaskTitle, Money, TaskDate, Assigned, Tag, TaskActionsMenu } from './index';
 import type { TaskProps } from '@/app/types/types';
 
-// Helper functions for localStorage handling
-const loadExpandedState = (): Set<string> => {
-  if (typeof window === 'undefined') return new Set();
-  const saved = localStorage.getItem('expandedTaskIds');
-  return saved ? new Set(JSON.parse(saved)) : new Set();
-};
+export const SortableTaskItem = ({ id, children }: { id: string; children: React.ReactNode }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+  });
 
-const saveExpandedState = (ids: Set<string>) => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('expandedTaskIds', JSON.stringify(Array.from(ids)));
-  }
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    position: 'relative' as const,
+    zIndex: isDragging ? 9999 : 0,
+    touchAction: 'none',
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      {children}
+    </div>
+  );
 };
 
 export const Task = ({
@@ -23,85 +33,65 @@ export const Task = ({
   onToggle,
   showActionsMenu = true,
   onTaskDelete,
+  activeId,
+  forceCollapse = false,
 }: {
   item: TaskProps;
   depth?: number;
   hiddenDate: boolean;
   expandedIds: Set<string>;
   onToggle: (taskId: string) => void;
-  showActionsMenu?: boolean; // new optional prop
+  showActionsMenu?: boolean;
   onTaskDelete?: (taskId: string) => void;
+  activeId?: string;
+  forceCollapse?: boolean;
 }) => {
   const hasChildren = item.subtasks && item.subtasks.length > 0;
+  const isExpanded = forceCollapse ? false : expandedIds.has(item.id);
+  const hasActiveChild = item.subtasks?.some((child) => child.id === activeId) ?? false;
 
   return (
     <>
-      <div
+      <SortableTaskItem id={item.id}>
+        <div
         className="flex items-center w-full h-fit py-1.5 hover:bg-gray-50 justify-between"
         style={{ paddingLeft: `${depth * 24}px` }}>
-        <TaskTitle
-          item={item}
-          isExpanded={expandedIds.has(item.id)}
-          onToggle={() => onToggle(item.id)}
-        />
+          <TaskTitle item={item} isExpanded={isExpanded} onToggle={() => onToggle(item.id)} />
 
-        <div className="w-fit flex items-center justify-end gap-2">
-          <Tag item={item} />
-          <Money item={item} />
-          <TaskDate item={item} hiddenDate={hiddenDate} />
-          <Assigned item={item} />
-          {showActionsMenu && (
-            <TaskActionsMenu task={item} onTaskDelete={() => onTaskDelete?.(item.id)} />
-          )}
+          <div className="w-fit flex items-center justify-end gap-2">
+            <Tag item={item} />
+            <Money item={item} />
+            <TaskDate item={item} hiddenDate={hiddenDate} />
+            <Assigned item={item} />
+            {showActionsMenu && (
+              <TaskActionsMenu task={item} onTaskDelete={() => onTaskDelete?.(item.id)} />
+            )}
+          </div>
         </div>
-      </div>
+      </SortableTaskItem>
 
-      {hasChildren && expandedIds.has(item.id) && (
-        <div>
-          {item.subtasks?.map((child) => (
-            <Task
-              key={child.id}
-              item={child}
-              depth={depth + 1}
-              hiddenDate={hiddenDate}
-              expandedIds={expandedIds}
-              onToggle={onToggle}
-              showActionsMenu={showActionsMenu} // pass down the same value
-              onTaskDelete={onTaskDelete}
-            />
-          ))}
+      {hasChildren && isExpanded && activeId !== item.id && (
+        <div className="w-full">
+          <SortableContext
+            items={item.subtasks!.map((c) => c.id)}
+            strategy={verticalListSortingStrategy}>
+            {item.subtasks?.map((child) => (
+              <Task
+                key={child.id}
+                item={child}
+                depth={depth + 1}
+                hiddenDate={hiddenDate}
+                expandedIds={expandedIds}
+                onToggle={onToggle}
+                showActionsMenu={showActionsMenu}
+                onTaskDelete={onTaskDelete}
+                activeId={activeId}
+                forceCollapse={hasActiveChild}
+              />
+            ))}
+          </SortableContext>
         </div>
       )}
     </>
-  );
-};
-
-// Parent component that manages the expanded state
-export const TaskList = ({ tasks }: { tasks: TaskProps[] }) => {
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(loadExpandedState);
-
-  useEffect(() => {
-    saveExpandedState(expandedIds);
-  }, [expandedIds]);
-
-  const handleToggle = (taskId: string) => {
-    const newIds = new Set(expandedIds);
-    newIds.has(taskId) ? newIds.delete(taskId) : newIds.add(taskId);
-    setExpandedIds(new Set(newIds));
-  };
-
-  return (
-    <div>
-      {tasks.map((task) => (
-        <Task
-          key={task.id}
-          item={task}
-          depth={0}
-          hiddenDate={false}
-          expandedIds={expandedIds}
-          onToggle={handleToggle}
-        />
-      ))}
-    </div>
   );
 };

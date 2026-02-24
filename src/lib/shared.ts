@@ -55,6 +55,7 @@ export type Task = {
   description: string;
   status: Status;
   parentTaskId: string | null;
+  position: number;
   projectId: string;
   startDate: Date | null;
   endDate: Date | null;
