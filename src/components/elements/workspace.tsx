@@ -144,9 +144,10 @@ const Workspace = ({ task }: { task: TaskProps }) => {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [Title, task_id, auth]);
+  }, [Title, task_id, auth, originTitle]);
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Title triggers resize when content changes
   useEffect(() => {
     if (textAreaRef.current) {
       // We need to reset the height momentarily to get the correct scrollHeight for the textarea
@@ -157,7 +158,7 @@ const Workspace = ({ task }: { task: TaskProps }) => {
       // Trying to set this with state or a ref will product an incorrect value.
       textAreaRef.current.style.height = `${scrollHeight}px`;
     }
-  }, [textAreaRef, Title]);
+  }, [Title]);
   const [hasEditPermission, setHasEditPermission] = useState(false);
 
   useEffect(() => {

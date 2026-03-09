@@ -54,8 +54,8 @@ export const Task = ({
     <>
       <SortableTaskItem id={item.id}>
         <div
-        className="flex items-center w-full h-fit py-1.5 hover:bg-gray-50 justify-between"
-        style={{ paddingLeft: `${depth * 24}px` }}>
+          className="flex items-center w-full h-fit py-1.5 hover:bg-gray-50 justify-between"
+          style={{ paddingLeft: `${depth * 24}px` }}>
           <TaskTitle item={item} isExpanded={isExpanded} onToggle={() => onToggle(item.id)} />
 
           <div className="w-fit flex items-center justify-end gap-2">
@@ -73,7 +73,7 @@ export const Task = ({
       {hasChildren && isExpanded && activeId !== item.id && (
         <div className="w-full">
           <SortableContext
-            items={item.subtasks!.map((c) => c.id)}
+            items={item.subtasks?.map((c) => c.id) ?? []}
             strategy={verticalListSortingStrategy}>
             {item.subtasks?.map((child) => (
               <Task

@@ -30,6 +30,7 @@ function AutoWidthSelect({
   const spanRef = useRef<HTMLSpanElement>(null);
   const [width, setWidth] = useState(0);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: value triggers width recalculation when content changes
   useEffect(() => {
     if (spanRef.current) {
       setWidth(spanRef.current.offsetWidth);

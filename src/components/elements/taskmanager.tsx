@@ -146,7 +146,9 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
   const customSnapToCursor: Modifier = ({ activatorEvent, draggingNodeRect, transform }) => {
     if (activatorEvent && draggingNodeRect) {
       const event =
-        'touches' in activatorEvent ? activatorEvent.touches[0] : (activatorEvent as MouseEvent);
+        'touches' in activatorEvent
+          ? (activatorEvent as TouchEvent).touches[0]
+          : (activatorEvent as MouseEvent);
       const mouseX = event.clientX;
       const mouseY = event.clientY;
 
@@ -190,7 +192,7 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   );
-  
+
   const findTaskById = (list: TaskProps[], id: string): TaskProps | null => {
     for (const t of list) {
       if (t.id === id) return t;
@@ -201,7 +203,6 @@ export const TaskManager = ({ project_id }: TaskManageMentOverviewProp) => {
     }
     return null;
   };
-
 
   const handleDragStart = (event: DragStartEvent) => {
     const task = findTaskById(tasks, event.active.id as string);

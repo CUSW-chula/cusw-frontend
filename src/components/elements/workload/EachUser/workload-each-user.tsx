@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { UserWorkload } from '@/lib/shared';
 import React from 'react';
 import { WorkloadEachUserTable } from './each-user-table';
@@ -13,16 +13,16 @@ interface WorkloadEachUserProps {
 export function WorkloadEachUser({ userData }: WorkloadEachUserProps) {
   const [eachUserWorkload, setEachUserWorkload] = useState<UserWorkload[]>([]);
   const [originalEachUserWorkload, setOriginalUserWorkloadEachUser] = useState<UserWorkload[]>([]);
-  function sortProjectsByTaskCount(workloads: UserWorkload[]) {
+  const sortProjectsByTaskCount = useCallback((workloads: UserWorkload[]) => {
     return workloads.map((user) => ({
       ...user,
       projects: user.projects.sort((a, b) => b.tasks.length - a.tasks.length),
     }));
-  }
+  }, []);
   useEffect(() => {
     setEachUserWorkload(sortProjectsByTaskCount(userData) ?? []);
     setOriginalUserWorkloadEachUser(sortProjectsByTaskCount(userData) ?? []);
-  }, [userData]);
+  }, [userData, sortProjectsByTaskCount]);
 
   const getInitials = (name: string) => {
     const nameParts = name.split(' ');

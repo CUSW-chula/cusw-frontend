@@ -47,7 +47,7 @@ export const Filter = ({ tasks, setShowTasks }: FilterProps) => {
     }, new Map());
 
     setTagsList(Array.from(tagMap.values()));
-  }, [tasks, setTagsList, setShowTasks]);
+  }, [allTags, setTagsList]);
 
   useEffect(() => {
     handleTagSelection();
