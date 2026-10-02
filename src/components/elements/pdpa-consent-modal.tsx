@@ -244,7 +244,7 @@ export default function PDPAConsentModal({ isOpen, onAccept }: PDPAConsentModalP
               ท่านสามารถดูรายละเอียดของนโยบายคุ้มครองข้อมูลส่วนบุคคลสำหรับการใช้บริการของฝ่ายส่งเสริมสุขภาวะนิสิต
               ดูรายละเอียดได้ที่ [
               <a
-                href="https://doem.org.br/ba/modelo/arquivos/pdfviewer/0b517cdc5f9850e3782051c82e7f3234?name=lorem-ipsum.pdf"
+                href="/files/pdpa.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-greenLight hover:text-green transition-colors duration-200 underline">
